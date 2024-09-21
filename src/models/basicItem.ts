@@ -1,6 +1,5 @@
 import mongoose, { Schema, model, Document, Types } from 'mongoose';
 //import AutoIncrementFactory = require('mongoose-sequence');
-
 //const AutoIncrement = AutoIncrementFactory(mongoose);
 
 export interface IBasicItem extends Document { //we can add more stuff here
