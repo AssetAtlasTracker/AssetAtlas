@@ -1,4 +1,5 @@
 import BasicItem, { IBasicItem } from './models/basicItem';
+import mongoose from 'mongoose';
 
 export const createItem = async (name: string, description: string,
     tags: string[], containedItems?: IBasicItem[]) => {
@@ -12,11 +13,12 @@ export const createItem = async (name: string, description: string,
     return await newItem.save();
     }
 
-    export const getItemById = async (id: number) => {
-        return await BasicItem.findOne({id}).populate('containedItems').populate('containedItems').exec();
-        //the populate thing puts the actual sub items into the array of the item we are calling
+    export const getItemById = async (id: string) => {
+        return await BasicItem.findById(id)
+        .populate('containedItems') // Populate referenced items
+        .exec();
     }
 
-    export const deleteItemById = async (id: number) => {
-        return await BasicItem.findOneAndDelete({id}).exec();
+    export const deleteItemById = async (id: string) => {
+        return await BasicItem.findByIdAndDelete(id);
     }

@@ -14,7 +14,7 @@ export interface IBasicItem extends Document { //we can add more stuff here
   }
 
   const BasicItemSchema: Schema = new Schema({
-    id: { type: Number, unique: true },
+    //id: { type: Number, unique: true }, //we dont need this because mongodb default _id works
     name: { type: String, required: true },
     description: { type: String, required: false },
     // createdAt: { type: Date, required: true },

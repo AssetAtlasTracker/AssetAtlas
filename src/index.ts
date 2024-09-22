@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import { createItem, getItemById } from './mongooseQueries';
+//import { createItem, getItemById } from './mongooseQueries';
+import * as mongooseQueries from './mongooseQueries';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,7 +25,7 @@ app.get('/', (req, res) => {
 app.post('/item', async (req, res) =>{
   const {name, description, tags} = req.body;
   try {
-    const newItem = await createItem(name, description, tags);
+    const newItem = await mongooseQueries.createItem(name, description, tags);
     res.status(201).json(newItem); //201 is https standard dont worry about it blud
   } catch (err) {
     res.status(500).json({message: 'Error creating item', error: err });
@@ -32,16 +33,38 @@ app.post('/item', async (req, res) =>{
 });
 
 app.get('/item/:id', async (req, res) => {
-  const id = parseInt(req.params.id, 10);
+  const { id } = req.params;
+if(!mongoose.Types.ObjectId.isValid(id)) {
+  return res.status(400).json({message: "not a valid mongodb ID"});
+}
+
   try {
-    const item = await getItemById(id);
+    const item = await mongooseQueries.getItemById(id);
     if (item) {
       res.status(200).json(item);//standard number
     } else {
-      res.status(404).json({ message: 'Item not found' });
+      res.status(404).json({ message: 'Cannot get: Item not found' });
     }
   } catch (err) {
     res.status(500).json({ message: 'Error fetching item', error: err });
+  }
+});
+
+app.delete('/item/:id', async (req, res) => {
+  const { id } = req.params;
+if(!mongoose.Types.ObjectId.isValid(id)) {
+  return res.status(400).json({message: "not a valid mongodb ID"});
+}
+
+  try {
+    const item = await mongooseQueries.deleteItemById(id);
+    if (item) {
+      return res.status(200).json({ message: 'Item deleted successfully', item });
+    } else {
+      res.status(404).json({ message: 'Cannot delete: Item not found' });
+    }
+  } catch (err) {
+    res.status(500).json({ message: 'Error deleting item', error: err });
   }
 });
 
