@@ -1,0 +1,37 @@
+services:
+  assetatlas:
+    image: assetatlas
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+    environment:
+      NODE_ENV: production
+      MONGO_URI: mongodb://mongo:27017/assetatlas_db
+    network_mode: service:tailscale
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    volumes:
+      - mongo-data:/data/db
+    network_mode: service:tailscale
+
+  tailscale:
+    image: tailscale/tailscale:stable
+    container_name: tailscale
+    hostname: assetAtlas-ts
+    environment:
+      - TS_AUTHKEY=${TS_AUTH_KEY}
+      - TS_USERSPACE=true
+    volumes:
+      - /dev/net/tun
+      - tailscale-state:/var/lib/tailscale
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
+  tailscale-state:
