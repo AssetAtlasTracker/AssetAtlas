@@ -1,6 +1,7 @@
 version: '3.4'
 
 services:
+
   assetatlas:
     image: assetatlas
     build:
@@ -11,7 +12,8 @@ services:
       MONGO_URI: mongodb://mongo:27017/assetatlas_db
     ports:
       - 3000:3000
-
+    networks:
+      - tailscale_net
     depends_on:
       - mongo
 
@@ -21,6 +23,31 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    networks:
+      - tailscale_net
+
+  tailscale:
+    env_file:
+      - .env
+    image: tailscale/tailscale:stable
+    container_name: tailscale
+    privileged: true
+    command: ["tailscaled", "--tun=userspace-networking"]
+    entrypoint: ["/bin/sh", "-c", "echo $TEST_VAR && tailscaled --tun=userspace-networking & tailscale up --authkey=${TS_AUTH_KEY}"]
+    volumes:
+      - /dev/net/tun
+      - tailscale-state:/var/lib/tailscale
+    networks:
+      - tailscale_net
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    restart: unless-stopped
+
+networks:
+  tailscale_net:
+    driver: bridge
 
 volumes:
   mongo-data:
+  tailscale-state:
