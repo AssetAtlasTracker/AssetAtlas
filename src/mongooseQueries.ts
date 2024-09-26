@@ -1,4 +1,5 @@
-import BasicItem, { IBasicItem } from './models/basicItem';
+import BasicItem from './models/basicItem.js';
+import type {IBasicItem} from './models/basicItem.js';
 import mongoose from 'mongoose';
 
 export const createItem = async (name: string, description: string,

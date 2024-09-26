@@ -1,10 +1,26 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import { fileURLToPath } from 'url';
+import path, { dirname } from 'path';
 //import { createItem, getItemById } from './mongooseQueries';
-import * as mongooseQueries from './mongooseQueries';
+import * as mongooseQueries from './mongooseQueries.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+//frontend zone
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Serve static files from the DIST directory (NOT PUBLIC I HATE YOU PUBLIC AAAAAAAAA!!! lololol)
+app.use(express.static(path.join(__dirname, '../dist')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist', 'index.html'));
+});
+//frontend zone
+
+
 
 export default function connectDB() {
   const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/mydatabase';
