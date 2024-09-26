@@ -62,9 +62,34 @@ def show_url_popup(url): #this is all so our popup has copy paste, basically ign
     popup.focus_set()
     popup.transient(root)
 
-# Function to run docker-compose in a separate thread
+def shutdown_docker_thread():#Why do we do this stuff in threads? docker takes a while, we want the application to still do stuff while waiting
+    shutdown_button.config(state=tk.DISABLED)
+    thread = threading.Thread(target=shutdown_docker)
+    thread.start()
+
+def shutdown_docker():
+    try:
+        compose_file = os.path.join("docker", "docker-compose-tailscale.yml")
+        command = ["docker-compose", "-f", compose_file, "stop"]
+
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = process.communicate()
+
+        if process.returncode != 0:
+            shutdown_button.config(state=tk.NORMAL)
+            messagebox.showerror("Error", f"Failed to stop Docker Containers:\n{err.decode()}")
+            return
+
+        shutdown_button.config(state=tk.NORMAL)
+        label_status.config(text="Docker containers stopped")
+
+    except Exception as e:
+        shutdown_button.config(state=tk.NORMAL)
+        messagebox.showerror("Error", f"Unexpected error: {e}")
+    
+
+
 def run_docker_compose_thread(mode):
-    # Disable the run button to prevent multiple clicks
     run_button.config(state=tk.DISABLED)
     thread = threading.Thread(target=run_docker_compose, args=(mode,))
     thread.start()
@@ -111,9 +136,11 @@ def run_docker_compose(mode):
                 return
 
             url = f"http://{tailscale_ip}:3000"
+            
 
         show_url_popup(url)
         print(f"Service is running at {url}")
+        label_status.config(text="Docker containers started (" + url + ")")
         run_button.config(state=tk.NORMAL)
 
     except Exception as e:
@@ -142,5 +169,11 @@ tailscale_mode_radio.grid(row=3, column=1, sticky="w", padx=10, pady=10)
 # Button to run Docker Compose
 run_button = tk.Button(root, text="Run Docker Compose", command=lambda: run_docker_compose_thread(mode_var.get()))
 run_button.grid(row=4, columnspan=2, padx=10, pady=20)
+
+shutdown_button = tk.Button(root, text="Shut Down Docker Containers", command=lambda: shutdown_docker_thread())
+shutdown_button.grid(row=5, columnspan=2, padx=10, pady=10)
+
+label_status = tk.Label(root, text="")
+label_status.grid(row=6, columnspan=2, padx=10, pady=20)
 
 root.mainloop()
