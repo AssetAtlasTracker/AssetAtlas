@@ -1,10 +1,11 @@
 import svelte from 'rollup-plugin-svelte';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
-import typescript from '@rollup/plugin-typescript';
+import typescript from 'rollup-plugin-typescript2';
 import sveltePreprocess from 'svelte-preprocess';
 import terser from '@rollup/plugin-terser';
 import css from 'rollup-plugin-css-only';
+import json from '@rollup/plugin-json';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -23,6 +24,7 @@ export default {
         dev: !production
       }
     }),
+
     css({ output: 'bundle.css' }),
     resolve({
       browser: true,
@@ -30,10 +32,15 @@ export default {
     }),
     commonjs(),
     typescript({
+      verbosity: 3,
       sourceMap: true,
-      inlineSources: !production
+      inlineSources: !production,
+      clean: true
+      //useTsconfigDeclarationDir: true
     }),
+    json(),
     production && terser()
+
   ],
   watch: {
     clearScreen: false
