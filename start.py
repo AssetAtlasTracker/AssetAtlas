@@ -134,12 +134,17 @@ def run_docker_compose(mode):
                 run_button.config(state=tk.NORMAL)
                 messagebox.showerror("Error", "Failed to get Tailscale IP after multiple attempts.")
                 return
-
+            #needed for cors and allowing queries from the tailscale IP VVV
+            env = os.environ.copy()
+            env["TAILSCALE_IP"] = tailscale_ip
+            subprocess.run(["node", "app.js"], env=env)
+            #needed for cors and allowing queries from the tailscale IP ^^^
             url = f"http://{tailscale_ip}:3000"
             
 
         show_url_popup(url)
         print(f"Service is running at {url}")
+        os.enviorn["url"] = url
         label_status.config(text="Docker containers started (" + url + ")")
         run_button.config(state=tk.NORMAL)
 
@@ -148,7 +153,7 @@ def run_docker_compose(mode):
         messagebox.showerror("Error", f"Unexpected error: {e}")
 
 root = tk.Tk()
-root.title("Docker Compose Launcher")
+root.title("Asset Atlas Self Host Launcher")
 
 # GUI for Tailscale Auth Key input
 tk.Label(root, text="Tailscale Auth Key:").grid(row=0, column=0, padx=10, pady=10)

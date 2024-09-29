@@ -2,25 +2,20 @@ import express from 'express';
 import mongoose from 'mongoose';
 import { fileURLToPath } from 'url';
 import path, { dirname } from 'path';
-//import { createItem, getItemById } from './mongooseQueries';
 import * as mongooseQueries from './mongooseQueries.js';
+import BasicItem from './models/basicItem.js';
+
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = parseInt(process.env.PORT || '3000', 10); //the 10 specifies we are base 10.
+//yup.
 
-//frontend zone V
+
+//tailscale STUFF VVV
+//tailscale STUFF ^^^
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-// Serve static files from the DIST directory (NOT PUBLIC I HATE YOU PUBLIC AAAAAAAAA!!! lololol)
-app.use(express.static(path.join(__dirname, '../dist')));
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dist', 'index.html'));
-});
-//frontend zone ^
-
-
 
 export default function connectDB() {
   const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/mydatabase';
@@ -33,6 +28,26 @@ export default function connectDB() {
 connectDB();
 
 app.use(express.json()); // Middleware to handle JSON
+
+app.use(express.static(path.join(__dirname, '../dist')));
+
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, '../dist', 'index.html'));
+// });
+
+app.get('/items/search', async (req, res) => {
+  const { name } = req.query;
+  const query = name ? { name: { $regex: name, $options: 'i' } } : {};
+
+  try {
+    const items = await BasicItem.find(query).exec();
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).json(items);
+  } catch (error) {
+    console.error('Error during search:', error);
+    res.status(500).json({ error: 'Failed to search items' });
+  }
+});
 
 app.get('/', (req, res) => {
   res.send('API is running...');
@@ -84,6 +99,12 @@ if(!mongoose.Types.ObjectId.isValid(id)) {
   }
 });
 
-app.listen(PORT, () => {
+// app.use(express.static(path.join(__dirname, '../dist')));
+
+ app.get('*', (req, res) => {
+   res.sendFile(path.join(__dirname, '../dist', 'index.html'));
+ });
+
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });

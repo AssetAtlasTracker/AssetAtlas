@@ -6,6 +6,8 @@ import sveltePreprocess from 'svelte-preprocess';
 import terser from '@rollup/plugin-terser';
 import css from 'rollup-plugin-css-only';
 import json from '@rollup/plugin-json';
+import replace from '@rollup/plugin-replace';
+import dotenv from 'dotenv';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -24,6 +26,11 @@ export default {
         dev: !production
       }
     }),
+
+    replace({
+        preventAssignment: true,
+        'process.env.TAILSCALE_IP': JSON.stringify(process.env.TAILSCALE_IP || 'localhost'),  // Use localhost as fallback
+      }),
 
     css({ output: 'bundle.css' }),
     resolve({
