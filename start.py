@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import messagebox
 import threading
 import time
+from envWriter import set_env_variable
 
 # Function to write Tailscale auth key to .env file inside the docker folder
 def save_auth_key():
@@ -12,27 +13,8 @@ def save_auth_key():
         messagebox.showwarning("Input Error", "Please type something")
         return
 
-    # Path to the .env file inside the docker folder
-    env_file_path = os.path.join("docker", ".env")
-
     try:
-        # Read existing lines if the .env file exists
-        if os.path.exists(env_file_path):
-            with open(env_file_path, "r") as env_file:
-                lines = env_file.readlines()
-        else:
-            lines = []
-        # Update or add the TS_AUTH_KEY line
-        with open(env_file_path, "w") as env_file:
-            updated = False
-            for line in lines:
-                if line.startswith("TS_AUTH_KEY="):
-                    env_file.write(f"TS_AUTH_KEY={auth_key}\n")
-                    updated = True
-                else:
-                    env_file.write(line)
-            if not updated:
-                env_file.write(f"TS_AUTH_KEY={auth_key}\n")
+        set_env_variable("TS_AUTH_KEY", auth_key)
 
         messagebox.showinfo("Success", "Tailscale Auth Key saved to docker/.env")
     except Exception as e:
