@@ -83,6 +83,7 @@ def run_docker_compose(mode):
             compose_file = os.path.join("docker", "docker-compose.yml")
             command = ["docker-compose", "-f", compose_file, "up", "--build", "-d"]
             url = "http://localhost:3000"
+            set_env_variable("IP", "localhost:3000")
         elif mode == "tailscale":
             compose_file = os.path.join("docker", "docker-compose-tailscale.yml")
             command = ["docker-compose", "-f", compose_file, "up", "--build", "-d"]
@@ -108,6 +109,7 @@ def run_docker_compose(mode):
                     ).decode().strip()
                     if tailscale_ip:
                         print(f"Found Tailscale IP: {tailscale_ip}")
+                        set_env_variable("IP", tailscale_ip + ":3000")
                         break
                 except subprocess.CalledProcessError as e:
                     print(f"Attempt {attempt + 1} failed: {e}")

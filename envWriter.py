@@ -1,5 +1,4 @@
 import os
-from dotenv import load_dotenv
 
 def set_env_variable(key, value, env_file=os.path.join("docker", ".env")):
     # Load the current .env file contents

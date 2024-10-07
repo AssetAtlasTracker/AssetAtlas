@@ -1,6 +1,8 @@
 services:
   assetatlas:
     image: assetatlas
+    volumes:
+      - ./.env:/usr/src/app/docker/.env
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
@@ -16,8 +18,6 @@ services:
 
   mongo:
     image: mongo:latest
-    ports:
-      - "27017:27017"
     volumes:
       - mongo-data:/data/db
     networks:

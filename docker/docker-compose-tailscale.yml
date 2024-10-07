@@ -1,21 +1,32 @@
 services:
   assetatlas:
     image: assetatlas
+    volumes:
+    - ./.env:/usr/src/app/docker/.env
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
     environment:
       NODE_ENV: production
       MONGO_URI: mongodb://mongo:27017/assetatlas_db
-    network_mode: service:tailscale
+    #network_mode: service:tailscale
+    networks:
+      - default
     depends_on:
       - mongo
 
+    ports:
+      - "3000:3000"
+
   mongo:
     image: mongo:latest
+    ports:
+      - "27017:27017"
     volumes:
       - mongo-data:/data/db
-    network_mode: service:tailscale
+    networks:
+      - default
+    #network_mode: service:tailscale
 
   tailscale:
     image: tailscale/tailscale:stable
@@ -31,6 +42,8 @@ services:
       - NET_ADMIN
       - SYS_MODULE
     restart: unless-stopped
+
+    network_mode: host
 
 volumes:
   mongo-data:

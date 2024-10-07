@@ -23,6 +23,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
 COPY . .
+COPY package*.json ./
 RUN npm run build
 FROM node:lts-alpine
 ENV NODE_ENV=production

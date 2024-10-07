@@ -3,11 +3,27 @@
 <script lang="ts">
   console.log('App maybe working');
   let message = "Hello World!";
-
+  let ip = process.env.IP//default to 3000
+  fetchIp();
   let name = '';
   let description = '';
   let tags = '';
   let containedItems = '';
+
+
+  async function fetchIp() {
+    try {
+      const response = await fetch('/api/ip');
+      //const textData = await response.text();//for debug
+      //console.log('Raw response:', textData);//for debug
+      //const data = JSON.parse("reponse" + textData);
+      const data = await response.json();
+      ip = data.ip;
+      console.log('IP fetched from server:', ip);
+    } catch (err) {
+      console.error('Error fetching IP:', err);
+    }
+  }
 
   //create item
   async function handleCreateItem(){
@@ -15,7 +31,8 @@
     const containedItemsArray = containedItems.split(',').map(item=>item.trim());
 
     try{
-      const response = await fetch('http://localhost:3000/item',{
+      console.log(ip)
+      const response = await fetch(`http://${ip}/item`,{
         method: 'POST',
         headers:{
           'Content-Type': 'application/json'
