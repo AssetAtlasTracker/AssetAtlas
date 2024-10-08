@@ -23,3 +23,9 @@ export const createItem = async (name: string, description: string,
     export const deleteItemById = async (id: string) => {
         return await BasicItem.findByIdAndDelete(id);
     }
+
+    export const searchItemsByName = async (searchTerm: string) => {
+        return await BasicItem.find({
+          name: { $regex: searchTerm, $options: 'i' }//case-insensitive
+        }).populate('containedItems').exec();
+      };
