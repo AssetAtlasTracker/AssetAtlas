@@ -10,7 +10,7 @@ docker-compose.override.yml.*
 .dockerignore
 
 # Environment variables
-.env
+*.env
 
 # OS specific files
 .DS_Store
