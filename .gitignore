@@ -12,7 +12,7 @@ docker-compose.override.yml.*
 # Environment variables
 .env
 
-# OS specific files
+# OS specific filesgi
 .DS_Store
 Thumbs.db
 
