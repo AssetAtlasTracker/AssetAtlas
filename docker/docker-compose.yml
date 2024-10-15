@@ -1,3 +1,6 @@
+version: '3'
+name: assetatlas-project
+
 services:
   assetatlas:
     image: assetatlas
@@ -26,6 +29,7 @@ services:
 networks:
   default:
     driver: bridge
+    name: assetatlas-bridge
 
 volumes:
   mongo-data:
