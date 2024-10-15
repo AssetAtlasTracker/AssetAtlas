@@ -8,6 +8,7 @@ import css from 'rollup-plugin-css-only';
 import json from '@rollup/plugin-json';
 import replace from '@rollup/plugin-replace';
 import path from 'path';
+import copy from 'rollup-plugin-copy';
 import { fileURLToPath } from 'url';
 
 //env stuff
@@ -52,8 +53,13 @@ export default {
       //useTsconfigDeclarationDir: true
     }),
     json(),
-    production && terser()
-
+    production && terser(),
+    copy({
+      targets: [
+        { src: 'src/index.html', dest: 'dist' }
+      ],
+      copyOnce: true
+    })
   ],
   watch: {
     clearScreen: false

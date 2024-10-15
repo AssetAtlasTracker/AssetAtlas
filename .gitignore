@@ -30,3 +30,6 @@ coverage/
 # Temporary files
 tmp/
 temp/
+
+# dist
+dist/

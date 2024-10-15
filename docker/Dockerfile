@@ -23,13 +23,12 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
 COPY . .
-COPY package*.json ./
-RUN npm run build
+#COPY package*.json ./
+RUN npm run build --verbose
 FROM node:lts-alpine
 ENV NODE_ENV=production
 WORKDIR /usr/src/app
-COPY package.json ./
-COPY package-lock.json ./
+COPY package*.json ./
 RUN npm install --production --silent
 COPY --from=builder /usr/src/app/dist ./dist
 # COPY --from=builder /usr/src/app/public ./public
