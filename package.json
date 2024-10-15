@@ -26,6 +26,7 @@
     "@types/mongoose": "^5.11.97",
     "@types/node": "^22.7.2",
     "rollup": "^4.22.4",
+    "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-css-only": "^4.5.2",
     "rollup-plugin-svelte": "^7.2.2",
     "rollup-plugin-typescript2": "^0.36.0",
