@@ -13,7 +13,8 @@
     "jsx": "preserve",
     "verbatimModuleSyntax": true,
     "sourceMap": true,
-    "lib": ["dom", "es2017"]
+    "lib": ["dom", "es2017"],
+    "allowSyntheticDefaultImports": true
   },
   "include": [
     "src/**/*",  // Include all frontend and backend TypeScript files

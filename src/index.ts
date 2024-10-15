@@ -5,8 +5,10 @@ import path, { dirname } from 'path';
 import cors from 'cors';
 import fs from 'fs';//for modern .env access
 //import { createItem, getItemById } from './mongooseQueries';
-import * as mongooseQueries from './mongooseQueries.js';
-import BasicItem from './models/basicItem.js';
+//import * as mongooseQueries from './mongooseQueries.js';
+//import BasicItem from './models/basicItem.js';
+import itemRoutes from './routes/itemRoutes.js';
+import templateRoutes from './routes/templateRoutes.js';
 
 const app = express();
 //const PORT = process.env.PORT || 3000;
@@ -93,71 +95,75 @@ app.get('/api/ip', (req, res) => {
 
 //app.use(express.json()); // Middleware to handle JSON
 
-app.post('/item', async (req, res) =>{
-  const {name, description, tags} = req.body;
-  try {
-    console.log('Received request:', req.body);
-    const newItem = await mongooseQueries.createItem(name, description, tags);
-    res.status(201).json(newItem); //201 is https standard dont worry about it blud
-  } catch (err) {
-    console.error('Error details:', err);
-    res.status(500).json({message: 'Error creating item', error: err });
-  } 
-});
+// app.post('/item', async (req, res) =>{
+//   const {name, description, tags} = req.body;
+//   try {
+//     console.log('Received request:', req.body);
+//     const newItem = await mongooseQueries.createItem(name, description, tags);
+//     res.status(201).json(newItem); //201 is https standard dont worry about it blud
+//   } catch (err) {
+//     console.error('Error details:', err);
+//     res.status(500).json({message: 'Error creating item', error: err });
+//   } 
+// });
 
-app.get('/item/:id', async (req, res) => {
-  const { id } = req.params;
-if(!mongoose.Types.ObjectId.isValid(id)) {
-  return res.status(400).json({message: "not a valid mongodb ID"});
-}
+// app.get('/item/:id', async (req, res) => {
+//   const { id } = req.params;
+// if(!mongoose.Types.ObjectId.isValid(id)) {
+//   return res.status(400).json({message: "not a valid mongodb ID"});
+// }
 
-  try {
-    const item = await mongooseQueries.getItemById(id);
-    if (item) {
-      res.status(200).json(item);//standard number
-    } else {
-      res.status(404).json({ message: 'Cannot get: Item not found' });
-    }
-  } catch (err) {
-    res.status(500).json({ message: 'Error fetching item', error: err });
-  }
-});
+//   try {
+//     const item = await mongooseQueries.getItemById(id);
+//     if (item) {
+//       res.status(200).json(item);//standard number
+//     } else {
+//       res.status(404).json({ message: 'Cannot get: Item not found' });
+//     }
+//   } catch (err) {
+//     res.status(500).json({ message: 'Error fetching item', error: err });
+//   }
+// });
 
-app.delete('/item/:id', async (req, res) => {
-  const { id } = req.params;
-if(!mongoose.Types.ObjectId.isValid(id)) {
-  return res.status(400).json({message: "not a valid mongodb ID"});
-}
+// app.delete('/item/:id', async (req, res) => {
+//   const { id } = req.params;
+// if(!mongoose.Types.ObjectId.isValid(id)) {
+//   return res.status(400).json({message: "not a valid mongodb ID"});
+// }
 
-  try {
-    const item = await mongooseQueries.deleteItemById(id);
-    if (item) {
-      return res.status(200).json({ message: 'Item deleted successfully', item });
-    } else {
-      res.status(404).json({ message: 'Cannot delete: Item not found' });
-    }
-  } catch (err) {
-    res.status(500).json({ message: 'Error deleting item', error: err });
-  }
-});
+//   try {
+//     const item = await mongooseQueries.deleteItemById(id);
+//     if (item) {
+//       return res.status(200).json({ message: 'Item deleted successfully', item });
+//     } else {
+//       res.status(404).json({ message: 'Cannot delete: Item not found' });
+//     }
+//   } catch (err) {
+//     res.status(500).json({ message: 'Error deleting item', error: err });
+//   }
+// });
 
-app.get('/items/search', async (req, res) => {
-  const { name } = req.query;
-  const query = name ? { name: { $regex: name, $options: 'i' } } : {};
+// app.get('/items/search', async (req, res) => {
+//   const { name } = req.query;
+//   const query = name ? { name: { $regex: name, $options: 'i' } } : {};
 
-  try {
-    const items = await BasicItem.find(query).exec();
-    res.setHeader('Content-Type', 'application/json');
-    res.status(200).json(items);
-  } catch (error) {
-    console.error('Error during search:', error);
-    res.status(500).json({ error: 'Failed to search items' });
-  }
-});
+//   try {
+//     const items = await BasicItem.find(query).exec();
+//     res.setHeader('Content-Type', 'application/json');
+//     res.status(200).json(items);
+//   } catch (error) {
+//     console.error('Error during search:', error);
+//     res.status(500).json({ error: 'Failed to search items' });
+//   }
+// });
 
 // app.listen(PORT, () => {
 //   console.log(`Server running on port ${PORT}`);
 // });
+
+app.use('/api/items', itemRoutes);
+app.use('/api/templates', templateRoutes);
+
 app.use(express.static(path.join(__dirname, '../dist')));
 
 app.get('*', (req, res) => {

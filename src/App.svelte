@@ -32,7 +32,15 @@
   async function handleSearch(query: string) {
   searchQuery = query;
   try {
-    const response = await fetch(`http://${ip}/items/search?name=${encodeURIComponent(searchQuery)}`);
+    const response = await fetch(`http://${ip}/api/items/search?name=${encodeURIComponent(searchQuery)}`
+    , {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  
+  );
 
     const contentType = response.headers.get('Content-Type');
     console.log('Content-Type:', contentType);
@@ -62,7 +70,7 @@
 
     try{
       console.log(ip)
-      const response = await fetch(`http://${ip}/item`,{
+      const response = await fetch(`http://${ip}/api/items`,{
         method: 'POST',
         headers:{
           'Content-Type': 'application/json'

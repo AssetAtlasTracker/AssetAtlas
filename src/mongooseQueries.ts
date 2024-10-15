@@ -29,3 +29,10 @@ export const createItem = async (name: string, description: string,
           name: { $regex: searchTerm, $options: 'i' }//case-insensitive
         }).populate('containedItems').exec();
       };
+
+    export default {
+        createItem,
+        getItemById,
+        deleteItemById,
+        searchItemsByName,
+    }
