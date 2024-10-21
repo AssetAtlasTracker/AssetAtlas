@@ -8,7 +8,16 @@
   import ItemList from './svelteComponents/ItemList.svelte';
 
   console.log('App maybe working');
+<<<<<<< Updated upstream
 
+=======
+  import SearchBar from "./svelteComponents/SearchBar.svelte";
+  import ItemList from "./svelteComponents/ItemList.svelte";
+  import ItemForm from './svelteComponents/ItemForm.svelte';
+  let message = "Asset Atlas";
+  let ip = process.env.IP//default to 3000
+  fetchIp();
+>>>>>>> Stashed changes
   let name = '';
   let description = '';
   let tags = '';
@@ -82,7 +91,9 @@
 <main>
   <h1>Create New Item</h1>
 
-  <form on:submit|preventDefault={handleCreateItem}>
+  <ItemForm />
+
+  <!-- <form on:submit|preventDefault={handleCreateItem}>
     <label>
       Name:
       <input type="text" bind:value={name} required />
@@ -104,7 +115,7 @@
     </label>
 
     <button type="submit">Create Item</button>
-  </form>
+  </form> -->
 
   <h1>Item Search</h1>
   
