@@ -3,7 +3,7 @@ import {createTemplate, getTemplates} from '../controllers/templateController.js
 
 const router = express.Router();
 
-router.post('/', createTemplate);
-router.get('/', getTemplates);
+router.post('/createTemplate', createTemplate);
+router.get('/getTemplates', getTemplates);
 
 export default router;

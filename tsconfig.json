@@ -16,6 +16,10 @@
     "lib": ["dom", "es2017"],
     "allowSyntheticDefaultImports": true
   },
+  "type": "module",
+  "scripts": {
+    "test": "jest"
+  },
   "include": [
     "src/**/*",  // Include all frontend and backend TypeScript files
     "svelte.d.ts" // Add your custom Svelte typings

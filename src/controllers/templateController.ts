@@ -1,11 +1,30 @@
 import type { Request, Response } from 'express';
 
-// Placeholder for creating a template
-export const createTemplate = (req: Request, res: Response) => {
-  res.status(200).send('Create template endpoint - not implemented yet');
-};
+import Template from '../models/template.js';
 
-// Placeholder for getting templates
-export const getTemplates = (req: Request, res: Response) => {
-  res.status(200).send('Get templates endpoint - not implemented yet');
-};
+export const createTemplate = async (req: Request, res: Response) => {
+    const { name, fields } = req.body;
+
+    if (!name || !fields) {
+      return res.status(400).json({ message: 'must have a name and feild' });
+    }
+
+    try {
+      const newTemplate = new Template({ name, fields });
+      await newTemplate.save();
+      res.status(201).json(newTemplate);
+    } catch (error) {
+      console.error('Error creating template:', error);
+      res.status(500).json({ message: 'Failed to create template', error });
+    }
+  };
+
+export const getTemplates = async (req: Request, res: Response) => {
+    try {
+      const templates = await Template.find().exec();
+      res.status(200).json(templates);
+    } catch (error) {
+      console.error('Error fetching templates:', error);
+      res.status(500).json({ message: 'Failed to fetch templates', error });
+    }
+  };
