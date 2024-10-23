@@ -1,6 +1,6 @@
 import BasicItem from './models/basicItem.js';
 import type {IBasicItem} from './models/basicItem.js';
-import mongoose from 'mongoose';
+//import mongoose from 'mongoose';
 
 export const createItem = async (name: string, description: string,
     tags: string[], containedItems?: IBasicItem[]) => {

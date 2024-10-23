@@ -1,4 +1,4 @@
-import mongoose, { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types } from 'mongoose';
 //import Template from './template';
 
 export interface IBasicItem extends Document { //we can add more stuff here
