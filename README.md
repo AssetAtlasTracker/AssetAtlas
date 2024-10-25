@@ -35,3 +35,14 @@
   - What IDE?
 - What python version?
   - Use a python env framework tool to manage python dependencies that the host needs
+ 
+## Dev stuff
+
+   ## To run linter
+   1. npm install eslint --save-dev
+   2. npm run lint
+
+   ## To run tests
+   1. npm install vitest --save-dev
+   2. npm run test
+
