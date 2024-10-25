@@ -4,10 +4,10 @@ import mongooseQueries from '../mongooseQueries.js';
 import BasicItem from '../models/basicItem.js';
 
 export const createItem = async (req: Request, res: Response) => {
-  const { name, description, tags } = req.body;
   try {
     console.log('Received request:', req.body);
-    const newItem = await mongooseQueries.createItem(name, description, tags);
+    const newItem = new BasicItem(req.body);
+    await newItem.save();
     res.status(201).json(newItem);
   } catch (err) {
     console.error('Error details:', err);
