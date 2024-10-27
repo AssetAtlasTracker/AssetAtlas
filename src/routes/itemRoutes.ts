@@ -7,7 +7,7 @@ router.get('/search', searchItems);
 router.post('/', createItem);
 router.get('/:id', getItemById);
 router.delete('/:id', deleteItemById);
-router.get('/allContained/:parentId', getAllContainedById);
+router.get('/allContained/:parentID', getAllContainedById);
 router.post('/move', moveItem)
 
 export default router;

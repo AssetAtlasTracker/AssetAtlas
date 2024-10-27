@@ -80,7 +80,7 @@ describe('Item API', () => {
 
     const response = await request(app).get('/api/items/search?name=Test');
     expect(response.status).toBe(200);
-    console.log('Search results:', response.body);
+    //console.log('Search results:', response.body);
     expect(response.body.length).toBeGreaterThanOrEqual(1);
     expect(response.body[0].name).toContain('Test');
   });

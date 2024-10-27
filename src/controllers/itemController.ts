@@ -5,7 +5,19 @@ import BasicItem from '../models/basicItem.js';
 
 export const createItem = async (req: Request, res: Response) => {
   try {
-    console.log('Received request:', req.body);
+    //console.log('Received request:', req.body);
+
+    //if empty, remove
+    if (Array.isArray(req.body.containedItems)) {
+      req.body.containedItems = req.body.containedItems
+        .filter((item: string) => item && item.trim()) //Remove empty strings
+        .filter((item: string) => mongoose.Types.ObjectId.isValid(item)); //Keep only valid ObjectIds
+      
+      if (req.body.containedItems.length === 0) {
+        delete req.body.containedItems;
+      }
+    }
+
     const newItem = new BasicItem(req.body);
     await newItem.save();
     res.status(201).json(newItem);
@@ -67,13 +79,13 @@ export const searchItems = async (req: Request, res: Response) => {
 
 export const getAllContainedById = async (req: Request, res: Response) => {
   try {
-    const { parentId } = req.params;
+    const { parentID } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(parentId)) {
+    if (!mongoose.Types.ObjectId.isValid(parentID)) {
       return res.status(400).json({ message: 'Not a valid MongoDB ID' });
     }
 
-    const parentItem = await BasicItem.findById(parentId).populate('containedItems').exec();
+    const parentItem = await BasicItem.findById(parentID).populate('containedItems').exec();
 
     if (!parentItem) {
       return res.status(404).json({ message: 'Parent item not found' });
