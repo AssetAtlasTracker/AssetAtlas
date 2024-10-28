@@ -60,7 +60,27 @@ describe('Template API', () => {
     expect(response.body.length).toBeGreaterThanOrEqual(1);
     expect(response.body[0].name).toBe('Test Template');
 
-    console.log('Fetched templates:', JSON.stringify(response.body, null, 2));
+    //console.log('Fetched templates:', JSON.stringify(response.body, null, 2));
+  });
+
+  it('should fetch the fields of a specific template by name', async () => {
+    const template = await Template.create({
+      name: 'Fields Test Template',
+      fields: [
+        { key: 'field1', valueType: 'string' },
+        { key: 'field2', valueType: 'number' },
+      ],
+    });
+  
+    const response = await request(app).get(`/api/templates/getFields/${template.name}`);
+    expect(response.status).toBe(200);
+    expect(response.body.fields).toHaveLength(2);
+    expect(response.body.fields[0].key).toBe('field1');
+    expect(response.body.fields[0].valueType).toBe('string');
+    expect(response.body.fields[1].key).toBe('field2');
+    expect(response.body.fields[1].valueType).toBe('number');
+  
+    console.log('Fetched fields:', JSON.stringify(response.body.fields, null, 2));
   });
 });
 

@@ -28,3 +28,22 @@ export const getTemplates = async (req: Request, res: Response) => {
       res.status(500).json({ message: 'Failed to fetch templates', error });
     }
   };
+
+  export const getFields = async (req: Request, res: Response) => {
+    try {
+      const { templateName } = req.params;
+  
+      // Find the template by its name
+      const template = await Template.findOne({ name: templateName }).exec();
+  
+      if (!template) {
+        return res.status(404).json({ message: 'Template not found' });
+      }
+  
+      // Return the custom fields of the found template
+      res.status(200).json({ fields: template.fields });
+    } catch (err) {
+      console.error('Error retrieving template fields:', err);
+      res.status(500).json({ message: 'Error retrieving template fields', error: err });
+    }
+  };

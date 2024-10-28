@@ -25,7 +25,7 @@ export interface IBasicItem extends Document { //we can add more stuff here
     // createdAt: { type: Date, required: true },
     // updatedAt: { type: Date, required: true }, 
     tags: { type: [String] },
-    containedItems: [{ type: Schema.Types.ObjectId, ref: 'BasicItem' }],
+    containedItems: [{ type: Schema.Types.ObjectId, ref: 'BasicItem'}],
     parentItem: { type: Schema.Types.ObjectId, ref: 'BasicItem', required: false},
     templateName: {type: String, required: false},
     customFields:{

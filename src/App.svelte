@@ -79,7 +79,7 @@
           name,
           description,
           tags: tagsArray,
-          containedItems: containedItemsArray.length > 0 ? containedItemsArray: undefined
+          containedItems: containedItemsArray
         })
       });
       // if (!response.ok){
