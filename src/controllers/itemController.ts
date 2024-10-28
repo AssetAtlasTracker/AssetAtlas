@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import mongooseQueries from '../mongooseQueries.js';
 import BasicItem from '../models/basicItem.js';
+import Fuse from 'fuse.js';
 
 export const createItem = async (req: Request, res: Response) => {
   try {
@@ -64,13 +65,24 @@ export const deleteItemById = async (req: Request, res: Response) => {
 };
 
 export const searchItems = async (req: Request, res: Response) => {
-  //const { name } = req.query;
   const name = req.query.name as string;
-  const query = name ? { name: { $regex: name, $options: 'i' } } : {};
 
   try {
-    const items = await BasicItem.find(query).exec();
-    res.status(200).json(items);
+    const items = await BasicItem.find({}).exec();
+
+    if (name) {
+      const fuse = new Fuse(items, {
+        keys: ['name'], //Fields to search
+        threshold: 0.3, //how fuzzy we be
+      });
+
+      const fuzzyResults = fuse.search(name);
+      const resultItems = fuzzyResults.map(result => result.item);
+
+      res.status(200).json(resultItems);
+    } else {
+      res.status(200).json(items);
+    }
   } catch (error) {
     console.error('Error during search:', error);
     res.status(500).json({ error: 'Failed to search items' });
