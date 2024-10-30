@@ -22,5 +22,6 @@
 **/values.dev.yaml
 **/.tests
 **/.jest.config.ts
+**/.github
 LICENSE
 README.md
