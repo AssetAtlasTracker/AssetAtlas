@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
 //import AutoIncrementFactory = require('mongoose-sequence');
 //const AutoIncrement = AutoIncrementFactory(mongoose);
 

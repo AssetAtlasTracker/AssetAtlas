@@ -1,4 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import type { ICustomField } from './customField';
 //import Template from './template';
 
 export interface IBasicItem extends Document { //we can add more stuff here
@@ -11,7 +12,10 @@ export interface IBasicItem extends Document { //we can add more stuff here
   containedItems?: Types.ObjectId[];//for nested items
   parentItem?: Types.ObjectId;
   templateName?: string;
-  customFields?: {[key: string]: any};
+  customFields?: {
+    field: Types.ObjectId | ICustomField;
+    value: unknown;
+  }[];
   itemHistory: {
     location: Types.ObjectId | null;
     timestamp: Date;
@@ -28,11 +32,12 @@ export interface IBasicItem extends Document { //we can add more stuff here
     containedItems: [{ type: Schema.Types.ObjectId, ref: 'BasicItem'}],
     parentItem: { type: Schema.Types.ObjectId, ref: 'BasicItem', required: false},
     templateName: {type: String, required: false},
-    customFields:{
-      type: Map,
-      of: Schema.Types.Mixed,
-      required: false,
-    },
+    customFields: [
+      {
+        field: {type: Schema.Types.ObjectId, ref: "CustomField", required: true },
+        value: Schema.Types.Mixed,
+      },
+    ],
     itemHistory: [
       {
         location: {type: Schema.Types.ObjectId, ref: 'BasicItem', required: false},

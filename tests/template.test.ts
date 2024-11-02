@@ -80,7 +80,7 @@ describe('Template API', () => {
     expect(response.body.fields[1].key).toBe('field2');
     expect(response.body.fields[1].valueType).toBe('number');
   
-    console.log('Fetched fields:', JSON.stringify(response.body.fields, null, 2));
+    //console.log('Fetched fields:', JSON.stringify(response.body.fields, null, 2));
   });
 });
 

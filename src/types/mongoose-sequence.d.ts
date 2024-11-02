@@ -3,6 +3,6 @@
 //on our item IDs
 declare module 'mongoose-sequence' {
     //import mongoose from 'mongoose';
-    function AutoIncrement(mongoose: typeof mongoose): any;
+    function AutoIncrement(mongoose: typeof mongoose): unknown;
     export = AutoIncrement;
   }

@@ -4,6 +4,9 @@ import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import itemRouter from '../src/routes/itemRoutes.js';
 import BasicItem from '../src/models/basicItem.js';
+import customFieldRouter from '../src/routes/customFieldRoutes.js';
+import CustomField from '../src/models/customField.js';
+import type { ICustomField } from '../src/models/customField.js';
 
 let app: express.Application;
 let mongoServer: MongoMemoryServer;
@@ -17,6 +20,7 @@ beforeAll(async () => {
   app = express();
   app.use(express.json());
   app.use('/api/items', itemRouter);
+  app.use('/api/customFields', customFieldRouter);
 });
 
 afterAll(async () => {
@@ -28,6 +32,7 @@ afterAll(async () => {
 // Clear the database before each test to ensure isolation
 beforeEach(async () => {
   await BasicItem.deleteMany({});
+  await CustomField.deleteMany({});
 });
 
 describe('Item API', () => {
@@ -137,7 +142,8 @@ describe('Item API', () => {
     const newParentAfterMove = await BasicItem.findById(newParentItem._id).exec();
     expect(newParentAfterMove?.containedItems?.map(String)).toContain(childItem._id);
 
-    const response = await request(app).get(`/api/items/${childItem._id}`);
+    //const response = 
+    await request(app).get(`/api/items/${childItem._id}`);
   });
 
 it('should get all contained items by parent ID', async () => {
@@ -163,8 +169,10 @@ it('should get all contained items by parent ID', async () => {
       tags: ['child'],
       parentItem: parentItem._id
     };
-    const childResponse1 = await request(app).post('/api/items').send(childItemData1);
-    const childResponse2 = await request(app).post('/api/items').send(childItemData2);
+    //const childResponse1 = 
+    await request(app).post('/api/items').send(childItemData1);
+    //const childResponse2 = 
+    await request(app).post('/api/items').send(childItemData2);
   
     // Get all contained items for the parent
     const response = await request(app).get(`/api/items/allContained/${parentItem._id}`);
@@ -178,6 +186,49 @@ it('should get all contained items by parent ID', async () => {
     );
   });
 
+});
+
+describe('Item and Custom Field API', () => {
+  it('should create custom fields, add them to an item, and verify', async () => {
+    // Create custom fields
+    const customFieldData1 = { fieldName: 'Warranty', dataType: 'string' };
+    const customFieldResponse1 = await request(app).post('/api/customFields').send(customFieldData1);
+    expect(customFieldResponse1.status).toBe(201);
+    const customField1 = customFieldResponse1.body;
+
+    const customFieldData2 = { fieldName: 'Price', dataType: 'number' };
+    const customFieldResponse2 = await request(app).post('/api/customFields').send(customFieldData2);
+    expect(customFieldResponse2.status).toBe(201);
+    const customField2 = customFieldResponse2.body;
+
+    // Create an item and add custom fields
+    const itemData = {
+      name: 'Test Item with Custom Fields',
+      description: 'An item with custom fields',
+      tags: ['tag1'],
+      customFields: [
+        { field: customField1._id, value: '2 years' },
+        { field: customField2._id, value: 100.0 }
+      ]
+    };
+    const itemResponse = await request(app).post('/api/items').send(itemData);
+    expect(itemResponse.status).toBe(201);
+    const createdItem = itemResponse.body;
+
+    // Verify that the custom fields were saved in the item
+    const fetchedItem = await BasicItem.findById(createdItem._id)
+      .populate<{ customFields: { field: ICustomField; value: unknown }[] }>('customFields.field')
+      .exec();
+    expect(fetchedItem).not.toBeNull();
+    expect(fetchedItem?.customFields).toHaveLength(2);
+
+    // Access field names and values
+    const fieldNames = fetchedItem?.customFields?.map(cf => (cf.field as ICustomField).fieldName);
+    expect(fieldNames).toEqual(expect.arrayContaining(['Warranty', 'Price']));
+
+    const fieldValues = fetchedItem?.customFields?.map(cf => cf.value);
+    expect(fieldValues).toEqual(expect.arrayContaining(['2 years', 100.0]));
+  });
 });
 
 //it('not work', async () => {

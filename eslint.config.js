@@ -12,20 +12,23 @@ export default [
         ecmaVersion: 2020,
         sourceType: "module",
       },
-      globals: globals.browser,
+      globals: {
+        ...globals.browser,
+        ...globals.jest,
+        ...globals.node,
+      },
     },
     plugins: {
       "@typescript-eslint": tseslint,
     },
     rules: {
-      "no-unused-vars": "warn",
-    },
-  },
-  {
-    files: ["**/*.js", "**/*.ts"],
-    rules: {
+      //"no-unused-vars": "warn",
       ...pluginJs.configs.recommended.rules, 
       ...tseslint.configs.recommended.rules,
+      "@typescript-eslint/no-unused-vars": [
+    "warn",//dont worry about it. look at me. dont worry about it.
+    { "varsIgnorePattern": "^_", "argsIgnorePattern": "^_" }
+  ],
     },
   },
 ];

@@ -1,0 +1,16 @@
+docker
+vite
+python
+typeScript
+html
+rollup
+svelte
+nodejs
+mongodb
+mongoose
+express
+eslint
+fuse
+melt
+supertest
+github actions
