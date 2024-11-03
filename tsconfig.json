@@ -14,7 +14,8 @@
     "verbatimModuleSyntax": true,
     "sourceMap": true,
     "lib": ["dom", "es2017"],
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "typeRoots": ["./node_modules/@types"]
   },
   "type": "module",
   "scripts": {
