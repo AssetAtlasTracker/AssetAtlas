@@ -2,8 +2,8 @@ import request from 'supertest';
 import express from 'express';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import templateRouter from '../src/routes/templateRoutes.js';
-import Template from '../src/models/template.js';
+import templateRouter from '../src/backend/routes/templateRoutes.js';
+import Template from '../src/backend/models/template.js';
 
 let app: express.Application;
 let mongoServer: MongoMemoryServer;

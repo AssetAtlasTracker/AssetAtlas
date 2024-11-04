@@ -19,13 +19,13 @@ const __dirname = path.dirname(__filename);
 //env stuff
 
 export default {
-  input: 'src/main.ts',
+  input: 'src/frontend/main.ts',
   output: {
     sourcemap: true,
     //sourcemap: !production,
     format: 'iife',
     name: 'app',
-    file: './dist/bundle.js'
+    file: './dist/frontend/bundle.js'
   },
   plugins: [
     replace({
@@ -56,7 +56,7 @@ export default {
     production && terser(),
     copy({
       targets: [
-        { src: 'src/index.html', dest: 'dist' }
+        { src: 'src/frontend/index.html', dest: 'dist/frontend' }
       ],
       copyOnce: true
     })

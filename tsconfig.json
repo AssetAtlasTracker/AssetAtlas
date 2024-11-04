@@ -7,9 +7,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist", // Ensure compiled files go into dist
-    "rootDir": "./src",  // Set the root directory
-    "isolatedModules": true, // Important for Svelte + TypeScript
+    "outDir": "./dist", //where our stuff goes that actually gets read by browser
+    "rootDir": "./src",  //root directory
+    "isolatedModules": true, //Important for Svelte + TypeScript
     "jsx": "preserve",
     "verbatimModuleSyntax": true,
     "sourceMap": true,
@@ -22,11 +22,13 @@
     "test": "jest"
   },
   "include": [
-    "src/**/*",  // Include all frontend and backend TypeScript files
-    "svelte.d.ts" // Add your custom Svelte typings
-  ],
+    //"src/**/*",  //Include all frontend and backend TypeScript files
+    //"src/backend/**/*",
+    "svelte.d.ts",
+    "src/**/*.ts",
+ ],
   "exclude": [
     "node_modules",
-    "public" // Don't compile static files
+    "dist" // Don't compile static files
   ]
 }

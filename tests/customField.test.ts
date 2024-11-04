@@ -2,8 +2,8 @@ import request from 'supertest';
 import express from 'express';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import customFieldRouter from '../src/routes/customFieldRoutes.js';
-import type { ICustomField } from '../src/models/customField.js';
+import customFieldRouter from '../src/backend/routes/customFieldRoutes.js';
+import type { ICustomField } from '../src/backend/models/customField.js';
 
 let app: express.Application;
 let mongoServer: MongoMemoryServer;

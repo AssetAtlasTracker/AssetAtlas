@@ -1,4 +1,4 @@
-import express from 'express';
+import * as express from 'express';
 import { createItem, getItemById, deleteItemById, searchItems, getAllContainedById, moveItem } from '../controllers/itemController.js';
 
 const router = express.Router();

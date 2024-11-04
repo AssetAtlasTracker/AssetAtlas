@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc && rollup -c",
-    "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts & rollup -c -w & tsc -w",
+    "start": "node dist/backend/index.js",
+    "dev": "concurrently \"ts-node src/backend/index.ts\" \"rollup -c -w\"",
     "pretest": "npm install",
     "test": "vitest --reporter verbose --silent",
     "lint": "eslint \"src/**/*.{js,ts}\"",
