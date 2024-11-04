@@ -18,21 +18,21 @@
 # RUN chown -R node /usr/src/app
 # USER node
 # CMD ["node", "dist/index.js"]
-FROM node:16-alpine as builder
+FROM node:lts as builder
 WORKDIR /usr/src/app
-COPY package*.json ./
-RUN npm install
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
+COPY package*.json package-lock.json ./
+RUN MONGOMS_DISABLE_POSTINSTALL=true npm ci --ignore-scripts --verbose
 COPY . .
 #COPY package*.json ./
 RUN npm run build --verbose
-FROM node:lts-alpine
+RUN npm prune --production
+FROM node:lts-slim
 ENV NODE_ENV=production
 WORKDIR /usr/src/app
-COPY package*.json ./
-RUN npm install --production --silent
+COPY --from=builder /usr/src/app/package*.json ./
+COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/dist ./dist
-# COPY --from=builder /usr/src/app/public ./public
-# COPY . .
 USER node
 EXPOSE 3000
 CMD ["node", "dist/index.js"]
