@@ -25,3 +25,9 @@
 **/.github
 LICENSE
 README.md
+
+node_modules
+dist
+.git
+.gitignore
+Dockerfile
