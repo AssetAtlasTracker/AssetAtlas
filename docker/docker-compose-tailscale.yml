@@ -1,3 +1,5 @@
+name: assetatlas-project
+
 services:
   assetatlas:
     image: assetatlas

@@ -231,6 +231,38 @@ describe('Item and Custom Field API', () => {
   });
 });
 
+it('should create an item, add a custom field, and update the custom field', async () => {
+  const customFieldData = { fieldName: 'Warranty', dataType: 'string' };
+  const customFieldResponse = await request(app).post('/api/customFields').send(customFieldData);
+  expect(customFieldResponse.status).toBe(201);
+  const customField = customFieldResponse.body;
+
+  const itemData = {
+    name: 'Test Item with Custom Field',
+    description: 'An item to test custom fields',
+    tags: ['tag1'],
+    customFields: [
+      { field: customField._id, value: '1 year' }
+    ]
+  };
+  const createResponse = await request(app).post('/api/items').send(itemData);
+  expect(createResponse.status).toBe(201);
+  const createdItem = createResponse.body;
+
+  const updatedCustomFields = [
+    { field: customField._id, value: '2 years' }
+  ];
+  const updateResponse = await request(app)
+    .patch(`/api/items/${createdItem._id}`)
+    .send({ customFields: updatedCustomFields });
+  expect(updateResponse.status).toBe(200);
+  expect(updateResponse.body.customFields[0].value).toBe('2 years');
+
+  const updatedItem = await BasicItem.findById(createdItem._id).exec();
+  expect(updatedItem?.customFields).toHaveLength(1);
+  expect(updatedItem?.customFields![0].value).toBe('2 years');
+});
+
 //it('not work', async () => {
 //expect(true).toBe(false);
 //});

@@ -142,3 +142,29 @@ export const moveItem = async (req: Request, res: Response) => {
   }
 };
 
+export const updateItem = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const updates = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: 'Not a valid MongoDB ID' });
+  }
+
+  try {
+    const updatedItem = await BasicItem.findByIdAndUpdate(
+      id,
+      { $set: updates },
+      { new: true, runValidators: true } // Return updated document and validate updates
+    );
+
+    if (!updatedItem) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+
+    res.status(200).json(updatedItem);
+  } catch (err) {
+    console.error('Error updating item:', err);
+    res.status(500).json({ message: 'Error updating item', error: err });
+  }
+};
+
