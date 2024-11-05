@@ -9,6 +9,7 @@ import json from '@rollup/plugin-json';
 import replace from '@rollup/plugin-replace';
 import path from 'path';
 import copy from 'rollup-plugin-copy';
+import postcss from 'rollup-plugin-postcss';
 import { fileURLToPath } from 'url';
 
 //env stuff
@@ -32,6 +33,7 @@ export default {
       preventAssignment: true,
       'process.env.IP': JSON.stringify(process.env.IP),
     }),
+    
     svelte({
       preprocess: sveltePreprocess(),
       compilerOptions: {
@@ -39,11 +41,16 @@ export default {
       }
     }),
 
-    css({ output: 'bundle.css' }),
+    css({ output: 'output.css' }),
     resolve({
       browser: true,
       dedupe: ['svelte']
     }),
+
+    postcss({
+      extensions: ['.css']
+    }),
+
     commonjs(),
     typescript({
       verbosity: 3,

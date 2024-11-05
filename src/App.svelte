@@ -1,10 +1,10 @@
 <!-- to be our page that we go to and stuff -->
-
 <script lang="ts">
-  console.log('App maybe working');
+  console.log('Hello World');
+  import { AppBar } from '@skeletonlabs/skeleton';
   import SearchBar from "./svelteComponents/SearchBar.svelte";
   import ItemList from "./svelteComponents/ItemList.svelte";
-  let message = "Asset Atlas";
+  //let message = "Asset Atlas";
   let ip = process.env.IP//default to 3000
   fetchIp();
   let name = '';
@@ -97,56 +97,104 @@
     }
   </script>
 
-<main>
-  <h1>{message}</h1>
-  <h1>Create New Item</h1>
+<!-- Gridding is not working as intended, likely something to do with a config file -->
+<AppBar class="border-gray-400 shadow" background="bg-white">
+  <svelte:fragment slot="lead">(actions)</svelte:fragment>
+  <div class="flex px-4 grid grid-cols-4">
+    <div class="text-2xl font-bold">Asset Atlas</div>
+    <div class="flex-auto pb-4"><SearchBar searchQuery={searchQuery} onSearch={handleSearch}/></div>
+  </div>
+  <svelte:fragment slot="trail">(profile icon)</svelte:fragment>
+</AppBar>
 
-  <form on:submit|preventDefault={handleCreateItem}>
-    <label>
-      Name:
-      <input type="text" bind:value={name} required />
-    </label>
+<div class="body">
+  <!-- <h1>{message}</h1> -->
+  <div class="rounded bg-white page-component">
+    <h1 class="font-bold">Create New Item</h1>
 
-    <label>
-      Description:
-      <input type="text" bind:value={description} />
-    </label>
+    <form on:submit|preventDefault={handleCreateItem}>
+      <div class="flex internal-component rounded">
+        <label class="py-2">
+          Name:
+          <input class="flex-auto bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded"
+          type="text" 
+          placeholder="Toolbox"
+          bind:value={name} required />
+        </label>
 
-    <label>
-      Tags (comma-separated):
-      <input type="text" bind:value={tags} />
-    </label>
+        <label class="py-2">
+          Description:
+          <input class="flex-auto bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded" 
+          type="text" 
+          placeholder="Medium-sized, red toolbox"
+          bind:value={description} />
+        </label>
 
-    <label>
-      Contained Items (comma-separated IDs):
-      <input type="text" bind:value={containedItems} />
-    </label>
+        <label class="py-2">
+          Tags (comma-separated):
+          <input class="flex-auto bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded" 
+          type="text" 
+          placeholder="Container,Work"
+          bind:value={tags} />
+        </label>
 
-    <button type="submit">Create Item</button>
-  </form>
+        <label class="py-2">
+          Contained Items (comma-separated IDs):
+          <input class="flex-auto bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded" 
+          type="text"
+          bind:value={containedItems} />
+        </label>
+      </div>
 
-  <h1>Item Search</h1>
-  
-  <!-- Search Bar Component -->
-  <SearchBar searchQuery={searchQuery} onSearch={handleSearch} />
+      <button class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+              type="submit">Create Item</button>
+    </form>
+  </div>
 
   <!-- Display search results -->
-  {#if searchResults.length > 0}
-    <h2>Search Results:</h2>
-    <ul>
-      {#each searchResults as item}
-        <li>{item.name}: {item.description}</li>
-      {/each}
-    </ul>
-  {:else if searchQuery !== ''}
-    <p>No items found for "{searchQuery}".</p>
-  {/if}
+    {#if searchResults.length > 0}
+    <div class="rounded bg-white page-component">
+      <h2 class="text-center font-bold">Search Results:</h2>
+      <ul>
+        {#each searchResults as item}
+          <li>{item.name}: {item.description}</li>
+          <hr>
+        {/each}
+      </ul>
+    </div>
 
-  </main>
+    {:else if searchQuery !== ''}
+      <div class="rounded bg-white page-component">
+        <p>No items found for "{searchQuery}".</p>
+      </div>
+    {/if}
 
-  <style>
-    main {
-      padding: 20px;
-      text-align: center;
-    }
-  </style>
+  <button class="add-btn
+          text-icon text-gray-800 font-bold
+          bg-white hover:bg-gray-100 border-gray-400
+          rounded-full shadow border">
+          +
+  </button>
+</div>
+
+<style>
+  .page-component{
+    margin: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 5px 5px 8px -8px slategray
+  }
+
+  .internal-component{
+    margin: 1rem 0;
+    padding: 1rem;
+    background-color: #E4E6EE;
+    box-shadow: inset 5px 5px 8px -8px slategray
+  }
+
+  .add-btn{
+    padding: 1rem 1.25rem 1.55rem;
+    position: absolute;
+    bottom: 4rem;
+    right: 4rem;
+  }
+</style>
