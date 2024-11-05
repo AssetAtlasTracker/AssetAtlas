@@ -11,6 +11,6 @@ mongoose
 express
 eslint
 fuse
-melt
+skeleton
 supertest
 github actions
