@@ -1,4 +1,4 @@
-FROM node:20-alpine AS base
+FROM node:18-alpine AS base
 
 # Same package.json and package-lock.json for both builder and runner
 FROM base AS dep_files
