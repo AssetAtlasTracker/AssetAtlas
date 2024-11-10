@@ -1,4 +1,4 @@
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 
 # Same package.json and package-lock.json for both builder and runner
 FROM base AS dep_files
@@ -21,7 +21,7 @@ FROM build_deps AS builder
 WORKDIR /usr/src/app
 # Only copy specific files+folders intead of "COPY . ." to avoid copying host's node_modules and other unnessary files
 COPY ./src ./src
-COPY ["tsconfig.json", "vite.config.ts", "tailwind.config.ts", "rollup.config.js", "."]
+COPY ["tsconfig.json", "vite.config.ts", "tailwind.config.ts", "rollup.config.js", "./"]
 RUN npm run build --verbose
 
 FROM prod_deps AS runner
