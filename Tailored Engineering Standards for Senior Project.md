@@ -134,7 +134,162 @@ I
 XP uses stories for documentation.
 You can get close, though. This week's stories can become next week's documentation tasks, putting the completion of the documentation one week behind the completion of the stories.
 
+# 6.4.4 Architecture Definition Process .
 
+## 1. Prepare for Architecture Definition.
+
+### a. Review Pertinent Information and Identify Key Drivers of the Architecture.
+
+Addressed Outcome: i \
+XP Relation: This is related to incremental design because it is a step in that process. Stories could be used as drivers.
+
+### b. Identify Stakeholder Concerns.
+
+Addressed Outcome: a \
+XP Relation: This relates to the XP principle of humanity. Stakeholders are humans too. The team is part of the stakeholder. Identifying what the team needs out of this project as well as what the other stakeholders need is addressing everyone’s humanity.
+
+### c. Define the Architecture Definition Roadmap, Approach, and Strategy.
+
+Addressed Outcome: h \
+XP Relation: This relates to the Weekly Cycle of XP. The author states, “Work on gradually reducing the percentage of time you spend planning. Some teams start with a whole day of planning for a week, but gradually refine their planning skills until they spend an hour planning for the week.” In the same way, defining a roadmap, approach, and strategy allows one to reduce the time they spend planning the architecture.
+
+### d. Define Architecture Evaluation Criteria Based on Stakeholder Concerns and Key Requirements.
+
+Addressed Outcome: h \
+XP Relation: This is related to the Test-First practice of XP. Evaluation criteria are essentially tests for the design/architecture. 
+
+### e. Identify and Plan for the Necessary Enabling Systems or Services Needed to Support the Architecture Definition Process.
+
+Addressed Outcome: j \
+XP Relation: The relation here is the same as described in c. This is a part of planning.
+
+### f. Obtain or Acquire Access to the Enabling Systems to be Used.
+
+Addressed Outcome: j \
+XP Relation: This is somewhat related to the Ten-Minute build practice. Most often, the enabling systems will be a part of the 10-minute build or design-equivalent process. If testing can be automated for design, it would definitel require enabling systems.
+
+## 2. Develop Architecture Viewpoints
+
+### a. Select, Adapt, or Develop Viewpoints and Model Kinds Based on Stakeholder Concerns.
+
+Addressed Outcome: b \
+XP Relation: This is related to the Weekly Cycle. It’s mentioned that customers should “pick a week's worth of stories to implement this week.” at each weekly meeting. In the context of developing architecture, this would be using a stakeholder’s, the customer’s, concerns to guide selection, changes, and development overall.
+
+### b. Establish or Identify Potential Architecture Frameworks to be Used in Developing Models and Views.
+
+Addressed Outcome: c \
+XP Relation: This relates to Incremental Design in XP. The requirement for the next step is to have a framework. While the whole design is not yet finished, we take the next step because it is required to make progress.
+
+### c. Capture Rationale for Selection of Frameworks, Viewpoints and Model Kinds.
+
+Addressed Outcome: c \
+XP Relation: This relates to the XP value of Communication. Especially if you’re working on this alone, it is important to explain any choices so that teammates can understand. 
+
+### d. Select or Develop Supporting Modelling Techniques and Tools.
+
+Addressed Outcome: c \
+XP Relation: This relates to Incremental Design for the same reason b does.
+
+## 3. Develop Models and Views of Candidate Architectures.
+
+### a. Define the Software System Context and Boundaries in Terms of Interfaces and Interactions with External Entities.
+
+Addressed Outcome: c \
+XP Relation: This is important to the Communication value of XP. Defining these things can help communicate the design of the system. Additionally, given that in XP we should “Maintain only the code and the tests as permanent artifacts,” this seems counter to XP; however, documents containing such information can be temporarily made, and, once the architecture is implemented, more clearly indicated via clean code.
+
+### b. Identify Arcitectural Entities and Relationships Between Entities that Address Key Stakeholder Concerns and Critical Software System Requirements.
+
+Addressed Outcome: k \
+XP Relation: This is important to Incremental Design. The author says we should “Strive to make the design of the system an excellent fit for the needs of the system that day” as a part of incremental design. By identifying specific entities and relationships, we are narrowing down the selection of what we plan to work on. Thus, we focus on the needs of the system for the day as in incremental design.
+
+### c. Allocate Concepts, Properties, Characteristics, Behaviors, Functions, or Constraints that are Significant to Architecture Decisions of the Software System to Architectural Entities.
+
+Addressed Outcome: e \
+XP Relation: This is related to the Code and Tests practice of XP. Instead of having a bunch of documentation, we allocate all the typically documented ideas to architectural entities. In this way, we can reduce if not eliminate the need for extra documentation so long as we can represent these aspects within the coding of architectural entities. 
+
+### d. Select, Adapt, or Develop Models of the Candidate Architectures of the Software System.
+
+Addressed Outcome: d \
+XP Relation: This is related to Incremental design for the same reason as explained in b.
+
+### e. Compose Views from the Models in Accordance with Identified Viewpoints to Express How the Architecture Addresses Stakeholder Concerns and Meets Stakeholder and Sysem/Software Requirements
+
+Addressed Outcome: k \
+XP Relation: This is related to Communication for similar reasons as a. The only difference here is that the views and models are the temporary documentation.
+
+### f. Harmonize the Architecture and Views with Each Other.
+
+Addressed Outcome: g \
+XP Relation: This relates to the idea of Code and Tests as well as Single Code Base. Here, harmonization requires that anything that doesn’t work together is pruned or reworked. This makes the design more concise which will in turn make it easier to understand and easier to express through code instead of superfluous documentation. Then, with the Single Code Base practice, the author gives the example of a team that had seven different code bases and says, “When I pointed out the costs of the multiple code bases and the impossibility of scaling such a practice, the client responded that they simply couldn't afford the work of reuniting the code.” Harmonizing earlier allows the code to be more united from the beginning, preventing the problem of multiple code bases.
+
+## 4. Relate the Architecture to Design.
+
+### a. Identify Software System Elements that Relate to Architectural Entities and the Nature of These Relationshops.
+
+Addressed Outcome: f
+
+### b. Define the Interaces and Interactions Among the Software System Elements and External Entities.
+
+Addressed Outcome: c
+
+### c. Partition, Align and Allocate Requirements to Architectureal Entities and System Elements.
+
+Addressed Outcome: i
+
+### d. Map Software System Elements and Architectural Entities to Design Characteristics.
+Addressed Outcome: i
+
+### e. Define Principles for the Software System Design and Evolution.
+
+Addressed Outcome: h
+
+## 5. Assess Architecture Candidates.
+
+### a. Assess Each Candidate Architecture Against Constraints and Requirements.
+
+Addressed Outcome: g
+
+### b. Assess Each Candidate Architecture Against Stakeholder Concerns Using Evaluation Cirteria.
+
+Addressed Outcome: g
+
+### c. Select the Preferred Architectures and Capture Key Decisions and Ratonale.
+
+Addressed Outcome: g
+
+### d. Establish the Architecture Baseline of the Selected Architecture.
+
+Addressed Outcome: h
+
+## 6. Manage the Selected Architecture.
+
+### a. Formalize the Architecture Governance Approach and Specify Governance-Related Roles and Responsibilities, Accountabilities, and Authorities Related to Design, Quality, Security and Safety.
+
+Addressed Outcome: i
+
+### b. Obtain Explicit Acceptance of the Architecture by Stakeholders.
+
+Addressed Outcome: k
+
+### c. Maintain Concordance and Completeness of the Architectural Entities and Their Architectural Characteristics.
+
+Addressed Outcome: e
+
+### d. Organize, Assess and Control Evolution of the Architecture Models and Views to Help Ensure that the Architectural Intent is Met and the Architectural Vision and Key Concepts are Correctly Implemented.
+
+Addressed Outcome: i
+
+### e. Maintain the Architecture Definition and Evaluation Strategy.
+
+Addressed Outcome: h
+
+### f. Maintaine Traceability of the Architecture.
+
+Addressed Outcome: k
+
+### g. Provide Key Artifacts and Information Items that Have Been Selected for Baselines.
+
+Addressed Outcome: h
 
 # 6.4.5 Design Definition process
 ## Prepare for software system design definition.
