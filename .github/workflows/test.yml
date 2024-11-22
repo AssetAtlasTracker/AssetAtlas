@@ -17,10 +17,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build Docker image
-        run: docker build -t assetatlas -f ./docker/Dockerfile .
+        run: docker build --target build_deps -t assetatlas-build-deps -f ./docker/Dockerfile .
 
       - name: Run linter in Docker
-        run: docker run --rm assetatlas npm run lint
+        run: docker run --rm assetatlas-build-deps npm run lint
 
       - name: Run tests in Docker
-        run: docker run --rm assetatlas npm run test
+        run: docker run --rm assetatlas-build-deps npm run test
