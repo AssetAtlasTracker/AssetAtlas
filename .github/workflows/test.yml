@@ -16,11 +16,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Build Docker image
-        run: docker build --target build_deps -t assetatlas-build-deps -f ./docker/Dockerfile .
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20' # should match container version in /docker/Dockerfile 
 
-      - name: Run linter in Docker
-        run: docker run --rm assetatlas-build-deps npm run lint
+      - name: Install dependencies
+        run: npm install
 
-      - name: Run tests in Docker
-        run: docker run --rm assetatlas-build-deps npm run test
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test
