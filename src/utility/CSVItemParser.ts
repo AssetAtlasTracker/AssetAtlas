@@ -8,6 +8,40 @@ export class CSVItemParser implements Parser {
     itemTree: IBasicItem[] = [];
     columns: String[] = [];
 
+    collectColumnTypes(data: String[][], columns: String[]) : Map<String, Number> {
+        let columnToType = new Map<String, Number>();
+        for (var i = 0; i < columns.length; i++) {
+            let column = data.map(row => row[i].trim());
+            columnToType.set(columns[i], this.determineTypeOfColumn(column));
+        }
+        return columnToType;
+    }
+
+    determineTypeOfColumn(column: String[]) : Number {
+        // String will be default
+        // Regex for number and boolean
+        // No other types necessary
+        let numberRegEx = /^\d*.?\d*$/;
+        let booleanRegEx = /^true$|^false$|^t$|^f$|^0$|^1$/;
+        let currentType = 2; // 2 - number, 1 - boolean, 0 - string. Note: can only go down, once we encounter a string, we return string.
+        for (var i = 1; i < column.length; i++) {
+            let entry = column[i].toLowerCase();
+            if (entry.length != 0) {
+                if (currentType == 2) {
+                    // check if still a number
+                    if (!numberRegEx.test(entry)) {
+                        currentType = 1;
+                    }
+                } else if (currentType == 1) {
+                    if (!booleanRegEx.test(entry)) {
+                        return 0;
+                    }
+                }
+            }
+        }
+        return currentType;
+    }
+
     parse(input: String): void {
         var data = CSVSplitter.split(input);
         this.columns = data[0];
@@ -50,7 +84,7 @@ export class CSVItemParser implements Parser {
         }
     }
     parseHelperIn(data: String[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
-        let new_item = this.parseItemFromLine(data[i]);
+        let new_item = this.parseItemFromLine(data[i], i);
         if (items.length > 0) {
             let upper_item = items.pop() as IBasicItem;
             new_item.parentItem = upper_item!.id;
@@ -70,9 +104,10 @@ export class CSVItemParser implements Parser {
         return columns.map(ele => ele.toLocaleLowerCase()).includes("item name");
     }
 
-    parseItemFromLine(line: String[]): IBasicItem {
+    parseItemFromLine(line: String[], id: number) : IBasicItem {
         // TODO: typing, empty values for templates.
         let item = new BasicItem();
+        item.id = id;
 
         // get values from required columns.
         item.name = line[0].toString();
