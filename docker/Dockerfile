@@ -1,38 +1,41 @@
-# FROM node:16-alpine as builder
-# WORKDIR /usr/src/app
-# COPY package*.json ./
-# RUN npm install
-# COPY . .
-# #frontend^ maybe
-# FROM node:lts-alpine
-# ENV NODE_ENV=production
-# WORKDIR /usr/src/app
-# RUN ls -al
-# COPY package.json ./ 
-# COPY package-lock.json* ./ 
-# #COPY npm-shrinkwrap.json* ./
-# RUN npm install --production --silent && mv node_modules ../
-# COPY . .
-# RUN npm run build
-# EXPOSE 3000
-# RUN chown -R node /usr/src/app
-# USER node
-# CMD ["node", "dist/index.js"]
-FROM node:16-alpine as builder
+# Base image with necessary build tools
+FROM node:20-bullseye AS base
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
+
+# Cache dependencies
+FROM base AS deps_cache
 WORKDIR /usr/src/app
 COPY package*.json ./
-RUN npm install
-COPY . .
-#COPY package*.json ./
+
+#move this to package.json? probably wise
+RUN npm install @rollup/rollup-linux-x64-gnu
+RUN npm ci
+
+# Development dependencies and app setup
+FROM deps_cache AS build_deps
+WORKDIR /usr/src/app
+COPY ./src ./src
+COPY ["tsconfig.json", "vite.config.ts", "tailwind.config.ts", "rollup.config.js", "./"]
+RUN npm ci
+
+# Production dependencies only
+FROM deps_cache AS prod_deps
+WORKDIR /usr/src/app
+# Install only production dependencies
+RUN npm ci --omit=dev
+
+# Build application
+FROM build_deps AS builder
+WORKDIR /usr/src/app
+# Run the build step
 RUN npm run build --verbose
-FROM node:lts-alpine
-ENV NODE_ENV=production
+
+# Final production image
+FROM prod_deps AS runner
 WORKDIR /usr/src/app
-COPY package*.json ./
-RUN npm install --production --silent
+ENV NODE_ENV=production
+# Copy the built app from builder stage
 COPY --from=builder /usr/src/app/dist ./dist
-# COPY --from=builder /usr/src/app/public ./public
-# COPY . .
 USER node
 EXPOSE 3000
 CMD ["node", "dist/index.js"]

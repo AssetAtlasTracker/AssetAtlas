@@ -87,6 +87,11 @@ def run_docker_compose(mode):
         elif mode == "tailscale":
             compose_file = os.path.join("docker", "docker-compose-tailscale.yml")
             command = ["docker-compose", "-f", compose_file, "up", "--build", "-d"]
+        elif mode == "dev":
+            compose_file = os.path.join("docker", "docker-compose.dev.yml")
+            command = ["docker-compose", "-f", compose_file, "up", "--build", "-d"]
+            url = "http://localhost:3000"
+            set_env_variable("IP", "localhost:3000")
 
         # Run the docker-compose command
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -149,15 +154,17 @@ local_mode_radio = tk.Radiobutton(root, text="Local Mode (localhost)", variable=
 local_mode_radio.grid(row=2, column=1, sticky="w", padx=10, pady=10)
 tailscale_mode_radio = tk.Radiobutton(root, text="Tailscale Mode (Tailscale IP)", variable=mode_var, value="tailscale")
 tailscale_mode_radio.grid(row=3, column=1, sticky="w", padx=10, pady=10)
+#dev_mode_radio = tk.Radiobutton(root, text="Dev Mode (docker-compose.dev.yml)", variable=mode_var, value="dev")
+#dev_mode_radio.grid(row=4, column=1, sticky="w", padx=10, pady=10)
 
 # Button to run Docker Compose
 run_button = tk.Button(root, text="Run Docker Compose", command=lambda: run_docker_compose_thread(mode_var.get()))
-run_button.grid(row=4, columnspan=2, padx=10, pady=20)
+run_button.grid(row=5, columnspan=2, padx=10, pady=20)
 
 shutdown_button = tk.Button(root, text="Shut Down Docker Containers", command=lambda: shutdown_docker_thread())
-shutdown_button.grid(row=5, columnspan=2, padx=10, pady=10)
+shutdown_button.grid(row=6, columnspan=2, padx=10, pady=10)
 
 label_status = tk.Label(root, text="")
-label_status.grid(row=6, columnspan=2, padx=10, pady=20)
+label_status.grid(row=7, columnspan=2, padx=10, pady=20)
 
 root.mainloop()

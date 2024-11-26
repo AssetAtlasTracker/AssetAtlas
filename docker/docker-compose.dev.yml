@@ -1,0 +1,35 @@
+name: assetatlas-project
+
+services:
+  assetatlas:
+    build:
+      context: ..    
+      dockerfile: ./docker/Dockerfile
+    volumes:
+      - ../:/usr/src/app   
+      - /usr/src/app/node_modules 
+    environment:
+      NODE_ENV: development   
+      MONGO_URI: mongodb://mongo:27017/assetatlas_db
+    ports:
+      - "3000:3000"           
+    command: >
+      sh -c "npm install --include=dev &&
+             npm run dev"          # Install dev dependencies and run the dev server
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    volumes:
+      - mongo-data:/data/db    
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
+    name: assetatlas-bridge
+
+volumes:
+  mongo-data:
