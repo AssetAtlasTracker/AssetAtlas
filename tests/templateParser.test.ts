@@ -1,5 +1,5 @@
 import {CSVTemplateParser} from "../src/utility"
-import Template, { ITemplate } from "../src/models/template";
+import Template from "../src/models/template";
 
 
 describe("Testing Template Parsing", () => {

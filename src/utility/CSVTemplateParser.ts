@@ -1,4 +1,5 @@
 import Template, { type ITemplate } from "../models/template";
+import { CSVPreProcessor } from "./CSVPreProcessor";
 import { CSVSplitter } from "./CSVSplitter";
 import type { Parser } from "./Parser";
 
@@ -7,7 +8,7 @@ export class CSVTemplateParser implements Parser {
     templatesToAdd : ITemplate[] = [];
 
     parse(input: String): void {
-        let data = CSVSplitter.split(input);
+        let data = CSVPreProcessor.preprocess(CSVSplitter.split(input));
 
         for (var i = 1; i < data.length; i += 2) {
             let template = new Template();
@@ -39,7 +40,10 @@ export class CSVTemplateParser implements Parser {
     }
 
     canParse(columns: String[]): boolean {
-        return columns.length === 1 && columns[0].toLocaleLowerCase() === "template name";
+        let tempName = (columns[0] === "template name");
+        columns.shift();
+        let blankColumns = (columns.filter(ele => ele !== "").length === 0);
+        return tempName && blankColumns;
     }
     
 }

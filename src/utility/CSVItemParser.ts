@@ -2,6 +2,7 @@ import type { IBasicItem } from "../models/basicItem";
 import BasicItem from "../models/basicItem";
 import CustomField from "../models/customField";
 import type { ITemplate } from "../models/template";
+import { CSVPreProcessor } from "./CSVPreProcessor";
 import { CSVSplitter } from "./CSVSplitter";
 import type { Parser } from "./Parser";
 
@@ -35,9 +36,9 @@ export class CSVItemParser implements Parser {
         let booleanRegEx = /^true$|^false$|^t$|^f$|^0$|^1$/;
         let currentType = "number";
         for (var i = 1; i < column.length; i++) {
-            let entry = column[i].toLowerCase();
+            let entry = column[i].toString();
             if (entry.length != 0) {
-                if (currentType == "string") {
+                if (currentType == "number") {
                     // check if still a number
                     if (!numberRegEx.test(entry)) {
                         if (booleanRegEx.test(entry)) {
@@ -57,7 +58,7 @@ export class CSVItemParser implements Parser {
     }
 
     parse(input: String): void {
-        var data = CSVSplitter.split(input);
+        var data = CSVPreProcessor.preprocess(CSVSplitter.split(input));
         this.columns = data[0];
         this.collectColumnTypes(data, this.columns)
 
@@ -83,7 +84,7 @@ export class CSVItemParser implements Parser {
 
     parseHelperItem(data: String[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
         if (!last_item) {
-            throw new Error("Incorrect Formatting: No Item as Container");
+            this.parseHelperIn(data, i, items, last_item);
         } else {
             items.push(last_item!);
             this.parseHelper(data, i+1, items, null);
@@ -116,7 +117,7 @@ export class CSVItemParser implements Parser {
     }
 
     canParse(columns: String[]): boolean {
-        return columns.map(ele => ele.toLocaleLowerCase()).includes("item name");
+        return columns[0] === "item name" && columns[1] === "template" && columns[2] === "description"
     }
 
     parseItemFromLine(line: String[], id: number) : IBasicItem {
@@ -131,14 +132,14 @@ export class CSVItemParser implements Parser {
         // get custom fields.
         for (var i = 3; i < line.length; i++) {
             if (line[i].length > 0) {
-                this.addCustomFieldToItem(line, item, id, i)
+                this.addCustomFieldToItem(line, item, i)
             } else {
                 // consider templates
                 let template = this.templates.get(item.templateName);
                 if (template !== undefined) {
                     // consider if this column is in the template
-                    if (template.fields.map(field => field.key).includes(this.columns[i].toLowerCase())) {
-                        this.addCustomFieldToItem(line, item, id, i)
+                    if (template.fields.map(field => field.key).includes(this.columns[i].toString())) {
+                        this.addCustomFieldToItem(line, item, i)
                     }
                 }
             }
@@ -146,18 +147,18 @@ export class CSVItemParser implements Parser {
         return item;
     }
 
-    addCustomFieldToItem(line: String[], item: IBasicItem, id: number, i: number) {
+    addCustomFieldToItem(line: String[], item: IBasicItem, i: number) {
         if (!item.customFields) {
             item.customFields = [];
         }
         let customField = new CustomField();
         customField.fieldName = this.columns[i].toString();
-        let dataType = this.columnTypes.get(this.columns[id]);
+        let dataType = this.columnTypes.get(this.columns[i]);
 
         if (dataType === undefined) {
             throw new Error();
         }
-        customField.dataType = dataType as string;
+        customField.dataType = dataType.toString();
         item.customFields.push({field: customField, value: line[i]});
     }
     

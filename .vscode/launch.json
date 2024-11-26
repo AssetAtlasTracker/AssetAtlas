@@ -11,7 +11,7 @@
             "type": "node-terminal",
             "name": "Debug Specific Test File",
             "request": "launch",
-            "command": "npm run test --templateParser.test.ts",
+            "command": "npm run test --itemParser.test.ts",
         }
     ]
 }
