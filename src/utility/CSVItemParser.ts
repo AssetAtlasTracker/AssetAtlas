@@ -33,7 +33,7 @@ export class CSVItemParser implements Parser {
         // No other types necessary
         let numberRegEx = /^\d*.?\d*$/;
         let booleanRegEx = /^true$|^false$|^t$|^f$|^0$|^1$/;
-        let currentType = "number"; // 2 - number, 1 - boolean, 0 - string. Note: can only go down, once we encounter a string, we return string.
+        let currentType = "number";
         for (var i = 1; i < column.length; i++) {
             let entry = column[i].toLowerCase();
             if (entry.length != 0) {
@@ -145,6 +145,7 @@ export class CSVItemParser implements Parser {
         }
         return item;
     }
+
     addCustomFieldToItem(line: String[], item: IBasicItem, id: number, i: number) {
         if (!item.customFields) {
             item.customFields = [];

@@ -17,7 +17,6 @@ export class CSVTemplateParser implements Parser {
             
             for (var j = 1; j < data[i].length; j++) {
                 const key = data[i][j].toString();
-
                 this.checkEmptyKey(key);
 
                 const valueType = data[i+1][j].toString();
@@ -29,7 +28,7 @@ export class CSVTemplateParser implements Parser {
 
     checkTypeRow(row : String[]) {
         if (row[0].length > 0) {
-            throw new Error("Named Type Row or Missing Type Row");
+            throw new Error("Named Type Row or Missing Type Row: " + row.toString());
         }
     }
 
