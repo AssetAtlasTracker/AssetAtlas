@@ -1,40 +1,54 @@
 import type { IBasicItem } from "../models/basicItem";
 import BasicItem from "../models/basicItem";
 import CustomField from "../models/customField";
+import type { ITemplate } from "../models/template";
 import { CSVSplitter } from "./CSVSplitter";
 import type { Parser } from "./Parser";
 
 export class CSVItemParser implements Parser {
     itemTree: IBasicItem[] = [];
     columns: String[] = [];
+    columnTypes: Map<String, string> = new Map<String, string>;
+    templates: Map<String, ITemplate> = new Map<String, ITemplate>
 
-    collectColumnTypes(data: String[][], columns: String[]) : Map<String, Number> {
-        let columnToType = new Map<String, Number>();
-        for (var i = 0; i < columns.length; i++) {
-            let column = data.map(row => row[i].trim());
-            columnToType.set(columns[i], this.determineTypeOfColumn(column));
+    constructor(templates : ITemplate[]) {
+        for (var i = 0; i < templates.length; i++) {
+            this.templates.set(templates[i].name, templates[i]);
         }
-        return columnToType;
     }
 
-    determineTypeOfColumn(column: String[]) : Number {
+    collectColumnTypes(data: String[][], columns: String[]){
+        for (var i = 3; i < columns.length; i++) { // first 3 columns are reserved - determine types for 4th+
+            let column = data.map(row => row[i].trim());
+            this.columnTypes.set(columns[i], this.determineTypeOfColumn(column));
+        }
+    }
+
+    determineTypeOfColumn(column: String[]) : string {
+        // TODO: determine if ideal functionality
+        // there is an instance where if we have all blank values, this will assume a field is a number. We could change that to assume string.
+
         // String will be default
         // Regex for number and boolean
         // No other types necessary
         let numberRegEx = /^\d*.?\d*$/;
         let booleanRegEx = /^true$|^false$|^t$|^f$|^0$|^1$/;
-        let currentType = 2; // 2 - number, 1 - boolean, 0 - string. Note: can only go down, once we encounter a string, we return string.
+        let currentType = "number"; // 2 - number, 1 - boolean, 0 - string. Note: can only go down, once we encounter a string, we return string.
         for (var i = 1; i < column.length; i++) {
             let entry = column[i].toLowerCase();
             if (entry.length != 0) {
-                if (currentType == 2) {
+                if (currentType == "string") {
                     // check if still a number
                     if (!numberRegEx.test(entry)) {
-                        currentType = 1;
+                        if (booleanRegEx.test(entry)) {
+                            currentType = "boolean";
+                        } else {
+                            return "string";
+                        }
                     }
-                } else if (currentType == 1) {
+                } else if (currentType == "boolean") {
                     if (!booleanRegEx.test(entry)) {
-                        return 0;
+                        return "string";
                     }
                 }
             }
@@ -45,6 +59,7 @@ export class CSVItemParser implements Parser {
     parse(input: String): void {
         var data = CSVSplitter.split(input);
         this.columns = data[0];
+        this.collectColumnTypes(data, this.columns)
 
         var i = 1;
         // get first item
@@ -105,7 +120,6 @@ export class CSVItemParser implements Parser {
     }
 
     parseItemFromLine(line: String[], id: number) : IBasicItem {
-        // TODO: typing, empty values for templates.
         let item = new BasicItem();
         item.id = id;
 
@@ -117,17 +131,33 @@ export class CSVItemParser implements Parser {
         // get custom fields.
         for (var i = 3; i < line.length; i++) {
             if (line[i].length > 0) {
-                if (!item.customFields) {
-                    item.customFields = [];
+                this.addCustomFieldToItem(line, item, id, i)
+            } else {
+                // consider templates
+                let template = this.templates.get(item.templateName);
+                if (template !== undefined) {
+                    // consider if this column is in the template
+                    if (template.fields.map(field => field.key).includes(this.columns[i].toLowerCase())) {
+                        this.addCustomFieldToItem(line, item, id, i)
+                    }
                 }
-                let customField = new CustomField();
-                customField.fieldName = this.columns[i].toString();
-                // figure out typing
-                item.customFields.push({field: customField, value: line[i]});
             }
         }
-    
         return item;
+    }
+    addCustomFieldToItem(line: String[], item: IBasicItem, id: number, i: number) {
+        if (!item.customFields) {
+            item.customFields = [];
+        }
+        let customField = new CustomField();
+        customField.fieldName = this.columns[i].toString();
+        let dataType = this.columnTypes.get(this.columns[id]);
+
+        if (dataType === undefined) {
+            throw new Error();
+        }
+        customField.dataType = dataType as string;
+        item.customFields.push({field: customField, value: line[i]});
     }
     
 }
