@@ -19,13 +19,12 @@ TODO @Team description of what this project is and what it does
 1. Clone the repository
 1. Run start.py file (ex. `python .\start.py`)
 1. If you are running tailscale mode for the first time, do
-2. 1. Create a Tailscale auth key
-   - <https://login.tailscale.com/admin/settings/keys>
-   - "Auth keys"
-   - TODO it forces an expiry of 90 days, can/should we do anything about this?
-   - Set to **reusable** and **ephemeral**
-   - **SAVE THIS KEY FOR LATER**
-     Paste this in the auth key box and click save. You only need to do this once.
+   1. Create a Tailscale auth key
+   1. <https://login.tailscale.com/admin/settings/keys>
+   1. "Auth keys"
+   1. TODO it forces an expiry of 90 days, can/should we do anything about this?
+   1. Set to **reusable** and **ephemeral**
+   1. Paste this in the auth key box and click save. You only need to do this once.
 1. Select local host or tailscale mode and click "Run Docker Compose" (This may take ~15 seconds)
    - If the compose action fails, docker may not be open/running (You may also need to run `npm i` in the project directory)
    - Once it finishes, a window will pop up "Service is running" with the IP
