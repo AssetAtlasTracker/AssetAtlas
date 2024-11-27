@@ -1,0 +1,10 @@
+.add-btn {
+  padding: 1rem 1.25rem 1.55rem;
+  position: absolute;
+  bottom: 4rem;
+  right: 4rem;
+}
+
+.nav-margin {
+  margin: 0rem 1rem;
+}

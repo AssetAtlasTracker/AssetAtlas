@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc && rollup -c",
+    "build": "npm run build:css && tsc && rollup -c",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts & rollup -c -w & tsc -w",
+    "build:css": "npx tailwindcss -i ./src/svelteStyles/input.css -o ./src/svelteStyles/output.css",
     "test": "vitest --reporter verbose --silent",
     "lint": "eslint \"src/**/*.{js,ts}\"",
     "lint:fix": "eslint \"src/**/*.{js,ts}\" --fix"
@@ -66,6 +67,7 @@
     "fuse.js": "^7.0.0",
     "mongoose": "^8.6.2",
     "mongoose-sequence": "^6.0.1",
+    "svelte-routing": "^2.13.0",
     "tslib": "^2.7.0"
   }
 }
