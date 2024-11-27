@@ -1,3 +1,4 @@
+import type { Types } from "mongoose";
 import type { IBasicItem } from "../models/basicItem";
 import BasicItem from "../models/basicItem";
 import CustomField from "../models/customField";
@@ -8,6 +9,7 @@ import type { Parser } from "./Parser";
 
 export class CSVItemParser implements Parser {
     itemTree: IBasicItem[] = [];
+    itemMap: Map<Types.ObjectId,IBasicItem> = new Map<Types.ObjectId, IBasicItem>();
     columns: String[] = [];
     columnTypes: Map<String, string> = new Map<String, string>;
     templates: Map<String, ITemplate> = new Map<String, ITemplate>
@@ -16,6 +18,9 @@ export class CSVItemParser implements Parser {
         for (var i = 0; i < templates.length; i++) {
             this.templates.set(templates[i].name, templates[i]);
         }
+    }
+    getEntitiesToAdd(): ITemplate[] | IBasicItem[] {
+        return this.itemTree;
     }
 
     collectColumnTypes(data: String[][], columns: String[]){
@@ -100,7 +105,7 @@ export class CSVItemParser implements Parser {
         }
     }
     parseHelperIn(data: String[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
-        let new_item = this.parseItemFromLine(data[i], i);
+        let new_item = this.parseItemFromLine(data[i], i.toString());
         if (items.length > 0) {
             let upper_item = items.pop() as IBasicItem;
             new_item.parentItem = upper_item!.id;
@@ -120,7 +125,7 @@ export class CSVItemParser implements Parser {
         return columns[0] === "item name" && columns[1] === "template" && columns[2] === "description"
     }
 
-    parseItemFromLine(line: String[], id: number) : IBasicItem {
+    parseItemFromLine(line: String[], id: string) : IBasicItem {
         let item = new BasicItem();
         item.id = id;
 
@@ -144,6 +149,7 @@ export class CSVItemParser implements Parser {
                 }
             }
         }
+        this.itemMap.set(id as unknown as Types.ObjectId, item); // TODO: see if this works
         return item;
     }
 

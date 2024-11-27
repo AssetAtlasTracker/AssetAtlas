@@ -1,3 +1,4 @@
+import type { IBasicItem } from "../models/basicItem";
 import Template, { type ITemplate } from "../models/template";
 import { CSVPreProcessor } from "./CSVPreProcessor";
 import { CSVSplitter } from "./CSVSplitter";
@@ -6,6 +7,10 @@ import type { Parser } from "./Parser";
 
 export class CSVTemplateParser implements Parser {
     templatesToAdd : ITemplate[] = [];
+
+    getEntitiesToAdd(): ITemplate[] | IBasicItem[] {
+        return this.templatesToAdd;
+    }
 
     parse(input: String): void {
         let data = CSVPreProcessor.preprocess(CSVSplitter.split(input));
