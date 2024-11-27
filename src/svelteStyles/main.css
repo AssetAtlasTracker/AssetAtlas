@@ -1,0 +1,56 @@
+/* Styles that should be available on all pages, for internal consistency */
+
+/* 
+Large component styles 
+Glassmorphic main color: rgba( 40, 40, 80, 0.25)
+Border/Line: 1px solid rgba( 255, 255, 255, 0.8)
+*/
+.glass{
+  background: rgba( 40, 40, 80, 0.25);
+  box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+  backdrop-filter: blur( 10px );
+  -webkit-backdrop-filter: blur( 4px );
+  border-radius: 10px;
+}
+
+.page-component {
+  margin: 1.5rem;
+  padding: 1.5rem;
+  background: rgb(255, 255, 255, 0);
+  border: 1px solid rgba( 255, 255, 255, 0.8);
+  box-shadow: 5px 5px 8px -8px slategray;
+}
+  
+.dialog-component {
+  margin: 1.5rem;
+  padding: 1.5rem;
+  background: rgb(255, 255, 255, 0);
+  border: 1px solid rgba( 255, 255, 255, 0.8);
+  box-shadow: 5px 5px 8px -8px slategray;
+}
+    
+.internal-component {
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: #E4E6EE;
+  box-shadow: inset 5px 5px 8px -8px slategray;
+}
+
+/* 
+Small component styles 
+*/
+.border-button{
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  padding: 0.5rem 1rem;
+  background: rgba(0,0,0,0);
+  color: white;
+}
+
+/* 
+Text styles 
+*/
+.text-icon {
+    font-size: 2.25rem;
+}
+    

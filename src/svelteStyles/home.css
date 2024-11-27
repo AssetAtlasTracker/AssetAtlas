@@ -1,19 +1,10 @@
-.page-component {
-    margin: 1.5rem;
-    padding: 1.5rem;
-    box-shadow: 5px 5px 8px -8px slategray;
-  }
-  
-  .internal-component {
-    margin: 1rem 0;
-    padding: 1rem;
-    background-color: #E4E6EE;
-    box-shadow: inset 5px 5px 8px -8px slategray;
-  }
-  
-  .add-btn {
-    padding: 1rem 1.25rem 1.55rem;
-    position: absolute;
-    bottom: 4rem;
-    right: 4rem;
-  }
+.add-btn {
+  padding: 1rem 1.25rem 1.55rem;
+  position: absolute;
+  bottom: 4rem;
+  right: 4rem;
+}
+
+.nav-margin {
+  margin: 0rem 1rem;
+}

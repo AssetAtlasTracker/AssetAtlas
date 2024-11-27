@@ -3,9 +3,10 @@
   import Home from './sveltePages/Home.svelte';
 </script>
 
+
 <Router>
-  <nav>
+  <!-- <nav>
     <Link to="/">Home</Link>
-  </nav>
+  </nav>  -->
   <Route path="/" component={Home} />
 </Router>
