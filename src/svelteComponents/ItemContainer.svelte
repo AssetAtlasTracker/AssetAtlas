@@ -5,11 +5,13 @@
   {#if items.length > 0}
   <div class="rounded bg-white page-component">
     {#each items as item}
+    <a href="/View">
       <div class="rounded item-card">  
         <div class="item">{item.name}</div>
         <div class="item">Location: {item.parentItem}</div>
         <div class="item desc">Description: {item.description}</div>
       </div>
+    </a>
       <br>
     {/each}
   </div>
