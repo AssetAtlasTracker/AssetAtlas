@@ -2,6 +2,7 @@
   import { AppBar } from '@skeletonlabs/skeleton';
   import SearchBar from "../svelteComponents/SearchBar.svelte";
   import Dialog from '../svelteComponents/Dialog.svelte';
+  import ItemContainer from '../svelteComponents/ItemContainer.svelte'
 
   import '../svelteStyles/home.css';
   import '../svelteStyles/main.css';
@@ -28,6 +29,7 @@
     } catch (err) {
       console.error('Error fetching IP:', err);
     }
+    handleSearch("");
   }
   
     // Search functionality
@@ -99,22 +101,12 @@
 <div class="body">
   <!-- Display search results -->
   {#if searchResults.length > 0}
-    <div class="glass page-component">
-      <h1 id="underline-header" class="text-center font-bold">
-        Search Results:
-      </h1>
-      <ul>
-        {#each searchResults as item}
-          <li>{item.name}: {item.description}</li>
-          <hr>
-        {/each}
-      </ul>
-    </div>
-  {:else if searchQuery !== ''}
-    <div class="glass page-component">
-      <p>No items found for "{searchQuery}".</p>
-    </div>
-  {/if}
+      <ItemContainer items={searchResults}/>
+    {:else if searchQuery !== ''}
+      <div class="rounded bg-white page-component">
+        <p>No items found for "{searchQuery}".</p>
+      </div>
+    {/if}
   
   <!-- Add item button -->
   <button class="add-button text-icon
