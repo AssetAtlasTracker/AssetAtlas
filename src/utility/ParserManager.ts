@@ -6,20 +6,25 @@ import { EntityAdder } from "./EntityAdder";
 import { FileLoader } from "./FileLoader";
 
 export class ParserManager {
+    existingTemplates : ITemplate[] = [];
+
+    constructor(existingTemplates: ITemplate[]) {
+        this.existingTemplates = existingTemplates;
+    }
 
     parseFromFile(itemPath: string, templatePath?: string) {
         // TODO: checkout FileReader and see if better/built in
         const adder = new EntityAdder();
-        let templates : ITemplate[] = [];
         if (templatePath !== undefined && templatePath.length !== 0) {
             const contents = FileLoader.readFile(templatePath);
             const templateParser = new CSVTemplateParser();
             templateParser.parse(contents);
-            templates = templateParser.templatesToAdd;
+            let templates = templateParser.templatesToAdd;
+            this.existingTemplates.concat(templates);
             adder.addTemplates(templates);
         }
         const contents = FileLoader.readFile(itemPath);
-        const itemParser = new CSVItemParser(templates);
+        const itemParser = new CSVItemParser(this.existingTemplates);
         itemParser.parse(contents);
         adder.addItems(itemParser.itemTree, itemParser.itemMap);
     }
