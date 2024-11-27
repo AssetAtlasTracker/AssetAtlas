@@ -78,26 +78,29 @@
     }
   }
 </script>
-  
-<AppBar class="glass">
-  <svelte:fragment slot="lead">(actions)</svelte:fragment>
+
+<AppBar class="appbar-border glass">
+  <svelte:fragment slot="lead">
+    (actions)
+  </svelte:fragment>
   <div class="px-4">
-    <div style="color:white; letter-spacing: -0.1px" class="nav-margin text-2xl font-bold">
+    <div id="title" class="nav-margin text-2xl font-bold">
       Asset Atlas
     </div>
     <div class="nav-margin flex-auto pb-4">
       <SearchBar searchQuery={searchQuery} onSearch={handleSearch} />
     </div>
   </div>
-  <svelte:fragment slot="trail">(profile icon)</svelte:fragment>
+  <svelte:fragment slot="trail">
+    (profile icon)
+  </svelte:fragment>
 </AppBar>
   
 <div class="body">
   <!-- Display search results -->
   {#if searchResults.length > 0}
     <div class="glass page-component">
-      <h1 class="text-center font-bold"
-          style="color:white; border-bottom: 1px solid rgba(255, 255, 255, 0.8); text-align:center;">
+      <h1 id="underline-header" class="text-center font-bold">
         Search Results:
       </h1>
       <ul>
@@ -114,25 +117,26 @@
   {/if}
   
   <!-- Add item button -->
-  <button class="add-btn text-icon
-      text-gray-800 font-bold bg-white hover:bg-gray-100 border-gray-400 
+  <button class="add-button text-icon
+      text-gray-800 font-bold bg-white hover:bg-gray-100 
       rounded-full shadow border" on:click={() => dialog.showModal()}>
     +
   </button>
   
   <!-- Dialog for creating new items -->
   <Dialog bind:dialog on:close={() => console.log('closed')}>
-    <h1 style="color:white; border-bottom: 1px solid rgba(255, 255, 255, 0.8); text-align:center;" 
-        class="font-bold">
+    <h1 id="underline-header" 
+        class="font-bold text-center">
       Create New Item
     </h1>
     <div class="rounded page-component">
       <form on:submit|preventDefault={handleCreateItem}>
         <div class="flex internal-component rounded">
+
           <label class="px-4">
             Name: 
             <br>
-            <input class="bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded" 
+            <input class="dark-textarea text-gray-800 py-2 px-4" 
                 type="text" 
                 placeholder="Toolbox" bind:value={name} required />
           </label>
@@ -140,23 +144,26 @@
           <label class="px-4">
             Description:
             <br>
-            <textarea rows="5" class="bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded" 
+            <textarea rows="5" id="resize-none-textarea" 
+                class="dark-textarea text-gray-800 py-2 px-4" 
                 placeholder="My medium-sized, red toolbox"
-                style="resize: none" bind:value={description} />
+                bind:value={description} />
           </label>
 
           <label class="px-4">
             Tags:
             <br>
-            <textarea class="bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded" 
-                style="resize: none" bind:value={tags} />
+            <textarea id="resize-none-textarea" 
+                class="dark-textarea text-gray-800 py-2 px-4" 
+                bind:value={tags} />
           </label>
   
           <label class="px-4">
             Contained Items:
             <br>
-            <textarea class="bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded" 
-                style="resize: none" bind:value={containedItems} />
+            <textarea id="resize-none-textarea"
+                class="dark-textarea text-gray-800 py-2 px-4" 
+                bind:value={containedItems} />
           </label>
         </div>
   

@@ -9,11 +9,12 @@
 
 <div class="flex">
   <input
-    class="flex-auto bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded"
+    class="flex-auto searchbar py-2 px-4"
     type="text"
     placeholder="Search items"
     bind:value={searchQuery}
   />
-  <button class="nav-margin border-button hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 shadow" 
-          on:click={handleSearch}>Search</button>
+  <button class="nav-margin border-button hover:bg-gray-100 font-semibold py-2 px-4 shadow" on:click={handleSearch}>
+    Search
+  </button>
 </div>

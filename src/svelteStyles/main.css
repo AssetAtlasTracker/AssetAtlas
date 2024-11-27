@@ -5,8 +5,12 @@ Large component styles
 Glassmorphic main color: rgba( 40, 40, 80, 0.25)
 Border/Line: 1px solid rgba( 255, 255, 255, 0.8)
 */
+.appbar-border{
+  border: 1px solid rgba( 255, 255, 255, 0.8);
+}
+
 .glass{
-  background: rgba( 40, 40, 80, 0.25);
+  background: rgba(40, 40, 80, 0.25) !important;
   box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
   backdrop-filter: blur( 10px );
   -webkit-backdrop-filter: blur( 4px );
@@ -16,41 +20,101 @@ Border/Line: 1px solid rgba( 255, 255, 255, 0.8)
 .page-component {
   margin: 1.5rem;
   padding: 1.5rem;
-  background: rgb(255, 255, 255, 0);
-  border: 1px solid rgba( 255, 255, 255, 0.8);
-  box-shadow: 5px 5px 8px -8px slategray;
+  border: 1px solid rgba(255, 255, 255, 0.8);
 }
   
+.internal-component {
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.1);
+  box-shadow: inset 5px 5px 8px -8px black;
+}
+
 .dialog-component {
   margin: 1.5rem;
   padding: 1.5rem;
   background: rgb(255, 255, 255, 0);
-  border: 1px solid rgba( 255, 255, 255, 0.8);
-  box-shadow: 5px 5px 8px -8px slategray;
-}
-    
-.internal-component {
-  margin: 1rem 0;
-  padding: 1rem;
-  background-color: #E4E6EE;
-  box-shadow: inset 5px 5px 8px -8px slategray;
+  border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
 /* 
 Small component styles 
 */
+#resize-none-textarea{
+  resize: none
+}
+
 .border-button{
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.8);
   padding: 0.5rem 1rem;
-  background: rgba(0,0,0,0);
+  background: rgba(0, 0, 0, 0);
   color: white;
+}
+
+.dark-textarea{
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+}
+
+.searchbar{
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
 }
 
 /* 
 Text styles 
 */
+#title{
+  letter-spacing: -0.1rem;
+
+}
+
+#underline-header{
+  border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+}
+
 .text-icon {
-    font-size: 2.25rem;
+  font-size: 2.25rem;
+}
+
+.text-3xl {
+    font-size: 2.5rem;
+    line-height: 2rem;
+}
+
+div {
+  color: white;
+}
+
+h1 {
+  color: white;
+  padding: 0rem 0rem 1rem 0rem; 
+}
+
+h2 {
+  color: white;
+}
+
+body {
+  color: white;
+}
+
+::-webkit-input-placeholder {
+    color:white;
+}
+
+::-moz-placeholder {
+    color:white;
+}
+
+::-ms-placeholder {
+    color:white;
+}
+
+::placeholder {
+    color:white;
 }
     
