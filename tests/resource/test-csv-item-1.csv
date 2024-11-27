@@ -1,0 +1,6 @@
+item name,template,description,value
+one,,a number,1
+>,,,
+two,,another number,2
+<,,,
+three,,a third number,3

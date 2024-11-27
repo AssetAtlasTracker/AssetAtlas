@@ -81,11 +81,13 @@ export class CSVItemParser implements Parser {
         }
 
         switch (data[i][0]) {
-            case ">": this.parseHelperIn(data, i, items, last_item);
-            case "<": this.parseHelperOut(data,i, items, last_item);
-            default: this.parseHelperItem(data,i, items, last_item);
+            case ">": this.parseHelperItem(data, i, items, last_item); break;
+            case "<": this.parseHelperOut(data,i, items, last_item); break;
+            default: this.parseHelperIn(data,i, items, last_item);
         }
     }
+
+    
 
     parseHelperItem(data: String[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
         if (!last_item) {

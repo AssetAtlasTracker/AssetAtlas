@@ -1,7 +1,12 @@
-import exp from "constants";
+import { Types } from "mongoose";
 import BasicItem from "../src/models/basicItem";
 import CustomField, { ICustomField } from "../src/models/customField";
-import {CSVItemParser} from "../src/utility"
+
+import {test} from "../src/utility"
+
+const resources = test();
+const CSVItemParser = resources.itemParser;
+const FileLoader = resources.loader;
 
 describe("Testing Item Parsing", () => {
 
@@ -49,5 +54,50 @@ describe("Testing Item Parsing", () => {
             expect(expectedField.value).toBe(firstField.value);
         }
 
+    });
+
+    it("Should parse an item with a subitem from a file", async () => {
+        const path = "./tests/resource/test-csv-item-1.csv";
+        const content = FileLoader.readFile(path);
+        const itemParser = new CSVItemParser([]);
+
+        const canParse = itemParser.canParse(content.split(/\n|\r/)[0].split(/,/));
+        expect(canParse).toBeTruthy();
+
+        // parse and get results
+        itemParser.parse(content);
+        const items = itemParser.itemTree;
+        const itemMap = itemParser.itemMap;
+
+        // check items
+        // -- first item
+        const firstItem = itemMap.get('1' as unknown as Types.ObjectId);
+        expect(firstItem).not.toBeNull();
+        expect(firstItem!.name).toBe('one');
+        expect(firstItem!.description).toBe('a number');
+        expect(firstItem!.customFields).not.toBeNull();
+        expect(firstItem!.customFields![0].value).toBe('1');
+
+        // -- second item
+        const secondItem = itemMap.get('3' as unknown as Types.ObjectId);
+        expect(secondItem).not.toBeNull();
+        expect(secondItem!.name).toBe('two');
+        expect(secondItem!.description).toBe('another number');
+        expect(secondItem!.customFields).not.toBeNull();
+        expect(secondItem!.customFields![0].value).toBe('2');
+
+        // -- third item
+        const thirdItem = itemMap.get('5' as unknown as Types.ObjectId);
+        expect(thirdItem).not.toBeNull();
+        expect(thirdItem!.name).toBe('three');
+        expect(thirdItem!.description).toBe('a third number');
+        expect(thirdItem!.customFields).not.toBeNull();
+        expect(thirdItem!.customFields![0].value).toBe('3');
+
+        // check item relations
+        const parentItem = items[0];
+        expect(parentItem).toBe(firstItem);
+        expect(parentItem.containedItems).not.toBeNull();
+        expect(parentItem.containedItems![0]).toStrictEqual(secondItem!._id);
     });
 });

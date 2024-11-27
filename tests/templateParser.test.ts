@@ -1,4 +1,8 @@
-import {CSVTemplateParser} from "../src/utility"
+import {test} from "../src/utility"
+
+const resources = test();
+const CSVTemplateParser = resources.templateParser;
+
 import Template from "../src/models/template";
 
 

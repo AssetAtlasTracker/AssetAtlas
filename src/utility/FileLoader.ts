@@ -7,6 +7,7 @@ export class FileLoader {
           return content;
         } catch (err) {
           console.error('Error reading file:', err);
+          throw err;
           return ''; // Return an empty string in case of an error
         }
       }
