@@ -1,4 +1,3 @@
-import { CSVItemParser } from "./CSVItemParser";
-import { CSVTemplateParser } from "./CSVTemplateParser";
+import { ParserManager } from "./ParserManager"
 
-export {CSVItemParser, CSVTemplateParser}
+export {ParserManager}
