@@ -106,6 +106,7 @@ export class CSVItemParser implements Parser {
             this.parseHelper(data, i+1, items, null); // is null the right choice here? more strict but better
         }
     }
+    
     parseHelperIn(data: String[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
         let new_item = this.parseItemFromLine(data[i], i.toString());
         if (items.length > 0) {
