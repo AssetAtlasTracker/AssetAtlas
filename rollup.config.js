@@ -10,10 +10,13 @@ import replace from '@rollup/plugin-replace';
 import path from 'path';
 import copy from 'rollup-plugin-copy';
 import postcss from 'rollup-plugin-postcss';
+import serve from 'rollup-plugin-serve';
+import livereload from 'rollup-plugin-livereload';
 import { fileURLToPath } from 'url';
 
 //env stuff
 const production = !process.env.ROLLUP_WATCH;
+// const isProduction = process.env.NODE_ENV === 'production';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -66,7 +69,17 @@ export default {
         { src: 'src/index.html', dest: 'dist' }
       ],
       copyOnce: true
-    })
+    }),
+    ...(!production
+      ? [
+          serve({
+            contentBase: 'dist',
+            port: 3000, // Local dev server on port 3000
+          }),
+          livereload('dist'), // Enable live reload
+        ]
+      : []),
+
   ],
   watch: {
     clearScreen: false
