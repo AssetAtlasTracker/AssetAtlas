@@ -1,9 +1,8 @@
-import type { IBasicItem } from "../models/basicItem";
-import type { ITemplate } from "../models/template";
+import type { ITemplate } from "../../models/template";
 import { CSVItemParser } from "./CSVItemParser";
 import { CSVTemplateParser } from "./CSVTemplateParser";
-import { EntityAdder } from "./EntityAdder";
-import { FileLoader } from "./FileLoader";
+import { EntityAdder } from "../EntityAdder";
+import { FileLoader } from "../file/FileLoader";
 
 export class ParserManager {
     existingTemplates : ITemplate[] = [];

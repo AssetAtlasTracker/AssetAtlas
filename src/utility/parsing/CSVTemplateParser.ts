@@ -1,7 +1,7 @@
-import type { IBasicItem } from "../models/basicItem";
-import Template, { type ITemplate } from "../models/template";
-import { CSVPreProcessor } from "./CSVPreProcessor";
-import { CSVSplitter } from "./CSVSplitter";
+import type { IBasicItem } from "../../models/basicItem";
+import Template, { type ITemplate } from "../../models/template";
+import { CSVPreProcessor } from "../CSVPreProcessor";
+import { CSVSplitter } from "../CSVSplitter";
 import type { Parser } from "./Parser";
 
 

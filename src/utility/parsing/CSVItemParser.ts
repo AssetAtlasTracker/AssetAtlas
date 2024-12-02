@@ -1,10 +1,10 @@
 import type { Types } from "mongoose";
-import type { IBasicItem } from "../models/basicItem";
-import BasicItem from "../models/basicItem";
-import CustomField from "../models/customField";
-import type { ITemplate } from "../models/template";
-import { CSVPreProcessor } from "./CSVPreProcessor";
-import { CSVSplitter } from "./CSVSplitter";
+import type { IBasicItem } from "../../models/basicItem";
+import BasicItem from "../../models/basicItem";
+import CustomField from "../../models/customField";
+import type { ITemplate } from "../../models/template";
+import { CSVPreProcessor } from "../CSVPreProcessor";
+import { CSVSplitter } from "../CSVSplitter";
 import type { Parser } from "./Parser";
 
 export class CSVItemParser implements Parser {
