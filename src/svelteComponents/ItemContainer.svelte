@@ -1,17 +1,18 @@
 <script lang="ts">
-    export let items: string | any[] = [];
-  </script>
+  import { Link } from 'svelte-routing';
+  export let items: string | any[] = [];
+</script>
 
   {#if items.length > 0}
   <div class="rounded bg-white page-component">
     {#each items as item}
-    <a href="/View">
+    <Link to="/view/{item._id}">
       <div class="rounded item-card">  
         <div class="item">{item.name}</div>
         <div class="item">Location: {item.parentItem}</div>
         <div class="item desc">Description: {item.description}</div>
       </div>
-    </a>
+    </Link>
       <br>
     {/each}
   </div>

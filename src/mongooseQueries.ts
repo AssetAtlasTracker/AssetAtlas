@@ -1,5 +1,7 @@
 import BasicItem from './models/basicItem.js';
 import type {IBasicItem} from './models/basicItem.js';
+import CustomField from './models/customField.js';
+
 //import mongoose from 'mongoose';
 
 export const createItem = async (name: string, description: string,
@@ -15,11 +17,23 @@ export const createItem = async (name: string, description: string,
     }
 
     export const getItemById = async (id: string) => {
-        return await BasicItem.findById(id)
-        .populate('containedItems') // Populate referenced items
-        .exec();
-    }
-
+        try {
+          console.log('Fetching item with ID:', id);
+      
+          const item = await BasicItem.findById(id)
+            .populate('containedItems') // Populate referenced items
+            .populate('customFields.field')
+            .populate('parentItem')
+            .exec();
+      
+          console.log('Item fetched successfully:', item); // Check the output
+          return item;
+        } catch (error) {
+          console.error('Error in mongooseQueries.getItemById:', error); // Log the error
+          throw error; // Re-throw the error so the controller catches it
+        }
+      };
+    
     export const deleteItemById = async (id: string) => {
         return await BasicItem.findByIdAndDelete(id);
     }

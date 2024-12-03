@@ -1,14 +1,13 @@
 <script lang="ts">
   import { AppBar } from '@skeletonlabs/skeleton';
-  import SearchBar from "../svelteComponents/SearchBar.svelte";
+  import SearchBar from '../svelteComponents/SearchBar.svelte';
   import Dialog from '../svelteComponents/Dialog.svelte';
   import ItemContainer from '../svelteComponents/ItemContainer.svelte'
+  import { ip } from '../stores/ipStore';
 
   import '../svelteStyles/home.css';
   import '../svelteStyles/main.css';
   
-  let ip = process.env.IP; // default to 3000
-  fetchIp();
   
   // Form inputs
   let name = '';
@@ -22,19 +21,6 @@
   let dialog: { showModal: () => any; };
   let parentItemSuggestions: any[] = [];
   let parentItemDebounceTimeout: number | undefined;
-  
-  // Fetch IP dynamically
-  async function fetchIp() {
-    try {
-      const response = await fetch('/api/ip');
-      const data = await response.json();
-      ip = data.ip;
-      console.log('IP fetched from server:', ip);
-    } catch (err) {
-      console.error('Error fetching IP:', err);
-    }
-    handleSearch("");
-  }
 
   
   
@@ -42,7 +28,7 @@
   async function handleSearch(query: string) {
     searchQuery = query;
     try {
-      const response = await fetch(`http://${ip}/api/items/search?name=${encodeURIComponent(searchQuery)}`, {
+      const response = await fetch(`http://${$ip}/api/items/search?name=${encodeURIComponent(searchQuery)}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -67,7 +53,7 @@
     const tagsArray = tags.split(',').map((tag) => tag.trim());
 
     try {
-      const response = await fetch(`http://${ip}/api/items`, {
+      const response = await fetch(`http://${$ip}/api/items`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -103,7 +89,7 @@
 
   async function searchParentItems(query: string) {
     try {
-      const response = await fetch(`http://${ip}/api/items/search?name=${encodeURIComponent(query)}`, {
+      const response = await fetch(`http://${$ip}/api/items/search?name=${encodeURIComponent(query)}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
