@@ -56,14 +56,14 @@ export interface IBasicItem extends Document { //we can add more stuff here
 BasicItemSchema.pre('save', async function (next) {
   const item = this as unknown as IBasicItem;
 
-  if (item.isModified('parentItem')) {
-    const BasicItem = model<IBasicItem>('BasicItem');
+  const BasicItem = model<IBasicItem>('BasicItem');
 
-    //Find the previous version of the item if it already existed
+  // Handle new items or items with modified parentItem
+  if (item.isNew || item.isModified('parentItem')) {
+    // For existing items, remove from the old parent's containedItems
     if (!item.isNew) {
       const previousItem = await BasicItem.findById(item._id);
       if (previousItem && previousItem.parentItem) {
-        //Remove item from the old parent's containedItems
         const oldParent = await BasicItem.findById(previousItem.parentItem);
         if (oldParent) {
           oldParent.containedItems = oldParent.containedItems?.filter(
@@ -77,11 +77,14 @@ BasicItemSchema.pre('save', async function (next) {
     if (item.parentItem) {
       const newParent = await BasicItem.findById(item.parentItem);
       if (newParent) {
-        newParent.containedItems = [...(newParent.containedItems || []), item._id];
-        await newParent.save();
+        if (!newParent.containedItems?.includes(item._id)) {
+          newParent.containedItems = [...(newParent.containedItems || []), item._id];
+          await newParent.save();
+        }
       }
     }
 
+    item.itemHistory = item.itemHistory || [];
     item.itemHistory.push({
       location: item.parentItem || null,
       timestamp: new Date(),

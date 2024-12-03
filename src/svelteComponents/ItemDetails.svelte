@@ -41,6 +41,13 @@
         'value' in value
       );
     }
+  
+    function formatDate(value: unknown): string {
+      if (typeof value === 'string' || value instanceof Date) {
+        return new Date(value).toLocaleString();
+      }
+      return '';
+    }
   </script>
   
   <div class="item-view">
@@ -65,14 +72,36 @@
             {:else}
               <li>No custom fields.</li>
             {/if}
-          {:else if key === 'containedItems'}
-            <!-- Similar handling for containedItems -->
+            {:else if key === 'containedItems'}
+            <li>
+              <strong>Contained Items:</strong>
+              {#if Array.isArray(value) && value.length > 0}
+                <ul>
+                  {#each value as containedItem}
+                    <li>{displayValue(containedItem)}</li>
+                  {/each}
+                </ul>
+              {:else}
+                <span>No contained items.</span>
+              {/if}
+            </li>
           {:else if key === 'parentItem'}
-            <!-- Similar handling for parentItem -->
+            <li>
+              <strong>Parent Item:</strong> {displayValue(value)}
+            </li>
           {:else if key === 'tags'}
-            <!-- Handle tags -->
+            <li>
+              <strong>Tags:</strong> 
+              {#if Array.isArray(value) && value.length > 0}
+                {value.join(', ')}
+              {:else}
+                <span>No tags.</span>
+              {/if}
+            </li>
           {:else if key === 'createdAt' || key === 'updatedAt'}
-            <!-- Handle dates -->
+            <li>
+              <strong>{key === 'createdAt' ? 'Created At:' : 'Updated At:'}</strong> {formatDate(value)}
+            </li>
           {:else}
             <li>
               <strong>{key}:</strong> {displayValue(value)}
@@ -86,4 +115,8 @@
   </div>
   
   <style>
+    .item-view ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
   </style>

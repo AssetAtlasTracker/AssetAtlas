@@ -24,6 +24,7 @@
       console.log('Fetching item from:', `http://${$ip}/api/items/${params.id}`);
       const response = await fetch(`http://${$ip}/api/items/${id}`);
       item = await response.json();
+      console.log('Fetched item data:', item);
     } catch (err) {
       console.error('Error fetching item:', err);
     }
