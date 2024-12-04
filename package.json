@@ -71,5 +71,8 @@
     "mongoose-sequence": "^6.0.1",
     "svelte-routing": "^2.13.0",
     "tslib": "^2.7.0"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.28.0"
   }
 }

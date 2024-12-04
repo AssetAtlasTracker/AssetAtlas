@@ -7,10 +7,6 @@ FROM base AS deps_cache
 WORKDIR /usr/src/app
 COPY package*.json ./
 
-#move this to package.json? probably wise
-RUN npm install @rollup/rollup-linux-x64-gnu
-RUN npm ci
-
 # Development dependencies and app setup
 FROM deps_cache AS build_deps
 WORKDIR /usr/src/app
