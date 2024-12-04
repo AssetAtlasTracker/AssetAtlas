@@ -1,12 +1,17 @@
 <script lang="ts">
     import { Link } from 'svelte-routing';
-    export let item: Record<string, unknown>; // Define a specific type for `item` if possible
+    export let item: Record<string, unknown>;
   
+    interface Item {
+      name: string;
+      parentItem?: Item | null;
+    }
+    
     function displayValue(value: unknown): string {
       if (Array.isArray(value)) {
         return value.map((v) => displayValue(v)).join(', ');
       } else if (typeof value === 'object' && value !== null) {
-        return JSON.stringify(value, null, 2); // Pretty-print JSON
+        return JSON.stringify(value, null, 2); //Pretty-print JSON
       } else if (
         typeof value === 'string' ||
         typeof value === 'number' ||
@@ -86,9 +91,12 @@
               {/if}
             </li>
           {:else if key === 'parentItem'}
-            <li>
-              <strong>Parent Item:</strong> {displayValue(value)}
-            </li>
+          <li>
+            <strong>Parent Item:</strong>
+            {typeof value === 'object' && value !== null && 'name' in value
+              ? value.name
+              : 'No parent'}
+          </li>
           {:else if key === 'tags'}
             <li>
               <strong>Tags:</strong> 
@@ -118,5 +126,8 @@
     .item-view ul {
       list-style-type: none;
       padding-left: 0;
+    }
+    .item-view {
+      color: black;
     }
   </style>

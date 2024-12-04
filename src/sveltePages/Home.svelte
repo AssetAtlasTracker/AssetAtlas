@@ -60,7 +60,7 @@
           name,
           description,
           tags: tagsArray,
-          parentItem: parentItemId, // Include parentItemId in the request body
+          parentItem: parentItemId,
         }),
       });
       const data = await response.json();
