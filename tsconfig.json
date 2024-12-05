@@ -18,9 +18,6 @@
     "typeRoots": ["./node_modules/@types"]
   },
   "type": "module",
-  "scripts": {
-    "test": "jest"
-  },
   "include": [
     "src/**/*",  // Include all frontend and backend TypeScript files
     "svelte.d.ts" // Add your custom Svelte typings

@@ -16,7 +16,6 @@
   let tags = '';
   let parentItemName = '';
   let parentItemId: string | null = null;
-  let containedItems = '';
   let searchQuery = '';
   let searchResults: IBasicItemPopulated[] = []; // Array for fetched items
   let dialog: { showModal: () => any; };

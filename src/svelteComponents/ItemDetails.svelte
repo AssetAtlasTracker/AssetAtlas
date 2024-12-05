@@ -31,7 +31,7 @@
           <ul>
             {#each item.containedItems as containedItem}
               <li>
-                <Link to={`/items/${containedItem._id}`}>{containedItem.name}</Link>
+                <Link to={`/view/${containedItem._id}`}>{containedItem.name}</Link>
               </li>
             {/each}
           </ul>
@@ -41,7 +41,7 @@
       {#if item.parentItem}
         <li>
           <strong>Parent Item:</strong>
-          <Link to={`/items/${item.parentItem._id}`}>{item.parentItem.name}</Link>
+          <Link to={`/view/${item.parentItem._id}`}>{item.parentItem.name}</Link>
         </li>
       {:else}
         <li><strong>Parent Item:</strong> No parent</li>

@@ -5,12 +5,16 @@ services:
     build:
       context: ..    
       dockerfile: ./docker/Dockerfile
+      args:
+        BUILDKIT_INLINE_CACHE: "1"
     volumes:
       - ../:/usr/src/app   
       - /usr/src/app/node_modules 
     environment:
       NODE_ENV: development   
       MONGO_URI: mongodb://mongo:27017/assetatlas_db
+      DOCKER_BUILDKIT: "1"
+      COMPOSE_DOCKER_CLI_BUILD: "1"
     ports:
       - "3000:3000"           
     command: >
