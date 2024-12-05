@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import mongooseQueries from '../mongooseQueries.js';
 import BasicItem from '../models/basicItem.js';
+import type { IBasicItemPopulated } from '../models/basicItem.js';
 import Fuse from 'fuse.js';
 
 export const createItem = async (req: Request, res: Response) => {
@@ -68,7 +69,11 @@ export const searchItems = async (req: Request, res: Response) => {
   const name = req.query.name as string;
 
   try {
-    const items = await BasicItem.find({}).exec();
+    const items = await BasicItem.find({})
+    .populate('parentItem', 'name')
+    .populate('containedItems', 'name')
+    .lean<IBasicItemPopulated[]>()
+    .exec();
 
     if (name) {
       const fuse = new Fuse(items, {

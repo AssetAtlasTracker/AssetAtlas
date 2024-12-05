@@ -1,5 +1,5 @@
 import BasicItem from './models/basicItem.js';
-import type {IBasicItem} from './models/basicItem.js';
+import type {IBasicItem, IBasicItemPopulated} from './models/basicItem.js';
 import CustomField from './models/customField.js';
 
 //import mongoose from 'mongoose';
@@ -24,10 +24,11 @@ export const createItem = async (name: string, description: string,
             .populate('containedItems') // Populate referenced items
             .populate('customFields.field')
             .populate('parentItem')
+            .populate('itemHistory.location')
             .exec();
       
           console.log('Item fetched successfully:', item); // Check the output
-          return item;
+          return item as unknown as IBasicItemPopulated;
         } catch (error) {
           console.error('Error in mongooseQueries.getItemById:', error); // Log the error
           throw error; // Re-throw the error so the controller catches it
@@ -38,11 +39,17 @@ export const createItem = async (name: string, description: string,
         return await BasicItem.findByIdAndDelete(id);
     }
 
-    export const searchItemsByName = async (searchTerm: string) => {
-        return await BasicItem.find({
-          name: { $regex: searchTerm, $options: 'i' }//case-insensitive
-        }).populate('containedItems').exec();
-      };
+    export const searchItemsByName = async (searchTerm: string): Promise<IBasicItemPopulated[]> => {
+      const items = await BasicItem.find({
+        name: { $regex: searchTerm, $options: 'i' }, // Case-insensitive search
+      })
+        .populate('parentItem')
+        .populate('containedItems')
+        .lean<IBasicItemPopulated[]>()
+        .exec();
+    
+      return items;
+    };
 
     export default {
         createItem,

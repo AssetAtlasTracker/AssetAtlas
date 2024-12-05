@@ -4,12 +4,14 @@
   import { ip } from '../stores/ipStore';
   import mongoose from 'mongoose';
   import ItemDetails from '../svelteComponents/ItemDetails.svelte';
+  import type { IBasicItemPopulated } from '../models/basicItem';
+  
   export let params;
   console.log('view params:', params);
   import '../svelteStyles/home.css';
   import '../svelteStyles/main.css';
 
-  let item = {};
+  let item: IBasicItemPopulated | null = null;
   let id = params.id;
 
   onMount(async () => {
@@ -35,6 +37,10 @@
 
 </AppBar>
 
-<ItemDetails {item} />
+{#if item}
+  <ItemDetails {item} />
+{:else}
+  <p>Loading item data...</p>
+{/if}
 
   

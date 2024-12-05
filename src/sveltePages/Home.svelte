@@ -2,7 +2,8 @@
   import { AppBar } from '@skeletonlabs/skeleton';
   import SearchBar from '../svelteComponents/SearchBar.svelte';
   import Dialog from '../svelteComponents/Dialog.svelte';
-  import ItemContainer from '../svelteComponents/ItemContainer.svelte'
+  import ItemContainer from '../svelteComponents/ItemContainer.svelte';
+  import type { IBasicItemPopulated } from '../models/basicItem';
   import { ip } from '../stores/ipStore';
 
   import '../svelteStyles/home.css';
@@ -17,7 +18,7 @@
   let parentItemId: string | null = null;
   let containedItems = '';
   let searchQuery = '';
-  let searchResults: any[] = []; // Array for fetched items
+  let searchResults: IBasicItemPopulated[] = []; // Array for fetched items
   let dialog: { showModal: () => any; };
   let parentItemSuggestions: any[] = [];
   let parentItemDebounceTimeout: number | undefined;
@@ -25,28 +26,22 @@
   
   
     // Search functionality
-  async function handleSearch(query: string) {
-    searchQuery = query;
-    try {
-      const response = await fetch(`http://${$ip}/api/items/search?name=${encodeURIComponent(searchQuery)}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-  
-      const rawResponse = await response.text();
-      const contentType = response.headers.get('Content-Type');
-  
-      if (!response.ok) throw new Error('Failed to fetch items');
-      if (contentType && contentType.includes('application/json')) {
-        const data = JSON.parse(rawResponse);
-        searchResults = data;
-      } else {
-        console.error('Response is not JSON:', rawResponse);
-      }
-    } catch (err) {
-      console.error('Error searching items:', err);
-    }
+    async function handleSearch(query: string) {
+  searchQuery = query;
+  try {
+    const response = await fetch(`http://${$ip}/api/items/search?name=${encodeURIComponent(searchQuery)}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch items');
+
+    const data = await response.json(); 
+    searchResults = data as IBasicItemPopulated[]; 
+  } catch (err) {
+    console.error('Error searching items:', err);
   }
+}
   
   // Create item
   async function handleCreateItem() {

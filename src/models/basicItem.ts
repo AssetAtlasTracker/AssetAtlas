@@ -6,20 +6,38 @@ export interface IBasicItem extends Document { //we can add more stuff here
   _id: Types.ObjectId;//we need this underscore i think
   name: string;
   description: string;
-  // createdAt: Date;
-  // updatedAt: Date;
   tags: string[];
-  containedItems?: Types.ObjectId[];//for nested items
-  parentItem?: Types.ObjectId;
+  containedItems?: Array<Types.ObjectId>;//for nested items
+  parentItem?: Types.ObjectId | null;
   templateName?: string;
   customFields?: {
-    field: Types.ObjectId | ICustomField;
+    field: Types.ObjectId;
     value: unknown;
   }[];
   itemHistory: {
     location: Types.ObjectId | null;
     timestamp: Date;
   }[];
+}
+
+export interface IBasicItemPopulated {
+  _id: Types.ObjectId;
+  name: string;
+  description?: string;
+  tags: string[];
+  containedItems?: Array<IBasicItem>;
+  parentItem?: IBasicItem | null;
+  templateName?: string;
+  customFields?: Array<{
+    field: ICustomField;
+    value: unknown;
+  }>;
+  itemHistory?: Array<{
+    location: IBasicItem;
+    timestamp: Date;
+  }>;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
   const BasicItemSchema: Schema = new Schema({
