@@ -43,6 +43,7 @@ connectDB();
 //CORS
 const allowedOrigins = [
   'http://localhost:3000', // Allow localhost
+  'http://localhost:3001',
   `http://${process.env.IP}`, // Allow the IP from .env or dynamically
 ];
 

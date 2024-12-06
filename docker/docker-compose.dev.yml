@@ -3,37 +3,28 @@ name: assetatlas-project
 services:
   assetatlas:
     build:
-      context: ..    
-      dockerfile: ./docker/Dockerfile
-      args:
-        BUILDKIT_INLINE_CACHE: "1"
-    volumes:
-      - ../:/usr/src/app   
-      - /usr/src/app/node_modules 
+      context: ..
+      dockerfile: ./docker/Dockerfile.dev
     environment:
-      NODE_ENV: development   
+      NODE_ENV: development
       MONGO_URI: mongodb://mongo:27017/assetatlas_db
-      DOCKER_BUILDKIT: "1"
-      COMPOSE_DOCKER_CLI_BUILD: "1"
+    volumes:
+      - ..:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
     ports:
-      - "3000:3000"           
-    command: >
-      sh -c "npm install --include=dev &&
-             npm run dev"          # Install dev dependencies and run the dev server
+      - "3000:3000"
+      - "3001:3001"
     depends_on:
       - mongo
+    command: ["sh", "-c", "npm rebuild esbuild && npm run dev"]
 
   mongo:
     image: mongo:latest
     volumes:
-      - mongo-data:/data/db    
-    networks:
-      - default
-
-networks:
-  default:
-    driver: bridge
-    name: assetatlas-bridge
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
 
 volumes:
+  node_modules:
   mongo-data:

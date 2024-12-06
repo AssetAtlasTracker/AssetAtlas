@@ -4,7 +4,7 @@ export default defineConfig({
 
   server: {
     host: "0.0.0.0", // Bind to all interfaces for Docker compatibility
-    port: 3000,      // Explicitly define the port
+    port: 3001, //doesnt break testing? needed for vite host?
   },
   
   test: {
