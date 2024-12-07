@@ -6,6 +6,7 @@ import cors from 'cors';
 import fs from 'fs';//for modern .env access
 import itemRoutes from './routes/itemRoutes.js';
 import templateRoutes from './routes/templateRoutes.js';
+import customFieldRoutes from './routes/customFieldRoutes.js';
 
 const app = express();
 //const PORT = process.env.PORT || 3000;
@@ -81,6 +82,7 @@ app.get('/api/ip', (req, res) => {
 
 app.use('/api/items', itemRoutes);
 app.use('/api/templates', templateRoutes);
+app.use('/api/customFields', customFieldRoutes)
 
 // app.get('/', (req, res) => {
 //   res.send('API is running...');
