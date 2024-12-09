@@ -223,7 +223,7 @@
         <label class="px-4 flex-1 min-w-[200px]">
           Name:
           <input
-            class="dark-textarea text-gray-800 py-2 px-4 w-full"
+            class="dark-textarea py-2 px-4 w-full"
             type="text"
             placeholder="Toolbox"
             bind:value={name}
@@ -235,7 +235,7 @@
           Description:
           <textarea
             rows="5"
-            class="dark-textarea text-gray-800 py-2 px-4 w-full"
+            class="dark-textarea py-2 px-4 w-full"
             placeholder="My medium-sized, red toolbox"
             bind:value={description}
           />
@@ -244,7 +244,7 @@
         <label class="px-4 flex-1 min-w-[200px]">
           Tags (comma separated):
           <textarea
-            class="dark-textarea text-gray-800 py-2 px-4 w-full"
+            class="dark-textarea py-2 px-4 w-full"
             bind:value={tags}
           />
         </label>
@@ -253,16 +253,14 @@
           Parent Item:
           <input
             type="text"
-            class="dark-textarea text-gray-800 py-2 px-4 w-full"
+            class="dark-textarea py-2 px-4 w-full"
             bind:value={parentItemName}
             on:input={handleParentItemInput}
           />
           {#if parentItemSuggestions.length > 0}
             <ul class="suggestions">
               {#each parentItemSuggestions.slice(0, 5) as item}
-                <li
-                  on:click={() => selectParentItem(item)}
-                >
+                <li on:click={() => selectParentItem(item)}>
                   {item.name}
                 </li>
               {/each}
@@ -286,7 +284,7 @@
               Field Name:
               <input
                 type="text"
-                class="dark-textarea text-gray-800 py-2 px-4 w-full"
+                class="dark-textarea py-2 px-4 w-full"
                 bind:value={field.fieldName}
                 on:input={(e) => onCustomFieldNameInput(index, e)}
               />
@@ -303,7 +301,7 @@
             <label class="flex-1 mr-2">
               Data Type:
               <select
-                class="dark-textarea text-gray-800 py-2 px-4 w-full"
+                class="dark-textarea py-2 px-4 w-full"
                 bind:value={field.dataType}
                 disabled={field.isExisting}
               >
@@ -316,7 +314,7 @@
               Value:
               <input
                 type="text"
-                class="dark-textarea text-gray-800 py-2 px-4 w-full"
+                class="dark-textarea py-2 px-4 w-full"
                 bind:value={field.value}
               />
             </label>

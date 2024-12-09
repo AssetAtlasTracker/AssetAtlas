@@ -1,40 +1,43 @@
 /* Styles that should be available on all pages, for internal consistency */
 
 /* 
-Large component styles 
-Glassmorphic main color: rgba( 40, 40, 80, 0.25)
-Border/Line: 1px solid rgba( 255, 255, 255, 0.8)
+Large component styles
 */
 .appbar-border{
-  border: 1px solid rgba( 255, 255, 255, 0.8);
+  border: 1px solid rgba(var(--color-primary-100) / 0.9);
+}
+
+.bg-main-gradient{
+  background-image: radial-gradient(at 0% 0%, rgba(var(--color-success-500) / .33) 0px, transparent 50%), 
+                    radial-gradient(at 98% 1%, rgba(var(--color-error-500) / .33) 0px, transparent 50%);
 }
 
 .glass{
-  background: rgba(40, 40, 80, 0.25) !important;
-  box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+  background: rgba(var(--color-primary-800) / 0.8) !important;
+  box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4 );
   backdrop-filter: blur( 10px );
-  -webkit-backdrop-filter: blur( 4px );
+  -webkit-backdrop-filter: blur( 10px );
   border-radius: 10px;
 }
 
 .page-component {
   margin: 1.5rem;
   padding: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(var(--color-primary-100) / 0.9);
 }
   
 .internal-component {
   margin: 1rem 0;
   padding: 1rem;
-  background-color: rgba(0, 0, 0, 0.1);
-  box-shadow: inset 5px 5px 8px -8px black;
+  background-color: rgba(var(--color-primary-900) / 0.1);
+  box-shadow: inset 5px 5px 8px -8px rgb(var(--color-primary-900));
 }
 
 .dialog-component {
   margin: 1.5rem;
   padding: 1.5rem;
-  background: rgb(255, 255, 255, 0);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: rgb(var(--color-primary-100));
+  border: 1px solid rgba(var(--color-primary-100) / 0.9);
 }
 
 /* 
@@ -54,12 +57,14 @@ Small component styles
 
 .dark-textarea{
   background: rgba(0, 0, 0, 0.1);
+  color: rgb(var(--theme-font-color-base));
   border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 10px;
 }
 
 .searchbar{
   background: rgba(0, 0, 0, 0.1);
+  color: rgb(var(--theme-font-color-base));
   border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 10px;
 }
@@ -99,7 +104,8 @@ h2 {
 }
 
 body {
-  color: white;
+  color: rgb(var(--theme-font-color-base));
+  background: rgb(var(--color-surface-800)) !important;
 }
 
 ::-webkit-input-placeholder {

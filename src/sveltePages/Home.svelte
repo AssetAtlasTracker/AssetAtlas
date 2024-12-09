@@ -46,13 +46,13 @@
   {#if searchResults.length > 0}
     <ItemContainer items={searchResults} />
   {:else if searchQuery !== ''}
-    <div class="rounded bg-white page-component">
+    <div class="rounded page-component">
       <p>No items found for "{searchQuery}".</p>
     </div>
   {/if}
 
   <button
-    class="add-button text-icon text-gray-800 font-bold bg-white hover:bg-gray-100 rounded-full shadow border"
+    class="add-button text-icon font-bold hover:bg-gray-100 rounded-full shadow border"
     on:click={() => dialog.showModal()}
   >
     +

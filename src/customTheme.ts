@@ -6,7 +6,7 @@ export const customTheme: CustomThemeConfig = {
 		// =~= Theme Properties =~=
 		"--theme-font-family-base": `system-ui`,
 		"--theme-font-family-heading": `system-ui`,
-		"--theme-font-color-base": "0 0 0",
+		"--theme-font-color-base": "255 255 255",
 		"--theme-font-color-dark": "255 255 255",
 		"--theme-rounded-base": "8px",
 		"--theme-rounded-container": "8px",
@@ -20,7 +20,7 @@ export const customTheme: CustomThemeConfig = {
 		"--on-error": "255 255 255",
 		"--on-surface": "255 255 255",
 		// =~= Theme Colors  =~=
-		// primary | #424b4c 
+		// primary | #424b4c
 		"--color-primary-50": "227 228 228", // #e3e4e4
 		"--color-primary-100": "217 219 219", // #d9dbdb
 		"--color-primary-200": "208 210 210", // #d0d2d2
@@ -97,6 +97,5 @@ export const customTheme: CustomThemeConfig = {
 		"--color-surface-700": "39 44 45", // #272c2d
 		"--color-surface-800": "31 35 36", // #1f2324
 		"--color-surface-900": "25 29 29", // #191d1d
-		
 	}
 }

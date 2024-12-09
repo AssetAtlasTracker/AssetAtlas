@@ -1,4 +1,5 @@
 .add-button {
+  background: rgb(var(--color-primary-800));
   padding: 1rem 1.25rem 1.55rem;
   position: fixed;
   bottom: 4rem;
