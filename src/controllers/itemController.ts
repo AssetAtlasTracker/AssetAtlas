@@ -50,17 +50,18 @@ export const getItemById = async (req: Request, res: Response) => {
 export const deleteItemById = async (req: Request, res: Response) => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: "Not a valid MongoDB ID" });
+    return res.status(400).json({ message: 'Not a valid MongoDB ID' });
   }
 
   try {
-    const item = await mongooseQueries.deleteItemById(id);
+    const item = await BasicItem.findOneAndDelete({ _id: id });
     if (item) {
       return res.status(200).json({ message: 'Item deleted successfully', item });
     } else {
       res.status(404).json({ message: 'Cannot delete: Item not found' });
     }
   } catch (err) {
+    console.error('Error deleting item:', err);
     res.status(500).json({ message: 'Error deleting item', error: err });
   }
 };
