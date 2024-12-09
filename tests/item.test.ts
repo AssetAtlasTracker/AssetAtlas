@@ -263,6 +263,62 @@ it('should create an item, add a custom field, and update the custom field', asy
   expect(updatedItem?.customFields![0].value).toBe('2 years');
 });
 
-//it('not work', async () => {
-//expect(true).toBe(false);
-//});
+it('should move nested items to the parent container and remove deleted item from its parents contained items on deletion', async () => {
+  // Create the top-level parent item
+  const topLevelParentData = {
+    name: 'Top-Level Parent',
+    description: 'The top-level container',
+    tags: ['topLevel']
+  };
+  const topLevelParentResponse = await request(app).post('/api/items').send(topLevelParentData);
+  expect(topLevelParentResponse.status).toBe(201);
+  const topLevelParent = topLevelParentResponse.body;
+
+  // Create a middle-level item contained by the top-level parent
+  const middleItemData = {
+    name: 'Middle Item',
+    description: 'A middle-level container',
+    tags: ['middle'],
+    parentItem: topLevelParent._id
+  };
+  const middleItemResponse = await request(app).post('/api/items').send(middleItemData);
+  expect(middleItemResponse.status).toBe(201);
+  const middleItem = middleItemResponse.body;
+
+  // Create a nested item contained by the middle-level item
+  const nestedItemData = {
+    name: 'Nested Item',
+    description: 'A deeply nested item',
+    tags: ['nested'],
+    parentItem: middleItem._id
+  };
+  const nestedItemResponse = await request(app).post('/api/items').send(nestedItemData);
+  expect(nestedItemResponse.status).toBe(201);
+  const nestedItem = nestedItemResponse.body;
+
+  // Delete the middle-level item
+  const deleteResponse = await request(app).delete(`/api/items/${middleItem._id}`);
+  expect(deleteResponse.status).toBe(200);
+  expect(deleteResponse.body.message).toBe('Item deleted successfully');
+
+  // Verify the nested item was moved to the top-level parent
+  const updatedNestedItem = await BasicItem.findById(nestedItem._id).exec();
+  expect(updatedNestedItem).not.toBeNull();
+  expect(updatedNestedItem?.parentItem?.toString()).toBe(topLevelParent._id.toString());
+
+  // Verify the middle-level item was removed from the top-level parent's containedItems
+  const updatedTopLevelParent = await BasicItem.findById(topLevelParent._id).exec();
+  expect(updatedTopLevelParent?.containedItems?.map(String)).not.toContain(middleItem._id);
+
+  // Verify the nested item is now listed under the top-level parent's containedItems
+  expect(updatedTopLevelParent?.containedItems?.map(String)).toContain(nestedItem._id);
+
+  // Delete the top-level parent to verify nested items become top-level
+  const deleteTopLevelResponse = await request(app).delete(`/api/items/${topLevelParent._id}`);
+  expect(deleteTopLevelResponse.status).toBe(200);
+  expect(deleteTopLevelResponse.body.message).toBe('Item deleted successfully');
+
+  const updatedNestedItemAfterTopLevelDelete = await BasicItem.findById(nestedItem._id).exec();
+  expect(updatedNestedItemAfterTopLevelDelete).not.toBeNull();
+  expect(updatedNestedItemAfterTopLevelDelete?.parentItem).toBeNull();
+});

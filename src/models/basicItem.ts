@@ -112,6 +112,54 @@ BasicItemSchema.pre('save', async function (next) {
   next();
 });
 
+//update parent of the children and contained items with the given item on item delete
+BasicItemSchema.pre('findOneAndDelete', async function (next) {
+  const itemId = this.getQuery()._id;
+  if (!itemId) return next();
+
+  const BasicItem = model<IBasicItem>('BasicItem');
+
+  try {
+    // Find the item being deleted
+    const itemToDelete = await BasicItem.findById(itemId).exec();
+    if (!itemToDelete) return next();
+
+    const { containedItems, parentItem } = itemToDelete;
+
+    if (containedItems && containedItems.length > 0) {
+      await BasicItem.updateMany(
+        { _id: { $in: containedItems } },
+        { $set: { parentItem: parentItem || null } }
+      ).exec();
+
+      if (parentItem) {
+        const parent = await BasicItem.findById(parentItem).exec();
+        if (parent) {
+          parent.containedItems = [
+            ...(parent.containedItems || []),
+            ...containedItems.filter((nestedId) => !parent.containedItems?.includes(nestedId)),
+          ];
+          await parent.save();
+        }
+      }
+    }
+
+    if (parentItem) {
+      const parent = await BasicItem.findById(parentItem).exec();
+      if (parent && parent.containedItems) {
+        parent.containedItems = parent.containedItems.filter(
+          (childId) => !childId.equals(itemId)
+        );
+        await parent.save();
+      }
+    }
+
+    next();
+  } catch (err) {
+    console.error('Error in pre-delete hook:', err);
+  }
+});
+
   const BasicItem = model<IBasicItem>('BasicItem', BasicItemSchema);
   
   export default BasicItem;
