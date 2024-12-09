@@ -30,13 +30,19 @@
       console.log('Fetched item data:', item);
     } catch (err) {
       console.error('Error fetching item:', err);
-      item = null; // Optionally, set to a default state or display an error message
+      item = null;
     }
   }
+
+  function goBack() {
+    window.history.back();
+  }//we gonna change this later fr fr
 </script>
 
-<AppBar class="appbar-border glass">
-  <!-- You can add content to your AppBar here -->
+<AppBar class="appbar-border glass"> 
+  <button class="back-button" on:click={goBack}>
+    ⬅ Back 
+  </button>
 </AppBar>
 
 {#if item}
