@@ -6,20 +6,38 @@ export interface IBasicItem extends Document { //we can add more stuff here
   _id: Types.ObjectId;//we need this underscore i think
   name: string;
   description: string;
-  // createdAt: Date;
-  // updatedAt: Date;
   tags: string[];
-  containedItems?: Types.ObjectId[];//for nested items
-  parentItem?: Types.ObjectId;
+  containedItems?: Array<Types.ObjectId>;//for nested items
+  parentItem?: Types.ObjectId | null;
   templateName?: string;
   customFields?: {
-    field: Types.ObjectId | ICustomField;
+    field: Types.ObjectId;
     value: unknown;
   }[];
   itemHistory: {
     location: Types.ObjectId | null;
     timestamp: Date;
   }[];
+}
+
+export interface IBasicItemPopulated {
+  _id: Types.ObjectId;
+  name: string;
+  description?: string;
+  tags: string[];
+  containedItems?: Array<IBasicItem>;
+  parentItem?: IBasicItem | null;
+  templateName?: string;
+  customFields?: Array<{
+    field: ICustomField;
+    value: unknown;
+  }>;
+  itemHistory?: Array<{
+    location: IBasicItem;
+    timestamp: Date;
+  }>;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
   const BasicItemSchema: Schema = new Schema({
@@ -56,14 +74,14 @@ export interface IBasicItem extends Document { //we can add more stuff here
 BasicItemSchema.pre('save', async function (next) {
   const item = this as unknown as IBasicItem;
 
-  if (item.isModified('parentItem')) {
-    const BasicItem = model<IBasicItem>('BasicItem');
+  const BasicItem = model<IBasicItem>('BasicItem');
 
-    //Find the previous version of the item if it already existed
+  // Handle new items or items with modified parentItem
+  if (item.isNew || item.isModified('parentItem')) {
+    // For existing items, remove from the old parent's containedItems
     if (!item.isNew) {
       const previousItem = await BasicItem.findById(item._id);
       if (previousItem && previousItem.parentItem) {
-        //Remove item from the old parent's containedItems
         const oldParent = await BasicItem.findById(previousItem.parentItem);
         if (oldParent) {
           oldParent.containedItems = oldParent.containedItems?.filter(
@@ -77,11 +95,14 @@ BasicItemSchema.pre('save', async function (next) {
     if (item.parentItem) {
       const newParent = await BasicItem.findById(item.parentItem);
       if (newParent) {
-        newParent.containedItems = [...(newParent.containedItems || []), item._id];
-        await newParent.save();
+        if (!newParent.containedItems?.includes(item._id)) {
+          newParent.containedItems = [...(newParent.containedItems || []), item._id];
+          await newParent.save();
+        }
       }
     }
 
+    item.itemHistory = item.itemHistory || [];
     item.itemHistory.push({
       location: item.parentItem || null,
       timestamp: new Date(),
@@ -89,6 +110,54 @@ BasicItemSchema.pre('save', async function (next) {
   }
 
   next();
+});
+
+//update parent of the children and contained items with the given item on item delete
+BasicItemSchema.pre('findOneAndDelete', async function (next) {
+  const itemId = this.getQuery()._id;
+  if (!itemId) return next();
+
+  const BasicItem = model<IBasicItem>('BasicItem');
+
+  try {
+    // Find the item being deleted
+    const itemToDelete = await BasicItem.findById(itemId).exec();
+    if (!itemToDelete) return next();
+
+    const { containedItems, parentItem } = itemToDelete;
+
+    if (containedItems && containedItems.length > 0) {
+      await BasicItem.updateMany(
+        { _id: { $in: containedItems } },
+        { $set: { parentItem: parentItem || null } }
+      ).exec();
+
+      if (parentItem) {
+        const parent = await BasicItem.findById(parentItem).exec();
+        if (parent) {
+          parent.containedItems = [
+            ...(parent.containedItems || []),
+            ...containedItems.filter((nestedId) => !parent.containedItems?.includes(nestedId)),
+          ];
+          await parent.save();
+        }
+      }
+    }
+
+    if (parentItem) {
+      const parent = await BasicItem.findById(parentItem).exec();
+      if (parent && parent.containedItems) {
+        parent.containedItems = parent.containedItems.filter(
+          (childId) => !childId.equals(itemId)
+        );
+        await parent.save();
+      }
+    }
+
+    next();
+  } catch (err) {
+    console.error('Error in pre-delete hook:', err);
+  }
 });
 
   const BasicItem = model<IBasicItem>('BasicItem', BasicItemSchema);

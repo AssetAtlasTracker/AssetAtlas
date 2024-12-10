@@ -4956,6 +4956,10 @@ a.\!chip:hover,
   margin-right: 0.5rem;
 }
 
+.mt-4 {
+  margin-top: 1rem;
+}
+
 .mt-\[15px\] {
   margin-top: 15px;
 }
@@ -5041,6 +5045,10 @@ a.\!chip:hover,
   height: 100%;
 }
 
+.max-h-48 {
+  max-height: 12rem;
+}
+
 .max-h-\[200px\] {
   max-height: 200px;
 }
@@ -5103,6 +5111,10 @@ a.\!chip:hover,
 
 .min-w-\[150px\] {
   min-width: 150px;
+}
+
+.min-w-\[200px\] {
+  min-width: 200px;
 }
 
 .max-w-\[640px\] {

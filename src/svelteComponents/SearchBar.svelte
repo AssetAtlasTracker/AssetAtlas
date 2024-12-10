@@ -3,7 +3,7 @@
   export let onSearch: (query: string) => void;
   export let results: { name: string }[] = [];
 
-  let debounceTimeout: number;
+  let debounceTimeout: string | number | NodeJS.Timeout | undefined;
 
   //Debounce the search input to prevent excessive API calls
   $: if (searchQuery !== undefined) {

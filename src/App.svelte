@@ -1,7 +1,13 @@
-<script>
+<script lang="ts">
+  import { onMount } from 'svelte';
   import { Router, Route, Link } from 'svelte-routing';
   import Home from './sveltePages/Home.svelte';
   import View from './sveltePages/View.svelte';
+  import { fetchIp } from './stores/ipStore';
+
+  onMount(() => {
+    fetchIp();
+  });
 </script>
 
 
@@ -10,5 +16,8 @@
     <Link to="/">Home</Link>
   </nav>  -->
   <Route path="/" component={Home} />
-  <Route path="/View" component={View} />
+  <!-- <Route path="/view/:id" component={View} /> -->
+  <Route path="/view/:id" let:params>
+    <View {params} />
+    </Route>
 </Router>
