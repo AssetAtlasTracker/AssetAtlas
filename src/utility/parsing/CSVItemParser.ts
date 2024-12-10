@@ -1,7 +1,7 @@
 import type { Types } from "mongoose";
 import type { IBasicItem } from "../../models/basicItem";
 import BasicItem from "../../models/basicItem";
-import CustomField from "../../models/customField";
+import CustomField, { type ICustomField } from "../../models/customField";
 import type { ITemplate } from "../../models/template";
 import { CSVPreProcessor } from "../CSVPreProcessor";
 import { CSVSplitter } from "../CSVSplitter";
@@ -10,6 +10,7 @@ import type { Parser } from "./Parser";
 export class CSVItemParser implements Parser {
     itemTree: IBasicItem[] = [];
     itemMap: Map<Types.ObjectId,IBasicItem> = new Map<Types.ObjectId, IBasicItem>();
+    customFieldMap: Map<Types.ObjectId, ICustomField> = new Map<Types.ObjectId, ICustomField>();
     columns: String[] = [];
     columnTypes: Map<String, string> = new Map<String, string>;
     templates: Map<String, ITemplate> = new Map<String, ITemplate>
@@ -161,6 +162,7 @@ export class CSVItemParser implements Parser {
             item.customFields = [];
         }
         let customField = new CustomField();
+        customField.id=i;
         customField.fieldName = this.columns[i].toString();
         let dataType = this.columnTypes.get(this.columns[i]);
 
@@ -168,7 +170,8 @@ export class CSVItemParser implements Parser {
             throw new Error();
         }
         customField.dataType = dataType.toString();
-        item.customFields.push({field: customField, value: line[i]});
+        item.customFields.push({field: customField.id, value: line[i]});
+        this.customFieldMap.set(customField.id, customField);
     }
     
 }

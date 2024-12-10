@@ -22,17 +22,20 @@ describe("Testing Item Exporting", () => {
         
         firstItem.customFields = [];
         let amountField = new CustomField();
+        amountField.id = 20;
         amountField.fieldName = "amount";
         amountField.dataType = "number";
-        firstItem.customFields.push({field: amountField, value: "1"});
+        firstItem.customFields.push({field: amountField.id, value: "1"});
         let sellerField = new CustomField();
+        sellerField.id = 21;
         sellerField.fieldName = "seller";
         sellerField.dataType = "string";
-        firstItem.customFields.push({field: sellerField, value: "barbra"});
+        firstItem.customFields.push({field: sellerField.id, value: "barbra"});
         let soldField = new CustomField();
+        soldField.id = 22;
         soldField.fieldName = "sold";
         soldField.dataType = "boolean";
-        firstItem.customFields.push({field: soldField, value: "false"});
+        firstItem.customFields.push({field: soldField.id, value: "false"});
         
         const formatter = new CSVFormatter();
         let itemMap = new Map<Types.ObjectId,IBasicItem>();

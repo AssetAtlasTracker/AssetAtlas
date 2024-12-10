@@ -22,21 +22,29 @@ describe("Testing Item Parsing", () => {
         let firstItem = new BasicItem();
         firstItem.name = "cat";
         firstItem.templateName = "";
-        firstItem.description = "a black cat"
-        
+        firstItem.description = "a black cat";
+
+        let fieldMap = new Map<Types.ObjectId, ICustomField>();
         firstItem.customFields = [];
         let amountField = new CustomField();
+        amountField.id=20;
         amountField.fieldName = "amount";
         amountField.dataType = "number";
-        firstItem.customFields.push({field: amountField, value: "1"});
+        fieldMap.set(amountField.id, amountField);
+        firstItem.customFields.push({field: amountField.id, value: "1"});
         let sellerField = new CustomField();
+        sellerField.id=21;
         sellerField.fieldName = "seller";
         sellerField.dataType = "string";
-        firstItem.customFields.push({field: sellerField, value: "barbra"});
+        fieldMap.set(sellerField.id, sellerField);
+        firstItem.customFields.push({field: sellerField.id, value: "barbra"});
         let soldField = new CustomField();
+        soldField.id=22;
         soldField.fieldName = "sold";
         soldField.dataType = "boolean";
-        firstItem.customFields.push({field: soldField, value: "false"});
+        fieldMap.set(soldField.id, soldField);
+        firstItem.customFields.push({field: soldField.id, value: "false"});
+        
         
         expect(itemParser.itemTree.length == 1);
         let expectedItem = itemParser.itemTree[0];
@@ -48,10 +56,15 @@ describe("Testing Item Parsing", () => {
 
         for (var i = 0; i < expectedItem.customFields!.length; i++) {
             let expectedField = expectedItem.customFields![i];
-            let firstField = firstItem.customFields![i];
-            expect(expectedField.field['fieldName']).toBe(firstField.field['fieldName']);
-            expect(expectedField.field['dataType']).toBe(firstField.field['dataType']);
-            expect(expectedField.value).toBe(firstField.value);
+            const field = firstItem.customFields[i];
+            if (i === 0) {
+                expect(field.field).toBe(amountField.id);
+            }
+            const fieldCustom = fieldMap.get(field.field);
+            const expectedFieldCustom = itemParser.customFieldMap.get(expectedField.field);
+            expect(expectedFieldCustom!.fieldName).toBe(fieldCustom!.fieldName);
+            expect(expectedFieldCustom!.dataType).toBe(fieldCustom!.dataType)
+            expect(expectedField.value).toBe(field.value);
         }
 
     });
