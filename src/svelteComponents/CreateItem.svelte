@@ -1,5 +1,6 @@
 <script lang="ts">
     import Dialog from '../svelteComponents/Dialog.svelte';
+    import InfoToolTip from './InfoToolTip.svelte';
     import { ip } from '../stores/ipStore';
 
     export let dialog: { showModal: () => any };
@@ -10,7 +11,10 @@
     let parentItemName = '';
     let parentItemId: string | null = null;
     let parentItemSuggestions: any[] = [];
-    let parentItemDebounceTimeout: NodeJS.Timeout | undefined;
+    let homeItemName = '';
+    let homeItemId: string | null = null;
+    let homeItemSuggestions: any[] = [];
+    let debounceTimeout: NodeJS.Timeout | undefined;
 
     interface ICustomField {
       _id: string;
@@ -32,18 +36,7 @@
     }
 
     //one custom field line by default
-    let customFields: ICustomFieldEntry[] = [
-      {
-        fieldName: '',
-        fieldId: undefined,
-        dataType: 'string', // Default data type if new
-        value: '',
-        suggestions: [],
-        isNew: true,
-        isSearching: false,
-        isExisting: false
-      }
-    ];
+    let customFields: ICustomFieldEntry[] = [];
 
     async function handleCreateItem() {
       customFields = customFields.filter(field => field.fieldName.trim() !== '' && field.dataType.trim() !== '');
@@ -81,6 +74,7 @@
             description,
             tags: tagsArray,
             parentItem: parentItemId,
+            homeItem: homeItemId,
             customFields: formattedCustomFields,
           }),
         });
@@ -95,6 +89,8 @@
         tags = '';
         parentItemName = '';
         parentItemId = null;
+        homeItemName = '';
+        homeItemId = null;
         customFields = [
           {
             fieldName: '',
@@ -125,9 +121,19 @@
       const target = event.target as HTMLInputElement;
       parentItemName = target.value;
       parentItemId = null; //Reset parentItemId when user types
-      if (parentItemDebounceTimeout) clearTimeout(parentItemDebounceTimeout);
-      parentItemDebounceTimeout = setTimeout(() => {
+      if (debounceTimeout) clearTimeout(debounceTimeout);
+      debounceTimeout = setTimeout(() => {
         searchParentItems(parentItemName);
+      }, 300);
+    }
+
+    function handleHomeItemInput(event: Event) {
+      const target = event.target as HTMLInputElement;
+      homeItemName = target.value;
+      homeItemId = null;
+      if (debounceTimeout) clearTimeout(debounceTimeout);
+      debounceTimeout = setTimeout(() => {
+        searchHomeItems(homeItemName);
       }, 300);
     }
 
@@ -144,10 +150,29 @@
       }
     }
 
+    async function searchHomeItems(query: string) {
+      try {
+        const response = await fetch(`http://${$ip}/api/items/search?name=${encodeURIComponent(query)}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const data = await response.json();
+        homeItemSuggestions = data;
+      } catch (err) {
+        console.error('Error searching parent items:', err);
+      }
+    }
+
     function selectParentItem(item: { name: string; _id: string | null }) {
       parentItemName = item.name;
       parentItemId = item._id;
       parentItemSuggestions = [];
+    }
+
+    function selectHomeItem(item: { name: string; _id: string | null }) {
+      homeItemName = item.name;
+      homeItemId = item._id;
+      homeItemSuggestions = [];
     }
 
     function onCustomFieldNameInput(index: number, event: Event) {
@@ -219,19 +244,32 @@
   </h1>
   <div class="rounded page-component">
     <form on:submit|preventDefault={handleCreateItem}>
-      <div class="flex flex-wrap internal-component rounded">
-        <label class="px-4 flex-1 min-w-[200px]">
-          Name:
-          <input
-            class="dark-textarea py-2 px-4 w-full"
-            type="text"
-            placeholder="Toolbox"
-            bind:value={name}
-            required
-          />
-        </label>
+      <div class="flex flex-col space-y-4">
+        <div class="flex flex-wrap space-x-4">
+          <!-- Name -->
+          <label class="flex-1 min-w-[200px]">
+            Name (required):
+            <input
+              class="dark-textarea py-2 px-4 w-full"
+              type="text"
+              placeholder="Toolbox"
+              bind:value={name}
+              required
+            />
+          </label>
 
-        <label class="px-4 flex-1 min-w-[200px]">
+          <!-- Tags -->
+          <label class="flex-1 min-w-[200px]">
+            Tags (comma separated):
+            <textarea
+              class="dark-textarea py-2 px-4 w-full"
+              bind:value={tags}
+            />
+          </label>
+        </div>
+
+        <!-- Description -->
+        <label class="min-w-[400px]">
           Description:
           <textarea
             rows="5"
@@ -241,34 +279,52 @@
           />
         </label>
 
-        <label class="px-4 flex-1 min-w-[200px]">
-          Tags (comma separated):
-          <textarea
-            class="dark-textarea py-2 px-4 w-full"
-            bind:value={tags}
-          />
-        </label>
+        <div class="flex flex-wrap space-x-4">
+          <!-- Parent Item -->
+          <label class="flex-1 min-w-[200px] relative">
+            Parent Item:
+            <InfoToolTip message="Where an item currently is, e.g. a shirt's parent item may be a suitcase." />
+            <input
+              type="text"
+              class="dark-textarea py-2 px-4 w-full"
+              bind:value={parentItemName}
+              on:input={handleParentItemInput}
+            />
+            {#if parentItemSuggestions.length > 0}
+              <ul class="suggestions">
+                {#each parentItemSuggestions.slice(0, 5) as item}
+                  <li on:click={() => selectParentItem(item)}>
+                    {item.name}
+                  </li>
+                {/each}
+              </ul>
+            {/if}
+          </label>
 
-        <label class="px-4 flex-1 min-w-[200px] relative">
-          Parent Item:
-          <input
-            type="text"
-            class="dark-textarea py-2 px-4 w-full"
-            bind:value={parentItemName}
-            on:input={handleParentItemInput}
-          />
-          {#if parentItemSuggestions.length > 0}
-            <ul class="suggestions">
-              {#each parentItemSuggestions.slice(0, 5) as item}
-                <li on:click={() => selectParentItem(item)}>
-                  {item.name}
-                </li>
-              {/each}
-            </ul>
-          {/if}
-        </label>
+          <!-- Home Item -->
+          <label class="flex-1 min-w-[200px] relative">
+            Home Item:
+            <InfoToolTip message="Where an item should normally be, e.g a shirt's home item may be a drawer." />
+            <input
+              type="text"
+              class="dark-textarea py-2 px-4 w-full"
+              bind:value={homeItemName}
+              on:input={handleHomeItemInput}
+            />
+            {#if homeItemSuggestions.length > 0}
+              <ul class="suggestions">
+                {#each homeItemSuggestions.slice(0, 5) as item}
+                  <li on:click={() => selectHomeItem(item)}>
+                    {item.name}
+                  </li>
+                {/each}
+              </ul>
+            {/if}
+          </label>
+        </div>
       </div>
 
+      <!-- Custom Fields -->
       <h2 class="font-bold text-lg mt-4">Custom Fields</h2>
       <div class="space-y-2">
         {#each customFields as field, index}
@@ -298,7 +354,7 @@
                 </ul>
               {/if}
             </label>
-            <label class="flex-1 mr-2">
+            <label class="mr-2" style="flex-basis: 50%; max-width: 200px;">
               Data Type:
               <select
                 class="dark-textarea py-2 px-4 w-full"
@@ -322,9 +378,10 @@
         {/each}
       </div>
       <button type="button" class="border-button hover:bg-gray-100 font-semibold shadow mt-2" on:click={addCustomFieldLine}>
-        + Add Another Custom Field
+        Add Custom Field
       </button>
 
+      <!-- Submit -->
       <button class="border-button hover:bg-gray-100 font-semibold shadow mt-4 block" type="submit">
         Create Item
       </button>

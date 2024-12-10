@@ -47,6 +47,15 @@
       <li><strong>Parent Item:</strong> No parent</li>
     {/if}
 
+    {#if item.homeItem}
+      <li>
+        <strong>Home Item:</strong>
+        <Link to={`/view/${item.homeItem._id}`}>{item.homeItem.name}</Link>
+      </li>
+    {:else}
+      <li><strong>Home Item:</strong> No home ;(</li>
+    {/if}
+
     {#if item.tags && item.tags.length > 0}
       <li><strong>Tags:</strong> {item.tags.join(', ')}</li>
     {/if}
@@ -65,6 +74,6 @@
   padding-left: 0;
 }
 .item-view {
-  color: black;
+  color: white;
 }
 </style>
