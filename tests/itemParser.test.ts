@@ -47,24 +47,31 @@ describe("Testing Item Parsing", () => {
         
         
         expect(itemParser.itemTree.length == 1);
-        let expectedItem = itemParser.itemTree[0];
-        expect(expectedItem.name).toBe(firstItem.name);
-        expect(expectedItem.templateName).toBe(firstItem.templateName);
-        expect(expectedItem.description).toBe(firstItem.description);
-        expect(expectedItem.customFields).not.toBeNull();
-        expect(expectedItem.customFields!.length).toBe(3);
+        let parsedItem = itemParser.itemTree[0];
+        expect(parsedItem.name).toBe(firstItem.name);
+        expect(parsedItem.templateName).toBe(firstItem.templateName);
+        expect(parsedItem.description).toBe(firstItem.description);
+        expect(parsedItem.customFields).not.toBeNull();
+        expect(parsedItem.customFields!.length).toBe(3);
 
-        for (var i = 0; i < expectedItem.customFields!.length; i++) {
-            let expectedField = expectedItem.customFields![i];
+        for (var i = 0; i < parsedItem.customFields!.length; i++) {
+            let parsedField = parsedItem.customFields![i];
             const field = firstItem.customFields[i];
             if (i === 0) {
-                expect(field.field).toBe(amountField.id);
+                let fieldId = field.field;
+                expect(fieldId).toStrictEqual(amountField._id);
             }
-            const fieldCustom = fieldMap.get(field.field);
-            const expectedFieldCustom = itemParser.customFieldMap.get(expectedField.field);
-            expect(expectedFieldCustom!.fieldName).toBe(fieldCustom!.fieldName);
-            expect(expectedFieldCustom!.dataType).toBe(fieldCustom!.dataType)
-            expect(expectedField.value).toBe(field.value);
+            const ids = fieldMap.keys();
+            const idSTr = field.field.toHexString();
+            const fieldCustom = fieldMap.get(field.field.toHexString() as unknown as Types.ObjectId);
+            expect(fieldCustom).not.toBe(undefined);
+            const parsedIds = itemParser.customFieldMap.keys();
+            const parsedIdStr = parsedField.field.toHexString();
+            const parsedFieldCustom = itemParser.customFieldMap.get(parsedField.field.toHexString() as unknown as Types.ObjectId);
+            expect(parsedFieldCustom).not.toBe(undefined);
+            expect(parsedFieldCustom!.fieldName).toBe(fieldCustom!.fieldName);
+            expect(parsedFieldCustom!.dataType).toBe(fieldCustom!.dataType)
+            expect(parsedField.value).toBe(field.value);
         }
 
     });
