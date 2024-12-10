@@ -2,7 +2,9 @@
   import { AppBar } from '@skeletonlabs/skeleton';
   import SearchBar from "../svelteComponents/SearchBar.svelte";
   import Dialog from '../svelteComponents/Dialog.svelte';
+  import Menu from '../svelteComponents/Menu.svelte';
   import ItemContainer from '../svelteComponents/ItemContainer.svelte'
+  import IoIosMenu from 'svelte-icons/io/IoIosMenu.svelte'
 
   import '../svelteStyles/home.css';
   import '../svelteStyles/main.css';
@@ -20,8 +22,12 @@
   let searchQuery = '';
   let searchResults: any[] = []; // Array for fetched items
   let dialog: { showModal: () => any; };
+  let menu: { showModal: () => any; };
   let parentItemSuggestions: any[] = [];
   let parentItemDebounceTimeout: number | undefined;
+
+  // UI variables
+  let menuOpen = false;
   
   // Fetch IP dynamically
   async function fetchIp() {
@@ -92,7 +98,7 @@
   }
 
   function handleParentItemInput(event: Event) {
-    const target = event.target as HTMLInputElement
+    const target = event.target as HTMLInputElement;
     parentItemName = target.value;
     parentItemId = null; // Reset parentItemId when user types
     if (parentItemDebounceTimeout) clearTimeout(parentItemDebounceTimeout);
@@ -120,11 +126,30 @@
     parentItemSuggestions = [];
   }
 
+  function handleClickMenu() {
+    console.log("Menu Clicked");
+    menuOpen = !menuOpen;
+    if (menuOpen) {
+      showMenu();
+    } else {
+      hideMenu();
+    }
+  }
+
+  function showMenu() {
+    menu.showModal()
+  }
+
+  function hideMenu() {
+  }
+
 </script>
 
 <AppBar class="appbar-border glass">
   <svelte:fragment slot="lead">
-    (actions)
+    <button on:click={handleClickMenu}>
+      (icon)
+    </button>
   </svelte:fragment>
   <div class="px-4">
     <div id="title" class="nav-margin text-2xl font-bold">
@@ -158,6 +183,11 @@
       rounded-full shadow border" on:click={() => dialog.showModal()}>
     +
   </button>
+
+<!-- Menu for navigation - Slides out -->
+<Menu bind:menu on:close={() => console.log('menu closed')}>
+  <h1>THE GLORIOUS EVOLUTION!</h1>
+</Menu>
   
 <!-- Dialog for creating new items -->
 <Dialog bind:dialog on:close={() => console.log('closed')}>
