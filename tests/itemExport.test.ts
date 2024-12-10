@@ -20,27 +20,31 @@ describe("Testing Item Exporting", () => {
         firstItem.templateName = "";
         firstItem.description = "a black cat"
         
+        let fieldMap = new Map<Types.ObjectId, ICustomField>();
         firstItem.customFields = [];
         let amountField = new CustomField();
         amountField.id = 20;
         amountField.fieldName = "amount";
         amountField.dataType = "number";
+        fieldMap.set(amountField.id, amountField);
         firstItem.customFields.push({field: amountField.id, value: "1"});
         let sellerField = new CustomField();
         sellerField.id = 21;
         sellerField.fieldName = "seller";
         sellerField.dataType = "string";
+        fieldMap.set(sellerField.id, sellerField);
         firstItem.customFields.push({field: sellerField.id, value: "barbra"});
         let soldField = new CustomField();
         soldField.id = 22;
         soldField.fieldName = "sold";
         soldField.dataType = "boolean";
+        fieldMap.set(soldField.id, soldField);
         firstItem.customFields.push({field: soldField.id, value: "false"});
         
         const formatter = new CSVFormatter();
         let itemMap = new Map<Types.ObjectId,IBasicItem>();
         itemMap.set(firstItem.id!, firstItem);
-        expect(formatter.formatItems([firstItem],itemMap)).toBe(csvContent);
+        expect(formatter.formatItems([firstItem],itemMap,fieldMap)).toBe(csvContent);
 
     });
 
@@ -68,7 +72,7 @@ describe("Testing Item Exporting", () => {
         secondItem.parentItem = firstItem.id;
         
         const formatter = new CSVFormatter();
-        const result = formatter.formatItems([firstItem], itemMap);
+        const result = formatter.formatItems([firstItem], itemMap, new Map<Types.ObjectId, ICustomField>());
 
         const csvContent = `item name,template,description\ndog,,a german shepherd\n>\ncollar,,a blue collar with a dog tag\n<`;
         expect(result).toBe(csvContent);

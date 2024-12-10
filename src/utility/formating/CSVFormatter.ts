@@ -39,9 +39,9 @@ export class CSVFormatter implements Formatter {
     }
 
     
-    formatItems(itemTree: IBasicItem[], itemMap: Map<Types.ObjectId, IBasicItem>): String {
+    formatItems(itemTree: IBasicItem[], itemMap: Map<Types.ObjectId, IBasicItem>, customFieldMap: Map<Types.ObjectId, ICustomField>): String {
         let columns = ["item name", "template", "description"];
-        columns = this.formatItemsHelper(itemTree, itemMap, columns);
+        columns = this.formatItemsHelper(itemTree, itemMap, columns, customFieldMap);
         let csv = columns.pop();
         let line = columns.join(",");
         const indexC = line.lastIndexOf(",");
@@ -55,17 +55,17 @@ export class CSVFormatter implements Formatter {
         return line + "\n" + csv;
     }
 
-    formatItemsHelper(itemTree: IBasicItem[], itemMap: Map<Types.ObjectId, IBasicItem>, columns: string[]) : string[] {
+    formatItemsHelper(itemTree: IBasicItem[], itemMap: Map<Types.ObjectId, IBasicItem>, columns: string[], customFieldMap: Map<Types.ObjectId, ICustomField>) : string[] {
         let csv = "";
         for (var i = 0; i < itemTree.length; i++) {
             let item = itemTree[i];
-            columns = columns.concat(this.addColumns(item, columns));
-            csv += this.formatItem(item, columns);
+            columns = columns.concat(this.addColumns(item, columns, customFieldMap));
+            csv += this.formatItem(item, columns, customFieldMap);
             if (item.containedItems !== undefined && item.containedItems.length !== 0) {
                 csv += ">\n";
                 const subItemIds = item.containedItems!;
-                const subItems = subItemIds.map(id => itemMap.get(id)).map(subItem => subItem as IBasicItem);
-                columns = this.formatItemsHelper(subItems, itemMap, columns);
+                const subItems = subItemIds.map(id => itemMap.get(id.toHexString() as unknown as Types.ObjectId)).map(subItem => subItem as IBasicItem);
+                columns = this.formatItemsHelper(subItems, itemMap, columns, customFieldMap);
                 csv += columns.pop();
                 csv += "<\n";
             }
@@ -74,26 +74,28 @@ export class CSVFormatter implements Formatter {
         return columns;
     }
 
-    addColumns(item: IBasicItem, columns: string[]): string[] {
-        return this.getColumns(item).filter(ele => !columns.includes(ele));
+    addColumns(item: IBasicItem, columns: string[], customFieldMap: Map<Types.ObjectId, ICustomField>): string[] {
+        return this.getColumns(item, customFieldMap).filter(ele => !columns.includes(ele));
     }
 
-    getColumns(item: IBasicItem) : string[] {
-        return item.customFields!.map(ele => ele.field as ICustomField).map(custom => custom.fieldName).filter(ele => ele !== undefined);
+    getColumns(item: IBasicItem, customFieldMap: Map<Types.ObjectId, ICustomField>) : string[] {
+        return item.customFields!.map(ele => ele.field.toHexString()).map(hexId => customFieldMap.get(hexId as unknown as Types.ObjectId)).map(custom => custom!.fieldName).filter(ele => ele !== undefined);
     }
 
-    formatItem(item: IBasicItem, columns: string[]) {
+    formatItem(item: IBasicItem, columns: string[], customFieldMap: Map<Types.ObjectId, ICustomField>) {
         let line = item.name + "," + item.templateName + "," + item.description + ",";
-        const custom = this.getColumns(item);
-        let numNotIncluded = 0;
-        for (var i = 3; i < columns.length; i++) {
-            let column = columns[i];
-            if (custom.includes(column)) {
-                const index = custom.indexOf(column);
-                line += item.customFields![index].value;
-                numNotIncluded++;
+        if (item.customFields !== undefined) {
+            const custom = this.getColumns(item, customFieldMap);
+            let numNotIncluded = 0;
+            for (var i = 3; i < columns.length; i++) {
+                let column = columns[i];
+                if (custom.includes(column)) {
+                    const index = custom.indexOf(column);
+                    line += item.customFields![index].value;
+                    numNotIncluded++;
+                }
+                line += ",";
             }
-            line += ",";
         }
         let match = line.match(/,*$/);
         if (match !== undefined && match !== null && match.length !== 0) {
