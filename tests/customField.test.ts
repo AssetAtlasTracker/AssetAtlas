@@ -68,5 +68,40 @@ describe('CustomField API', () => {
     const fieldNames = emptySearchResponse.body.map((field: ICustomField) => field.fieldName);
     expect(fieldNames).toEqual(expect.arrayContaining(['Warranty', 'Price', 'Color', 'Material']));
   });
+
+it('should fetch a custom field by ID', async () => {
+  // Create a custom field to fetch later
+  const customFieldData = {
+    fieldName: 'Warranty',
+    dataType: 'string',
+  };
+
+  const createResponse = await request(app).post('/api/customFields').send(customFieldData);
+  expect(createResponse.status).toBe(201);
+
+  const createdField = createResponse.body;
+
+  // Fetch the custom field by ID
+  const fetchResponse = await request(app).get(`/api/customFields/${createdField._id}`);
+  expect(fetchResponse.status).toBe(200);
+  expect(fetchResponse.body.fieldName).toBe(customFieldData.fieldName);
+  expect(fetchResponse.body.dataType).toBe(customFieldData.dataType);
 });
 
+it('should return a 400 error for an invalid ID format', async () => {
+  const invalidId = 'invalid-id-format';
+
+  const response = await request(app).get(`/api/customFields/${invalidId}`);
+  expect(response.status).toBe(400);
+  expect(response.body.message).toBe('Invalid ID format');
+});
+
+it('should return a 404 error for a non-existent ID', async () => {
+  const nonExistentId = new mongoose.Types.ObjectId().toString();
+
+  const response = await request(app).get(`/api/customFields/${nonExistentId}`);
+  expect(response.status).toBe(404);
+  expect(response.body.message).toBe('Custom field not found');
+});
+
+});
