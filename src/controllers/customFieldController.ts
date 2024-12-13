@@ -55,3 +55,23 @@ export const searchCustomFields = async (req: Request, res: Response) => {
       res.status(500).json({ error: 'Failed to search custom fields' });
     }
   };
+
+  export const getCustomFieldById = async (req: Request, res: Response) => {
+    const { id } = req.params;
+  
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid ID format' });
+    }
+  
+    try {
+      const field = await CustomField.findById(id).exec();
+      if (!field) {
+        return res.status(404).json({ message: 'Custom field not found' });
+      }
+  
+      res.status(200).json(field);
+    } catch (error) {
+      console.error('Error fetching custom field by id:', error);
+      res.status(500).json({ message: 'Failed to fetch custom field', error });
+    }
+  };

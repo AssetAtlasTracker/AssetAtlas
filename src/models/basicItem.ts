@@ -1,5 +1,6 @@
 import { Schema, model, Document, Types } from 'mongoose';
 import type { ICustomField } from './customField';
+import type { ITemplate } from './template';
 //import Template from './template';
 
 export interface IBasicItem extends Document { //we can add more stuff here
@@ -9,7 +10,8 @@ export interface IBasicItem extends Document { //we can add more stuff here
   tags: string[];
   containedItems?: Array<Types.ObjectId>;//for nested items
   parentItem?: Types.ObjectId | null;
-  templateName?: string;
+  homeItem?: Types.ObjectId | null;
+  template?: { type: Schema.Types.ObjectId, ref: 'Template', required: false },
   customFields?: {
     field: Types.ObjectId;
     value: unknown;
@@ -27,7 +29,8 @@ export interface IBasicItemPopulated {
   tags: string[];
   containedItems?: Array<IBasicItem>;
   parentItem?: IBasicItem | null;
-  templateName?: string;
+  homeItem?: IBasicItem | null;
+  template?: ITemplate;
   customFields?: Array<{
     field: ICustomField;
     value: unknown;
@@ -49,7 +52,8 @@ export interface IBasicItemPopulated {
     tags: { type: [String] },
     containedItems: [{ type: Schema.Types.ObjectId, ref: 'BasicItem'}],
     parentItem: { type: Schema.Types.ObjectId, ref: 'BasicItem', required: false},
-    templateName: {type: String, required: false},
+    homeItem: { type: Schema.Types.ObjectId, ref: 'BasicItem', required: false},
+    template: {type: Schema.Types.ObjectId, ref: "Template", required: false},
     customFields: [
       {
         field: {type: Schema.Types.ObjectId, ref: "CustomField", required: true },
@@ -62,7 +66,6 @@ export interface IBasicItemPopulated {
         timestamp: {type: Date, required: true},
       },
     ],
-    //it shouldnt be a problem that ObjectId is not our already existing id feild
   }, 
     {   
       timestamps: true, //this should mean we dont need to state createdAt and updatedAt feilds
