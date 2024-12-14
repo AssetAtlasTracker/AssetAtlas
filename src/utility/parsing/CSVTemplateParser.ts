@@ -1,4 +1,6 @@
+import type { Types } from "mongoose";
 import type { IBasicItem } from "../../models/basicItem";
+import CustomField, { type ICustomField } from "../../models/customField";
 import Template, { type ITemplate } from "../../models/template";
 import { CSVPreProcessor } from "../CSVPreProcessor";
 import { CSVSplitter } from "../CSVSplitter";
@@ -7,6 +9,7 @@ import type { Parser } from "./Parser";
 
 export class CSVTemplateParser implements Parser {
     templatesToAdd : ITemplate[] = [];
+    customFieldMap: Map<Types.ObjectId, ICustomField> = new Map<Types.ObjectId, ICustomField>;
 
     getEntitiesToAdd(): ITemplate[] | IBasicItem[] {
         return this.templatesToAdd;
@@ -25,8 +28,12 @@ export class CSVTemplateParser implements Parser {
                 const key = data[i][j].toString();
                 this.checkEmptyKey(key);
 
+                let customField = new CustomField();
                 const valueType = data[i+1][j].toString();
-                template.fields.push({key: key, valueType: valueType});
+                customField.dataType = valueType;
+                customField.fieldName = key;
+                template.fields.push(customField.id);
+                this.customFieldMap.set(customField.id, customField);
             }
             this.templatesToAdd.push(template);
         }

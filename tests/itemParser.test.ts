@@ -21,7 +21,7 @@ describe("Testing Item Parsing", () => {
 
         let firstItem = new BasicItem();
         firstItem.name = "cat";
-        firstItem.templateName = "";
+        firstItem.template = undefined;
         firstItem.description = "a black cat";
 
         let fieldMap = new Map<Types.ObjectId, ICustomField>();
@@ -49,7 +49,7 @@ describe("Testing Item Parsing", () => {
         expect(itemParser.itemTree.length == 1);
         let parsedItem = itemParser.itemTree[0];
         expect(parsedItem.name).toBe(firstItem.name);
-        expect(parsedItem.templateName).toBe(firstItem.templateName);
+        expect(parsedItem.template).toBe(firstItem.template);
         expect(parsedItem.description).toBe(firstItem.description);
         expect(parsedItem.customFields).not.toBeNull();
         expect(parsedItem.customFields!.length).toBe(3);

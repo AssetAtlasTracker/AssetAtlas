@@ -5,7 +5,15 @@ import type { Formatter } from "./Formatter";
 import type { ICustomField } from "../../models/customField";
 
 export class CSVFormatter implements Formatter {
-    // TODO: test and debug, block: get custom field by id
+    customFieldMap : Map<Types.ObjectId, ICustomField>;
+    itemMap : Map<Types.ObjectId, IBasicItem>;
+    templateMap : Map<Types.ObjectId, ITemplate>;
+
+    constructor (customFieldMap : Map<Types.ObjectId, ICustomField>, itemMap: Map<Types.ObjectId, IBasicItem>, templateMap : Map<Types.ObjectId, ITemplate>) {
+        this.customFieldMap = customFieldMap;
+        this.itemMap = itemMap;
+        this.templateMap = templateMap;
+    }
 
 
     formatTemplates(templates: ITemplate[]): String {
@@ -25,9 +33,10 @@ export class CSVFormatter implements Formatter {
         firstline += template.name + ",";
         secondline += ",";
         for (var i = 0; i < template.fields.length; i++) {
-            let field = template.fields[i];
-            firstline += field.key;
-            secondline += field.valueType;
+            const fieldId = template.fields[i];
+            const customField = this.customFieldMap.get(fieldId);
+            firstline += customField?.fieldName;
+            secondline += customField?.dataType;
             if (i != template.fields.length - 1) {
                 firstline += ",";
                 secondline += ","
@@ -83,7 +92,11 @@ export class CSVFormatter implements Formatter {
     }
 
     formatItem(item: IBasicItem, columns: string[], customFieldMap: Map<Types.ObjectId, ICustomField>) {
-        let line = item.name + "," + item.templateName + "," + item.description + ",";
+        let templateName = "";
+        if (item.template !== undefined && item.template !== null) {
+            templateName = this.templateMap.get(item.template.type)!.name;
+        }
+        let line = item.name + "," + templateName + "," + item.description + ",";
         if (item.customFields !== undefined) {
             const custom = this.getColumns(item, customFieldMap);
             let numNotIncluded = 0;

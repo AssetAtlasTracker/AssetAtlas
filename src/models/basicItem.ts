@@ -11,7 +11,7 @@ export interface IBasicItem extends Document { //we can add more stuff here
   containedItems?: Array<Types.ObjectId>;//for nested items
   parentItem?: Types.ObjectId | null;
   homeItem?: Types.ObjectId | null;
-  template?: { type: Schema.Types.ObjectId, ref: 'Template', required: false },
+  template?: { type: Types.ObjectId, ref: 'Template', required: false },
   customFields?: {
     field: Types.ObjectId;
     value: unknown;

@@ -13,7 +13,7 @@ export class CSVItemParser implements Parser {
     customFieldMap: Map<Types.ObjectId, ICustomField> = new Map<Types.ObjectId, ICustomField>();
     columns: String[] = [];
     columnTypes: Map<String, string> = new Map<String, string>;
-    templates: Map<String, ITemplate> = new Map<String, ITemplate>
+    templates: Map<String, ITemplate> = new Map<String, ITemplate>;
 
     constructor(templates : ITemplate[]) {
         for (var i = 0; i < templates.length; i++) {
@@ -135,7 +135,7 @@ export class CSVItemParser implements Parser {
 
         // get values from required columns.
         item.name = line[0].toString();
-        item.templateName = line[1].toString();
+        const templateName = line[1].toString();
         item.description = line[2].toString();
     
         // get custom fields.
@@ -144,11 +144,12 @@ export class CSVItemParser implements Parser {
                 this.addCustomFieldToItem(line, item, i)
             } else {
                 // consider templates
-                let template = this.templates.get(item.templateName);
+                const template = this.templates.get(templateName);
                 if (template !== undefined) {
                     // consider if this column is in the template
-                    if (template.fields.map(field => field.key).includes(this.columns[i].toString())) {
-                        this.addCustomFieldToItem(line, item, i)
+                    item.template = template!.id;
+                    if (template.fields.map(id => this.customFieldMap.get(id)).filter(res => res !== undefined).map(cust => cust.fieldName).includes(this.columns[i].toString())) {
+                        this.addCustomFieldToItem(line, item, i);
                     }
                 }
             }
