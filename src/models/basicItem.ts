@@ -11,7 +11,7 @@ export interface IBasicItem extends Document { //we can add more stuff here
   containedItems?: Array<Types.ObjectId>;//for nested items
   parentItem?: Types.ObjectId | null;
   homeItem?: Types.ObjectId | null;
-  template?: { type: Schema.Types.ObjectId, ref: 'Template', required: false },
+  template?: Types.ObjectId | null;
   customFields?: {
     field: Types.ObjectId;
     value: unknown;
@@ -30,7 +30,7 @@ export interface IBasicItemPopulated {
   containedItems?: Array<IBasicItem>;
   parentItem?: IBasicItem | null;
   homeItem?: IBasicItem | null;
-  template?: ITemplate;
+  template?: ITemplate | null;
   customFields?: Array<{
     field: ICustomField;
     value: unknown;
