@@ -43,7 +43,7 @@ describe('Template API', () => {
       fields: [customField1._id, customField2._id], // Referencing CustomField ObjectIds
     };
 
-    const response = await request(app).post('/api/templates/createTemplate').send(templateData);
+    const response = await request(app).post('/api/templates/').send(templateData);
     expect(response.status).toBe(201);
     expect(response.body.name).toBe(templateData.name);
 
