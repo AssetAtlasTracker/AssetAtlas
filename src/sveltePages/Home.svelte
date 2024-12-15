@@ -5,11 +5,12 @@
   import CreateItem from '../svelteComponents/CreateItem.svelte';
   import type { IBasicItemPopulated } from '../models/basicItem';
   import { ip } from '../stores/ipStore';
+  import TopBar from '../svelteComponents/TopBar.svelte';
 
   import '../svelteStyles/home.css';
   import '../svelteStyles/main.css';
 
-  let searchQuery = '';
+  export let searchQuery = '';
   let searchResults: IBasicItemPopulated[] = [];
   export let dialog: HTMLDialogElement;
 
