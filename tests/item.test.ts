@@ -322,3 +322,35 @@ it('should move nested items to the parent container and remove deleted item fro
   expect(updatedNestedItemAfterTopLevelDelete).not.toBeNull();
   expect(updatedNestedItemAfterTopLevelDelete?.parentItem).toBeNull();
 });
+
+it('should fetch the parent chain of an item', async () => {
+  const topLevelParentData = {
+    name: 'Top-Level Parent',
+  };
+  const topLevelParentResponse = await request(app).post('/api/items').send(topLevelParentData);
+  expect(topLevelParentResponse.status).toBe(201);
+  const topLevelParent = topLevelParentResponse.body;
+
+  const middleItemData = {
+    name: 'Middle Item',
+    parentItem: topLevelParent._id
+  };
+  const middleItemResponse = await request(app).post('/api/items').send(middleItemData);
+  expect(middleItemResponse.status).toBe(201);
+  const middleItem = middleItemResponse.body;
+
+  const nestedItemData = {
+    name: 'Nested Item',
+    parentItem: middleItem._id
+  };
+  const nestedItemResponse = await request(app).post('/api/items').send(nestedItemData);
+  expect(nestedItemResponse.status).toBe(201);
+  const nestedItem = nestedItemResponse.body;
+
+  const response = await request(app).get(`/api/items/parentChain/${nestedItem._id}`);
+  expect(response.status).toBe(200);
+  expect(response.body).toHaveLength(3);
+  expect(response.body[0].name).toBe('Nested Item');
+  expect(response.body[1].name).toBe('Middle Item');
+  expect(response.body[2].name).toBe('Top-Level Parent');
+});
