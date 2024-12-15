@@ -3,10 +3,10 @@ import {createTemplate, getTemplates, getFields, searchTemplates, getTemplateByI
 
 const router = express.Router();
 
+router.post('/createTemplate', createTemplate);
 router.get('/getTemplates', getTemplates);
 router.get('/getFields/:templateName', getFields);
 router.get('/searchTemplates', searchTemplates);
 router.get('/:id', getTemplateById);
-router.post('/', createTemplate);
 
 export default router;

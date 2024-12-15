@@ -42,7 +42,7 @@
       );
   
       try {
-        const response = await fetch(`http://${$ip}/api/templates/`, {
+        const response = await fetch(`http://${$ip}/api/templates/createTemplate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
