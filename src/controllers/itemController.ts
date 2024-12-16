@@ -185,7 +185,7 @@ export const getParentChain = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Item not found' });
     }
     while (currentItem) {
-      chain.push(currentItem);
+      chain.unshift(currentItem);
       currentItem = currentItem.parentItem
         ? await BasicItem.findById(currentItem.parentItem).exec()
         : null;

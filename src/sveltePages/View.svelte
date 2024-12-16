@@ -46,7 +46,7 @@
 </AppBar>
 
 {#if item}
-  <ItemDetails {item} />
+  <ItemDetails {item}/>
 {:else}
   <p>Loading item data...</p>
 {/if}
