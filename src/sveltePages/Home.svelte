@@ -53,7 +53,7 @@
   {/if}
 
   <button
-    class="add-button text-icon font-bold hover:bg-gray-100 rounded-full shadow border"
+    class="add-button text-icon font-bold hover:bg-primary-900 rounded-full shadow border"
     on:click={() => dialog.showModal()}
   >
     +
