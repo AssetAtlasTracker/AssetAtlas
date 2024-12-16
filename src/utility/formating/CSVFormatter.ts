@@ -94,7 +94,7 @@ export class CSVFormatter implements Formatter {
     formatItem(item: IBasicItem, columns: string[], customFieldMap: Map<Types.ObjectId, ICustomField>) {
         let templateName = "";
         if (item.template !== undefined && item.template !== null) {
-            templateName = this.templateMap.get(item.template.type)!.name;
+            templateName = this.templateMap.get(item.template)!.name;
         }
         let line = item.name + "," + templateName + "," + item.description + ",";
         if (item.customFields !== undefined) {
