@@ -1,7 +1,9 @@
 <script lang="ts">
   import { AppBar } from '@skeletonlabs/skeleton';
   import ItemDetails from '../svelteComponents/ItemDetails.svelte';
+  import DeleteItem from '../svelteComponents/DeleteItem.svelte';
   import type { IBasicItemPopulated } from '../models/basicItem';
+  import '../svelteStyles/view.css';
   
   export let params: { id?: string };
   console.log('View params:', params);
@@ -37,6 +39,12 @@
   function goBack() {
     window.history.back();
   }//we gonna change this later fr fr
+
+  function handleDelete() {
+    console.log(`Item ${params.id} deleted.`);
+    //go to the home page after successful deletion
+    window.location.href = '/';
+  }
 </script>
 
 <AppBar class="appbar-border glass"> 
@@ -47,6 +55,15 @@
 
 {#if item}
   <ItemDetails {item}/>
+  <div class="delete-container">
+    <DeleteItem itemId={params.id} onDelete={handleDelete}>
+      <button
+        class="border border-red-600 text-white bg-red-500 hover:bg-red-700 hover:border-red-800 font-semibold shadow-md rounded-lg px-4 py-2 transition duration-200"
+      >
+        Delete Item
+      </button>
+    </DeleteItem>
+  </div>
 {:else}
   <p>Loading item data...</p>
 {/if}
