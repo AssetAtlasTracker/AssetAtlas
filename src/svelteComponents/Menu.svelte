@@ -1,9 +1,14 @@
-<script>
-    let open = false;
+<script lang="ts">
+	var open = true;
     export let menu;
+
+	function handleClicked() {
+		console.log("Clicked");
+		open = !open;
+	}
 </script>
 
-<aside class="glass absolute h-full" bind:this={menu} class:open on:close>
+<aside class="glass absolute h-full" bind:this={menu} class:open on:click={handleClicked}>
 	<nav class="p-12 text-xl">
 		<a class="block" href="#about">About</a>
 		<a class="block" href="#contact">Contact</a>
@@ -21,12 +26,10 @@
 	}
 </style>
 
-<!-- <dialog class="glass page-component" 
-        style="align-self: left; justify-self: left;" bind:this={menu} on:close>
-    <button style="margin: 1rem 0rem 0rem 1rem; align-self: right;" 
-            class="border-button hover:bg-gray-100 
-            font-semibold shadow" on:click={() => menu.close()}>
-        Cancel
-    </button>
-    <slot/>
-</dialog> -->
+<!-- <div  class="sidenav">
+	<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+	<a href="#">About</a>
+	<a href="#">Services</a>
+	<a href="#">Clients</a>
+	<a href="#">Contact</a>
+</div> -->

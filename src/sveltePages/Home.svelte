@@ -1,25 +1,20 @@
 <script lang="ts">
   import { AppBar } from '@skeletonlabs/skeleton';
-  import Menu from '../svelteComponents/Menu.svelte';
   import SearchBar from '../svelteComponents/SearchBar.svelte';
   import ItemContainer from '../svelteComponents/ItemContainer.svelte';
   import CreateItem from '../svelteComponents/CreateItem.svelte';
   import type {IBasicItemPopulated} from '../models/basicItem';
   import { ip } from '../stores/ipStore';
+
   import '../svelteStyles/home.css';
   import '../svelteStyles/main.css';
-  let searchQuery = '';
-  import TopBar from '../svelteComponents/TopBar.svelte';
-
-  let menu: { showModal: () => any; };
-  // UI variables
-  let menuOpen = false;
-
-
-
+  
   export let searchQuery = '';
   let searchResults: IBasicItemPopulated[] = [];
   export let dialog: HTMLDialogElement;
+
+  import Menu from '../svelteComponents/Menu.svelte';
+  export let menu : HTMLDialogElement;
 
   async function handleSearch(query: string) {
     searchQuery = query;
@@ -39,23 +34,11 @@
   }
 
 
-  function handleClickMenu() {
-    console.log("Menu Clicked");
-    menuOpen = !menuOpen;
-    if (menuOpen) {
-      showMenu();
-    } else {
-      hideMenu();
+
+    function handleClickMenu() {
+        console.log("Sent click");
+        menu.click();
     }
-  }
-
-  function showMenu() {
-    menu.showModal()
-  }
-
-  function hideMenu() {
-  }
-
 </script>
 
 <AppBar class="appbar-border glass">
@@ -75,6 +58,10 @@
 </AppBar>
 
 <div class="body">
+
+  <!-- Menu for navigation - Slides out -->
+  <Menu bind:menu />
+
   {#if searchResults.length > 0}
     <ItemContainer items={searchResults} />
   {:else if searchQuery !== ''}
@@ -89,12 +76,6 @@
   >
     +
   </button>
-
-
-<!-- Menu for navigation - Slides out -->
-<Menu bind:menu on:close={() => console.log('menu closed')}>
-  <h1>THE GLORIOUS EVOLUTION!</h1>
-</Menu>
   
   <CreateItem bind:dialog />
 
