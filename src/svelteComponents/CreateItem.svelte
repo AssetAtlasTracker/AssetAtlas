@@ -442,7 +442,7 @@
           {#if parentItemSuggestions.length > 0}
             <ul class="suggestions">
               {#each parentItemSuggestions.slice(0, 5) as item}
-                <li on:click={() => selectParentItem(item)}>
+              <li on:mousedown={(e) => { e.preventDefault(); selectParentItem(item); }}>
                   {item.name}
                 </li>
               {/each}
@@ -464,7 +464,7 @@
           {#if homeItemSuggestions.length > 0}
             <ul class="suggestions">
               {#each homeItemSuggestions.slice(0, 5) as item}
-                <li on:click={() => selectHomeItem(item)}>
+              <li on:mousedown={(e) => { e.preventDefault(); selectHomeItem(item); }}>
                   {item.name}
                 </li>
               {/each}
@@ -531,9 +531,12 @@
             {#if field.suggestions.length > 0}
               <ul class="suggestions bg-white border rounded shadow mt-1 max-h-32 overflow-auto">
                 {#each field.suggestions.slice(0, 5) as suggestion}
-                  <li class="px-2 py-1 hover:bg-primary-900 cursor-pointer" on:click={() => selectCustomFieldSuggestion(index, suggestion)}>
-                    {suggestion.fieldName} ({suggestion.dataType})
-                  </li>
+                <li 
+                class="px-2 py-1 hover:bg-primary-900 cursor-pointer" 
+                on:mousedown={(e) => { e.preventDefault(); selectCustomFieldSuggestion(index, suggestion); }}
+              >
+                {suggestion.fieldName} ({suggestion.dataType})
+              </li>
                 {/each}
               </ul>
             {/if}
