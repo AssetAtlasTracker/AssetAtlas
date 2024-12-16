@@ -8,12 +8,16 @@
   import { ip } from '../stores/ipStore';
   import '../svelteStyles/home.css';
   import '../svelteStyles/main.css';
+  let searchQuery = '';
+  import TopBar from '../svelteComponents/TopBar.svelte';
 
   let menu: { showModal: () => any; };
   // UI variables
   let menuOpen = false;
 
-  let searchQuery = '';
+
+
+  export let searchQuery = '';
   let searchResults: IBasicItemPopulated[] = [];
   export let dialog: HTMLDialogElement;
 
@@ -80,7 +84,7 @@
   {/if}
 
   <button
-    class="add-button text-icon font-bold hover:bg-gray-100 rounded-full shadow border"
+    class="add-button text-icon font-bold hover:bg-primary-900 rounded-full shadow border"
     on:click={() => dialog.showModal()}
   >
     +

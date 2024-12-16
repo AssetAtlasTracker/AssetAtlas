@@ -7,11 +7,6 @@ Large component styles
   border: 1px solid rgba(var(--color-primary-100) / 0.9);
 }
 
-.bg-main-gradient{
-  background-image: radial-gradient(at 0% 0%, rgba(var(--color-success-500) / .33) 0px, transparent 50%), 
-                    radial-gradient(at 98% 1%, rgba(var(--color-error-500) / .33) 0px, transparent 50%);
-}
-
 .glass{
   background: rgba(var(--color-primary-800) / 0.8) !important;
   box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4 );
@@ -52,7 +47,7 @@ Small component styles
   border: 1px solid rgba(255, 255, 255, 0.8);
   padding: 0.5rem 1rem;
   background: rgba(0, 0, 0, 0);
-  color: white;
+  color: rgb(var(--theme-font-color-base));
 }
 
 .dark-textarea{
@@ -91,36 +86,40 @@ Text styles
 }
 
 div {
-  color: white;
+  color: rgb(var(--theme-font-color-base));
 }
 
 h1 {
-  color: white;
+  color: rgb(var(--theme-font-color-base));
   padding: 0rem 0rem 1rem 0rem; 
 }
 
 h2 {
-  color: white;
+  color: rgb(var(--theme-font-color-base));
 }
 
 body {
-  color: rgb(var(--theme-font-color-base));
   background: rgb(var(--color-surface-800)) !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% 50rem !important;
+  background-image: radial-gradient(at 0% 0%, rgba(var(--color-success-500) / .2) 0px, transparent 55%), 
+                    radial-gradient(at 98% 1%, rgba(var(--color-error-500) / .33) 0px, transparent 50%) !important;
+                    
 }
 
 ::-webkit-input-placeholder {
-    color:white;
+    color: rgb(var(--theme-font-color-base));
 }
 
 ::-moz-placeholder {
-    color:white;
+    color: rgb(var(--theme-font-color-base));
 }
 
 ::-ms-placeholder {
-    color:white;
+    color: rgb(var(--theme-font-color-base));
 }
 
 ::placeholder {
-    color:white;
+    color: rgb(var(--theme-font-color-base));
 }
     

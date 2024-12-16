@@ -174,3 +174,25 @@ export const updateItem = async (req: Request, res: Response) => {
   }
 };
 
+//this method does not populate fields. keeping it like that for now because i want to. 
+//if something you wrote is using this and not working how you expect it that is probably why
+export const getParentChain = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const chain = [];
+    let currentItem = await BasicItem.findById(id).exec();
+    if (!currentItem) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+    while (currentItem) {
+      chain.unshift(currentItem);
+      currentItem = currentItem.parentItem
+        ? await BasicItem.findById(currentItem.parentItem).exec()
+        : null;
+    }
+    res.status(200).json(chain);
+  } catch (error) {
+    console.error('Error fetching parent chain:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};

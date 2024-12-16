@@ -408,7 +408,7 @@
 
         <!-- Tags -->
         <label class="flex-1 min-w-[200px]">
-          Tags (comma separated):
+          Tags:
           <textarea
             class="dark-textarea py-2 px-4 w-full"
             bind:value={tags}
@@ -442,7 +442,7 @@
           {#if parentItemSuggestions.length > 0}
             <ul class="suggestions">
               {#each parentItemSuggestions.slice(0, 5) as item}
-                <li on:click={() => selectParentItem(item)}>
+              <li on:mousedown={(e) => { e.preventDefault(); selectParentItem(item); }}>
                   {item.name}
                 </li>
               {/each}
@@ -464,7 +464,7 @@
           {#if homeItemSuggestions.length > 0}
             <ul class="suggestions">
               {#each homeItemSuggestions.slice(0, 5) as item}
-                <li on:click={() => selectHomeItem(item)}>
+              <li on:mousedown={(e) => { e.preventDefault(); selectHomeItem(item); }}>
                   {item.name}
                 </li>
               {/each}
@@ -496,7 +496,7 @@
   {/if}
         </label>
 
-        <button type="button" class="border-button hover:bg-gray-100 font-semibold shadow" on:click={() => showCreateTemplateDialog = true}>
+        <button type="button" class="border-button hover:bg-primary-900 font-semibold shadow" on:click={() => showCreateTemplateDialog = true}>
           Create New Template
         </button>
       </div>
@@ -531,9 +531,12 @@
             {#if field.suggestions.length > 0}
               <ul class="suggestions bg-white border rounded shadow mt-1 max-h-32 overflow-auto">
                 {#each field.suggestions.slice(0, 5) as suggestion}
-                  <li class="px-2 py-1 hover:bg-gray-100 cursor-pointer" on:click={() => selectCustomFieldSuggestion(index, suggestion)}>
-                    {suggestion.fieldName} ({suggestion.dataType})
-                  </li>
+                <li 
+                class="px-2 py-1 hover:bg-primary-900 cursor-pointer" 
+                on:mousedown={(e) => { e.preventDefault(); selectCustomFieldSuggestion(index, suggestion); }}
+              >
+                {suggestion.fieldName} ({suggestion.dataType})
+              </li>
                 {/each}
               </ul>
             {/if}
@@ -561,12 +564,12 @@
         </div>
       {/each}
     </div>
-    <button type="button" class="border-button hover:bg-gray-100 font-semibold shadow mt-2" on:click={addCustomFieldLine}>
+    <button type="button" class="border-button hover:bg-primary-900 font-semibold shadow mt-2" on:click={addCustomFieldLine}>
       Add Custom Field
     </button>
 
     <!-- Submit -->
-    <button class="border-button hover:bg-gray-100 font-semibold shadow mt-4 block" type="submit">
+    <button class="border-button hover:bg-primary-900 font-semibold shadow mt-4 block" type="submit">
       Create Item
     </button>
   </form>
@@ -604,6 +607,6 @@
 }
 
 .delete-button:hover {
-  color: red;
+  color: rgba(var(--color-warning-900));
 }
 </style>
