@@ -7,6 +7,9 @@
     import { ip } from '../stores/ipStore';
     import type { ITemplatePopulated } from '../models/template';
     import type { IBasicItemPopulated } from '../models/basicItem';
+    import { Types } from 'mongoose';
+    import { CSVFormatterPopulated } from '../utility/formating/CSVFormatterPopulated';
+    import { FileExporter } from '../utility/file/FileExporter';
 
     let files : FileList;
   
@@ -44,6 +47,8 @@
       let templates = []
       const dataT = await responseT.json();
       templates = dataT as ITemplatePopulated[];
+      let templateMap = new Map<Types.ObjectId, ITemplatePopulated>();
+      templates.forEach(template => templateMap.set(template.id, template));
 
       const responseI = await fetch(`http://${$ip}/api/items/search?name=${encodeURIComponent("")}`, {
         method: 'GET',
@@ -53,8 +58,16 @@
       let items = [];
       const dataI = await responseI.json();
       items = dataI as IBasicItemPopulated[];
+      let itemMap = new Map<Types.ObjectId, IBasicItemPopulated>();
+      items.forEach(item => itemMap.set(item._id, item));
+      const itemRoot = items.filter(item => item.parentItem === null);
 
-      // TODO: export data
+      const formatter = new CSVFormatterPopulated(itemMap, templateMap);
+      const templateContent = formatter.formatTemplates(templates);
+      const itemContent = formatter.formatItems(itemRoot, itemMap);
+
+      FileExporter.export("templates", "../out", templateContent.toString());
+      FileExporter.export("items", "../out", itemContent.toString());
     }
   </script>
   

@@ -78,8 +78,7 @@ describe("Testing Item Exporting", () => {
         expect(result).toBe(csvContent);
         console.log(result);
 
-        const exporter = new FileExporter();
-        exporter.export(filename, path, result.toString(), extension);
+        FileExporter.export(filename, path, result.toString(), extension);
 
         const result2 = FileLoader.readFile(`${path}/${filename}${extension}`);
         expect(result2 == csvContent);
