@@ -7,15 +7,15 @@ import { CSVPreProcessor } from "../CSVPreProcessor";
 import { CSVSplitter } from "../CSVSplitter";
 import type { Parser } from "./Parser";
 
-export class CSVItemParser implements Parser {
+export class CSVItemParserPopulated implements Parser {
     itemTree: IBasicItem[] = [];
     itemMap: Map<Types.ObjectId,IBasicItem> = new Map<Types.ObjectId, IBasicItem>();
     customFieldMap: Map<Types.ObjectId, ICustomField> = new Map<Types.ObjectId, ICustomField>();
     columns: String[] = [];
     columnTypes: Map<String, string> = new Map<String, string>;
-    templates: Map<String, ITemplate> = new Map<String, ITemplate>;
+    templates: Map<String, ITemplatePopulated> = new Map<String, ITemplatePopulated>();
 
-    constructor(templates : ITemplate[]) {
+    constructor(templates : ITemplatePopulated[]) {
         for (var i = 0; i < templates.length; i++) {
             this.templates.set(templates[i].name, templates[i]);
         }
@@ -149,7 +149,7 @@ export class CSVItemParser implements Parser {
                 if (template !== undefined) {
                     // consider if this column is in the template
                     item.template = template!.id;
-                    if (template.fields.map(id => this.customFieldMap.get(id)).filter(res => res !== undefined).map(cust => cust.fieldName).includes(this.columns[i].toString())) {
+                    if (template.fields.map(custom => custom.fieldName).includes(this.columns[i].toString())) {
                         this.addCustomFieldToItem(line, item, i);
                     }
                 }

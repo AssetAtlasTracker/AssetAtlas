@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Link } from 'svelte-routing';
 	var open = true;
     export let menu;
 
@@ -10,8 +11,7 @@
 
 <aside class="glass absolute h-full" bind:this={menu} class:open on:click={handleClicked}>
 	<nav class="p-12 text-xl">
-		<a class="block" href="#about">About</a>
-		<a class="block" href="#contact">Contact</a>
+		<Link to={`/utility`}>Utility</Link>
 	</nav>
 </aside>
 
