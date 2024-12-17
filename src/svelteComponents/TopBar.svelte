@@ -19,7 +19,7 @@
     <div class="float-left">
       <Link to={'/'}>
         <div id="title" class="nav-margin text-2xl font-bold">
-        Asset Atlas
+          Asset Atlas
         </div>
       </Link>
       <div class="nav-margin flex-auto pb-4">

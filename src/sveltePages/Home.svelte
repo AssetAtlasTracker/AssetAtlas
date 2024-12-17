@@ -34,17 +34,6 @@
 
 <TopBar searchQuery={searchQuery} onSearch={handleSearch}></TopBar>
 
-<!-- <AppBar class="appbar-border glass">
-  <div class="px-4">
-    <div id="title" class="nav-margin text-2xl font-bold">
-      Asset Atlas
-    </div>
-    <div class="nav-margin flex-auto pb-4">
-      <SearchBar searchQuery={searchQuery} onSearch={handleSearch} />
-    </div>
-  </div>
-</AppBar> -->
-
 <div class="body">
   {#if searchResults.length > 0}
     <ItemContainer items={searchResults} />
@@ -56,8 +45,7 @@
 
   <button
     class="add-button text-icon font-bold hover:bg-primary-900 rounded-full shadow border"
-    on:click={() => dialog.showModal()}
-  >
+    on:click={() => dialog.showModal()}>
     +
   </button>
 
