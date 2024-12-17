@@ -10,6 +10,7 @@
   
   import '../svelteStyles/home.css';
   import '../svelteStyles/main.css';
+    import TopBar from '../svelteComponents/TopBar.svelte';
 
   let item: IBasicItemPopulated | null = null;
 
@@ -47,11 +48,12 @@
   }
 </script>
 
-<AppBar class="appbar-border glass"> 
+<TopBar searchQuery={''}></TopBar>
+<!-- <AppBar class="appbar-border glass"> 
   <button class="back-button" on:click={goBack}>
     ⬅ Back 
   </button>
-</AppBar>
+</AppBar> -->
 
 {#if item}
   <ItemDetails {item}/>

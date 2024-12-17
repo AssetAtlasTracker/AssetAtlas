@@ -32,7 +32,9 @@
   }
 </script>
 
-<AppBar class="appbar-border glass">
+<TopBar searchQuery={searchQuery} onSearch={handleSearch}></TopBar>
+
+<!-- <AppBar class="appbar-border glass">
   <div class="px-4">
     <div id="title" class="nav-margin text-2xl font-bold">
       Asset Atlas
@@ -41,7 +43,7 @@
       <SearchBar searchQuery={searchQuery} onSearch={handleSearch} />
     </div>
   </div>
-</AppBar>
+</AppBar> -->
 
 <div class="body">
   {#if searchResults.length > 0}
