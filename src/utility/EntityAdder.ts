@@ -84,7 +84,7 @@ export class EntityAdder {
                 const data = await response.json();
                 console.log('Template created:', data);
             } catch (err) {
-                console.error('Error creating item:', err);
+                console.error('Error creating template:', err);
             }
         });
     }
@@ -93,9 +93,13 @@ export class EntityAdder {
         item.customFields = item.customFields?.map(field => {return {field: this.customFidMap.get(field.field)!, value: field.value}});
         item.containedItems = undefined;
         let itemJSON = JSON.parse(JSON.stringify(item));
-        const parentResponse = await request(app).post('/api/items').send(itemJSON);
-        console.log("Created Item: " + parentResponse.body);
-        const id = parentResponse.body.ID;
+        const response = await fetch(`http://${ip}/api/items/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(item),
+        });
+        console.log("Created Item: " + response.json());
+        const id = (await response.json() as IBasicItem).id;
         return id as Types.ObjectId;
     }
 }

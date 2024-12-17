@@ -3,13 +3,13 @@
     import '../svelteStyles/view.css';
     import '../svelteStyles/home.css';
     import '../svelteStyles/main.css';
-    import { ParserManager } from '../utility/parsing/ParserManager';
+    //import { ParserManager } from '../utility/parsing/ParserManager';
     import { ip } from '../stores/ipStore';
     import type { ITemplatePopulated } from '../models/template';
     import type { IBasicItemPopulated } from '../models/basicItem';
     import { Types } from 'mongoose';
     import { CSVFormatterPopulated } from '../utility/formating/CSVFormatterPopulated';
-    import { FileExporter } from '../utility/file/FileExporter';
+    //import { FileExporter } from '../utility/file/FileExporter';
 
     let files : FileList;
   
@@ -30,8 +30,8 @@
           filePaths[i] = files.item(i)!.webkitRelativePath;
         }
        
-        const parser = new ParserManager()//templates); // TODO: fix
-        parser.parseFromFiles(filePaths);
+        //const parser = new ParserManager()//templates); // TODO: fix
+        //parser.parseFromFiles(filePaths);
       } else {
         // show pop up error
         // TODO: show error
@@ -66,8 +66,8 @@
       const templateContent = formatter.formatTemplates(templates);
       const itemContent = formatter.formatItems(itemRoot, itemMap);
 
-      FileExporter.export("templates", "../out", templateContent.toString());
-      FileExporter.export("items", "../out", itemContent.toString());
+      //FileExporter.export("templates", "../out", templateContent.toString());
+      //FileExporter.export("items", "../out", itemContent.toString());
     }
   </script>
   
