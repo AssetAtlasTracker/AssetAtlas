@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+      "target": "ES2017",
+      "module": "ESNext",
+      "moduleResolution": "Node",
+      "outDir": "./build-server",
+      "rootDir": "./src",
+      "esModuleInterop": true,
+      "strict": true,
+      "allowJs": true,
+      "resolveJsonModule": true,
+      "noEmitOnError": true,
+      "forceConsistentCasingInFileNames": true,
+      "types": ["node"]
+    },
+    "include": [
+      "src/**/*"
+    ],
+    "exclude": [
+      "node_modules",
+      "dist",
+      "build-server",
+      "src/svelte.d.ts"
+    ]
+  }

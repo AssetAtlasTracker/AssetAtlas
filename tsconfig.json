@@ -1,29 +1,20 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
-    "module": "ESNext",
-    "moduleResolution": "Node",
     "strict": true,
+    "module": "ESNext",
+    "target": "ES2017",
+    "moduleResolution": "Node",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist", // Ensure compiled files go into dist
-    "rootDir": "./src",  // Set the root directory
-    "isolatedModules": true, // Important for Svelte + TypeScript
-    "jsx": "preserve",
-    "verbatimModuleSyntax": true,
-    "sourceMap": true,
-    "lib": ["dom", "es2017"],
-    "allowSyntheticDefaultImports": true,
-    "typeRoots": ["./node_modules/@types"]
+    "types": ["svelte"]
   },
   "type": "module",
   "include": [
-    "src/**/*",  // Include all frontend and backend TypeScript files
-    "svelte.d.ts" // Add your custom Svelte typings
-  ],
+    "src/**/*",
+    "svelte.d.ts",
+    "vite.config.ts"
+, "src/index.tsx.tssrc/index.tsindex.ts"  ],
   "exclude": [
-    "node_modules",
-    "public" // Don't compile static files
+    "node_modules"
   ]
 }

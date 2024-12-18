@@ -7,6 +7,8 @@
   export let item: IBasicItemPopulated;
   let parentChain: { _id: string; name: string }[] = [];
 
+  let mounted = false;
+
   async function loadParentChain() {
     parentChain = [];
     try {
@@ -21,8 +23,12 @@
     }
   }
 
-  onMount(loadParentChain);
-  $: if (item._id) {
+  onMount(() => {
+    mounted = true;
+    loadParentChain();
+  });
+
+  $: if (mounted && item._id) {
     loadParentChain();
   }
 </script>

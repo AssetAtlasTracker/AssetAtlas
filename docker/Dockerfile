@@ -1,37 +1,32 @@
-# Base image with necessary build tools
-FROM node:20-bullseye AS base
-RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
-
-# Cache dependencies
-FROM base AS deps_cache
+FROM node:20-bullseye AS builder
 WORKDIR /usr/src/app
+
 COPY package*.json ./
+RUN npm install
 
-# Development dependencies and app setup
-FROM deps_cache AS build_deps
-WORKDIR /usr/src/app
 COPY ./src ./src
-COPY ["tsconfig.json", "vite.config.ts", "tailwind.config.ts", "rollup.config.js", "./"]
-RUN npm ci
+COPY ./index.html ./
+COPY ./tsconfig.json ./tsconfig.json
+COPY ./tsconfig.server.json ./tsconfig.server.json
+COPY ./tailwind.config.ts ./tailwind.config.ts
+COPY ./vite.config.ts ./vite.config.ts
+COPY ./postcss.config.js ./postcss.config.js
 
-# Production dependencies only
-FROM deps_cache AS prod_deps
-WORKDIR /usr/src/app
-# Install only production dependencies
-RUN npm ci --omit=dev
+# Build frontend (CSS + Vite)
+RUN npm run build:css && npm run build
 
-# Build application
-FROM build_deps AS builder
-WORKDIR /usr/src/app
-# Run the build step
-RUN npm run build --verbose
+# Build backend (server)
+RUN npm run build:server
 
-# Final production image
-FROM prod_deps AS runner
+FROM node:20-bullseye AS runner
 WORKDIR /usr/src/app
 ENV NODE_ENV=production
-# Copy the built app from builder stage
+
+# Copy built frontend and server files
 COPY --from=builder /usr/src/app/dist ./dist
-USER node
+COPY --from=builder /usr/src/app/build-server ./build-server
+COPY --from=builder /usr/src/app/package*.json ./
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+
 EXPOSE 3000
-CMD ["node", "dist/index.js"]
+CMD ["node", "build-server/index.js"]

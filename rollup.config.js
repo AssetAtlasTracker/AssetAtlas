@@ -1,5 +1,4 @@
 import svelte from 'rollup-plugin-svelte';
-import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import typescript from 'rollup-plugin-typescript2';
 import sveltePreprocess from 'svelte-preprocess';
@@ -54,9 +53,8 @@ export default {
       extensions: ['.css']
     }),
 
-    commonjs(),
     typescript({
-      verbosity: 3,
+      verbosity: 1,
       sourceMap: true,
       inlineSources: !production,
       clean: true
