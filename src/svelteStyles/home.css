@@ -11,21 +11,21 @@
 }
 
 .suggestions {
-    position: absolute;
-    background-color: white;
-    border: 1px solid #ccc;
-    width: 100%;
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 1000;
-  }
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+}
   
-  .suggestions li {
-    padding: 8px;
-    cursor: pointer;
-    color: black;
-  }
+.suggestions li {
+  padding: 8px;
+  cursor: pointer;
+  color: black;
+}
   
-  .suggestions li:hover {
-    background-color: #f0f0f0;
-  }
+.suggestions li:hover {
+  background-color: #f0f0f0;
+}

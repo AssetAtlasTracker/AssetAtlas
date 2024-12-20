@@ -19,6 +19,6 @@
     }
   </script>
   
-  <button on:click={deleteItem} class="delete-btn">
-    <slot>Delete</slot>
+  <button on:click={deleteItem} class="warn-button">
+    <slot></slot>
   </button>

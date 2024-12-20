@@ -516,7 +516,7 @@
             {#if !field.fromTemplate}
               <button
                 type="button"
-                class="delete-button text-warning-500 font-bold mr-4"
+                class="x-button text-warning-500 font-bold mr-4"
                 on:click={() => removeCustomField(index)}>
                 X
               </button>
@@ -583,26 +583,3 @@
     <CreateTemplate on:close={() => { showCreateTemplateDialog = false; resetForm(); }}/>
   </Dialog>
 {/if}
-
-<style>
-  .suggestions {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    position: absolute;
-    z-index: 10;
-    background: white;
-    width: 100%;
-    border: 1px solid #ccc;
-  }
-
-  .delete-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-
-  .delete-button:hover {
-    color: rgba(var(--color-warning-900));
-  }
-</style>

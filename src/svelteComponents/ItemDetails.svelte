@@ -36,7 +36,7 @@
         {#if index < parentChain.length - 1}
           <!-- Render clickable links for all but the last item -->
           <span>
-            <Link to={`/view/${parent._id}`}>{parent.name}</Link> >
+            <Link to={`/view/${parent._id}`}>{parent.name}</Link>
           </span>
         {:else}
           <!-- Render the last item as bold and non-clickable -->
@@ -49,7 +49,10 @@
   </div>
 
   {#if item}
-    <h1>{item.name}</h1>
+    <h1 id="underline-header" class="font-bold">
+      {item.name}
+    </h1>
+    <br>
     <ul>
       {#if item.description}
         <li><strong>Description:</strong> {item.description}</li>

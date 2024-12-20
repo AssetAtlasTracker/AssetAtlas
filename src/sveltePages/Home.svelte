@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { AppBar } from '@skeletonlabs/skeleton';
-  import SearchBar from '../svelteComponents/SearchBar.svelte';
   import ItemContainer from '../svelteComponents/ItemContainer.svelte';
   import CreateItem from '../svelteComponents/CreateItem.svelte';
   import type { IBasicItemPopulated } from '../models/basicItem';
