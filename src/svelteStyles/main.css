@@ -42,6 +42,34 @@ Small component styles
   resize: none
 }
 
+.add-button {
+  background: rgb(var(--color-primary-800));
+  padding: 1rem 1.25rem 1.55rem;
+  position: fixed;
+  bottom: 4rem;
+  right: 4rem;
+}
+
+.suggestions {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.suggestions li {
+  padding: 8px;
+  cursor: pointer;
+  color: black;
+}
+  
+.suggestions li:hover {
+  background-color: #f0f0f0;
+}
+
 .border-button{
   border-radius: 10px;
   border: 1px solid rgba(var(--color-primary-100) /.8);
@@ -87,14 +115,22 @@ Small component styles
 }
 
 .suggestions {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+  background: rgba(var(--color-primary-900));
+  color: rgb(var(--theme-font-color-base));
+  border: 1px solid rgba(var(--color-primary-100) /.8);
+  padding: 1rem .5rem;
   position: absolute;
-  z-index: 10;
-  background: white;
   width: 100%;
-  border: 1px solid #ccc;
+  border-radius: 10px;
+}
+
+.suggestion-item{
+  text-align: left;
+  width:100%;
+}
+
+.nav-margin {
+  margin: 0rem 1rem;
 }
 
 /* 
@@ -137,21 +173,5 @@ body {
   background-image: radial-gradient(at 0% 0%, rgba(var(--color-success-500) / .2) 0px, transparent 55%), 
                     radial-gradient(at 98% 1%, rgba(var(--color-error-500) / .33) 0px, transparent 50%) !important;
                     
-}
-
-::-webkit-input-placeholder {
-    color: rgb(var(--theme-font-color-base));
-}
-
-::-moz-placeholder {
-    color: rgb(var(--theme-font-color-base));
-}
-
-::-ms-placeholder {
-    color: rgb(var(--theme-font-color-base));
-}
-
-::placeholder {
-    color: rgb(var(--theme-font-color-base));
 }
     
