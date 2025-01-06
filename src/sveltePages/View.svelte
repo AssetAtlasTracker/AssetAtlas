@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { AppBar } from '@skeletonlabs/skeleton';
   import ItemDetails from '../svelteComponents/ItemDetails.svelte';
   import DeleteItem from '../svelteComponents/DeleteItem.svelte';
+  import TopBar from '../svelteComponents/TopBar.svelte';
+
   import type { IBasicItemPopulated } from '../models/basicItem';
+  
   import '../svelteStyles/view.css';
-  
-  export let params: { id?: string };
-  console.log('View params:', params);
-  
-  import '../svelteStyles/home.css';
   import '../svelteStyles/main.css';
+
+  export let params: { id?: string };
+  //console.log('View params:', params);
 
   let item: IBasicItemPopulated | null = null;
 
@@ -47,19 +47,15 @@
   }
 </script>
 
-<AppBar class="appbar-border glass"> 
-  <button class="back-button" on:click={goBack}>
-    ⬅ Back 
-  </button>
-</AppBar>
+<TopBar searchQuery={''}></TopBar>
 
 {#if item}
-  <ItemDetails {item}/>
-  <div class="delete-container">
+  <div class="page-component glass">
+    <ItemDetails {item}/>
+    <br>
     <DeleteItem itemId={params.id} onDelete={handleDelete}>
       <button
-        class="border border-red-600 text-white bg-red-500 hover:bg-red-700 hover:border-red-800 font-semibold shadow-md rounded-lg px-4 py-2 transition duration-200"
-      >
+        class="font-semibold">
         Delete Item
       </button>
     </DeleteItem>

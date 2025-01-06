@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { AppBar } from '@skeletonlabs/skeleton';
-  import SearchBar from '../svelteComponents/SearchBar.svelte';
   import ItemContainer from '../svelteComponents/ItemContainer.svelte';
   import CreateItem from '../svelteComponents/CreateItem.svelte';
   import type {IBasicItemPopulated} from '../models/basicItem';
@@ -41,7 +39,7 @@
     }
 </script>
 
-<AppBar class="appbar-border glass">
+<!-- <AppBar class="appbar-border glass">
   <svelte:fragment slot="lead">
     <button on:click={handleClickMenu}>
       (icon)
@@ -55,7 +53,9 @@
       <SearchBar searchQuery={searchQuery} onSearch={handleSearch} />
     </div>
   </div>
-</AppBar>
+</AppBar> -->
+
+<TopBar searchQuery={searchQuery} onSearch={handleSearch}></TopBar>
 
 <div class="body">
 
@@ -72,8 +72,7 @@
 
   <button
     class="add-button text-icon font-bold hover:bg-primary-900 rounded-full shadow border"
-    on:click={() => dialog.showModal()}
-  >
+    on:click={() => dialog.showModal()}>
     +
   </button>
   

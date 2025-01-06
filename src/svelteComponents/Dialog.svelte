@@ -2,10 +2,12 @@
     export let dialog
 </script>
 
-<dialog class="glass page-component center-dialog" 
-        bind:this={dialog} on:close>
-    <button class="close-button border-button hover:bg-primary-900 font-semibold shadow" 
-            on:click={() => dialog.close()}>
+<dialog 
+    class="glass page-component center-dialog" 
+    bind:this={dialog} on:close>
+    <button 
+        class="close-button border-button hover:bg-primary-900 font-semibold shadow" 
+        on:click={() => dialog.close()}>
         Cancel
     </button>
     <slot/>
@@ -13,7 +15,7 @@
 
 <style>
     ::backdrop{
-        background: rgba(var(--color-surface-900)/.7);
+        background: rgba(var(--color-surface-900)/.7); 
     }
 
     .center-dialog{

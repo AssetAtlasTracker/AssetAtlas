@@ -20,8 +20,7 @@
   <!-- <Route path="/view/:id" component={View} /> -->
   <Route path="/view/:id" let:params>
     <View {params} />
-    </Route>
-
+  </Route>
   <Route path="/utility">
     <Utility/>
   </Route>

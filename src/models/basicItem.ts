@@ -123,7 +123,6 @@ BasicItemSchema.pre('findOneAndDelete', async function (next) {
   const BasicItem = model<IBasicItem>('BasicItem');
 
   try {
-    // Find the item being deleted
     const itemToDelete = await BasicItem.findById(itemId).exec();
     if (!itemToDelete) return next();
 
@@ -157,9 +156,15 @@ BasicItemSchema.pre('findOneAndDelete', async function (next) {
       }
     }
 
+    await BasicItem.updateMany(
+      { homeItem: itemId },
+      { $set: { homeItem: null } }
+    ).exec();
+
     next();
   } catch (err) {
     console.error('Error in pre-delete hook:', err);
+    next(err);
   }
 });
 

@@ -272,6 +272,33 @@ it('should get all contained items by parent ID', async () => {
     expect(response.body[0].name).toBe('Top-Level Parent');
   });
 
+  it('should delete an item and unset its home item field in other items', async () => {
+    const homeItemData = {
+      name: 'Home Item',
+      description: 'An item set as a home for others',
+    };
+    const homeItemResponse = await request(app).post('/api/items').send(homeItemData);
+    expect(homeItemResponse.status).toBe(201);
+    const homeItem = homeItemResponse.body;
+  
+    const itemWithHomeData = {
+      name: 'Item with Home',
+      description: 'An item with a home reference',
+      homeItem: homeItem._id
+    };
+    const itemWithHomeResponse = await request(app).post('/api/items').send(itemWithHomeData);
+    expect(itemWithHomeResponse.status).toBe(201);
+    const itemWithHome = itemWithHomeResponse.body;
+  
+    const deleteResponse = await request(app).delete(`/api/items/${homeItem._id}`);
+    expect(deleteResponse.status).toBe(200);
+    expect(deleteResponse.body.message).toBe('Item deleted successfully');
+  
+    const updatedItemWithHome = await BasicItem.findById(itemWithHome._id).exec();
+    expect(updatedItemWithHome).not.toBeNull();
+    expect(updatedItemWithHome?.homeItem).toBeNull();
+  });
+
 });
 
 describe('Item and Custom Field API', () => {

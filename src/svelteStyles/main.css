@@ -4,7 +4,7 @@
 Large component styles
 */
 .appbar-border{
-  border: 1px solid rgba(var(--color-primary-100) / 0.9);
+  border: 1px solid rgba(var(--color-primary-100) / 0.8);
 }
 
 .glass{
@@ -18,7 +18,7 @@ Large component styles
 .page-component {
   margin: 1.5rem;
   padding: 1.5rem;
-  border: 1px solid rgba(var(--color-primary-100) / 0.9);
+  border: 1px solid rgba(var(--color-primary-100) / 0.8);
 }
   
 .internal-component {
@@ -32,7 +32,7 @@ Large component styles
   margin: 1.5rem;
   padding: 1.5rem;
   background: rgb(var(--color-primary-100));
-  border: 1px solid rgba(var(--color-primary-100) / 0.9);
+  border: 1px solid rgba(var(--color-primary-100) / 0.8);
 }
 
 /* 
@@ -44,24 +44,57 @@ Small component styles
 
 .border-button{
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(var(--color-primary-100) /.8);
   padding: 0.5rem 1rem;
-  background: rgba(0, 0, 0, 0);
+  background: rgba(var(--color-primary-900)/.0);
   color: rgb(var(--theme-font-color-base));
 }
 
+.x-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.x-button:hover {
+  color: rgba(var(--color-warning-900));
+}
+
+.warn-button{
+  border-radius: 10px;
+  border: 1px solid rgba(var(--color-error-400) /.8);
+  padding: 0.5rem 1rem;
+  background: rgba(var(--color-warning-700)/.1);
+  color: rgb(var(--color-font-color-base));
+}
+
+.warn-button:hover{
+  background: rgb(var(--color-warning-900));
+}
+
 .dark-textarea{
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(var(--color-primary-900)/.1);
   color: rgb(var(--theme-font-color-base));
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(var(--color-primary-100) /.8);
   border-radius: 10px;
 }
 
 .searchbar{
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(var(--color-primary-900)/.1);
   color: rgb(var(--theme-font-color-base));
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(var(--color-primary-100) /.8);
   border-radius: 10px;
+}
+
+.suggestions {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  z-index: 10;
+  background: white;
+  width: 100%;
+  border: 1px solid #ccc;
 }
 
 /* 
@@ -69,11 +102,10 @@ Text styles
 */
 #title{
   letter-spacing: -0.1rem;
-
 }
 
 #underline-header{
-  border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(var(--color-primary-100) /.8);
 }
 
 .text-icon {
@@ -81,8 +113,8 @@ Text styles
 }
 
 .text-3xl {
-    font-size: 2.5rem;
-    line-height: 2rem;
+  font-size: 2.5rem;
+  line-height: 2rem;
 }
 
 div {
