@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types, type CallbackError } from 'mongoose';
 import type { ICustomField } from './customField';
 import type { ITemplate } from './template';
 //import Template from './template';
@@ -164,7 +164,7 @@ BasicItemSchema.pre('findOneAndDelete', async function (next) {
     next();
   } catch (err) {
     console.error('Error in pre-delete hook:', err);
-    next(err);
+    next(err as CallbackError);
   }
 });
 
