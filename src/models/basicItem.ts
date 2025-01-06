@@ -164,7 +164,7 @@ BasicItemSchema.pre('findOneAndDelete', async function (next) {
     next();
   } catch (err) {
     console.error('Error in pre-delete hook:', err);
-    next(err as CallbackError | undefined);
+    next(err as CallbackError);
   }
 });
 
