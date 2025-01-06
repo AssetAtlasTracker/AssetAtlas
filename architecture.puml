@@ -1,0 +1,81 @@
+@startuml
+!define RECTANGLE class
+
+package "Backend" #LightBlue {
+RECTANGLE Express {
+    * Routes
+    * Controllers
+    * Models
+}
+RECTANGLE NodeJS {
+    * JavaScript runtime
+    * Runs transpiled TypeScript
+}
+RECTANGLE Mongoose {
+    * Object data mapping tool
+}
+}
+
+package "Frontend" #OrangeRed{
+RECTANGLE Svelte {
+  * Pages
+  * Components
+}
+
+RECTANGLE Tailwind {
+  * CSS
+}
+}
+
+package "Database" #LightGreen {
+RECTANGLE MongoDB {
+ * NoSQL database
+}
+}
+
+package "Infrastructure" #DarkGray{
+RECTANGLE env{
+    * Environment variables
+}
+RECTANGLE Docker {
+    * Containerizes application
+}
+RECTANGLE Tailscale {
+    * Remote self hosted server access
+}
+RECTANGLE Launcher{
+    * Some python code
+}
+}
+
+package "Build Tools" #Yellow {
+    RECTANGLE Rollup {
+        * Module bundler
+    }
+    RECTANGLE ESLint {
+        * Linting
+    }
+    RECTANGLE Vite {
+        * Testing tool
+    }
+}
+
+RECTANGLE User {
+    * Some guy
+}
+
+Express <--> Mongoose : Talks to
+Mongoose <--> MongoDB: Talks to
+Frontend <--> Express: Talks to
+Docker --> Express : Containerizes
+Docker --> MongoDB : Containerizes
+Docker --> Tailscale : Containerizes
+User --> Frontend : Views
+Tailscale <--> Express : Remotley accesses
+Launcher --> Docker : Launches
+User --> Launcher : Uses
+Express --> NodeJS : Runs on
+Tailwind --> Svelte : Stylalizes
+Rollup --> Svelte : Bundles
+
+@enduml
