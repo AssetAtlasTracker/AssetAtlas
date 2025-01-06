@@ -506,75 +506,80 @@
       </div>
 
       <!-- Custom Fields -->
-      <h2 class="font-bold text-lg mt-4">
-        Custom Fields
-      </h2>
-      <div class="space-y-2">
-        {#each customFields as field, index}
-          <div class="flex flex-wrap items-start mb-4 border p-2 rounded relative">
-            <!-- If fromTemplate, do not show delete button -->
-            {#if !field.fromTemplate}
-              <button
+<h2 class="font-bold text-lg mt-4">
+  Custom Fields
+</h2>
+<div class="space-y-2">
+  {#each customFields as field, index}
+    <div class="flex flex-wrap items-start mb-4 border p-2 rounded relative">
+      <!-- If fromTemplate, do not show delete button -->
+      {#if !field.fromTemplate}
+        <button
+          type="button"
+          class="x-button text-warning-500 font-bold mr-4"
+          on:click={() => removeCustomField(index)}>
+          X
+        </button>
+      {/if}
+      <label class="flex-1 mr-2">
+        Field Name:
+        <span class="flex items-center">
+          <input
+            type="text"
+            class="dark-textarea py-2 px-4 w-full"
+            bind:value={field.fieldName}
+            on:input={(e) => onCustomFieldNameInput(index, e)}
+            on:blur={() => customFields[index].suggestions = []}
+            disabled={field.fromTemplate}
+          />
+          {#if field.fromTemplate}
+            <InfoToolTip message="This field is required due to template. Value can be left empty if desired." />
+          {/if}
+        </span>
+        {#if field.suggestions.length > 0}
+          <ul class="suggestions bg-white border rounded shadow mt-1 max-h-32 overflow-auto">
+            {#each field.suggestions.slice(0, 5) as suggestion}
+              <button 
                 type="button"
-                class="x-button text-warning-500 font-bold mr-4"
-                on:click={() => removeCustomField(index)}>
-                X
+                class="px-2 py-1 hover:bg-primary-900 cursor-pointer" 
+                on:mousedown={(e) => { e.preventDefault(); selectCustomFieldSuggestion(index, suggestion); }}>
+                {suggestion.fieldName} ({suggestion.dataType})
               </button>
-            {/if}
-            <label class="flex-1 mr-2">
-              Field Name:
-              <input
-                type="text"
-                class="dark-textarea py-2 px-4 w-full"
-                bind:value={field.fieldName}
-                on:input={(e) => onCustomFieldNameInput(index, e)}
-                on:blur={() => customFields[index].suggestions = []}
-                disabled={field.fromTemplate}
-              />
-              {#if field.suggestions.length > 0}
-                <ul class="suggestions bg-white border rounded shadow mt-1 max-h-32 overflow-auto">
-                  {#each field.suggestions.slice(0, 5) as suggestion}
-                    <button 
-                      type="button"
-                      class="px-2 py-1 hover:bg-primary-900 cursor-pointer" 
-                      on:mousedown={(e) => { e.preventDefault(); selectCustomFieldSuggestion(index, suggestion); }}>
-                      {suggestion.fieldName} ({suggestion.dataType})
-                    </button>
-                  {/each}
-                </ul>
-              {/if}
-            </label>
-            <label class="mr-2" style="flex-basis: 50%; max-width: 200px;">
-              Data Type:
-              <select
-                class="dark-textarea py-2 px-4 w-full"
-                bind:value={field.dataType}
-                disabled={field.isExisting || field.fromTemplate}>
-                <option value="string">String</option>
-                <option value="number">Number</option>
-                <option value="boolean">Boolean</option>
-              </select>
-            </label>
-            <label class="flex-1">
-              Value:
-              <input
-                type="text"
-                class="dark-textarea py-2 px-4 w-full"
-                bind:value={field.value}
-              />
-            </label>
-          </div>
-        {/each}
-      </div>
-      <button type="button" class="border-button hover:bg-primary-900 font-semibold shadow mt-2" on:click={addCustomFieldLine}>
-        Add Custom Field
-      </button>
-      <!-- Submit -->
-      <button class="border-button hover:bg-primary-900 font-semibold shadow mt-4 block" type="submit">
-        Create Item
-      </button>
-    </form>
-  </div>
+            {/each}
+          </ul>
+        {/if}
+      </label>
+      <label class="mr-2" style="flex-basis: 50%; max-width: 200px;">
+        Data Type:
+        <select
+          class="dark-textarea py-2 px-4 w-full"
+          bind:value={field.dataType}
+          disabled={field.isExisting || field.fromTemplate}>
+          <option value="string">String</option>
+          <option value="number">Number</option>
+          <option value="boolean">Boolean</option>
+        </select>
+      </label>
+      <label class="flex-1">
+        Value:
+        <input
+          type="text"
+          class="dark-textarea py-2 px-4 w-full"
+          bind:value={field.value}
+        />
+      </label>
+    </div>
+  {/each}
+</div>
+<button type="button" class="border-button hover:bg-primary-900 font-semibold shadow mt-2" on:click={addCustomFieldLine}>
+  Add Custom Field
+</button>
+<!-- Submit -->
+<button class="border-button hover:bg-primary-900 font-semibold shadow mt-4 block" type="submit">
+  Create Item
+</button>
+</form>
+</div>
 </Dialog>
 
 <!-- Create Template Dialog -->
