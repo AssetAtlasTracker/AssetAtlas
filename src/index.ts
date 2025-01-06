@@ -7,6 +7,7 @@ import fs from 'fs';//for modern .env access
 import itemRoutes from './routes/itemRoutes.js';
 import templateRoutes from './routes/templateRoutes.js';
 import customFieldRoutes from './routes/customFieldRoutes.js';
+import csvRoutes from "./routes/csvRoutes.js";
 
 const app = express();
 //const PORT = process.env.PORT || 3000;
@@ -63,8 +64,8 @@ function getEnvVariables(envPath: string) {//for .env stuff
 app.get('/api/ip', (req, res) => {
   const envPath = path.join(__dirname, '../docker', '.env');
   console.log('ENV Path:', envPath);
-  let ip = 'localhost:3000';//defaul to 3k
-  //let ip = 'localhost:3000';//proper defaukl
+  let ip = 'localhost:3000';//default to 3k
+  //let ip = 'localhost:3000';//proper default
   
   //if (fs.existsSync(envPath)) {
     try {
@@ -82,7 +83,8 @@ app.get('/api/ip', (req, res) => {
 
 app.use('/api/items', itemRoutes);
 app.use('/api/templates', templateRoutes);
-app.use('/api/customFields', customFieldRoutes)
+app.use('/api/customFields', customFieldRoutes);
+app.use('/api/csv', csvRoutes);
 
 // app.get('/', (req, res) => {
 //   res.send('API is running...');

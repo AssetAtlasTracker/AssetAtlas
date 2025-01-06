@@ -3,13 +3,11 @@
     import '../svelteStyles/view.css';
     import '../svelteStyles/home.css';
     import '../svelteStyles/main.css';
-    //import { ParserManager } from '../utility/parsing/ParserManager';
     import { ip } from '../stores/ipStore';
     import type { ITemplatePopulated } from '../models/template';
     import type { IBasicItemPopulated } from '../models/basicItem';
     import { Types } from 'mongoose';
     import { CSVFormatterPopulated } from '../utility/formating/CSVFormatterPopulated';
-    //import { FileExporter } from '../utility/file/FileExporter';
 
     let files : FileList;
   
@@ -30,8 +28,16 @@
           filePaths[i] = files.item(i)!.webkitRelativePath;
         }
         
-        //const parser = new ParserManager()//templates); // TODO: fix
-        //parser.parseFromFiles(filePaths);
+        // try {
+        //   const response = await fetch(`http://${$ip}/int/csv/import`, {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify({filePaths}),
+        //   });
+        //   const res = await response.json();
+        // } catch (err) {
+        //   console.error('Error importing:', err);
+        // }
       } else {
         // show pop up error
         // TODO: show error
@@ -66,8 +72,21 @@
       const templateContent = formatter.formatTemplates(templates);
       const itemContent = formatter.formatItems(itemRoot, itemMap);
 
-      //FileExporter.export("templates", "../out", templateContent.toString());
-      //FileExporter.export("items", "../out", itemContent.toString());
+      // try {
+      //     const response = await fetch(`http://${$ip}/int/csv/export`, {
+      //       method: 'POST',
+      //       headers: { 'Content-Type': 'application/json' },
+      //       body: JSON.stringify({
+      //         filePaths: ["items", "templates"],
+      //         data: itemContent,
+      //         templateData: templateContent,
+      //         folder: "../out",
+      //       }),
+      //     });
+      //     const res = await response.json();
+      //   } catch (err) {
+      //     console.error('Error importing:', err);
+      //   }
     }
   </script>
   
