@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import fs from "fs";
 
 export class FileExporter {
     static export(filename: string, path:string, data:string, extension:string=".csv") {

@@ -1,16 +1,15 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { Router, Route, Link } from 'svelte-routing';
-  import Home from './sveltePages/Home.svelte';
-  import View from './sveltePages/View.svelte';
+  import { onMount } from "svelte";
+  import { Router, Route, Link } from "svelte-routing";
+  import Home from "./sveltePages/Home.svelte";
+  import View from "./sveltePages/View.svelte";
   import Utility from './sveltePages/Utility.svelte';
-  import { fetchIp } from './stores/ipStore';
+  import { fetchIp } from "./stores/ipStore";
 
   onMount(() => {
     fetchIp();
   });
 </script>
-
 
 <Router>
   <!-- <nav>

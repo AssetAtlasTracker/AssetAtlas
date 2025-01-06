@@ -21,7 +21,7 @@ const __dirname = dirname(__filename);
 
 export default function connectDB() {
   const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/mydatabase';
-  
+
   mongoose.connect(mongoURI)
     .then(() => console.log('MongoDB connected'))
     .catch((err) => console.error('MongoDB connection error:', err));
@@ -37,10 +37,10 @@ const allowedOrigins = [
   `http://${process.env.IP}`, //Allow the IP from .env or dynamically
 ];
 
- app.use(cors({
-   origin: allowedOrigins,
-   credentials: true,  //Allow credentials if needed
- }));
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,  //Allow credentials if needed
+}));
 
 
 app.use(express.json());
@@ -48,7 +48,7 @@ app.use(express.json());
 function getEnvVariables(envPath: string) {//for .env stuff
   const envData = fs.readFileSync(envPath, 'utf-8');
   const envVars: { [key: string]: string } = {};
-  
+
   // Split into lines and process each key-value pair
   envData.split('\n').forEach(line => {
     const [key, value] = line.split('=');
@@ -56,7 +56,7 @@ function getEnvVariables(envPath: string) {//for .env stuff
       envVars[key.trim()] = value.trim().replace(/\r$/, '');//trimming
     }
   });
-  
+
   return envVars;
 }
 
@@ -68,7 +68,7 @@ app.get('/api/ip', (req, res) => {
   //let ip = 'localhost:3000';//proper default
   
   //if (fs.existsSync(envPath)) {
-    try {
+  try {
     const envVars = getEnvVariables(envPath);
     console.log('Parsed envVars:', envVars);
     ip = envVars['IP'] || ip;
@@ -77,7 +77,7 @@ app.get('/api/ip', (req, res) => {
     console.error('Error reading .env file:', error);
     return res.status(500).json({ error: 'Failed to read .env file' });
   }
-//}
+  //}
   res.json({ ip });
 });
 
