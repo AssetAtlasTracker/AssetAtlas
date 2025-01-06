@@ -12,6 +12,7 @@
   export let dialog: HTMLDialogElement;
 
   import Menu from '../svelteComponents/Menu.svelte';
+  import TopBar from '../svelteComponents/TopBar.svelte';
   export let menu : HTMLDialogElement;
 
   async function handleSearch(query: string) {
@@ -31,12 +32,6 @@
     }
   }
 
-
-
-    function handleClickMenu() {
-        console.log("Sent click");
-        menu.click();
-    }
 </script>
 
 <!-- <AppBar class="appbar-border glass">
@@ -55,7 +50,7 @@
   </div>
 </AppBar> -->
 
-<TopBar searchQuery={searchQuery} onSearch={handleSearch}></TopBar>
+<TopBar searchQuery={searchQuery} onSearch={handleSearch} menu={menu}></TopBar>
 
 <div class="body">
 

@@ -29,7 +29,7 @@
         for (var i = 0; i < files.length; i++) {
           filePaths[i] = files.item(i)!.webkitRelativePath;
         }
-       
+        
         //const parser = new ParserManager()//templates); // TODO: fix
         //parser.parseFromFiles(filePaths);
       } else {
@@ -77,11 +77,13 @@
     </button>
   </AppBar>
 
-  <button on:click={handleImport}>Import From CSV</button>
-  <input accept=".csv" bind:files id="many" multiple type="file" on:input={handleSelected}>
+  <div class="body">
+    <button on:click={handleImport}>Import From CSV</button>
+    <input accept=".csv" bind:files id="many" multiple type="file" on:input={handleSelected}>
 
-  <button on:click={handleExport}>Export To CSV</button>
-  <input type="text">
+    <button on:click={handleExport}>Export To CSV</button>
+    <input type="text">
+  </div>
   
   
     

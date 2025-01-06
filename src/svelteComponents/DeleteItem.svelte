@@ -1,6 +1,6 @@
 <script>
     export let itemId;
-    export let onDelete = () => {};//doesnt do anything rn
+    export let onDelete = () => {};//doesn't do anything rn
   
     async function deleteItem() {
       try {

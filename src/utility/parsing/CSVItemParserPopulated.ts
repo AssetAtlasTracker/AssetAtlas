@@ -105,7 +105,7 @@ export class CSVItemParserPopulated implements Parser {
             throw new Error("Incorrect Formatting: No Items When Popping Out");
         } else {
             items.pop();
-            this.parseHelper(data, i+1, items, null); // is null the right choice here? more strict but better
+            this.parseHelper(data, i+1, items, null);
         }
     }
     

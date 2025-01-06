@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Link } from 'svelte-routing';
-	var open = true;
+	var open = false;
     export let menu;
 
 	function handleClicked() {
