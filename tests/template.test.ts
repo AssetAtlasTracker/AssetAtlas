@@ -119,6 +119,19 @@ describe('Template API', () => {
     expect(response.body.length).toBe(1); // Only one template matches "Alph"
     expect(response.body[0].name).toBe('Template Alpha');
   });
+
+  it('should delete a template by ID', async () => {
+    const customField = await CustomField.create({ fieldName: 'field1', dataType: 'string' });
+
+    const template = await Template.create({ name: 'Test Template', fields: [customField._id] });
+
+    const response = await request(app).delete(`/api/templates/${template._id}`);
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe('Template deleted successfully');
+    
+    const deletedTemplate = await Template.findById(template._id).exec();
+    expect(deletedTemplate).toBeNull();
+  });
 });
 
 

@@ -6,6 +6,8 @@ import itemRouter from '../src/routes/itemRoutes.js';
 import BasicItem from '../src/models/basicItem.js';
 import customFieldRouter from '../src/routes/customFieldRoutes.js';
 import CustomField from '../src/models/customField.js';
+import TemplateRouter from '../src/routes/templateRoutes.js';
+import Template from '../src/models/template.js';
 import type { ICustomField } from '../src/models/customField.js';
 
 let app: express.Application;
@@ -21,6 +23,7 @@ beforeAll(async () => {
   app.use(express.json());
   app.use('/api/items', itemRouter);
   app.use('/api/customFields', customFieldRouter);
+  app.use('/api/templates', TemplateRouter);
 });
 
 afterAll(async () => {
@@ -373,6 +376,31 @@ describe('Item and Custom Field API', () => {
     const updatedItem = await BasicItem.findById(createdItem._id).exec();
     expect(updatedItem?.customFields).toHaveLength(1);
     expect(updatedItem?.customFields![0].value).toBe('2 years');
+  });
+});
+
+describe('Item and Template API', () => {
+  it('should delete a used template and ensure the item has it removed', async () => {
+    const customField = await CustomField.create({ fieldName: 'field1', dataType: 'string' });
+
+    const template = await Template.create({ name: 'Testy', fields: [customField._id] });
+
+    const itemData = {
+      name: 'Test Item',
+      description: 'An item using a template',
+      template: template._id,
+    };
+    const itemResponse = await request(app).post('/api/items').send(itemData);
+    expect(itemResponse.status).toBe(201);
+    const createdItem = itemResponse.body;
+
+    const deleteResponse = await request(app).delete(`/api/templates/${template._id}`);
+    expect(deleteResponse.status).toBe(200);
+    expect(deleteResponse.body.message).toBe('Template deleted successfully');
+
+    const updatedItem = await BasicItem.findById(createdItem._id).exec();
+    expect(updatedItem).not.toBeNull();
+    expect(updatedItem?.template).toBeUndefined();
   });
 });
 
