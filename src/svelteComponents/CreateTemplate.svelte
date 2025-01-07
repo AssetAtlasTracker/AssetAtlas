@@ -6,7 +6,7 @@
   let name = "";
   let customFields: ICustomFieldEntry[] = [];
   let nameError = "";
-  let debounceTimeout: NodeJS.Timeout | undefined;
+  let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
 
   interface ICustomField {
     _id: string;
@@ -22,7 +22,7 @@
     suggestions: ICustomField[];
     isNew: boolean;
     isSearching: boolean;
-    searchTimeout?: NodeJS.Timeout;
+    searchTimeout?: ReturnType<typeof setTimeout>;
     isExisting: boolean;
   }
 

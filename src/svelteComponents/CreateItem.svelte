@@ -22,7 +22,7 @@
   let templateName = "";
   let templateId: string | null = null;
   let templateSuggestions: any[] = [];
-  let debounceTimeout: NodeJS.Timeout | undefined;
+  let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
 
   interface ICustomField {
     _id: string;
@@ -41,7 +41,7 @@
     isSearching: boolean;
     isExisting: boolean;
     fromTemplate: boolean;
-    searchTimeout?: NodeJS.Timeout;
+    searchTimeout?: ReturnType<typeof setTimeout>;
   }
 
   //Start with an empty array by default so no field loads initially

@@ -9,6 +9,10 @@
   function navHome() {
     // navigate("/");
   }
+
+  function navigateToViewTemplates() {
+    navigate("/viewTemplates");
+  }
 </script>
 
 <AppBar class="appbar-border glass">
@@ -23,6 +27,11 @@
       <div class="nav-margin flex-auto pb-4">
         <SearchBar {searchQuery} {onSearch} />
       </div>
+    </div>
+    <div class="float-right">
+      <button class="nav-margin text-xl font-bold" on:click={navigateToViewTemplates}>
+        View Templates
+      </button>
     </div>
   </div>
 </AppBar>
