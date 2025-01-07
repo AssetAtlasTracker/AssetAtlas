@@ -1,7 +1,6 @@
-/* Styles that should be available on all pages, for internal consistency */
-
 /* 
 Large component styles
+e.g. containers, theming, etc.
 */
 .appbar-border{
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
@@ -35,39 +34,20 @@ Large component styles
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
 }
 
+.center{
+  justify-self: center;
+}
+
+.scrollable-content {
+  overflow-y: auto;
+}
+
 /* 
 Small component styles 
+e.g. buttons, lists, textareas, etc.
 */
 #resize-none-textarea{
   resize: none
-}
-
-.add-button {
-  background: rgb(var(--color-primary-800));
-  padding: 1rem 1.25rem 1.55rem;
-  position: fixed;
-  bottom: 4rem;
-  right: 4rem;
-}
-
-.suggestions {
-  position: absolute;
-  background-color: white;
-  border: 1px solid #ccc;
-  width: 100%;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 1000;
-}
-
-.suggestions li {
-  padding: 8px;
-  cursor: pointer;
-  color: black;
-}
-  
-.suggestions li:hover {
-  background-color: #f0f0f0;
 }
 
 .border-button{
@@ -78,10 +58,15 @@ Small component styles
   color: rgb(var(--theme-font-color-base));
 }
 
+.border-button:hover{
+  background: rgba(var(--color-primary-900));
+}
+
 .x-button {
-  background: none;
-  border: none;
-  cursor: pointer;
+  float: right;
+  color: rgba(var(--color-warning-600));
+  text-transform: uppercase;
+  font-weight: 700;
 }
 
 .x-button:hover {
@@ -93,11 +78,44 @@ Small component styles
   border: 1px solid rgba(var(--color-error-400) /.8);
   padding: 0.5rem 1rem;
   background: rgba(var(--color-warning-700)/.1);
-  color: rgb(var(--color-font-color-base));
+  color: rgb(var(--theme-font-color-base));
 }
 
 .warn-button:hover{
   background: rgb(var(--color-warning-900));
+}
+
+.add-button {
+  background: rgb(var(--color-primary-800));
+  border: 1px solid rgba(var(--color-primary-100) /.8);
+  border-radius: 9999px;
+  padding: 1rem 1.25rem 1.55rem;
+  position: fixed;
+  bottom: 4rem;
+  right: 4rem;
+}
+
+.add-button:hover{
+  background: rgb(var(--color-primary-900));
+}
+
+.suggestions {
+  background: rgba(var(--color-primary-900));
+  color: rgb(var(--theme-font-color-base));
+  border: 1px solid rgba(var(--color-primary-100) /.8);
+  padding: 1rem .5rem;
+  position: absolute;
+  width: 100%;
+  border-radius: 10px;
+}
+
+.suggestions:hover{
+  background: rgba(var(--color-primary-800));
+}
+
+.suggestion-item{
+  text-align: left;
+  width:100%;
 }
 
 .dark-textarea{
@@ -112,21 +130,6 @@ Small component styles
   color: rgb(var(--theme-font-color-base));
   border: 1px solid rgba(var(--color-primary-100) /.8);
   border-radius: 10px;
-}
-
-.suggestions {
-  background: rgba(var(--color-primary-900));
-  color: rgb(var(--theme-font-color-base));
-  border: 1px solid rgba(var(--color-primary-100) /.8);
-  padding: 1rem .5rem;
-  position: absolute;
-  width: 100%;
-  border-radius: 10px;
-}
-
-.suggestion-item{
-  text-align: left;
-  width:100%;
 }
 
 .nav-margin {
@@ -173,5 +176,9 @@ body {
   background-image: radial-gradient(at 0% 0%, rgba(var(--color-success-500) / .2) 0px, transparent 55%), 
                     radial-gradient(at 98% 1%, rgba(var(--color-error-500) / .33) 0px, transparent 50%) !important;
                     
+}
+
+::backdrop {
+  background: rgba(var(--color-surface-900) / 0.7);
 }
     

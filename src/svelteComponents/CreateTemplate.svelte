@@ -189,7 +189,7 @@
 </script>
 
 <div class="template-container">
-  <h2 class="font-bold text-xl mb-4">Create New Template</h2>
+  <h1 id="underline-header" class="font-bold text-center">Create New Template</h1>
   <form on:submit|preventDefault={handleCreateTemplate}>
     <label class="block mb-4">
       Name:
@@ -254,7 +254,7 @@
         <!-- Remove Button -->
         <button
           type="button"
-          class="border-button hover:bg-gray-100 font-semibold shadow ml-2"
+          class="border-button font-semibold shadow ml-2"
           on:click={() => removeCustomField(index)}
         >
           Remove
@@ -264,14 +264,14 @@
 
     <button
       type="button"
-      class="border-button hover:bg-gray-100 font-semibold shadow mt-2"
+      class="border-button font-semibold shadow mt-2"
       on:click={addCustomFieldLine}
     >
       Add Custom Field
     </button>
     <button
       type="submit"
-      class="border-button hover:bg-gray-100 font-semibold shadow mt-4"
+      class="border-button font-semibold shadow mt-4"
       disabled={!!nameError}>Create Template</button
     >
   </form>

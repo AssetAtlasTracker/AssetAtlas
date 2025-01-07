@@ -441,6 +441,8 @@
           <label class="flex-1 min-w-[200px]">
             Tags:
             <textarea
+              rows="1"
+              id="resize-none-textarea"
               class="dark-textarea py-2 px-4 w-full"
               bind:value={tags}
             />
@@ -451,7 +453,8 @@
         <label class="min-w-[400px]">
           Description:
           <textarea
-            rows="5"
+            rows="4"
+            id="resize-none-textarea"
             class="dark-textarea py-2 px-4 w-full"
             placeholder="My medium-sized, red toolbox"
             bind:value={description}
@@ -475,7 +478,7 @@
             {#if parentItemSuggestions.length > 0}
               <ul class="suggestions">
                 {#each parentItemSuggestions.slice(0, 5) as item}
-                  <button 
+                  <button
                     class="suggestion-item"
                     type="button"
                     on:mousedown={(e) => {
@@ -552,14 +555,16 @@
               </ul>
             {/if}
           </label>
-
-          <button
-            type="button"
-            class="border-button hover:bg-primary-900 font-semibold shadow"
-            on:click={() => (showCreateTemplateDialog = true)}
-          >
-            Create New Template
-          </button>
+          <div>
+            <br />
+            <button
+              type="button"
+              class="border-button font-semibold shadow"
+              on:click={() => (showCreateTemplateDialog = true)}
+            >
+              Create New Template
+            </button>
+          </div>
         </div>
       </div>
 
@@ -571,15 +576,6 @@
             class="flex flex-wrap items-start mb-4 border p-2 rounded relative"
           >
             <!-- If fromTemplate, do not show delete button -->
-            {#if !field.fromTemplate}
-              <button
-                type="button"
-                class="x-button text-warning-500 font-bold mr-4"
-                on:click={() => removeCustomField(index)}
-              >
-                X
-              </button>
-            {/if}
             <label class="flex-1 mr-2">
               Field Name:
               <span class="flex items-center">
@@ -636,20 +632,29 @@
                 bind:value={field.value}
               />
             </label>
+            {#if !field.fromTemplate}
+            <button
+              type="button"
+              class="x-button"
+              on:click={() => removeCustomField(index)}
+            >
+              X
+            </button>
+          {/if}
           </div>
         {/each}
       </div>
 
       <button
         type="button"
-        class="border-button hover:bg-primary-900 font-semibold shadow mt-2"
+        class="border-button font-semibold shadow mt-2"
         on:click={addCustomFieldLine}
       >
         Add Custom Field
       </button>
       <!-- Submit -->
       <button
-        class="border-button hover:bg-primary-900 font-semibold shadow mt-4 block"
+        class="border-button font-semibold shadow mt-4 block"
         type="submit"
       >
         Create Item
