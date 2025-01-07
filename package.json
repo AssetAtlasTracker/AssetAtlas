@@ -64,7 +64,8 @@
     "mongoose": "^8.6.2",
     "nodemon": "^3.1.7",
     "svelte-routing": "^2.13.0",
-    "tslib": "^2.7.0"
+    "tslib": "^2.7.0",
+    "svelte": "4.2.19"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.28.0"
