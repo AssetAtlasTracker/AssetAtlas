@@ -1,5 +1,5 @@
 import express from 'express';
-import {debug} from '../controllers/csvController';
+import {debug} from '../controllers/csvController.js';
 const router = express.Router();
 
 router.all('/debug', debug);
