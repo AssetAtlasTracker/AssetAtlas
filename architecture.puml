@@ -1,66 +1,66 @@
 @startuml
-!define RECTANGLE class
+!define thing class
 
 package "Backend" #LightBlue {
-RECTANGLE Express {
+thing Express {
     * Routes
     * Controllers
     * Models
 }
-RECTANGLE NodeJS {
+thing NodeJS {
     * JavaScript runtime
     * Runs transpiled TypeScript
 }
-RECTANGLE Mongoose {
-    * Object data mapping tool
+thing Mongoose {
+    * Object document mapping tool
 }
 }
 
 package "Frontend" #OrangeRed{
-RECTANGLE Svelte {
+thing Svelte {
   * Pages
   * Components
 }
 
-RECTANGLE Tailwind {
+thing Tailwind {
   * CSS
 }
 }
 
 package "Database" #LightGreen {
-RECTANGLE MongoDB {
+thing MongoDB {
  * NoSQL database
 }
 }
 
 package "Infrastructure" #DarkGray{
-RECTANGLE env{
+thing env{
     * Environment variables
 }
-RECTANGLE Docker {
+thing Docker {
     * Containerizes application
 }
-RECTANGLE Tailscale {
+thing Tailscale {
     * Remote self hosted server access
 }
-RECTANGLE Launcher{
+thing Launcher{
     * Some python code
 }
 }
 
 package "Build Tools" #Yellow {
-    RECTANGLE Rollup {
+    thing Rollup {
         * Module bundler
     }
-    RECTANGLE ESLint {
+    thing ESLint {
         * Linting
     }
-    RECTANGLE Vite {
+    thing Vite {
         * Testing tool
     }
 }
 
-RECTANGLE User {
+thing User {
     * Some guy
 }
 

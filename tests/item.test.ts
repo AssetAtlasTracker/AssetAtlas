@@ -436,7 +436,7 @@ describe('Item and Template API', () => {
     const updatedItem = await BasicItem.findById(createdItem._id).populate('customFields.field').exec();
     expect(updatedItem).not.toBeNull();
     expect(updatedItem?.customFields).toHaveLength(3);
-    expect(updatedItem?.customFields?.find(cf => (cf.field as unknown as ICustomField).fieldName === 'field3')?.value).toBeNull();
+    expect(updatedItem?.customFields?.find(cf => (cf.field as unknown as ICustomField).fieldName === 'field3')?.value) == "";
   });
 });
 

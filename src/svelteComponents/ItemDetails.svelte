@@ -50,9 +50,12 @@
   </div>
 
   {#if item}
-    <h1 id="underline-header" class="font-bold">
+    <h1 id="underline-header" class="font-bold item-name">
       {item.name}
     </h1>
+    {#if item.template}
+      <p><strong>Template Name:</strong> {item.template.name}</p>
+    {/if}
     <br />
     <ul>
       {#if item.description}
@@ -161,5 +164,8 @@
   }
   .item-chain span {
     white-space: nowrap;
+  }
+  .item-name {
+    font-size: 1.5rem;
   }
 </style>

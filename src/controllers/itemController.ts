@@ -36,7 +36,14 @@ export const getItemById = async (req: Request, res: Response) => {
   }
 
   try {
-    const item = await mongooseQueries.getItemById(id);
+    const item = await BasicItem.findById(id)
+      .populate('template')
+      .populate('parentItem')
+      .populate('homeItem')
+      .populate('containedItems')
+      .populate('customFields.field')
+      .populate('itemHistory.location')
+      .exec();
     if (item) {
       res.status(200).json(item);
     } else {

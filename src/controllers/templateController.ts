@@ -151,7 +151,7 @@ export const editTemplate = async (req: Request, res: Response) => {
     if (addedFields.length > 0) {
       await BasicItem.updateMany(
         { template: template._id },
-        { $addToSet: { customFields: { $each: addedFields.map(field => ({ field, value: null })) } } }
+        { $addToSet: { customFields: { $each: addedFields.map(field => ({ field, value: "" })) } } }
       ).exec();
     }
 
