@@ -402,5 +402,41 @@ describe('Item and Template API', () => {
     expect(updatedItem).not.toBeNull();
     expect(updatedItem?.template).toBeUndefined();
   });
+
+  it('should edit a template and update items with new custom fields', async () => {
+    const customField1 = await CustomField.create({ fieldName: 'field1', dataType: 'string' });
+    const customField2 = await CustomField.create({ fieldName: 'field2', dataType: 'number' });
+    const customField3 = await CustomField.create({ fieldName: 'field3', dataType: 'boolean' });
+
+    const template = await Template.create({ name: 'Original Template', fields: [customField1._id, customField2._id] });
+
+    const itemData = {
+      name: 'Test Item',
+      description: 'An item using a template',
+      template: template._id,
+      customFields: [
+        { field: customField1._id, value: 'value1' },
+        { field: customField2._id, value: 123 }
+      ]
+    };
+    const itemResponse = await request(app).post('/api/items').send(itemData);
+    expect(itemResponse.status).toBe(201);
+    const createdItem = itemResponse.body;
+
+    //Update the Template
+    const updatedTemplateData = {
+      name: 'Updated Template',
+      fields: [customField2._id, customField3._id],
+    };
+    const response = await request(app).put(`/api/templates/editTemplate/${template._id}`).send(updatedTemplateData);
+    expect(response.status).toBe(200);
+    expect(response.body.name).toBe(updatedTemplateData.name);
+
+    //Verify that the item has the new custom field added
+    const updatedItem = await BasicItem.findById(createdItem._id).populate('customFields.field').exec();
+    expect(updatedItem).not.toBeNull();
+    expect(updatedItem?.customFields).toHaveLength(3);
+    expect(updatedItem?.customFields?.find(cf => (cf.field as unknown as ICustomField).fieldName === 'field3')?.value).toBeNull();
+  });
 });
 
