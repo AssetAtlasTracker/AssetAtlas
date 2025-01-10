@@ -4,6 +4,7 @@
   import DeleteItem from '../svelteComponents/DeleteItem.svelte';
   import type { IBasicItemPopulated } from '../models/basicItem';
   import '../svelteStyles/view.css';
+  import EditItem from '../svelteComponents/EditItem.svelte';
   
   export let params: { id?: string };
   console.log('View params:', params);
@@ -13,6 +14,7 @@
     import TopBar from '../svelteComponents/TopBar.svelte';
 
   let item: IBasicItemPopulated | null = null;
+  export let dialog: HTMLDialogElement;
 
   $: if (params.id) {
     fetchItem(params.id);
@@ -49,15 +51,10 @@
 </script>
 
 <TopBar searchQuery={''}></TopBar>
-<!-- <AppBar class="appbar-border glass"> 
-  <button class="back-button" on:click={goBack}>
-    ⬅ Back 
-  </button>
-</AppBar> -->
 
 {#if item}
   <ItemDetails {item}/>
-  <div class="delete-container">
+  <div class="delete-container float-left">
     <DeleteItem itemId={params.id} onDelete={handleDelete}>
       <button
         class="border border-red-600 text-white bg-red-500 hover:bg-red-700 hover:border-red-800 font-semibold shadow-md rounded-lg px-4 py-2 transition duration-200"
@@ -66,6 +63,13 @@
       </button>
     </DeleteItem>
   </div>
+  <button
+    class="border border-red-600 text-white bg-green-500 hover:bg-red-700 hover:border-red-800 font-semibold shadow-md rounded-lg px-4 py-2 transition duration-200"
+    on:click={() => dialog.showModal()}>
+    Edit Item
+  </button>
+
+  <EditItem item={item} bind:dialog />
 {:else}
   <p>Loading item data...</p>
 {/if}
