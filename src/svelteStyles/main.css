@@ -1,10 +1,9 @@
-/* Styles that should be available on all pages, for internal consistency */
-
 /* 
 Large component styles
+e.g. containers, theming, etc.
 */
 .appbar-border{
-  border: 1px solid rgba(var(--color-primary-100) / 0.9);
+  border: 1px solid rgba(var(--color-primary-100) / 0.8);
 }
 
 .glass{
@@ -18,7 +17,7 @@ Large component styles
 .page-component {
   margin: 1.5rem;
   padding: 1.5rem;
-  border: 1px solid rgba(var(--color-primary-100) / 0.9);
+  border: 1px solid rgba(var(--color-primary-100) / 0.8);
 }
   
 .internal-component {
@@ -32,11 +31,20 @@ Large component styles
   margin: 1.5rem;
   padding: 1.5rem;
   background: rgb(var(--color-primary-100));
-  border: 1px solid rgba(var(--color-primary-100) / 0.9);
+  border: 1px solid rgba(var(--color-primary-100) / 0.8);
+}
+
+.center{
+  justify-self: center;
+}
+
+.scrollable-content {
+  overflow-y: auto;
 }
 
 /* 
 Small component styles 
+e.g. buttons, lists, textareas, etc.
 */
 #resize-none-textarea{
   resize: none
@@ -44,24 +52,88 @@ Small component styles
 
 .border-button{
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(var(--color-primary-100) /.8);
   padding: 0.5rem 1rem;
-  background: rgba(0, 0, 0, 0);
+  background: rgba(var(--color-primary-900)/.0);
   color: rgb(var(--theme-font-color-base));
 }
 
-.dark-textarea{
-  background: rgba(0, 0, 0, 0.1);
+.border-button:hover{
+  background: rgba(var(--color-primary-900));
+}
+
+.x-button {
+  float: right;
+  color: rgba(var(--color-warning-600));
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.x-button:hover {
+  color: rgba(var(--color-warning-900));
+}
+
+.warn-button{
+  border-radius: 10px;
+  border: 1px solid rgba(var(--color-error-400) /.8);
+  padding: 0.5rem 1rem;
+  background: rgba(var(--color-warning-700)/.1);
   color: rgb(var(--theme-font-color-base));
-  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.warn-button:hover{
+  background: rgb(var(--color-warning-900));
+}
+
+.add-button {
+  background: rgb(var(--color-primary-800));
+  border: 1px solid rgba(var(--color-primary-100) /.8);
+  border-radius: 9999px;
+  padding: 1rem 1.25rem 1.55rem;
+  position: fixed;
+  bottom: 4rem;
+  right: 4rem;
+}
+
+.add-button:hover{
+  background: rgb(var(--color-primary-900));
+}
+
+.suggestions {
+  background: rgba(var(--color-primary-900));
+  color: rgb(var(--theme-font-color-base));
+  border: 1px solid rgba(var(--color-primary-100) /.8);
+  padding: 1rem .5rem;
+  position: absolute;
+  width: 100%;
+  border-radius: 10px;
+}
+
+.suggestions:hover{
+  background: rgba(var(--color-primary-800));
+}
+
+.suggestion-item{
+  text-align: left;
+  width:100%;
+}
+
+.dark-textarea{
+  background: rgba(var(--color-primary-900)/.1);
+  color: rgb(var(--theme-font-color-base));
+  border: 1px solid rgba(var(--color-primary-100) /.8);
   border-radius: 10px;
 }
 
 .searchbar{
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(var(--color-primary-900)/.1);
   color: rgb(var(--theme-font-color-base));
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(var(--color-primary-100) /.8);
   border-radius: 10px;
+}
+
+.nav-margin {
+  margin: 0rem 1rem;
 }
 
 /* 
@@ -69,11 +141,10 @@ Text styles
 */
 #title{
   letter-spacing: -0.1rem;
-
 }
 
 #underline-header{
-  border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(var(--color-primary-100) /.8);
 }
 
 .text-icon {
@@ -81,8 +152,8 @@ Text styles
 }
 
 .text-3xl {
-    font-size: 2.5rem;
-    line-height: 2rem;
+  font-size: 2.5rem;
+  line-height: 2rem;
 }
 
 div {
@@ -107,19 +178,7 @@ body {
                     
 }
 
-::-webkit-input-placeholder {
-    color: rgb(var(--theme-font-color-base));
-}
-
-::-moz-placeholder {
-    color: rgb(var(--theme-font-color-base));
-}
-
-::-ms-placeholder {
-    color: rgb(var(--theme-font-color-base));
-}
-
-::placeholder {
-    color: rgb(var(--theme-font-color-base));
+::backdrop {
+  background: rgba(var(--color-surface-900) / 0.7);
 }
     

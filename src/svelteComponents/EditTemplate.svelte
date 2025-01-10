@@ -1,19 +1,23 @@
 <script lang="ts">
   import { ip } from "../stores/ipStore";
+  import type { ITemplatePopulated } from "../models/template";
+  import type { ICustomField } from "../models/customField";
 
-  import "../svelteStyles/main.css";
+  export let template: ITemplatePopulated;
+  export let onClose: () => void;
 
-  let name = "";
-  let customFields: ICustomFieldEntry[] = [];
+  let name = template.name;
+  let customFields: ICustomFieldEntry[] = template.fields.map(field => ({
+    fieldName: field.fieldName,
+    fieldId: field._id as string | undefined,
+    dataType: field.dataType,
+    suggestions: [],
+    isNew: false,
+    isSearching: false,
+    isExisting: true,
+  }));
   let nameError = "";
   let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
-
-  interface ICustomField {
-    _id: string;
-    fieldName: string;
-    dataType: string;
-    createdAt: string;
-  }
 
   interface ICustomFieldEntry {
     fieldName: string;
@@ -26,8 +30,7 @@
     isExisting: boolean;
   }
 
-  async function handleCreateTemplate() {
-    //Filter out empty fields before submission
+  async function handleEditTemplate() {
     customFields = customFields.filter(
       (field) => field.fieldName.trim() !== "" && field.dataType.trim() !== "",
     );
@@ -35,10 +38,8 @@
     const formattedCustomFields = await Promise.all(
       customFields.map(async (field) => {
         if (!field.isNew && field.fieldId) {
-          //If it's an existing field, just return its ID
           return field.fieldId;
         } else {
-          //If it's a new field, create it
           const createdField = await createCustomField(
             field.fieldName,
             field.dataType,
@@ -50,9 +51,9 @@
 
     try {
       const response = await fetch(
-        `http://${$ip}/api/templates/createTemplate`,
+        `http://${$ip}/api/templates/editTemplate/${template._id}`,
         {
-          method: "POST",
+          method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name,
@@ -63,18 +64,15 @@
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || "Error creating template");
+        throw new Error(data.message || "Error editing template");
       }
 
       const data = await response.json();
-      console.log("Template created:", data);
+      console.log("Template edited:", data);
 
-      //Reset form
-      name = "";
-      nameError = "";
-      customFields = [];
+      onClose();
     } catch (err) {
-      console.error("Error creating template:", err);
+      console.error("Error editing template:", err);
     }
   }
 
@@ -131,7 +129,7 @@
     suggestion: ICustomField,
   ) {
     customFields[index].fieldName = suggestion.fieldName;
-    customFields[index].fieldId = suggestion._id;
+    customFields[index].fieldId = suggestion._id as string;
     customFields[index].dataType = suggestion.dataType;
     customFields[index].isNew = false;
     customFields[index].isExisting = true;
@@ -174,7 +172,6 @@
           },
         );
         const data = await response.json();
-        //Check if is an EXACT match
         const exactMatch = data.some(
           (template: { name: string }) => template.name === name.trim(),
         );
@@ -189,8 +186,8 @@
 </script>
 
 <div class="template-container">
-  <h1 id="underline-header" class="font-bold text-center">Create New Template</h1>
-  <form on:submit|preventDefault={handleCreateTemplate}>
+  <h1 id="underline-header" class="font-bold text-center">Edit Template</h1>
+  <form on:submit|preventDefault={handleEditTemplate}>
     <label class="block mb-4">
       Name:
       <input
@@ -208,7 +205,6 @@
     <h3 class="font-bold text-lg mb-2">Custom Fields</h3>
     {#each customFields as field, index}
       <div class="flex items-start mb-2 relative">
-        <!-- Field Name & Suggestions -->
         <label class="flex-grow mr-2 relative">
           Field Name:
           <input
@@ -237,7 +233,6 @@
           {/if}
         </label>
 
-        <!-- Data Type -->
         <label class="mr-2" style="flex-basis: 150px; max-width: 150px;">
           Data Type:
           <select
@@ -251,7 +246,6 @@
           </select>
         </label>
 
-        <!-- Remove Button -->
         <button
           type="button"
           class="border-button font-semibold shadow ml-2"
@@ -272,7 +266,10 @@
     <button
       type="submit"
       class="border-button font-semibold shadow mt-4"
-      disabled={!!nameError}>Create Template</button
-    >
+      disabled={!!nameError}>Save</button>
+    <button
+      type="button"
+      class="border-button font-semibold shadow mt-4 ml-2"
+      on:click={onClose}>Cancel</button>
   </form>
 </div>

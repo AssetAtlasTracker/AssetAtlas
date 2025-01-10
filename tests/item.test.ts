@@ -6,6 +6,8 @@ import itemRouter from '../src/routes/itemRoutes.js';
 import BasicItem from '../src/models/basicItem.js';
 import customFieldRouter from '../src/routes/customFieldRoutes.js';
 import CustomField from '../src/models/customField.js';
+import TemplateRouter from '../src/routes/templateRoutes.js';
+import Template from '../src/models/template.js';
 import type { ICustomField } from '../src/models/customField.js';
 
 let app: express.Application;
@@ -21,6 +23,7 @@ beforeAll(async () => {
   app.use(express.json());
   app.use('/api/items', itemRouter);
   app.use('/api/customFields', customFieldRouter);
+  app.use('/api/templates', TemplateRouter);
 });
 
 afterAll(async () => {
@@ -272,6 +275,33 @@ it('should get all contained items by parent ID', async () => {
     expect(response.body[0].name).toBe('Top-Level Parent');
   });
 
+  it('should delete an item and unset its home item field in other items', async () => {
+    const homeItemData = {
+      name: 'Home Item',
+      description: 'An item set as a home for others',
+    };
+    const homeItemResponse = await request(app).post('/api/items').send(homeItemData);
+    expect(homeItemResponse.status).toBe(201);
+    const homeItem = homeItemResponse.body;
+  
+    const itemWithHomeData = {
+      name: 'Item with Home',
+      description: 'An item with a home reference',
+      homeItem: homeItem._id
+    };
+    const itemWithHomeResponse = await request(app).post('/api/items').send(itemWithHomeData);
+    expect(itemWithHomeResponse.status).toBe(201);
+    const itemWithHome = itemWithHomeResponse.body;
+  
+    const deleteResponse = await request(app).delete(`/api/items/${homeItem._id}`);
+    expect(deleteResponse.status).toBe(200);
+    expect(deleteResponse.body.message).toBe('Item deleted successfully');
+  
+    const updatedItemWithHome = await BasicItem.findById(itemWithHome._id).exec();
+    expect(updatedItemWithHome).not.toBeNull();
+    expect(updatedItemWithHome?.homeItem).toBeNull();
+  });
+
 });
 
 describe('Item and Custom Field API', () => {
@@ -346,6 +376,67 @@ describe('Item and Custom Field API', () => {
     const updatedItem = await BasicItem.findById(createdItem._id).exec();
     expect(updatedItem?.customFields).toHaveLength(1);
     expect(updatedItem?.customFields![0].value).toBe('2 years');
+  });
+});
+
+describe('Item and Template API', () => {
+  it('should delete a used template and ensure the item has it removed', async () => {
+    const customField = await CustomField.create({ fieldName: 'field1', dataType: 'string' });
+
+    const template = await Template.create({ name: 'Testy', fields: [customField._id] });
+
+    const itemData = {
+      name: 'Test Item',
+      description: 'An item using a template',
+      template: template._id,
+    };
+    const itemResponse = await request(app).post('/api/items').send(itemData);
+    expect(itemResponse.status).toBe(201);
+    const createdItem = itemResponse.body;
+
+    const deleteResponse = await request(app).delete(`/api/templates/${template._id}`);
+    expect(deleteResponse.status).toBe(200);
+    expect(deleteResponse.body.message).toBe('Template deleted successfully');
+
+    const updatedItem = await BasicItem.findById(createdItem._id).exec();
+    expect(updatedItem).not.toBeNull();
+    expect(updatedItem?.template).toBeUndefined();
+  });
+
+  it('should edit a template and update items with new custom fields', async () => {
+    const customField1 = await CustomField.create({ fieldName: 'field1', dataType: 'string' });
+    const customField2 = await CustomField.create({ fieldName: 'field2', dataType: 'number' });
+    const customField3 = await CustomField.create({ fieldName: 'field3', dataType: 'boolean' });
+
+    const template = await Template.create({ name: 'Original Template', fields: [customField1._id, customField2._id] });
+
+    const itemData = {
+      name: 'Test Item',
+      description: 'An item using a template',
+      template: template._id,
+      customFields: [
+        { field: customField1._id, value: 'value1' },
+        { field: customField2._id, value: 123 }
+      ]
+    };
+    const itemResponse = await request(app).post('/api/items').send(itemData);
+    expect(itemResponse.status).toBe(201);
+    const createdItem = itemResponse.body;
+
+    //Update the Template
+    const updatedTemplateData = {
+      name: 'Updated Template',
+      fields: [customField2._id, customField3._id],
+    };
+    const response = await request(app).put(`/api/templates/editTemplate/${template._id}`).send(updatedTemplateData);
+    expect(response.status).toBe(200);
+    expect(response.body.name).toBe(updatedTemplateData.name);
+
+    //Verify that the item has the new custom field added
+    const updatedItem = await BasicItem.findById(createdItem._id).populate('customFields.field').exec();
+    expect(updatedItem).not.toBeNull();
+    expect(updatedItem?.customFields).toHaveLength(3);
+    expect(updatedItem?.customFields?.find(cf => (cf.field as unknown as ICustomField).fieldName === 'field3')?.value) == "";
   });
 });
 

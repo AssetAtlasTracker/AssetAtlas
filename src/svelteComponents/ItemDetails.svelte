@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { Link } from 'svelte-routing';
-  import { ip } from '../stores/ipStore';
-  import { onMount } from 'svelte';
-  import type {IBasicItemPopulated} from '../models/basicItem.js';
+  import { Link } from "svelte-routing";
+  import { ip } from "../stores/ipStore";
+  import { onMount } from "svelte";
+  import type { IBasicItemPopulated } from "../models/basicItem.js";
 
   export let item: IBasicItemPopulated;
   let parentChain: { _id: string; name: string }[] = [];
@@ -10,14 +10,16 @@
   async function loadParentChain() {
     parentChain = [];
     try {
-      const response = await fetch(`http://${$ip}/api/items/parentChain/${item._id}`);
+      const response = await fetch(
+        `http://${$ip}/api/items/parentChain/${item._id}`,
+      );
       if (response.ok) {
         parentChain = await response.json();
       } else {
-        console.error('Failed to fetch parent chain:', await response.text());
+        console.error("Failed to fetch parent chain:", await response.text());
       }
     } catch (error) {
-      console.error('Error fetching parent chain:', error);
+      console.error("Error fetching parent chain:", error);
     }
   }
 
@@ -28,7 +30,6 @@
 </script>
 
 <div class="item-view">
-
   <div class="item-chain">
     {#if parentChain.length > 0}
       <span>Item Chain: </span>
@@ -36,7 +37,7 @@
         {#if index < parentChain.length - 1}
           <!-- Render clickable links for all but the last item -->
           <span>
-            <Link to={`/view/${parent._id}`}>{parent.name}</Link> >
+            <Link to={`/view/${parent._id}`}>{parent.name}</Link>
           </span>
         {:else}
           <!-- Render the last item as bold and non-clickable -->
@@ -49,20 +50,27 @@
   </div>
 
   {#if item}
-    <h1>{item.name}</h1>
+    <h1 id="underline-header" class="font-bold item-name">
+      {item.name}
+    </h1>
+    {#if item.template}
+      <p><strong>Template Name:</strong> {item.template.name}</p>
+    {/if}
+    <br />
     <ul>
       {#if item.description}
         <li><strong>Description:</strong> {item.description}</li>
       {/if}
 
       {#if item.tags && item.tags.length > 0}
-        <li><strong>Tags:</strong> {item.tags.join(', ')}</li>
+        <li><strong>Tags:</strong> {item.tags.join(", ")}</li>
       {/if}
 
       {#if item.parentItem}
         <li>
           <strong>Parent Item:</strong>
-          <Link to={`/view/${item.parentItem._id}`}>{item.parentItem.name}</Link>
+          <Link to={`/view/${item.parentItem._id}`}>{item.parentItem.name}</Link
+          >
         </li>
       {:else}
         <li><strong>Parent Item:</strong> No parent</li>
@@ -83,7 +91,9 @@
           <ul>
             {#each item.containedItems as containedItem}
               <li>
-                <Link to={`/view/${containedItem._id}`}>{  containedItem.name}</Link>
+                <Link to={`/view/${containedItem._id}`}
+                  >{containedItem.name}</Link
+                >
               </li>
             {/each}
           </ul>
@@ -110,20 +120,29 @@
             {#each item.itemHistory as history}
               <li>
                 {#if history.location}
-                  <strong>  Location:</strong>
-                  <Link to={`/view/${history.location._id}`}>{history.location.name}</Link>
+                  <strong> Location:</strong>
+                  <Link to={`/view/${history.location._id}`}
+                    >{history.location.name}</Link
+                  >
                 {:else}
-                  <strong>  Location:</strong> None
+                  <strong> Location:</strong> None
                 {/if}
-              <strong>Timestamp:</strong> {new Date(history.timestamp).toLocaleString()}
+                <strong>Timestamp:</strong>
+                {new Date(history.timestamp).toLocaleString()}
               </li>
             {/each}
           </ul>
         </li>
       {/if}
 
-      <li><strong>Created At:</strong> {new Date(item.createdAt).toLocaleString()}</li>
-      <li><strong>Updated At:</strong> {new Date(item.updatedAt).toLocaleString()}</li>
+      <li>
+        <strong>Created At:</strong>
+        {new Date(item.createdAt).toLocaleString()}
+      </li>
+      <li>
+        <strong>Updated At:</strong>
+        {new Date(item.updatedAt).toLocaleString()}
+      </li>
     </ul>
   {:else}
     <p>Loading item data...</p>
@@ -145,5 +164,8 @@
   }
   .item-chain span {
     white-space: nowrap;
+  }
+  .item-name {
+    font-size: 1.5rem;
   }
 </style>

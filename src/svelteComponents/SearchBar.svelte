@@ -1,9 +1,9 @@
 <script lang="ts">
-  export let searchQuery: string = '';
+  export let searchQuery: string = "";
   export let onSearch: (query: string) => void;
   export let results: { name: string }[] = [];
 
-  let debounceTimeout: string | number | NodeJS.Timeout | undefined;
+  let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
 
   //Debounce the search input to prevent excessive API calls
   $: if (searchQuery !== undefined) {
@@ -38,20 +38,21 @@
 
   <!-- Display live search suggestions -->
   {#if results.length > 0}
-    <ul class="absolute bg-white border w-full max-h-48 overflow-y-auto z-10">
+    <ul class="suggestions">
       {#each results.slice(0, 5) as result}
-        <li
-          class="px-4 py-2 cursor-pointer hover:bg-gray-100"
+        <button
+          class="suggestion-item"
+          type="button"
           on:click={() => selectSuggestion(result)}
         >
           {result.name}
-        </li>
+        </button>
       {/each}
     </ul>
   {/if}
 </div>
 
-<style>
+<!-- <style>
   .searchbar {
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -64,4 +65,4 @@
   li {
     border-bottom: 1px solid #eee;
   }
-</style>
+</style> -->

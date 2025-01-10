@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { Link } from 'svelte-routing';
-  import type { IBasicItemPopulated } from '../models/basicItem';
+  import { Link } from "svelte-routing";
+  import type { IBasicItemPopulated } from "../models/basicItem";
   export let items: IBasicItemPopulated[];
 
   // Log items to verify data in the frontend
-  console.log('Items in frontend:', items);
+  console.log("Items in frontend:", items);
 </script>
 
 {#if items && items.length > 0}
@@ -12,7 +12,6 @@
     {#each items as item}
       <Link to={`/view/${item._id}`}>
         <div class="rounded item-card">
-
           <div class="item">
             {item.name}
           </div>
@@ -24,7 +23,6 @@
           <div class="item desc">
             Description: {item.description}
           </div>
-          
         </div>
       </Link>
       <br />
@@ -33,13 +31,13 @@
 {:else}
   <p>No items found.</p>
 {/if}
-  
+
 <style>
-  .page-component{
+  .page-component {
     margin: 1.5rem;
     padding: 1.5rem;
     background-color: rgba(var(--color-primary-800) / 0.5);
-    box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4 );
+    box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4);
     border-radius: 10px;
   }
 
@@ -49,7 +47,7 @@
     margin: 0 auto;
     padding: 20px;
     background-color: rgba(var(--color-primary-800) / 0.8);
-    box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4 );
+    box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4);
     border-radius: 10px;
     border: 1px solid rgba(var(--color-primary-100) / 0.9);
   }
