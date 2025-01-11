@@ -10,19 +10,29 @@
   
     let templateDialog: HTMLDialogElement | undefined;
   
-    let name = '';
-    let description = '';
-    let tags = '';
+    let name = item.name;
+    let description = item.description;
+    let tags = item.tags.toString();
     let parentItemName = '';
-    let parentItemId: string | null = null;
+    if (item.parentItem?.name != null) {
+      parentItemName = item.parentItem?.name;
+    }
+    let parentItemId: string | null = item.parentItem?.id;
     let parentItemSuggestions: any[] = [];
     let homeItemName = '';
-    let homeItemId: string | null = null;
+    if (item.homeItem?.name != null) {
+      homeItemName = item.homeItem?.name;
+    }
+    let homeItemId: string | null = item.homeItem?.id;
     let homeItemSuggestions: any[] = [];
     let templateName = '';
-    let templateId: string | null = null;
+    if (item.template) {
+      templateName = item.template?.name;
+    } 
+    let templateId: string | null = item.template?.id;
     let templateSuggestions: any[] = [];
     let debounceTimeout: NodeJS.Timeout | undefined;
+
   
     interface ICustomField {
       _id: string;
@@ -104,8 +114,8 @@
       );
   
       try {
-        const response = await fetch(`http://${$ip}/api/items`, {
-          method: 'POST',
+        const response = await fetch(`http://${$ip}/api/items/${item._id}`, {
+          method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name,
@@ -120,13 +130,11 @@
   
         const data = await response.json();
   
-        if (!response.ok) throw new Error(data.message || 'Error creating item');
-        console.log('Item created:', data);
+        if (!response.ok) throw new Error(data.message || 'Error editing item');
+        console.log('Item changed:', data);
   
-        //Reset the form after successful creation
-        resetForm();
       } catch (err) {
-        console.error('Error creating item:', err);
+        console.error('Error editing item:', err);
       }
     }
   
@@ -407,7 +415,6 @@
               <input
                 class="dark-textarea py-2 px-4 w-full"
                 type="text"
-                placeholder={item.name}
                 bind:value={name}
                 required
               />
@@ -444,16 +451,21 @@
                 on:blur={() => parentItemSuggestions = []}
               />
               {#if parentItemSuggestions.length > 0}
-                <ul class="suggestions">
-                  {#each parentItemSuggestions.slice(0, 5) as item}
-                    <button 
-                      type="button"
-                      on:mousedown={(e) => { e.preventDefault(); selectParentItem(item); }}>
-                      {item.name}
-                    </button>
-                  {/each}
-                </ul>
-              {/if}
+              <ul class="suggestions">
+                {#each parentItemSuggestions.slice(0, 5) as item}
+                  <button
+                    class="suggestion-item"
+                    type="button"
+                    on:mousedown={(e) => {
+                      e.preventDefault();
+                      selectParentItem(item);
+                    }}
+                  >
+                    {item.name}
+                  </button>
+                {/each}
+              </ul>
+            {/if}
             </label>
   
             <!-- Home Item -->
@@ -468,16 +480,20 @@
                 on:blur={() => homeItemSuggestions = []}
               />
               {#if homeItemSuggestions.length > 0}
-                <ul class="suggestions">
-                  {#each homeItemSuggestions.slice(0, 5) as item}
-                    <button 
-                      type="button" 
-                      on:mousedown={(e) => { e.preventDefault(); selectHomeItem(item); }}>
-                      {item.name}
-                    </button>
-                  {/each}
-                </ul>
-              {/if}
+              <ul class="suggestions">
+                {#each homeItemSuggestions.slice(0, 5) as item}
+                  <button
+                    type="button"
+                    on:mousedown={(e) => {
+                      e.preventDefault();
+                      selectHomeItem(item);
+                    }}
+                  >
+                    {item.name}
+                  </button>
+                {/each}
+              </ul>
+            {/if}
             </label>
           </div>
   
@@ -494,14 +510,21 @@
                 on:blur={() => templateSuggestions = []} 
               />
               {#if templateSuggestions.length > 0}
-                <ul class="suggestions">
-                  {#each templateSuggestions.slice(0, 5) as t}
-                    <button type="button" on:mousedown={(e) => { e.preventDefault(); selectTemplate(t); }}>
-                      {t.name}
-                    </button>
-                  {/each}
-                </ul>
-              {/if}
+              <ul class="suggestions">
+                {#each templateSuggestions.slice(0, 5) as t}
+                  <button
+                    class="suggestion-item"
+                    type="button"
+                    on:mousedown={(e) => {
+                      e.preventDefault();
+                      selectTemplate(t);
+                    }}
+                  >
+                    {t.name}
+                  </button>
+                {/each}
+              </ul>
+            {/if}
             </label>
   
             <button 
@@ -590,26 +613,3 @@
       <CreateTemplate on:close={() => { showEditTemplateDialog = false; resetForm(); }}/>
     </Dialog>
   {/if}
-  
-  <style>
-    .suggestions {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      position: absolute;
-      z-index: 10;
-      background: white;
-      width: 100%;
-      border: 1px solid #ccc;
-    }
-  
-    .delete-button {
-      background: none;
-      border: none;
-      cursor: pointer;
-    }
-  
-    .delete-button:hover {
-      color: rgba(var(--color-warning-900));
-    }
-  </style>
