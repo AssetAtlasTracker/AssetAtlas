@@ -12,7 +12,7 @@ RUN npm ci
 FROM deps_cache AS build_deps
 WORKDIR /usr/src/app
 COPY . .
-RUN npm run build --verbose
+RUN npm run build
 
 # Production dependencies only
 FROM deps_cache AS prod_deps
