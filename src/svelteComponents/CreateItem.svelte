@@ -612,6 +612,7 @@
                 </ul>
               {/if}
             </label>
+            <!-- TODO: Change these to not use "style="-->
             <label class="mr-2" style="flex-basis: 50%; max-width: 200px;">
               Data Type:
               <select

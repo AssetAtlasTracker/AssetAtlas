@@ -14,14 +14,3 @@
   <p>No items found.</p>
 {/if}
 
-<style>
-  ul {
-    list-style-type: none;
-    padding: 0;
-  }
-
-  li {
-    padding: 8px;
-    border-bottom: 1px solid #ccc;
-  }
-</style>

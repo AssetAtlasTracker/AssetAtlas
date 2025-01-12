@@ -51,18 +51,3 @@
     </ul>
   {/if}
 </div>
-
-<!-- <style>
-  .searchbar {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  li {
-    border-bottom: 1px solid #eee;
-  }
-</style> -->

@@ -34,6 +34,36 @@ e.g. containers, theming, etc.
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
 }
 
+.item-component {
+  margin: 1.5rem;
+  padding: 1.5rem;
+  background-color: rgba(var(--color-primary-800) / 0.5);
+  box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4);
+  border-radius: 10px;
+}
+
+.item-card {
+  box-sizing: border-box;
+  width: 95%;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: rgba(var(--color-primary-800) / 0.8);
+  box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4);
+  border-radius: 10px;
+  border: 1px solid rgba(var(--color-primary-100) / 0.9);
+}
+
+.template-card {
+  box-sizing: border-box;
+  width: 95%;
+  margin: 0.5rem auto;
+  padding: 10px;
+  background-color: rgba(var(--color-primary-800) / 0.8);
+  box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4);
+  border-radius: 10px;
+  border: 1px solid rgba(var(--color-primary-100) / 0.9);
+}
+
 .center{
   justify-self: center;
 }
@@ -136,6 +166,29 @@ e.g. buttons, lists, textareas, etc.
   margin: 0rem 1rem;
 }
 
+.item {
+  display: inline-block;
+  width: 25%;
+}
+
+.desc {
+  width: 40%;
+}
+
+.template {
+  display: inline-block;
+  width: 25%;
+}
+
+.fields {
+  width: 70%;
+}
+
+.item-view ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
 /* 
 Text styles 
 */
@@ -154,6 +207,23 @@ Text styles
 .text-3xl {
   font-size: 2.5rem;
   line-height: 2rem;
+}
+
+.item-chain span {
+  white-space: nowrap;
+}
+
+.item-name {
+  font-size: 1.5rem;
+}
+
+.item-chain {
+  margin: 1rem 0;
+  font-size: 1rem;
+}
+
+.indented {
+  padding-left: 2rem;
 }
 
 div {
@@ -176,6 +246,16 @@ body {
   background-image: radial-gradient(at 0% 0%, rgba(var(--color-success-500) / .2) 0px, transparent 55%), 
                     radial-gradient(at 98% 1%, rgba(var(--color-error-500) / .33) 0px, transparent 50%) !important;
                     
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
 }
 
 ::backdrop {

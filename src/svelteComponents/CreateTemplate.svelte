@@ -238,6 +238,7 @@
         </label>
 
         <!-- Data Type -->
+         <!-- TODO: Change these to not use "style="-->
         <label class="mr-2" style="flex-basis: 150px; max-width: 150px;">
           Data Type:
           <select

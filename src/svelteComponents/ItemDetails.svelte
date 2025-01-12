@@ -148,24 +148,3 @@
     <p>Loading item data...</p>
   {/if}
 </div>
-
-<style>
-  .item-view ul {
-    list-style-type: none;
-    padding-left: 0;
-  }
-  .item-view {
-    color: white;
-  }
-  .item-chain {
-    margin: 1rem 0;
-    font-size: 1rem;
-    color: #ffffff;
-  }
-  .item-chain span {
-    white-space: nowrap;
-  }
-  .item-name {
-    font-size: 1.5rem;
-  }
-</style>
