@@ -15,7 +15,7 @@
   }
 </script>
 
-<AppBar class="appbar-border glass">
+<AppBar class="border glass">
   <div class="px-4">
     <div class="nav-margin float-left">
       <Menu />

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Link } from "svelte-routing";
   import type { IBasicItemPopulated } from "../models/basicItem";
+
   export let items: IBasicItemPopulated[];
 
   // Log items to verify data in the frontend
@@ -8,7 +9,7 @@
 </script>
 
 {#if items && items.length > 0}
-  <div class="rounded item-component">
+  <div class="rounded glass page-component">
     {#each items as item}
       <Link to={`/view/${item._id}`}>
         <div class="rounded item-card">

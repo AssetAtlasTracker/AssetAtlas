@@ -50,27 +50,27 @@
   }
 </script>
 
-<TopBar searchQuery={''}></TopBar>
-<!-- <AppBar class="appbar-border glass"> 
-  <button class="back-button" on:click={goBack}>
-    ⬅ Back 
-  </button>
-</AppBar> -->
+<TopBar searchQuery={""}></TopBar>
 
 {#if item}
-  <ItemDetails {item}/>
-  <div class="delete-container">
-    <DeleteItem itemId={params.id} onDelete={handleDelete}>
-      <button class="font-semibold"> Delete Item </button>
-    </DeleteItem>
-  </div>
-  <button
-    class="border border-red-600 text-white bg-green-500 hover:bg-red-700 hover:border-red-800 font-semibold shadow-md rounded-lg px-4 py-2 transition duration-200"
-    on:click={() => dialog.showModal()}>
-    Edit Item
-  </button>
+  <div class="item-view glass page-component">
+    <ItemDetails {item} />
 
-  <EditItem item={item} bind:dialog />
+    <!-- Flex these buttons (?) -->
+    <br />
+    <div class="delete-container">
+      <DeleteItem itemId={params.id} onDelete={handleDelete}>
+        <button class="font-semibold"> Delete Item </button>
+      </DeleteItem>
+    </div>
+
+    <br />
+    <button class="border-button" on:click={() => dialog.showModal()}>
+      Edit Item
+    </button>
+
+    <EditItem {item} bind:dialog />
+  </div>
 {:else}
   <p>Loading item data...</p>
 {/if}

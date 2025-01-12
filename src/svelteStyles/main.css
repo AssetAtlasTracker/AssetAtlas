@@ -2,10 +2,6 @@
 Large component styles
 e.g. containers, theming, etc.
 */
-.appbar-border{
-  border: 1px solid rgba(var(--color-primary-100) / 0.8);
-}
-
 .glass{
   background: rgba(var(--color-primary-800) / 0.8) !important;
   box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4 );
@@ -20,7 +16,7 @@ e.g. containers, theming, etc.
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
 }
   
-.internal-component {
+.internal-component { /* For components inset within other components*/
   margin: 1rem 0;
   padding: 1rem;
   background-color: rgba(var(--color-primary-900) / 0.1);
@@ -32,14 +28,6 @@ e.g. containers, theming, etc.
   padding: 1.5rem;
   background: rgb(var(--color-primary-100));
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
-}
-
-.item-component {
-  margin: 1.5rem;
-  padding: 1.5rem;
-  background-color: rgba(var(--color-primary-800) / 0.5);
-  box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4);
-  border-radius: 10px;
 }
 
 .item-card {
@@ -78,6 +66,10 @@ e.g. buttons, lists, textareas, etc.
 */
 #resize-none-textarea{
   resize: none
+}
+
+.border{
+  border: 1px solid rgba(var(--color-primary-100) / 0.8);
 }
 
 .border-button{
@@ -137,6 +129,7 @@ e.g. buttons, lists, textareas, etc.
   position: absolute;
   width: 100%;
   border-radius: 10px;
+  z-index: 10;
 }
 
 .suggestions:hover{
