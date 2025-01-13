@@ -589,7 +589,7 @@
                 />
                 {#if field.fromTemplate}
                   <InfoToolTip
-                    message="This field is required due to template. Value can be left empty if desired."
+                    message='This field is required due to template "{templateName}." Value can be left empty if desired.'
                   />
                 {/if}
               </span>
