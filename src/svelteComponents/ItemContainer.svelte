@@ -13,7 +13,7 @@
     {#each items as item}
       <Link to={`/view/${item._id}`}>
         <div class="item-card">
-          <div>
+          <div class="item-subcard">
             <div class="important-text">
               {item.name}
             </div>
@@ -21,9 +21,8 @@
               {item.description || "No Description"}
             </div>
           </div>
-          <div class="sub-text">
-            Location: 
-            {item.parentItem?.name || "None"}
+          <div class="sub-text item-subcard">
+            Location: {item.parentItem?.name || "None"}
           </div>
         </div>
       </Link>

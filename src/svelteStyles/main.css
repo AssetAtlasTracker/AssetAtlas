@@ -182,6 +182,10 @@ e.g. buttons, lists, textareas, etc.
   padding-left: 0;
 }
 
+.item-subcards{
+  max-width:45%;
+}
+
 /* 
 Text styles 
 */
@@ -197,13 +201,15 @@ Text styles
   font-size: 1.5rem;
   font-weight: bold;
   letter-spacing: -0.05rem;
-  text-overflow: ellipses;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sub-text{
   color: rgba(var(--theme-font-color-base)/.8);
   font-weight: lighter;
-  text-overflow: ellipses;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .text-icon {

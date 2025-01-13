@@ -49,6 +49,5 @@
   >
     +
   </button>
-
   <CreateItem bind:dialog />
 </div>
