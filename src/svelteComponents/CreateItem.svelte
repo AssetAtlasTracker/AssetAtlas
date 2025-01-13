@@ -421,7 +421,7 @@
 
 <Dialog bind:dialog on:close={resetForm}>
   <h1 id="underline-header" class="font-bold text-center">Create New Item</h1>
-  <div class="rounded page-component">
+  <div class="page-component">
     <form on:submit|preventDefault={handleCreateItem}>
       <div class="flex flex-col space-y-4">
         <div class="flex flex-wrap space-x-4">
@@ -573,7 +573,7 @@
       <div class="space-y-2">
         {#each customFields as field, index}
           <div
-            class="flex flex-wrap items-start mb-4 border p-2 rounded relative"
+            class="flex flex-wrap items-start mb-4 border p-2 relative"
           >
             <!-- If fromTemplate, do not show delete button -->
             <label class="flex-1 mr-2">
@@ -595,7 +595,7 @@
               </span>
               {#if field.suggestions.length > 0}
                 <ul
-                  class="suggestions bg-white border rounded shadow mt-1 max-h-32 overflow-auto"
+                  class="suggestions bg-white border shadow mt-1 max-h-32 overflow-auto"
                 >
                   {#each field.suggestions.slice(0, 5) as suggestion}
                     <button

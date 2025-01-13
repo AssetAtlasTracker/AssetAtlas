@@ -30,7 +30,7 @@
 
 {#if templates && templates.length > 0}
   {#each templates as template}
-    <div class="rounded template-card">
+    <div class="template-card">
       <div class="template">
         <strong>{template.name}</strong>
       </div>

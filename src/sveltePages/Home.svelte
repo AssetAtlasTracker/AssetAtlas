@@ -38,7 +38,7 @@
   {#if searchResults.length > 0}
     <ItemContainer items={searchResults} />
   {:else if searchQuery !== ""}
-    <div class="rounded page-component">
+    <div class="page-component">
       <p>No items found for "{searchQuery}".</p>
     </div>
   {/if}

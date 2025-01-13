@@ -9,20 +9,21 @@
 </script>
 
 {#if items && items.length > 0}
-  <div class="rounded glass page-component">
+  <div class="glass page-component">
     {#each items as item}
       <Link to={`/view/${item._id}`}>
-        <div class="rounded item-card">
-          <div class="item">
-            {item.name}
+        <div class="item-card">
+          <div>
+            <div class="important-text">
+              {item.name}
+            </div>
+            <div class="sub-text">
+              {item.description || "No Description"}
+            </div>
           </div>
-
-          <div class="item">
-            Location: {item.parentItem?.name || "None"}
-          </div>
-
-          <div class="item desc">
-            Description: {item.description}
+          <div class="sub-text">
+            Location: 
+            {item.parentItem?.name || "None"}
           </div>
         </div>
       </Link>

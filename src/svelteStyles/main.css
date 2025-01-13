@@ -11,8 +11,8 @@ e.g. containers, theming, etc.
 }
 
 .page-component {
-  margin: 1.5rem;
-  padding: 1.5rem;
+  margin: 3rem;
+  padding: 3rem;
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
 }
   
@@ -38,7 +38,9 @@ e.g. containers, theming, etc.
   background-color: rgba(var(--color-primary-800) / 0.8);
   box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4);
   border-radius: 10px;
-  border: 1px solid rgba(var(--color-primary-100) / 0.9);
+  border: 1px solid rgba(var(--color-primary-100) / 0.8);
+  display:flex;
+  justify-content:space-between;
 }
 
 .template-card {
@@ -49,10 +51,10 @@ e.g. containers, theming, etc.
   background-color: rgba(var(--color-primary-800) / 0.8);
   box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4);
   border-radius: 10px;
-  border: 1px solid rgba(var(--color-primary-100) / 0.9);
+  border: 1px solid rgba(var(--color-primary-100) / 0.8);
 }
 
-.center{
+.self-center{
   justify-self: center;
 }
 
@@ -70,6 +72,10 @@ e.g. buttons, lists, textareas, etc.
 
 .border{
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
+}
+
+.round{
+  border-radius: 10px;
 }
 
 .border-button{
@@ -108,13 +114,16 @@ e.g. buttons, lists, textareas, etc.
 }
 
 .add-button {
-  background: rgb(var(--color-primary-800));
+  background: rgb(var(--color-surface-800)) !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% 50rem !important;
+  background-image: radial-gradient(at 0% 0%, rgba(var(--color-success-500) / .2) 0px, transparent 55%);
   border: 1px solid rgba(var(--color-primary-100) /.8);
   border-radius: 9999px;
   padding: 1rem 1.25rem 1.55rem;
   position: fixed;
-  bottom: 4rem;
-  right: 4rem;
+  bottom: 1rem;
+  right: 1rem;
 }
 
 .add-button:hover{
@@ -159,15 +168,6 @@ e.g. buttons, lists, textareas, etc.
   margin: 0rem 1rem;
 }
 
-.item {
-  display: inline-block;
-  width: 25%;
-}
-
-.desc {
-  width: 40%;
-}
-
 .template {
   display: inline-block;
   width: 25%;
@@ -191,6 +191,19 @@ Text styles
 
 #underline-header{
   border-bottom: 1px solid rgba(var(--color-primary-100) /.8);
+}
+
+.important-text{
+  font-size: 1.5rem;
+  font-weight: bold;
+  letter-spacing: -0.05rem;
+  text-overflow: ellipses;
+}
+
+.sub-text{
+  color: rgba(var(--theme-font-color-base)/.8);
+  font-weight: lighter;
+  text-overflow: ellipses;
 }
 
 .text-icon {
@@ -237,8 +250,7 @@ body {
   background-repeat: no-repeat !important;
   background-size: 100% 50rem !important;
   background-image: radial-gradient(at 0% 0%, rgba(var(--color-success-500) / .2) 0px, transparent 55%), 
-                    radial-gradient(at 98% 1%, rgba(var(--color-error-500) / .33) 0px, transparent 50%) !important;
-                    
+                    radial-gradient(at 98% 1%, rgba(var(--color-error-500) / .33) 0px, transparent 50%) !important;         
 }
 
 ul {

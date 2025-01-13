@@ -30,7 +30,7 @@
     </div>
     <div class="float-right">
       <button class="nav-margin text-xl font-bold" on:click={navigateToViewTemplates}>
-        View Templates
+        View Templates (temp location)
       </button>
     </div>
   </div>
