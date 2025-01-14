@@ -1,14 +1,9 @@
 import express from 'express';
 import { createItem, getItemById, deleteItemById, searchItems, getAllContainedById, moveItem, updateItem, getParentChain } from '../controllers/itemController.js';
 import { upload } from '../config/gridfs.js';
-
-export async function createRouter() {
-    const router = express.Router();
+ 
+const router = express.Router();
     
-    // Wait until upload is defined
-    while (!upload) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-    }
 
     router.get('/search', searchItems);
     router.get('/:id', getItemById);
@@ -17,7 +12,7 @@ export async function createRouter() {
     router.post('/move', moveItem)
     router.patch('/:id', updateItem);
     router.get('/parentChain/:id', getParentChain);
-    router.post('/', upload.single('image'), createItem);
+    router.post('/', createItem);
+    //router.post('/', upload.single('image'), createItem);
 
-    return router;
-}
+export default router;
