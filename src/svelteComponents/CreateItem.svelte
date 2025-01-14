@@ -23,6 +23,8 @@
   let templateId: string | null = null;
   let templateSuggestions: any[] = [];
   let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
+  let selectedImage: File | null = null;
+  let imagePreview: string | null = null;
 
   interface ICustomField {
     _id: string;
@@ -70,53 +72,75 @@
     parentItemSuggestions = [];
     homeItemSuggestions = [];
     templateSuggestions = [];
+    selectedImage = null;
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+      imagePreview = null;
   }
 
   async function handleCreateItem() {
-    //If a template name is typed but not an exact match (no templateId set), block creation
-    if (templateName.trim() && !templateId) {
-      alert("Please select a valid template from the list or clear the field.");
-      return;
-    }
-
-    const tagsArray = tags.split(",").map((tag) => tag.trim());
-
-    //Filter out empty fields not from the template
-    customFields = customFields.filter((field) => {
-      if (field.fromTemplate) return true; //Always keep template fields that were loaded
-      return field.fieldName.trim() !== "" && field.dataType.trim() !== "";
-    });
-
-    const formattedCustomFields = await Promise.all(
-      customFields.map(async (field) => {
-        if (!field.isNew && field.fieldId) {
-          return { field: field.fieldId, value: field.value };
-        } else {
-          const createdField = await createCustomField(
-            field.fieldName,
-            field.dataType,
-          );
-          return { field: createdField._id, value: field.value };
-        }
-      }),
-    );
-
     try {
-      const response = await fetch(`http://${$ip}/api/items`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          description,
-          tags: tagsArray,
-          parentItem: parentItemId,
-          homeItem: homeItemId,
-          template: templateId || null,
-          customFields: formattedCustomFields,
-        }),
+      //If a template name is typed but not an exact match (no templateId set), block creation
+      if (templateName.trim() && !templateId) {
+        alert("Please select a valid template from the list or clear the field.");
+        return;
+      }
+
+      const tagsArray = tags.split(",").map((tag) => tag.trim());
+
+      //Filter out empty fields not from the template
+      customFields = customFields.filter((field) => {
+        if (field.fromTemplate) return true; //Always keep template fields that were loaded
+        return field.fieldName.trim() !== "" && field.dataType.trim() !== "";
       });
 
-      const data = await response.json();
+      const formattedCustomFields = await Promise.all(
+        customFields.map(async (field) => {
+          if (!field.isNew && field.fieldId) {
+            return { field: field.fieldId, value: field.value };
+          } else {
+            const createdField = await createCustomField(
+              field.fieldName,
+              field.dataType,
+            );
+            return { field: createdField._id, value: field.value };
+          }
+        }),
+      );
+
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('description', description);
+      formData.append('tags', JSON.stringify(tagsArray));
+      if (parentItemId) formData.append('parentItem', parentItemId);
+      if (homeItemId) formData.append('homeItem', homeItemId);
+      if (templateId) formData.append('template', templateId);
+      formData.append('customFields', JSON.stringify(formattedCustomFields));
+      if (selectedImage) formData.append('image', selectedImage);
+
+      console.log('Sending request with formData:');
+      for (const pair of (formData as any).entries()) {
+        console.log(pair[0], pair[1]);
+      }
+      
+      const response = await fetch(`http://${$ip}/api/items`, {
+        method: "POST",
+        body: formData
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response headers:');
+      response.headers.forEach((value, key) => {
+        console.log(key, value);
+      });
+      
+      // Try to get the raw text first
+      const rawText = await response.text();
+      console.log('Raw response:', rawText);
+      
+      // Then parse it as JSON
+      const data = JSON.parse(rawText);
 
       if (!response.ok) throw new Error(data.message || "Error creating item");
       console.log("Item created:", data);
@@ -417,6 +441,14 @@
     if (customFields[index].fromTemplate) return;
     customFields = customFields.filter((_, i) => i !== index);
   }
+
+  function handleImageChange(e: Event) {
+    const input = e.currentTarget as HTMLInputElement;
+    if (input?.files?.length) {
+      selectedImage = input.files[0];
+      imagePreview = URL.createObjectURL(selectedImage);
+    }
+  }
 </script>
 
 <Dialog bind:dialog on:close={resetForm}>
@@ -460,6 +492,41 @@
             bind:value={description}
           />
         </label>
+
+        <div class="flex flex-col space-y-2">
+          <label class="min-w-[400px]">
+            Image:
+            <input
+              type="file"
+              accept="image/*"
+              class="dark-textarea py-2 px-4 w-full"
+              on:change={handleImageChange}
+            />
+          </label>
+          
+          {#if imagePreview}
+            <div class="relative w-48 h-48">
+              <img
+                src={imagePreview}
+                alt="Preview"
+                class="object-cover w-full h-full"
+              />
+              <button
+                type="button"
+                class="absolute top-0 right-0 bg-red-500 text-white p-1"
+                on:click={() => {
+                  if (imagePreview) {
+                    URL.revokeObjectURL(imagePreview);
+                  }
+                  selectedImage = null;
+                  imagePreview = null;
+                }}
+              >
+                X
+              </button>
+            </div>
+          {/if}
+        </div>
 
         <div class="flex flex-wrap space-x-4">
           <!-- Parent Item -->
