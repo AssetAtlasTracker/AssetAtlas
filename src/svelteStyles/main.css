@@ -24,8 +24,8 @@ e.g. containers, theming, etc.
 }
 
 .dialog-component {
-  margin: 1.5rem;
-  padding: 1.5rem;
+  margin: 1rem;
+  padding: 1rem;
   background: rgb(var(--color-primary-100));
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
 }
@@ -52,6 +52,10 @@ e.g. containers, theming, etc.
   box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4);
   border-radius: 10px;
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
+}
+
+.simple-dialog-spacing{
+  padding: 3rem 3rem 1rem;
 }
 
 .self-center{
@@ -92,9 +96,10 @@ e.g. buttons, lists, textareas, etc.
 
 .x-button {
   float: right;
-  color: rgba(var(--color-warning-600));
+  color: rgba(var(--color-warning-500));
   text-transform: uppercase;
-  font-weight: 700;
+  font-weight: 800;
+  line-height: 0.75rem;
 }
 
 .x-button:hover {
@@ -229,11 +234,6 @@ Text styles
   font-size: 1.5rem;
 }
 
-.item-chain {
-  margin: 1rem 0;
-  font-size: 1rem;
-}
-
 .indented {
   padding-left: 2rem;
 }
@@ -265,8 +265,7 @@ ul {
 }
 
 li {
-  padding: 8px;
-  border-bottom: 1px solid #ccc;
+  padding: 10px 20px 1px;
 }
 
 ::backdrop {
