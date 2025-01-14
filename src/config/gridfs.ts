@@ -1,67 +1,79 @@
 import mongoose from 'mongoose';
 import { GridFsStorage } from 'multer-gridfs-storage';
 import multer from 'multer';
-import { Db } from 'mongodb';
 
-export interface GridFsBucket {
-    bucketName: string;
-}
+// Define schema for uploads.files
+const UploadsFilesSchema = new mongoose.Schema({
+  filename: { type: String, required: true },
+  contentType: { type: String, required: true },
+  length: { type: Number, required: true },
+  chunkSize: { type: Number, required: true },
+  uploadDate: { type: Date, required: true },
+  aliases: { type: [String], default: [] },
+  metadata: { type: mongoose.Schema.Types.Mixed }
+});
 
+// Register the uploads.files model
+mongoose.model('uploads.files', UploadsFilesSchema);
+
+let uploadInstance: multer.Multer | null = null;
 export let gfs: mongoose.mongo.GridFSBucket;
-export let upload: multer.Multer;
 
-export function initGridFs(db: Db) {
-    console.log('initGridFs called with db:', db.databaseName);
-    
+export const gridFsReady = new Promise<void>((resolve, reject) => {
+  // Wait for mongoose connection to be ready
+  if (mongoose.connection.readyState === 1) {
+    initializeGridFS(resolve, reject);
+  } else {
+    mongoose.connection.once('connected', () => {
+      initializeGridFS(resolve, reject);
+    });
+  }
+});
+
+function initializeGridFS(resolve: () => void, reject: (err: Error) => void) {
+  try {
+    const db = mongoose.connection.db;
+    if (!db) {
+      throw new Error('MongoDB connection not available');
+    }
+
     // Create GridFSBucket first
     gfs = new mongoose.mongo.GridFSBucket(db, {
-        bucketName: 'uploads'
+      bucketName: 'uploads'
     });
-    console.log('GridFSBucket created');
 
-    // Create storage with URL instead of db instance
+    // Then create storage with the URL instead of db instance
     const storage = new GridFsStorage({
-        url: 'mongodb://mongo:27017/assetatlas_db',
-        options: {
-            useUnifiedTopology: true
-        },
-        file: (req, file) => {
-            console.log('Processing file:', {
-                originalname: file.originalname,
-                mimetype: file.mimetype,
-                encoding: file.encoding
-            });
-            const filename = `${Date.now()}_${file.originalname}`;
-            return {
-                filename: filename,
-                bucketName: 'uploads',
-                metadata: {
-                    originalname: file.originalname,
-                    mimetype: file.mimetype
-                }
-            };
-        }
-    });
-
-    // More detailed error handling
-    storage.on('connectionFailed', (err) => {
-        console.error('GridFS Connection failed:', err);
-        throw new Error(`GridFS Connection failed: ${err.message}`);
+      url: process.env.MONGO_URI || 'mongodb://mongo:27017/assetatlas_db',
+      file: (req, file) => {
+        const filename = `${Date.now()}_${file.originalname}`;
+        return {
+          filename,
+          bucketName: 'uploads'
+        };
+      }
     });
 
     storage.on('connection', (db) => {
-        console.log('GridFsStorage connected successfully:', {
-            database: db?.databaseName,
-            collections: Object.keys(db?.collections || {})
-        });
+      console.log('GridFsStorage connected to:', db.databaseName);
+      uploadInstance = multer({ storage });
+      resolve();
     });
 
-    // Create upload middleware with error handling
-    upload = multer({ 
-        storage,
-        limits: {
-            fileSize: 5 * 1024 * 1024 // 5MB limit
-        }
+    storage.on('error', (error) => {
+      console.error('GridFS Storage error:', error);
+      reject(error);
     });
-    console.log('Multer middleware created with proper storage configuration');
+
+  } catch (error) {
+    console.error('Error initializing GridFS:', error);
+    reject(error instanceof Error ? error : new Error(String(error)));
+  }
+}
+
+export function getUpload() {
+  if (!uploadInstance) {
+    throw new Error("GridFS is not ready yet. Did you await gridFsReady?");
+  }
+  return uploadInstance;
 }

@@ -4,10 +4,11 @@ import { fileURLToPath } from 'url';
 import path, { dirname } from 'path';
 import cors from 'cors';
 import fs from 'fs';//for modern .env access
-import { createRouter } from './routes/itemRoutes.js';
 import templateRoutes from './routes/templateRoutes.js';
 import customFieldRoutes from './routes/customFieldRoutes.js';
 import connectDB from './config/mongoConnection.js';
+import { gridFsReady } from './config/gridfs.js';
+import itemRoutes from './routes/itemRoutes.js';
 
 const app = express();
 //const PORT = process.env.PORT || 3000;
@@ -23,8 +24,9 @@ await connectDB();
 console.log('connectDB() finished connecting!');
 console.log('Mongoose connected DB name:', mongoose.connection.db?.databaseName);
 
-// Initialize routes after DB connection
-const itemRouter = await createRouter();
+// Wait for GridFS to be ready before setting up routes
+await gridFsReady;
+console.log('GridFS initialization completed');
 
 //CORS
 const allowedOrigins = [
@@ -77,7 +79,7 @@ app.get('/api/ip', (req, res) => {
   res.json({ ip });
 });
 
-app.use('/api/items', itemRouter);
+app.use('/api/items', itemRoutes); // Create & use routes after upload is ready
 app.use('/api/templates', templateRoutes);
 app.use('/api/customFields', customFieldRoutes)
 

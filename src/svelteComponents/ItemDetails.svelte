@@ -52,6 +52,18 @@
   <h1 id="underline-header" class="font-bold item-name">
     {item.name}
   </h1>
+
+  <!-- Add image display right after the name -->
+  {#if item.image}
+    <div class="item-image">
+      <img 
+        src={`http://${$ip}/api/items/${item._id}/image`} 
+        alt={item.name}
+        class="max-w-md mx-auto my-4 rounded shadow-lg"
+      />
+    </div>
+  {/if}
+
   {#if item.template}
     <p><strong>Template Name:</strong> {item.template.name}</p>
   {/if}

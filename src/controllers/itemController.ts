@@ -16,6 +16,8 @@ interface GridFSFile extends Express.Multer.File {
   };
 }
 
+import '../config/gridfs.js';
+
 export const createItem = async (req: Request, res: Response) => {
   try {
     // Parse JSON strings first
@@ -64,6 +66,7 @@ export const getItemById = async (req: Request, res: Response) => {
   }
 
   try {
+    console.log('Fetching item:', id);
     const item = await BasicItem.findById(id)
       .populate('template')
       .populate('parentItem')
@@ -71,14 +74,20 @@ export const getItemById = async (req: Request, res: Response) => {
       .populate('containedItems')
       .populate('customFields.field')
       .populate('itemHistory.location')
-      .populate('image')
+      .populate({
+        path: 'image',
+        model: 'uploads.files'
+      })
       .exec();
+    
+    console.log('Found item:', JSON.stringify(item, null, 2));
     if (item) {
       res.status(200).json(item);
     } else {
       res.status(404).json({ message: 'Cannot get: Item not found' });
     }
   } catch (err) {
+    console.error('Error in getItemById:', err);
     res.status(500).json({ message: 'Error fetching item', error: err });
   }
 };
