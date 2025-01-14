@@ -12,6 +12,7 @@ export interface IBasicItem extends Document { //we can add more stuff here
   parentItem?: Types.ObjectId | null;
   homeItem?: Types.ObjectId | null;
   template?: Types.ObjectId | null;
+  image?: Types.ObjectId;
   customFields?: {
     field: Types.ObjectId;
     value: unknown;
@@ -41,6 +42,16 @@ export interface IBasicItemPopulated {
   }>;
   createdAt: Date;
   updatedAt: Date;
+  image?: {
+    _id: Types.ObjectId;
+    filename: string;
+    contentType: string;
+    length: number;
+    chunkSize: number;
+    uploadDate: Date;
+    aliases: string[];
+    metadata: Record<string, unknown>;
+  };
 }
 
   const BasicItemSchema: Schema = new Schema({
@@ -66,6 +77,7 @@ export interface IBasicItemPopulated {
         timestamp: {type: Date, required: true},
       },
     ],
+    image: { type: Schema.Types.ObjectId, ref: 'uploads.files', required: false },
   }, 
     {   
       timestamps: true, //this should mean we dont need to state createdAt and updatedAt feilds

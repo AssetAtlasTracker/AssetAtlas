@@ -483,6 +483,7 @@
               <ul class="suggestions">
                 {#each homeItemSuggestions.slice(0, 5) as item}
                   <button
+                    class="suggestion-item"
                     type="button"
                     on:mousedown={(e) => {
                       e.preventDefault();

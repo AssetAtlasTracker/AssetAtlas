@@ -4,9 +4,10 @@ import { fileURLToPath } from 'url';
 import path, { dirname } from 'path';
 import cors from 'cors';
 import fs from 'fs';//for modern .env access
-import itemRoutes from './routes/itemRoutes.js';
+import { createRouter } from './routes/itemRoutes.js';
 import templateRoutes from './routes/templateRoutes.js';
 import customFieldRoutes from './routes/customFieldRoutes.js';
+import connectDB from './config/mongoConnection.js';
 
 const app = express();
 //const PORT = process.env.PORT || 3000;
@@ -17,17 +18,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 
+console.log('connectDB() about to call mongoose.connect...');
+await connectDB();
+console.log('connectDB() finished connecting!');
+console.log('Mongoose connected DB name:', mongoose.connection.db?.databaseName);
 
-export default function connectDB() {
-  const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/mydatabase';
-
-  mongoose.connect(mongoURI)
-    .then(() => console.log('MongoDB connected'))
-    .catch((err) => console.error('MongoDB connection error:', err));
-}
-
-connectDB();
-
+// Initialize routes after DB connection
+const itemRouter = await createRouter();
 
 //CORS
 const allowedOrigins = [
@@ -80,7 +77,7 @@ app.get('/api/ip', (req, res) => {
   res.json({ ip });
 });
 
-app.use('/api/items', itemRoutes);
+app.use('/api/items', itemRouter);
 app.use('/api/templates', templateRoutes);
 app.use('/api/customFields', customFieldRoutes)
 

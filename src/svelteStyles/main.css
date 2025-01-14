@@ -271,4 +271,11 @@ li {
 ::backdrop {
   background: rgba(var(--color-surface-900) / 0.7);
 }
+
+input[type="file"] {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+}
     
