@@ -3,6 +3,7 @@
   import DeleteItem from "../svelteComponents/DeleteItem.svelte";
   import TopBar from "../svelteComponents/TopBar.svelte";
   import EditItem from "../svelteComponents/EditItem.svelte";
+  import Dialog from "../svelteComponents/Dialog.svelte";
 
   import type { IBasicItemPopulated } from "../models/basicItem";
 
@@ -11,11 +12,19 @@
   export let params: { id?: string };
   //console.log('View params:', params);
 
+  let showDeleteDialog = false;
+  let deleteDialog: HTMLDialogElement;
   let item: IBasicItemPopulated | null = null;
   export let dialog: HTMLDialogElement;
 
   $: if (params.id) {
     fetchItem(params.id);
+  }
+
+  $: if (showDeleteDialog) {
+    if (deleteDialog) {
+      deleteDialog.showModal();
+    }
   }
 
   async function fetchItem(id: string) {
@@ -44,6 +53,7 @@
   } //we gonna change this later fr fr
 
   function handleDelete() {
+    showDeleteDialog = false;
     console.log(`Item ${params.id} deleted.`);
     //go to the home page after successful deletion
     window.location.href = "/";
@@ -58,19 +68,37 @@
 
     <!-- Flex these buttons (?) -->
     <br />
-    <div class="delete-container">
-      <DeleteItem itemId={params.id} onDelete={handleDelete}>
-        <button class="font-semibold"> Delete Item </button>
-      </DeleteItem>
-    </div>
-
+    <button class="warn-button" on:click={() => showDeleteDialog = true}>
+      Delete
+    </button>
     <br />
     <button class="border-button" on:click={() => dialog.showModal()}>
-      Edit Item
+      Edit
     </button>
 
     <EditItem {item} bind:dialog />
   </div>
 {:else}
   <p>Loading item data...</p>
+{/if}
+
+<!-- Create Delete Dialog -->
+{#if showDeleteDialog}
+  <Dialog
+    bind:dialog={deleteDialog}
+    on:close={() => {
+      showDeleteDialog = false;
+    }}
+  >
+    <div class="simple-dialog-spacing"> 
+      Are you sure you want to delete {item?.name}?
+    </div>
+   
+    <br />
+    <!--Probably going to want an additional cancel button here-->
+    <DeleteItem itemId={params.id} onDelete={handleDelete}>
+      Delete
+      <!--<button class="warn-button font-semibold" on:click={() => showDeleteDialog = false}></button>-->
+    </DeleteItem>
+  </Dialog>
 {/if}
