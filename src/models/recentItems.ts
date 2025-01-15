@@ -27,11 +27,14 @@ const RecentItemsSchema = new Schema({
 
 export const addToRecents = async (type: 'item' | 'template' | 'customField', id: Types.ObjectId) => {
   try {
+    
     let recents = await RecentItems.findOne({ type });
     if (!recents) {
+  
       recents = await RecentItems.create({ type, recentIds: [], maxItems: 5 });
     }
 
+    // Remove the ID if it exists and add it to the front
     recents.recentIds = [
       id,
       ...recents.recentIds.filter((existingId: Types.ObjectId) => !existingId.equals(id))

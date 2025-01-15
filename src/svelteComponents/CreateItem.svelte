@@ -190,92 +190,60 @@
     }
   }
 
+  async function addToRecents(type: string, item: any) {
+    console.log('DEBUG - addToRecents called with:', { type, item });
+    try {
+      const body = JSON.stringify({
+        type,
+        itemId: item._id,
+      });
+      console.log('DEBUG - Request body:', body);
+
+      const response = await fetch(`http://${$ip}/api/recentItems/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: body,
+      });
+
+      const responseText = await response.text();
+    
+
+      if (!response.ok) {
+        throw new Error(`Failed to add to recents: ${responseText}`);
+      }
+    } catch (err) {
+      console.error('Error adding to recents:', err);
+    }
+  }
+
   function selectParentItem(item: { name: string; _id: string | null }) {
     parentItemName = item.name;
     parentItemId = item._id;
     parentItemSuggestions = [];
-  }
-
-  //Home item search handlers
-  function handleHomeItemInput(event: Event) {
-    const target = event.target as HTMLInputElement;
-    homeItemName = target.value;
-    homeItemId = null;
-    if (debounceTimeout) clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(() => {
-      searchHomeItems(homeItemName);
-    }, 300);
-  }
-
-  async function searchHomeItems(query: string) {
-    try {
-      const response = await fetch(
-        `http://${$ip}/api/items/search?name=${encodeURIComponent(query)}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-      const data = await response.json();
-      homeItemSuggestions = data;
-    } catch (err) {
-      console.error("Error searching home items:", err);
+    if (item && item._id) {
+      addToRecents('items', item);
     }
   }
 
   function selectHomeItem(item: { name: string; _id: string | null }) {
+    
     homeItemName = item.name;
     homeItemId = item._id;
     homeItemSuggestions = [];
-  }
-
-  function handleTemplateInput(event: Event) {
-    const target = event.target as HTMLInputElement;
-    templateName = target.value.trim();
-    //Clear templateId since user is typing something else now
-    templateId = null;
-    if (debounceTimeout) clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(() => {
-      searchTemplates(templateName);
-    }, 300);
-  }
-
-  async function searchTemplates(query: string) {
-    try {
-      const response = await fetch(
-        `http://${$ip}/api/templates/searchTemplates?name=${encodeURIComponent(query)}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-      const data = await response.json();
-      templateSuggestions = data;
-
-      //Check for an exact match
-      const exactMatch = data.find(
-        (template: { name: string }) => template.name === templateName,
-      );
-
-      if (exactMatch) {
-        if (templateId !== exactMatch._id) {
-          templateId = exactMatch._id;
-          await loadTemplateFields(templateId);
-        }
-      } else {
-        templateId = null;
-        removeTemplateFields();
-      }
-    } catch (err) {
-      console.error("Error searching templates:", err);
+    if (item && item._id) {
+      addToRecents('items', item);
     }
   }
 
   function selectTemplate(item: { name: string; _id: string }) {
+    
     templateName = item.name;
     templateId = item._id;
     templateSuggestions = [];
     loadTemplateFields(templateId);
+    if (item && item._id) {
+      addToRecents('templates', item);
+    }
   }
 
   async function loadTemplateFields(templateId: string | null) {
@@ -410,12 +378,16 @@
     index: number,
     suggestion: ICustomField,
   ) {
+  
     customFields[index].fieldName = suggestion.fieldName;
     customFields[index].fieldId = suggestion._id;
     customFields[index].dataType = suggestion.dataType;
     customFields[index].isNew = false;
     customFields[index].isExisting = true;
     customFields[index].suggestions = [];
+    if (suggestion && suggestion._id) {
+      addToRecents('customFields', suggestion);
+    }
   }
 
   function addCustomFieldLine() {
@@ -450,6 +422,7 @@
   }
 
   async function loadRecentItems(type: string) {
+    
     try {
       const response = await fetch(`http://${$ip}/api/recentItems/${type}`, {
         method: 'GET',
@@ -484,6 +457,80 @@
   async function handleCustomFieldFocus(index: number) {
     if (!customFields[index].fieldName) {
       customFields[index].suggestions = await loadRecentItems('customFields');
+    }
+  }
+
+  async function handleCustomFieldClick(index: number) {
+    if (!customFields[index].fieldName) {
+      customFields[index].suggestions = await loadRecentItems('customFields');
+    }
+  }
+
+  //Home item search handlers
+  function handleHomeItemInput(event: Event) {
+    const target = event.target as HTMLInputElement;
+    homeItemName = target.value;
+    homeItemId = null;
+    if (debounceTimeout) clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+      searchHomeItems(homeItemName);
+    }, 300);
+  }
+
+  function handleTemplateInput(event: Event) {
+    const target = event.target as HTMLInputElement;
+    templateName = target.value;
+    templateId = null;
+    if (debounceTimeout) clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+      searchTemplates(templateName);
+    }, 300);
+  }
+
+  async function searchHomeItems(query: string) {
+    try {
+      const response = await fetch(
+        `http://${$ip}/api/items/search?name=${encodeURIComponent(query)}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      const data = await response.json();
+      homeItemSuggestions = data;
+    } catch (err) {
+      console.error("Error searching home items:", err);
+    }
+  }
+
+  async function searchTemplates(query: string) {
+    try {
+      const response = await fetch(
+        `http://${$ip}/api/templates/searchTemplates?name=${encodeURIComponent(query)}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      const data = await response.json();
+      templateSuggestions = data;
+
+      //Check for an exact match
+      const exactMatch = data.find(
+        (template: { name: string }) => template.name === templateName,
+      );
+
+      if (exactMatch) {
+        if (templateId !== exactMatch._id) {
+          templateId = exactMatch._id;
+          await loadTemplateFields(templateId);
+        }
+      } else {
+        templateId = null;
+        removeTemplateFields();
+      }
+    } catch (err) {
+      console.error("Error searching templates:", err);
     }
   }
 </script>
@@ -712,6 +759,7 @@
                         e.preventDefault();
                         selectCustomFieldSuggestion(index, suggestion);
                       }}
+                      on:click={() => handleCustomFieldClick(index)}
                     >
                       {suggestion.fieldName} ({suggestion.dataType})
                     </button>

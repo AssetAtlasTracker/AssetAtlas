@@ -154,6 +154,9 @@
     customFields[index].isNew = false;
     customFields[index].isExisting = true;
     customFields[index].suggestions = [];
+    if (suggestion && suggestion._id) {
+      addToRecents('customFields', suggestion);
+    }
   }
 
   function addCustomFieldLine() {
@@ -203,11 +206,126 @@
       }
     }, 300);
   }
+
+  let templateName = '';
+  let templateId: string | null = null;
+  let templateSuggestions: any[] = [];
+
+  function handleTemplateInput(event: Event) {
+    const target = event.target as HTMLInputElement;
+    templateName = target.value;
+    templateId = null;
+    if (debounceTimeout) clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+      searchTemplates(templateName);
+    }, 300);
+  }
+
+  async function searchTemplates(query: string) {
+    try {
+      const response = await fetch(
+        `http://${$ip}/api/templates/searchTemplates?name=${encodeURIComponent(query)}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      const data = await response.json();
+      templateSuggestions = data;
+    } catch (err) {
+      console.error("Error searching templates:", err);
+    }
+  }
+
+  function selectTemplate(template: { name: string; _id: string }) {
+    templateName = template.name;
+    templateId = template._id;
+    templateSuggestions = [];
+    addToRecents('templates', template);
+  }
+
+  async function handleTemplateFocus() {
+    if (!templateName) {
+      templateSuggestions = await loadRecentItems('templates');
+    }
+  }
+
+  async function addToRecents(type: string, item: any) {
+    try {
+      const body = JSON.stringify({
+        type,
+        itemId: item._id,
+      });
+
+      const response = await fetch(`http://${$ip}/api/recentItems/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: body,
+      });
+
+      const responseText = await response.text();
+
+      if (!response.ok) {
+        throw new Error(`Failed to add to recents: ${responseText}`);
+      }
+    } catch (err) {
+      console.error('Error adding to recents:', err);
+    }
+  }
+
+  async function loadRecentItems(type: string) {
+    try {
+      const response = await fetch(`http://${$ip}/api/recentItems/${type}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await response.json();
+      return data;
+    } catch (err) {
+      console.error('Error loading recent items:', err);
+      return [];
+    }
+  }
+
+  async function handleCustomFieldClick(index: number) {
+    if (!customFields[index].fieldName) {
+      customFields[index].suggestions = await loadRecentItems('customFields');
+    }
+  }
 </script>
 
 <div class="template-container">
   <h1 id="underline-header" class="font-bold text-center">Edit Template</h1>
   <form on:submit|preventDefault={handleEditTemplate}>
+    <div class="flex flex-wrap space-x-4 items-center">
+      <label class="flex-1 min-w-[200px] relative">
+        Template:
+        <input
+          type="text"
+          class="dark-textarea py-2 px-4 w-full"
+          bind:value={templateName}
+          on:input={handleTemplateInput}
+          on:focus={handleTemplateFocus}
+          on:blur={() => (templateSuggestions = [])}
+        />
+        {#if templateSuggestions.length > 0}
+          <ul class="suggestions">
+            {#each templateSuggestions as t}
+              <button
+                class="suggestion-item"
+                type="button"
+                on:mousedown={(e) => {
+                  e.preventDefault();
+                  selectTemplate(t);
+                }}
+              >
+                {t.name}
+              </button>
+            {/each}
+          </ul>
+        {/if}
+      </label>
+    </div>
     <label class="block mb-4">
       Name:
       <input
@@ -246,6 +364,7 @@
                     e.preventDefault();
                     selectCustomFieldSuggestion(index, suggestion);
                   }}
+                  on:click={() => handleCustomFieldClick(index)}
                 >
                   {suggestion.fieldName} ({suggestion.dataType})
                 </button>

@@ -126,6 +126,29 @@
     }, 300);
   }
 
+  async function addToRecents(type: string, item: any) {
+    try {
+      const body = JSON.stringify({
+        type,
+        itemId: item._id,
+      });
+
+      const response = await fetch(`http://${$ip}/api/recentItems/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: body,
+      });
+
+      const responseText = await response.text();
+
+      if (!response.ok) {
+        throw new Error(`Failed to add to recents: ${responseText}`);
+      }
+    } catch (err) {
+      console.error('Error adding to recents:', err);
+    }
+  }
+
   function selectCustomFieldSuggestion(
     index: number,
     suggestion: ICustomField,
@@ -136,6 +159,9 @@
     customFields[index].isNew = false;
     customFields[index].isExisting = true;
     customFields[index].suggestions = [];
+    if (suggestion && suggestion._id) {
+      addToRecents('customFields', suggestion);
+    }
   }
 
   function addCustomFieldLine() {
@@ -206,6 +232,12 @@
       customFields[index].suggestions = await loadRecentCustomFields();
     }
   }
+
+  async function handleCustomFieldClick(index: number) {
+    if (!customFields[index].fieldName) {
+      customFields[index].suggestions = await loadRecentCustomFields();
+    }
+  }
 </script>
 
 <div class="template-container">
@@ -250,6 +282,7 @@
                     e.preventDefault();
                     selectCustomFieldSuggestion(index, suggestion);
                   }}
+                  on:click={() => handleCustomFieldClick(index)}
                 >
                   {suggestion.fieldName} ({suggestion.dataType})
                 </button>

@@ -171,10 +171,27 @@
       }
     }
   
+    async function addToRecents(type: string, item: any) {
+      console.log('Adding to recents:', type, item); // Add debug logging
+      try {
+        await fetch(`http://${$ip}/api/recentItems/add`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type,
+            itemId: item._id,
+          }),
+        });
+      } catch (err) {
+        console.error('Error adding to recents:', err);
+      }
+    }
+  
     function selectParentItem(item: { name: string; _id: string | null }) {
       parentItemName = item.name;
       parentItemId = item._id;
       parentItemSuggestions = [];
+      if (item._id) addToRecents('items', item);
     }
   
     //Home item search handlers
@@ -205,6 +222,7 @@
       homeItemName = item.name;
       homeItemId = item._id;
       homeItemSuggestions = [];
+      if (item._id) addToRecents('items', item);
     }
   
     function handleTemplateInput(event: Event) {
@@ -250,6 +268,7 @@
       templateId = item._id;
       templateSuggestions = [];
       loadTemplateFields(templateId);
+      addToRecents('templates', item);
     }
   
     async function loadTemplateFields(templateId: string | null) {
@@ -374,6 +393,7 @@
       customFields[index].isNew = false;
       customFields[index].isExisting = true;
       customFields[index].suggestions = [];
+      addToRecents('customFields', suggestion);
     }
   
     function addCustomFieldLine() {
@@ -428,6 +448,12 @@
     async function handleTemplateFocus() {
       if (!templateName) {
         templateSuggestions = await loadRecentItems('templates');
+      }
+    }
+
+    async function handleCustomFieldClick(index: number) {
+      if (!customFields[index].fieldName) {
+        customFields[index].suggestions = await loadRecentItems('customFields');
       }
     }
   
@@ -604,7 +630,9 @@
                       <button 
                         type="button"
                         class="px-2 py-1 hover:bg-primary-900 cursor-pointer" 
-                        on:mousedown={(e) => { e.preventDefault(); selectCustomFieldSuggestion(index, suggestion); }}>
+                        on:mousedown={(e) => { e.preventDefault(); selectCustomFieldSuggestion(index, suggestion); }}
+                        on:click={() => handleCustomFieldClick(index)}
+                      >
                         {suggestion.fieldName} ({suggestion.dataType})
                       </button>
                     {/each}
