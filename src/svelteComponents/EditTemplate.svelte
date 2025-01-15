@@ -124,6 +124,26 @@
     }, 300);
   }
 
+  async function loadRecentCustomFields() {
+    try {
+      const response = await fetch(`http://${$ip}/api/recentItems/customFields`, {  // Changed from /api/recents/ to /api/recentItems/
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await response.json();
+      return data;
+    } catch (err) {
+      console.error('Error loading recent custom fields:', err);
+      return [];
+    }
+  }
+
+  async function handleCustomFieldFocus(index: number) {
+    if (!customFields[index].fieldName) {
+      customFields[index].suggestions = await loadRecentCustomFields();
+    }
+  }
+
   function selectCustomFieldSuggestion(
     index: number,
     suggestion: ICustomField,
@@ -213,6 +233,7 @@
             class="dark-textarea py-2 px-4 w-full"
             bind:value={field.fieldName}
             on:input={(e) => onCustomFieldNameInput(index, e)}
+            on:focus={() => handleCustomFieldFocus(index)}
             on:blur={() => (customFields[index].suggestions = [])}
           />
           {#if field.suggestions.length > 0}

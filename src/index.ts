@@ -9,6 +9,7 @@ import customFieldRoutes from './routes/customFieldRoutes.js';
 import connectDB from './config/mongoConnection.js';
 import { gridFsReady } from './config/gridfs.js';
 import itemRoutes from './routes/itemRoutes.js';
+import recentItemsRoutes from './routes/recentItemsRoutes.js';
 
 const app = express();
 //const PORT = process.env.PORT || 3000;
@@ -82,6 +83,7 @@ app.get('/api/ip', (req, res) => {
 app.use('/api/items', itemRoutes); //use routes after upload is ready
 app.use('/api/templates', templateRoutes);
 app.use('/api/customFields', customFieldRoutes)
+app.use('/api/recentItems', recentItemsRoutes);
 
 // app.get('/', (req, res) => {
 //   res.send('API is running...');

@@ -398,6 +398,38 @@
       if (customFields[index].fromTemplate) return;
       customFields = customFields.filter((_, i) => i !== index);
     }
+
+    async function loadRecentItems(type: string) {
+      try {
+        const response = await fetch(`http://${$ip}/api/recentItems/${type}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const data = await response.json();
+        return data;
+      } catch (err) {
+        console.error('Error loading recent items:', err);
+        return [];
+      }
+    }
+  
+    async function handleParentItemFocus() {
+      if (!parentItemName) {
+        parentItemSuggestions = await loadRecentItems('items');
+      }
+    }
+  
+    async function handleHomeItemFocus() {
+      if (!homeItemName) {
+        homeItemSuggestions = await loadRecentItems('items');
+      }
+    }
+  
+    async function handleTemplateFocus() {
+      if (!templateName) {
+        templateSuggestions = await loadRecentItems('templates');
+      }
+    }
   
   </script>
   
@@ -448,6 +480,7 @@
                 class="dark-textarea py-2 px-4 w-full"
                 bind:value={parentItemName}
                 on:input={handleParentItemInput}
+                on:focus={handleParentItemFocus}
                 on:blur={() => parentItemSuggestions = []}
               />
               {#if parentItemSuggestions.length > 0}
@@ -477,6 +510,7 @@
                 class="dark-textarea py-2 px-4 w-full"
                 bind:value={homeItemName}
                 on:input={handleHomeItemInput}
+                on:focus={handleHomeItemFocus}
                 on:blur={() => homeItemSuggestions = []}
               />
               {#if homeItemSuggestions.length > 0}
@@ -508,6 +542,7 @@
                 bind:value={templateName}
                 placeholder={item.template?.name}
                 on:input={handleTemplateInput}
+                on:focus={handleTemplateFocus}
                 on:blur={() => templateSuggestions = []} 
               />
               {#if templateSuggestions.length > 0}

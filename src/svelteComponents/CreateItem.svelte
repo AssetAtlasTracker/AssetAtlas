@@ -55,7 +55,6 @@
     if (templateDialog) {
       templateDialog.showModal();
     }
-    resetForm();
   }
 
   function resetForm() {
@@ -449,6 +448,44 @@
       imagePreview = URL.createObjectURL(selectedImage);
     }
   }
+
+  async function loadRecentItems(type: string) {
+    try {
+      const response = await fetch(`http://${$ip}/api/recentItems/${type}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await response.json();
+      return data;
+    } catch (err) {
+      console.error('Error loading recent items:', err);
+      return [];
+    }
+  }
+
+  async function handleParentItemFocus() {
+    if (!parentItemName) {
+      parentItemSuggestions = await loadRecentItems('items');
+    }
+  }
+
+  async function handleHomeItemFocus() {
+    if (!homeItemName) {
+      homeItemSuggestions = await loadRecentItems('items');
+    }
+  }
+
+  async function handleTemplateFocus() {
+    if (!templateName) {
+      templateSuggestions = await loadRecentItems('templates');
+    }
+  }
+
+  async function handleCustomFieldFocus(index: number) {
+    if (!customFields[index].fieldName) {
+      customFields[index].suggestions = await loadRecentItems('customFields');
+    }
+  }
 </script>
 
 <Dialog bind:dialog on:close={resetForm}>
@@ -540,6 +577,7 @@
               class="dark-textarea py-2 px-4 w-full"
               bind:value={parentItemName}
               on:input={handleParentItemInput}
+              on:focus={handleParentItemFocus}
               on:blur={() => (parentItemSuggestions = [])}
             />
             {#if parentItemSuggestions.length > 0}
@@ -571,6 +609,7 @@
               class="dark-textarea py-2 px-4 w-full"
               bind:value={homeItemName}
               on:input={handleHomeItemInput}
+              on:focus={handleHomeItemFocus}
               on:blur={() => (homeItemSuggestions = [])}
             />
             {#if homeItemSuggestions.length > 0}
@@ -604,6 +643,7 @@
               class="dark-textarea py-2 px-4 w-full"
               bind:value={templateName}
               on:input={handleTemplateInput}
+              on:focus={handleTemplateFocus}
               on:blur={() => (templateSuggestions = [])}
             />
             {#if templateSuggestions.length > 0}
@@ -652,6 +692,7 @@
                   class="dark-textarea py-2 px-4 w-full"
                   bind:value={field.fieldName}
                   on:input={(e) => onCustomFieldNameInput(index, e)}
+                  on:focus={() => handleCustomFieldFocus(index)}
                   on:blur={() => (customFields[index].suggestions = [])}
                   disabled={field.fromTemplate}
                 />
@@ -735,13 +776,11 @@
     bind:dialog={templateDialog}
     on:close={() => {
       showCreateTemplateDialog = false;
-      resetForm();
     }}
   >
     <CreateTemplate
       on:close={() => {
         showCreateTemplateDialog = false;
-        resetForm();
       }}
     />
   </Dialog>
