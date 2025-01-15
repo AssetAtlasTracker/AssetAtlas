@@ -39,7 +39,7 @@
   <!-- Display live search suggestions -->
   {#if results.length > 0}
     <ul class="suggestions">
-      {#each results.slice(0, 5) as result}
+      {#each results as result}
         <button
           class="suggestion-item"
           type="button"

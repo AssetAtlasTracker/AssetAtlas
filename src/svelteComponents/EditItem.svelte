@@ -452,7 +452,7 @@
               />
               {#if parentItemSuggestions.length > 0}
               <ul class="suggestions">
-                {#each parentItemSuggestions.slice(0, 5) as item}
+                {#each parentItemSuggestions as item}
                   <button
                     class="suggestion-item"
                     type="button"
@@ -481,7 +481,7 @@
               />
               {#if homeItemSuggestions.length > 0}
               <ul class="suggestions">
-                {#each homeItemSuggestions.slice(0, 5) as item}
+                {#each homeItemSuggestions as item}
                   <button
                     class="suggestion-item"
                     type="button"
@@ -512,7 +512,7 @@
               />
               {#if templateSuggestions.length > 0}
               <ul class="suggestions">
-                {#each templateSuggestions.slice(0, 5) as t}
+                {#each templateSuggestions as t}
                   <button
                     class="suggestion-item"
                     type="button"
@@ -565,7 +565,7 @@
                 />
                 {#if field.suggestions.length > 0}
                   <ul class="suggestions bg-white border shadow mt-1 max-h-32 overflow-auto">
-                    {#each field.suggestions.slice(0, 5) as suggestion}
+                    {#each field.suggestions as suggestion}
                       <button 
                         type="button"
                         class="px-2 py-1 hover:bg-primary-900 cursor-pointer" 

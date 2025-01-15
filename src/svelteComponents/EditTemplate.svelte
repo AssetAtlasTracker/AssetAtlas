@@ -217,7 +217,7 @@
           />
           {#if field.suggestions.length > 0}
             <ul class="suggestions">
-              {#each field.suggestions.slice(0, 5) as suggestion}
+              {#each field.suggestions as suggestion}
                 <button
                   class="suggestion-item"
                   type="button"

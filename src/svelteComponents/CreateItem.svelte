@@ -544,7 +544,7 @@
             />
             {#if parentItemSuggestions.length > 0}
               <ul class="suggestions">
-                {#each parentItemSuggestions.slice(0, 5) as item}
+                {#each parentItemSuggestions as item}
                   <button
                     class="suggestion-item"
                     type="button"
@@ -575,7 +575,7 @@
             />
             {#if homeItemSuggestions.length > 0}
               <ul class="suggestions">
-                {#each homeItemSuggestions.slice(0, 5) as item}
+                {#each homeItemSuggestions as item}
                   <button
                     class="suggestion-item"
                     type="button"
@@ -608,7 +608,7 @@
             />
             {#if templateSuggestions.length > 0}
               <ul class="suggestions">
-                {#each templateSuggestions.slice(0, 5) as t}
+                {#each templateSuggestions as t}
                   <button
                     class="suggestion-item"
                     type="button"
@@ -662,10 +662,8 @@
                 {/if}
               </span>
               {#if field.suggestions.length > 0}
-                <ul
-                  class="suggestions bg-white border shadow mt-1 max-h-32 overflow-auto"
-                >
-                  {#each field.suggestions.slice(0, 5) as suggestion}
+                <ul class="suggestions">
+                  {#each field.suggestions as suggestion}
                     <button
                       type="button"
                       class="suggestion-item"
@@ -680,8 +678,7 @@
                 </ul>
               {/if}
             </label>
-            <!-- TODO: Change these to not use "style="-->
-            <label class="mr-2" style="flex-basis: 50%; max-width: 200px;">
+            <label class="mr-2 custom-dropdown" style="flex-basis: 150px; max-width: 150px;">
               Data Type:
               <select
                 class="dark-textarea py-2 px-4 w-full"

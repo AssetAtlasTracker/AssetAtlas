@@ -139,20 +139,42 @@ e.g. buttons, lists, textareas, etc.
   background: rgba(var(--color-primary-900));
   color: rgb(var(--theme-font-color-base));
   border: 1px solid rgba(var(--color-primary-100) /.8);
-  padding: 1rem .5rem;
+  padding: 0.25rem; /* Reduced padding */
   position: absolute;
   width: 100%;
   border-radius: 10px;
   z-index: 10;
+  max-height: 200px; /* Set maximum height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(var(--color-primary-100) /.8) rgba(var(--color-primary-900)); /* Firefox */
 }
 
-.suggestions:hover{
-  background: rgba(var(--color-primary-800));
+/* Webkit (Chrome, Safari, Edge) scrollbar styles */
+.suggestions::-webkit-scrollbar {
+  width: 8px;
+}
+
+.suggestions::-webkit-scrollbar-track {
+  background: rgba(var(--color-primary-900));
+  border-radius: 10px;
+}
+
+.suggestions::-webkit-scrollbar-thumb {
+  background: rgba(var(--color-primary-100) /.8);
+  border-radius: 10px;
 }
 
 .suggestion-item{
   text-align: left;
   width:100%;
+  padding: 0.5rem;
+  display: block; /* Ensures consistent spacing */
+}
+
+.suggestion-item:hover {
+  background: rgba(var(--color-primary-800));
+  border-radius: 6px; /* Slight rounding on hover highlight */
 }
 
 .dark-textarea{
@@ -278,4 +300,38 @@ input[type="file"] {
   border-radius: 4px;
   background-color: white;
 }
-    
+
+.custom-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-dropdown select {
+  appearance: none;
+  background: rgba(var(--color-primary-900));
+  color: rgb(var(--theme-font-color-base));
+  border: 1px solid rgba(var(--color-primary-100) /.8);
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  width: 100%;
+}
+
+.custom-dropdown select option {
+  background: rgba(var(--color-primary-900));
+  color: rgb(var(--theme-font-color-base));
+  padding: 0.5rem;
+}
+
+.custom-dropdown select option:hover {
+  background: rgba(var(--color-primary-800));
+}
+
+.custom-dropdown::after {
+  content: '▼';
+  position: absolute;
+  top: 60%; /* Adjusted to align with the middle of the button */
+  right: 1rem;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: rgba(var(--theme-font-color-base)/.8);
+}

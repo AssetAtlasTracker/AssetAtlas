@@ -79,7 +79,7 @@ app.get('/api/ip', (req, res) => {
   res.json({ ip });
 });
 
-app.use('/api/items', itemRoutes); // Create & use routes after upload is ready
+app.use('/api/items', itemRoutes); //use routes after upload is ready
 app.use('/api/templates', templateRoutes);
 app.use('/api/customFields', customFieldRoutes)
 

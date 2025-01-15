@@ -221,7 +221,7 @@
           />
           {#if field.suggestions.length > 0}
             <ul class="suggestions">
-              {#each field.suggestions.slice(0, 5) as suggestion}
+              {#each field.suggestions as suggestion}
                 <button
                   class="suggestion-item"
                   type="button"
@@ -238,11 +238,9 @@
         </label>
 
         <!-- Data Type -->
-         <!-- TODO: Change these to not use "style="-->
-        <label class="mr-2" style="flex-basis: 150px; max-width: 150px;">
+        <label class="mr-2 custom-dropdown" style="flex-basis: 150px; max-width: 150px;">
           Data Type:
           <select
-            class="dark-textarea py-2 px-4 w-full"
             bind:value={field.dataType}
             disabled={field.isExisting}
           >
