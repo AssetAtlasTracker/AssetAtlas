@@ -1,0 +1,81 @@
+@startuml
+!define thing class
+
+package "Backend" #LightBlue {
+thing Express {
+    * Routes
+    * Controllers
+    * Models
+}
+thing NodeJS {
+    * JavaScript runtime
+    * Runs transpiled TypeScript
+}
+thing Mongoose {
+    * Object document mapping tool
+}
+}
+
+package "Frontend" #OrangeRed{
+thing Svelte {
+  * Pages
+  * Components
+}
+
+thing Tailwind {
+  * CSS
+}
+}
+
+package "Database" #LightGreen {
+thing MongoDB {
+ * NoSQL database
+}
+}
+
+package "Infrastructure" #DarkGray{
+thing env{
+    * Environment variables
+}
+thing Docker {
+    * Containerizes application
+}
+thing Tailscale {
+    * Remote self hosted server access
+}
+thing Launcher{
+    * Some python code
+}
+}
+
+package "Build Tools" #Yellow {
+    thing Rollup {
+        * Module bundler
+    }
+    thing ESLint {
+        * Linting
+    }
+    thing Vite {
+        * Testing tool
+    }
+}
+
+thing User {
+    * Some guy
+}
+
+Express <--> Mongoose : Talks to
+Mongoose <--> MongoDB: Talks to
+Frontend <--> Express: Talks to
+Docker --> Express : Containerizes
+Docker --> MongoDB : Containerizes
+Docker --> Tailscale : Containerizes
+User --> Frontend : Views
+Tailscale <--> Express : Remotley accesses
+Launcher --> Docker : Launches
+User --> Launcher : Uses
+Express --> NodeJS : Runs on
+Tailwind --> Svelte : Stylalizes
+Rollup --> Svelte : Bundles
+
+@enduml

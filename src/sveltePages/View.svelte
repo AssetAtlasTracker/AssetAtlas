@@ -1,67 +1,104 @@
 <script lang="ts">
-  import ItemDetails from '../svelteComponents/ItemDetails.svelte';
-  import DeleteItem from '../svelteComponents/DeleteItem.svelte';
-  import TopBar from '../svelteComponents/TopBar.svelte';
+  import ItemDetails from "../svelteComponents/ItemDetails.svelte";
+  import DeleteItem from "../svelteComponents/DeleteItem.svelte";
+  import TopBar from "../svelteComponents/TopBar.svelte";
+  import EditItem from "../svelteComponents/EditItem.svelte";
+  import Dialog from "../svelteComponents/Dialog.svelte";
 
-  import type { IBasicItemPopulated } from '../models/basicItem';
-  
-  import '../svelteStyles/view.css';
-  import '../svelteStyles/main.css';
+  import type { IBasicItemPopulated } from "../models/basicItem";
+
+  import "../svelteStyles/main.css";
 
   export let params: { id?: string };
   //console.log('View params:', params);
 
+  let showDeleteDialog = false;
+  let deleteDialog: HTMLDialogElement;
   let item: IBasicItemPopulated | null = null;
+  export let dialog: HTMLDialogElement;
 
   $: if (params.id) {
     fetchItem(params.id);
   }
 
+  $: if (showDeleteDialog) {
+    if (deleteDialog) {
+      deleteDialog.showModal();
+    }
+  }
+
   async function fetchItem(id: string) {
     try {
-      console.log('Fetching item from:', `/api/items/${id}`);
-      
+      console.log("Fetching item from:", `/api/items/${id}`);
+
       const response = await fetch(`/api/items/${id}`);
-      
+
       if (!response.ok) {
-        throw new Error(`Failed to fetch item: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Failed to fetch item: ${response.status} ${response.statusText}`,
+        );
       }
 
       const data: IBasicItemPopulated = await response.json();
       item = data;
-      console.log('Fetched item data:', item);
+      console.log("Fetched item data:", item);
     } catch (err) {
-      console.error('Error fetching item:', err);
+      console.error("Error fetching item:", err);
       item = null;
     }
   }
 
   function goBack() {
     window.history.back();
-  }//we gonna change this later fr fr
+  } //we gonna change this later fr fr
 
   function handleDelete() {
+    showDeleteDialog = false;
     console.log(`Item ${params.id} deleted.`);
     //go to the home page after successful deletion
-    window.location.href = '/';
+    window.location.href = "/";
   }
 </script>
 
-<TopBar searchQuery={''}></TopBar>
+<TopBar searchQuery={""}></TopBar>
 
 {#if item}
-  <div class="page-component glass">
-    <ItemDetails {item}/>
-    <br>
-    <DeleteItem itemId={params.id} onDelete={handleDelete}>
-      <button
-        class="font-semibold">
-        Delete Item
-      </button>
-    </DeleteItem>
+  <div class="item-view glass page-component">
+    <ItemDetails {item} />
+
+    <!-- Flex these buttons (?) -->
+    <br />
+    <button class="warn-button" on:click={() => showDeleteDialog = true}>
+      Delete
+    </button>
+    <br />
+    <button class="border-button" on:click={() => dialog.showModal()}>
+      Edit
+    </button>
+
+    <EditItem {item} bind:dialog />
   </div>
 {:else}
   <p>Loading item data...</p>
 {/if}
 
-  
+<!-- Create Delete Dialog -->
+{#if showDeleteDialog}
+  <Dialog
+    bind:dialog={deleteDialog}
+    on:close={() => {
+      showDeleteDialog = false;
+    }}
+  >
+    <div class="simple-dialog-spacing"> 
+      Are you sure you want to delete {item?.name}?
+    </div>
+   
+    <br />
+    <!--Probably going to want an additional cancel button here-->
+    <DeleteItem itemId={params.id} onDelete={handleDelete}>
+      Delete
+      <!--<button class="warn-button font-semibold" on:click={() => showDeleteDialog = false}></button>-->
+    </DeleteItem>
+  </Dialog>
+{/if}

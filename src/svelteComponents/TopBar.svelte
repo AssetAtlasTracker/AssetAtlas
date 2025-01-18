@@ -4,7 +4,7 @@
     import { Link, navigate } from 'svelte-routing';
     import {Menu as MenuIcon} from 'lucide-svelte';
 
-    export let searchQuery: string = '';
+    export let searchQuery: string = "";
     export let onSearch: (query: string) => void = navHome;
     export let menu : HTMLDialogElement;
     function navHome() {
@@ -14,9 +14,14 @@
     function handleClickMenu() {
       menu.click();
     }
+
+
+  function navigateToViewTemplates() {
+    navigate("/viewTemplates");
+  }
 </script>
 
-<AppBar class="appbar-border glass">
+<AppBar class="border glass">
   <div class="px-4">
     <div class="nav-margin float-left">
       <button on:click={handleClickMenu}>
@@ -24,14 +29,17 @@
       </button>
     </div>
     <div class="float-left">
-      <Link to={'/'}>
-        <div id="title" class="nav-margin text-2xl font-bold">
-          Asset Atlas
-        </div>
+      <Link to={"/"}>
+        <div id="title" class="nav-margin text-2xl font-bold">Asset Atlas</div>
       </Link>
       <div class="nav-margin flex-auto pb-4">
-        <SearchBar searchQuery={searchQuery} onSearch={onSearch} />
+        <SearchBar {searchQuery} {onSearch} />
       </div>
+    </div>
+    <div class="float-right">
+      <button class="nav-margin text-xl font-bold" on:click={navigateToViewTemplates}>
+        View Templates (temp location)
+      </button>
     </div>
   </div>
 </AppBar>

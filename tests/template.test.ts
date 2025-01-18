@@ -4,7 +4,8 @@ import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import templateRouter from '../src/routes/templateRoutes.js';
 import Template from '../src/models/template.js';
-import CustomField from '../src/models/customField.js';
+import CustomField, { ICustomField as CustomFieldType } from '../src/models/customField.js';
+import { RecentItems } from '../src/models/recentItems.js';
 
 let app: express.Application;
 let mongoServer: MongoMemoryServer;
@@ -29,7 +30,13 @@ afterAll(async () => {
 // Clear the database before each test to ensure isolation
 beforeEach(async () => {
   await Template.deleteMany({});
+  await RecentItems.deleteMany({});
   await CustomField.deleteMany({});
+  await Promise.all([
+    RecentItems.create({ type: 'item', recentIds: [], maxItems: 5 }),
+    RecentItems.create({ type: 'template', recentIds: [], maxItems: 5 }),
+    RecentItems.create({ type: 'customField', recentIds: [], maxItems: 5 })
+  ]);
 });
 
 describe('Template API', () => {
@@ -48,7 +55,7 @@ describe('Template API', () => {
     expect(response.body.name).toBe(templateData.name);
 
     // Verify that the fields are populated correctly
-    const createdTemplate = await Template.findOne({ name: 'Test Template' }).populate('fields').exec();
+    const createdTemplate = await Template.findOne({ name: 'Test Template' }).populate<{ fields: CustomFieldType[] }>('fields').exec();
     expect(createdTemplate).not.toBeNull();
     expect(createdTemplate?.fields).toHaveLength(2);
     expect(createdTemplate?.fields[0].fieldName).toBe('field1');
@@ -118,6 +125,45 @@ describe('Template API', () => {
     expect(response.status).toBe(200);
     expect(response.body.length).toBe(1); // Only one template matches "Alph"
     expect(response.body[0].name).toBe('Template Alpha');
+  });
+
+  it('should delete a template by ID', async () => {
+    const customField = await CustomField.create({ fieldName: 'field1', dataType: 'string' });
+
+    const template = await Template.create({ name: 'Test Template', fields: [customField._id] });
+
+    const response = await request(app).delete(`/api/templates/${template._id}`);
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe('Template deleted successfully');
+    
+    const deletedTemplate = await Template.findById(template._id).exec();
+    expect(deletedTemplate).toBeNull();
+  });
+
+  it('should edit an existing template', async () => {
+    // Create CustomField documents
+    const customField1 = await CustomField.create({ fieldName: 'field1', dataType: 'string' });
+    const customField2 = await CustomField.create({ fieldName: 'field2', dataType: 'number' });
+    const customField3 = await CustomField.create({ fieldName: 'field3', dataType: 'boolean' });
+
+    // Create a Template document
+    const template = await Template.create({ name: 'Original Template', fields: [customField1._id, customField2._id] });
+
+    const updatedTemplateData = {
+      name: 'Updated Template',
+      fields: [customField2._id, customField3._id], // Update fields
+    };
+
+    const response = await request(app).put(`/api/templates/editTemplate/${template._id}`).send(updatedTemplateData);
+    expect(response.status).toBe(200);
+    expect(response.body.name).toBe(updatedTemplateData.name);
+
+    // Verify that the fields are updated correctly
+    const updatedTemplate = await Template.findById(template._id).populate<{ fields: CustomFieldType[] }>('fields').exec();
+    expect(updatedTemplate).not.toBeNull();
+    expect(updatedTemplate?.fields).toHaveLength(2);
+    expect(updatedTemplate?.fields[0].fieldName).toBe('field2');
+    expect(updatedTemplate?.fields[1].fieldName).toBe('field3');
   });
 });
 

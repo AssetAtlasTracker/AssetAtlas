@@ -2,6 +2,7 @@ import os
 import subprocess
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import ttk
 import threading
 import time
 from envWriter import set_env_variable
@@ -78,6 +79,9 @@ def run_docker_compose_thread(mode):
 
 # Function to run the appropriate docker-compose command based on mode
 def run_docker_compose(mode):
+    progressbar = ttk.Progressbar(mode="indeterminate", length=250)
+    progressbar.grid(row=5, column=1, padx=10)
+    progressbar.start()
     try:
         if mode == "local":
             compose_file = os.path.join("docker", "docker-compose.yml")
@@ -129,6 +133,7 @@ def run_docker_compose(mode):
 
         show_url_popup(url)
         print(f"Service is running at {url}")
+        progressbar.stop()
         label_status.config(text="Docker containers started (" + url + ")")
         run_button.config(state=tk.NORMAL)
 
@@ -159,7 +164,10 @@ tailscale_mode_radio.grid(row=3, column=1, sticky="w", padx=10, pady=10)
 
 # Button to run Docker Compose
 run_button = tk.Button(root, text="Run Docker Compose", command=lambda: run_docker_compose_thread(mode_var.get()))
-run_button.grid(row=5, columnspan=2, padx=10, pady=20)
+run_button.grid(row=5, column=0, padx=10)
+
+progressbar = ttk.Progressbar(length=250)
+progressbar.grid(row=5, column=1, padx=10)
 
 shutdown_button = tk.Button(root, text="Shut Down Docker Containers", command=lambda: shutdown_docker_thread())
 shutdown_button.grid(row=6, columnspan=2, padx=10, pady=10)

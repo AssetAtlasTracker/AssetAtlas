@@ -1,31 +1,61 @@
-import type { Request, Response } from 'express';
+import type { Request, Response, Express } from 'express';
 import mongoose from 'mongoose';
 import mongooseQueries from '../mongooseQueries.js';
 import BasicItem from '../models/basicItem.js';
 import type { IBasicItemPopulated } from '../models/basicItem.js';
 import Fuse from 'fuse.js';
 
+// Add interface for GridFS file
+interface GridFSFile extends Express.Multer.File {
+  id?: string;
+  _id?: string;
+  filename: string;
+  metadata?: {
+    originalname: string;
+    mimetype: string;
+  };
+}
+
+import '../config/gridfs.js';
+
 export const createItem = async (req: Request, res: Response) => {
   try {
-    //console.log('Received request:', req.body);
-
-    //if empty, remove
-    if (Array.isArray(req.body.containedItems)) {
-      req.body.containedItems = req.body.containedItems
-        .filter((item: string) => item && item.trim()) //Remove empty strings
-        .filter((item: string) => mongoose.Types.ObjectId.isValid(item)); //Keep only valid ObjectIds
-      
-      if (req.body.containedItems.length === 0) {
-        delete req.body.containedItems;
-      }
+    // Parse JSON strings first
+    if (typeof req.body.tags === 'string') {
+      req.body.tags = JSON.parse(req.body.tags);
+    }
+    if (typeof req.body.customFields === 'string') {
+      const parsedFields = JSON.parse(req.body.customFields);
+      req.body.customFields = Array.isArray(parsedFields) ? parsedFields : [];
     }
 
-    const newItem = new BasicItem(req.body);
-    await newItem.save();
-    res.status(201).json(newItem);
+    const itemData = { ...req.body };
+
+    // Handle file with proper typing
+    if (req.file) {
+      const gridFSFile = req.file as GridFSFile;
+      console.log('File received:', {
+        fieldname: gridFSFile.fieldname,
+        filename: gridFSFile.filename,
+        id: gridFSFile.id,
+        _id: gridFSFile._id
+      });
+      
+      // Use ID from either property, fallback to filename
+      itemData.image = gridFSFile.id || gridFSFile._id || gridFSFile.filename;
+    }
+
+    console.log('Creating item with data:', itemData);
+    const newItem = new BasicItem(itemData);
+    const savedItem = await newItem.save();
+    
+    res.status(201).json(savedItem);
   } catch (err) {
-    console.error('Error details:', err);
-    res.status(500).json({ message: 'Error creating item', error: err });
+    console.error('Error creating item:', err);
+    res.status(500).json({ 
+      message: 'Error creating item', 
+      error: err instanceof Error ? err.message : String(err)
+    });
   }
 };
 
@@ -36,13 +66,28 @@ export const getItemById = async (req: Request, res: Response) => {
   }
 
   try {
-    const item = await mongooseQueries.getItemById(id);
+    console.log('Fetching item:', id);
+    const item = await BasicItem.findById(id)
+      .populate('template')
+      .populate('parentItem')
+      .populate('homeItem')
+      .populate('containedItems')
+      .populate('customFields.field')
+      .populate('itemHistory.location')
+      .populate({
+        path: 'image',
+        model: 'uploads.files'
+      })
+      .exec();
+    
+    console.log('Found item:', JSON.stringify(item, null, 2));
     if (item) {
       res.status(200).json(item);
     } else {
       res.status(404).json({ message: 'Cannot get: Item not found' });
     }
   } catch (err) {
+    console.error('Error in getItemById:', err);
     res.status(500).json({ message: 'Error fetching item', error: err });
   }
 };

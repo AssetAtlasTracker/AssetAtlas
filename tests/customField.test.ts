@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import customFieldRouter from '../src/routes/customFieldRoutes.js';
 import type { ICustomField } from '../src/models/customField.js';
+import { RecentItems } from '../src/models/recentItems.js';
 
 let app: express.Application;
 let mongoServer: MongoMemoryServer;
@@ -27,6 +28,12 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await mongoose.connection.collection('customfields').deleteMany({});
+  await mongoose.connection.collection('recents').deleteMany({});
+  await Promise.all([
+    RecentItems.create({ type: 'item', recentIds: [], maxItems: 5 }),
+    RecentItems.create({ type: 'template', recentIds: [], maxItems: 5 }),
+    RecentItems.create({ type: 'customField', recentIds: [], maxItems: 5 })
+  ]);
 });
 
 describe('CustomField API', () => {

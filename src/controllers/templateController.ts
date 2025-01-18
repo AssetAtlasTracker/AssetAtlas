@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import Fuse from 'fuse.js';
 import Template from '../models/template.js';
-import CustomField from '../models/customField.js';
+import BasicItem from '../models/basicItem.js';
 import mongoose from 'mongoose';
 
 export const createTemplate = async (req: Request, res: Response) => {
@@ -92,5 +92,72 @@ export const getTemplateById = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error fetching template by ID:', error);
     res.status(500).json({ message: 'Failed to fetch template', error });
+  }
+};
+
+export const deleteTemplate = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: 'Invalid template ID' });
+  }
+
+  try {
+    const template = await Template.findByIdAndDelete(id).exec();
+    if (!template) {
+      return res.status(404).json({ message: 'Template not found' });
+    }
+
+    res.status(200).json({ message: 'Template deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting template:', error);
+    res.status(500).json({ message: 'Failed to delete template', error });
+  }
+};
+
+export const editTemplate = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { name, fields } = req.body;
+
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: 'Invalid template ID' });
+  }
+
+  if (!name || !fields) {
+    return res.status(400).json({ message: 'Name and fields are required' });
+  }
+
+  try {
+    const existingTemplate = await Template.findOne({ name });
+    if (existingTemplate && existingTemplate._id.toString() !== id.toString()) {
+      return res.status(400).json({ message: 'Template name must be unique' });
+    }
+
+    const template = await Template.findById(id);
+    if (!template) {
+      return res.status(404).json({ message: 'Template not found' });
+    }
+
+    const oldFields = template.fields.map(field => field.toString());
+    const newFields: string[] = fields.map((field: mongoose.Types.ObjectId) => field.toString());
+
+    template.name = name;
+    template.fields = fields;
+
+    await template.save();
+
+    //Handle adding new fields to items using this template
+    const addedFields = newFields.filter(field => !oldFields.includes(field));
+    if (addedFields.length > 0) {
+      await BasicItem.updateMany(
+        { template: template._id },
+        { $addToSet: { customFields: { $each: addedFields.map(field => ({ field, value: "" })) } } }
+      ).exec();
+    }
+
+    res.status(200).json(template);
+  } catch (error) {
+    console.error('Error editing template:', error);
+    res.status(500).json({ message: 'Failed to edit template', error });
   }
 };

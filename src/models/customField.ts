@@ -1,4 +1,5 @@
-import { Schema, model, Document, Types } from "mongoose";
+import { Schema, model, Document, Types, type CallbackError } from "mongoose";
+import { addToRecents, removeFromRecents } from './recentItems.js';
 
 export interface ICustomField extends Document {
   fieldName: string;
@@ -12,5 +13,22 @@ const CustomFieldSchema = new Schema<ICustomField>({
   createdAt: { type: Date, default: Date.now },
 });
 
-const CustomField = model<ICustomField>("CustomField", CustomFieldSchema);
+CustomFieldSchema.post('save', async function() {
+  await addToRecents('customField', this._id as Types.ObjectId);
+});
+
+CustomFieldSchema.pre('findOneAndDelete', async function (next) {
+  const fieldId = this.getQuery()._id;
+  if (!fieldId) return next();
+
+  try {
+    await removeFromRecents('customField', fieldId);
+    next();
+  } catch (err) {
+    console.error('Error in pre-delete hook:', err);
+    next(err as CallbackError);
+  }
+});
+
+const CustomField = model<ICustomField>('CustomField', CustomFieldSchema);
 export default CustomField

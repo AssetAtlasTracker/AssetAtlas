@@ -1,0 +1,64 @@
+<script lang="ts">
+  import type { ITemplatePopulated } from "../models/template";
+  import DeleteTemplate from "./DeleteTemplate.svelte";
+  import EditTemplate from "./EditTemplate.svelte";
+  import Dialog from "./Dialog.svelte";
+
+  export let templates: ITemplatePopulated[] = [];
+
+  let editingTemplate: ITemplatePopulated | null = null;
+  let editDialog: HTMLDialogElement | undefined;
+
+  function handleDelete(templateId: string) {
+    templates = templates.filter(template => template._id.toString() !== templateId);
+  }
+
+  function handleEdit(template: ITemplatePopulated) {
+    editingTemplate = template;
+    if (editDialog) {
+      editDialog.showModal();
+    }
+  }
+
+  function closeEdit() {
+    editingTemplate = null;
+    if (editDialog) {
+      editDialog.close();
+    }
+  }
+</script>
+
+{#if templates && templates.length > 0}
+  {#each templates as template}
+    <div class="template-card">
+      <div class="template">
+        <strong>{template.name}</strong>
+      </div>
+
+      <div class="fields">
+        <strong class="indented">Fields:</strong>
+        <ul>
+          {#each template.fields as field}
+            <li class="indented">{field.fieldName} ({field.dataType})</li>
+          {/each}
+        </ul>
+      </div>
+
+      <DeleteTemplate templateId={template._id.toString()} onDelete={handleDelete}>
+        Delete
+      </DeleteTemplate>
+      <button class="border-button font-semibold shadow ml-2" on:click={() => handleEdit(template)}>
+        Edit
+      </button>
+    </div>
+    <br />
+  {/each}
+{:else}
+  <p>No templates found.</p>
+{/if}
+
+<Dialog bind:dialog={editDialog} on:close={closeEdit}>
+  {#if editingTemplate}
+    <EditTemplate template={editingTemplate} onClose={closeEdit} />
+  {/if}
+</Dialog>
