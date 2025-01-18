@@ -1,4 +1,3 @@
-import { CSVItemParser } from "./parsing/CSVItemParser";
 import { CSVTemplateParser } from "./parsing/CSVTemplateParser";
 import { FileLoader } from "./file/FileLoader";
 import { ParserManager } from "./parsing/ParserManager";
@@ -11,5 +10,5 @@ export function prod() {
 }
 
 export function test() {
-    return {itemParser: CSVItemParser, templateParser: CSVTemplateParser, formatter: CSVFormatter, loader: FileLoader, exporter: FileExporter};
+    return {templateParser: CSVTemplateParser, formatter: CSVFormatter, loader: FileLoader, exporter: FileExporter};
 }

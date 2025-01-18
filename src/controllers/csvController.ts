@@ -2,18 +2,6 @@ import type { Request, Response } from 'express';
 import { FileExporter } from '../utility/file/FileExporter.js';
 import { ParserManager } from '../utility/parsing/ParserManager.js';
 
-export const debug = async (req: Request, res: Response) => {
-  // try {
-  //   console.log("debug did");
-  //   return res.status(201).json({message: 'did'});
-  // } catch (err) {
-  //   console.error('Error in debug:', err);
-  //   return res.status(500).json({ message: 'Error in debug', error: err });
-  // }
-  //res.status(201).json({message: "No"});
-  res.send("Yes");
-};
-
 export const importFromFile = async (req: Request, res: Response) => {
     try {
       const data : string[] = req.body.data;
@@ -59,10 +47,10 @@ export const exportToFolder = async (req: Request, res: Response) => {
             folder = "../out";
         }
 
-        if (!!data) {
+        if (data) {
             FileExporter.export(filePaths[0], folder, data);
         }
-        if (!!templateData) {
+        if (templateData) {
             FileExporter.export(filePaths[1], folder, templateData);
         }
         res.status(201).json({message: 'Successfully exported data to file path(s).'});

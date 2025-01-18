@@ -1,8 +1,6 @@
 <script lang="ts">
     import { AppBar } from '@skeletonlabs/skeleton';
-    import '../svelteStyles/view.css';
-    import '../svelteStyles/home.css';
-    import '../svelteStyles/main.css';
+    import "../svelteStyles/main.css";
     import { ip } from '../stores/ipStore';
     import type { ITemplatePopulated } from '../models/template';
     import type { IBasicItemPopulated } from '../models/basicItem';

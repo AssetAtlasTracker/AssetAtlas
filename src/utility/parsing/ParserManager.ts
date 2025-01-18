@@ -1,10 +1,7 @@
-// import type {ITemplatePopulated } from "../../models/template.js";
 import { CSVTemplateParser } from "./CSVTemplateParser.js";
 import { CSVPreProcessor } from "../CSVPreProcessor.js";
 import { EntityAdder } from "../EntityAdder.js";
-// import { ip } from '../../stores/ipStore.js';
 import { CSVItemParserPopulated } from "./CSVItemParserPopulated.js";
-import type { Types } from "mongoose";
 
 export class ParserManager {
 

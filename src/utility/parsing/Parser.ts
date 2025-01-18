@@ -2,9 +2,9 @@ import type { IBasicItem } from "../../models/basicItem";
 import type { ITemplate } from "../../models/template";
 
 export interface Parser {
-    parse(input:String) : void;
+    parse(input:string) : void;
 
-    canParse(columns: String[]) : boolean;
+    canParse(columns: string[]) : boolean;
 
     getEntitiesToAdd() : ITemplate[] | IBasicItem[]
 }

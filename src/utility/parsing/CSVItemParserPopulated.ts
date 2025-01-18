@@ -6,14 +6,15 @@ import type { ITemplate, ITemplatePopulated } from "../../models/template.js";
 import { CSVPreProcessor } from "../CSVPreProcessor.js";
 import { CSVSplitter } from "../CSVSplitter.js";
 import type { Parser } from "./Parser.js";
+import type { strict } from "assert";
 
 export class CSVItemParserPopulated implements Parser {
     itemTree: IBasicItem[] = [];
     itemMap: Map<Types.ObjectId,IBasicItem> = new Map<Types.ObjectId, IBasicItem>();
     customFieldMap: Map<Types.ObjectId, ICustomField> = new Map<Types.ObjectId, ICustomField>();
-    columns: String[] = [];
-    columnTypes: Map<String, string> = new Map<String, string>;
-    templates: Map<String, ITemplatePopulated> = new Map<String, ITemplatePopulated>();
+    columns: string[] = [];
+    columnTypes: Map<string, string> = new Map<string, string>;
+    templates: Map<string, ITemplatePopulated> = new Map<string, ITemplatePopulated>();
 
     constructor(templates : ITemplatePopulated[]) {
         for (var i = 0; i < templates.length; i++) {
@@ -25,14 +26,14 @@ export class CSVItemParserPopulated implements Parser {
         return this.itemTree;
     }
 
-    collectColumnTypes(data: String[][], columns: String[]){
+    collectColumnTypes(data: string[][], columns: string[]){
         for (var i = 3; i < columns.length; i++) { // first 3 columns are reserved - determine types for 4th+
             let column = data.map(row => row[i].trim());
             this.columnTypes.set(columns[i], this.determineTypeOfColumn(column));
         }
     }
 
-    determineTypeOfColumn(column: String[]) : string {
+    determineTypeOfColumn(column: string[]) : string {
         // TODO: determine if ideal functionality
         // there is an instance where if we have all blank values, this will assume a field is a number. We could change that to assume string.
 
@@ -64,7 +65,7 @@ export class CSVItemParserPopulated implements Parser {
         return currentType;
     }
 
-    parse(input: String): void {
+    parse(input: string): void {
         var data = CSVPreProcessor.preprocess(CSVSplitter.split(input));
         this.columns = data[0];
         this.collectColumnTypes(data, this.columns);
@@ -77,7 +78,7 @@ export class CSVItemParserPopulated implements Parser {
         this.parseHelper(data, i, items, last_item);     
     }
 
-    parseHelper(data : String[][], i : number, items: IBasicItem[], last_item : IBasicItem | null) {
+    parseHelper(data : string[][], i : number, items: IBasicItem[], last_item : IBasicItem | null) {
         if (i == data.length) {
             return;
         }
@@ -91,7 +92,7 @@ export class CSVItemParserPopulated implements Parser {
 
     
 
-    parseHelperItem(data: String[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
+    parseHelperItem(data: string[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
         if (!last_item) {
             this.parseHelperIn(data, i, items, last_item);
         } else {
@@ -100,7 +101,7 @@ export class CSVItemParserPopulated implements Parser {
         }
     }
 
-    parseHelperOut(data: String[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
+    parseHelperOut(data: string[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
         if (items.length === 0) {
             throw new Error("Incorrect Formatting: No Items When Popping Out");
         } else {
@@ -109,7 +110,7 @@ export class CSVItemParserPopulated implements Parser {
         }
     }
     
-    parseHelperIn(data: String[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
+    parseHelperIn(data: string[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
         let new_item = this.parseItemFromLine(data[i]);
         if (items.length > 0) {
             let upper_item = items.pop() as IBasicItem;
@@ -126,11 +127,11 @@ export class CSVItemParserPopulated implements Parser {
         this.parseHelper(data, i+1, items, last_item);
     }
 
-    canParse(columns: String[]): boolean {
+    canParse(columns: string[]): boolean {
         return columns[0] === "item name" && columns[1] === "template" && columns[2] === "description";
     }
 
-    parseItemFromLine(line: String[]) : IBasicItem {
+    parseItemFromLine(line: string[]) : IBasicItem {
         let item = new BasicItem();
         let id = new Types.ObjectId();
         item.id = id;
@@ -160,7 +161,7 @@ export class CSVItemParserPopulated implements Parser {
         return item;
     }
 
-    addCustomFieldToItem(line: String[], item: IBasicItem, i: number) {
+    addCustomFieldToItem(line: string[], item: IBasicItem, i: number) {
         if (!item.customFields) {
             item.customFields = [];
         }

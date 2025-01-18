@@ -11,7 +11,7 @@ export class CSVFormatterPopulated {
         this.templateMap = templateMap;
     }
 
-    formatTemplates(templates: ITemplatePopulated[]): String {
+    formatTemplates(templates: ITemplatePopulated[]): string {
         let csv = "template name\n";
         for (var i = 0; i < templates.length; i++) {
             csv += this.formatTemplate(templates[i]);
@@ -41,7 +41,7 @@ export class CSVFormatterPopulated {
         return firstline + secondline;
     }
     
-    formatItems(itemTree: IBasicItemPopulated[], itemMap: Map<Types.ObjectId, IBasicItemPopulated>): String {
+    formatItems(itemTree: IBasicItemPopulated[], itemMap: Map<Types.ObjectId, IBasicItemPopulated>): string {
         let columns = ["item name", "template", "description"];
         columns = this.formatItemsHelper(itemTree, itemMap, columns);
         let csv = columns.pop();

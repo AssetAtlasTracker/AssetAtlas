@@ -16,7 +16,7 @@ export class CSVFormatter implements Formatter {
     }
 
 
-    formatTemplates(templates: ITemplate[]): String {
+    formatTemplates(templates: ITemplate[]): string {
         let csv = "template name\n";
         for (var i = 0; i < templates.length; i++) {
             csv += this.formatTemplate(templates[i]);
@@ -48,7 +48,7 @@ export class CSVFormatter implements Formatter {
     }
 
     
-    formatItems(itemTree: IBasicItem[], itemMap: Map<Types.ObjectId, IBasicItem>, customFieldMap: Map<Types.ObjectId, ICustomField>): String {
+    formatItems(itemTree: IBasicItem[], itemMap: Map<Types.ObjectId, IBasicItem>, customFieldMap: Map<Types.ObjectId, ICustomField>): string {
         let columns = ["item name", "template", "description"];
         columns = this.formatItemsHelper(itemTree, itemMap, columns, customFieldMap);
         let csv = columns.pop();

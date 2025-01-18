@@ -15,7 +15,7 @@ export class CSVTemplateParser implements Parser {
         return this.templatesToAdd;
     }
 
-    parse(input: String): void {
+    parse(input: string): void {
         let data = CSVPreProcessor.preprocess(CSVSplitter.split(input));
 
         for (var i = 1; i < data.length; i += 2) {
@@ -39,7 +39,7 @@ export class CSVTemplateParser implements Parser {
         }
     }
 
-    checkTypeRow(row : String[]) {
+    checkTypeRow(row : string[]) {
         if (row[0].length > 0) {
             throw new Error("Named Type Row or Missing Type Row: " + row.toString());
         }
@@ -51,7 +51,7 @@ export class CSVTemplateParser implements Parser {
         }
     }
 
-    canParse(columns: String[]): boolean {
+    canParse(columns: string[]): boolean {
         let tempName = (columns[0] === "template name");
         columns.shift();
         let blankColumns = (columns.filter(ele => ele !== "").length === 0);
