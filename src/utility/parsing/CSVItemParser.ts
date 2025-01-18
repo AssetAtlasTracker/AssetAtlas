@@ -2,15 +2,16 @@ import type { Types } from "mongoose";
 import type { IBasicItem } from "../../models/basicItem";
 import BasicItem from "../../models/basicItem";
 import CustomField, { type ICustomField } from "../../models/customField";
-import type { ITemplate, ITemplatePopulated } from "../../models/template";
-import { CSVPreProcessor } from "../CSVPreProcessor";
-import { CSVSplitter } from "../CSVSplitter";
-import type { Parser } from "./Parser";
+import type { ITemplate } from "../../models/template";
+import { CSVPreProcessor } from "../CSVPreProcessor.js";
+import { CSVSplitter } from "../CSVSplitter.js";
+import type { Parser } from "./Parser.js";
+import type { StringExpression } from "mongoose";
 
 export class CSVItemParser implements Parser {
     itemTree: IBasicItem[] = [];
-    itemMap: Map<Types.ObjectId,IBasicItem> = new Map<Types.ObjectId, IBasicItem>();
-    customFieldMap: Map<Types.ObjectId, ICustomField> = new Map<Types.ObjectId, ICustomField>();
+    itemMap: Map<string,IBasicItem> = new Map<string, IBasicItem>();
+    customFieldMap: Map<string, ICustomField> = new Map<string, ICustomField>();
     columns: String[] = [];
     columnTypes: Map<String, string> = new Map<String, string>;
     templates: Map<String, ITemplate> = new Map<String, ITemplate>;
@@ -67,7 +68,7 @@ export class CSVItemParser implements Parser {
     parse(input: String): void {
         var data = CSVPreProcessor.preprocess(CSVSplitter.split(input));
         this.columns = data[0];
-        this.collectColumnTypes(data, this.columns)
+        this.collectColumnTypes(data, this.columns);
 
         var i = 1;
         // get first item
@@ -149,13 +150,13 @@ export class CSVItemParser implements Parser {
                 if (template !== undefined) {
                     // consider if this column is in the template
                     item.template = template!.id;
-                    if (template.fields.map(id => this.customFieldMap.get(id)).filter(res => res !== undefined).map(cust => cust.fieldName).includes(this.columns[i].toString())) {
+                    if (template.fields.map(id => this.customFieldMap.get(id.toHexString())).filter(res => res !== undefined).map(cust => cust.fieldName).includes(this.columns[i].toString())) {
                         this.addCustomFieldToItem(line, item, i);
                     }
                 }
             }
         }
-        this.itemMap.set(id as unknown as Types.ObjectId, item); // TODO: see if this works
+        this.itemMap.set(id, item); // TODO: see if this works
         return item;
     }
 

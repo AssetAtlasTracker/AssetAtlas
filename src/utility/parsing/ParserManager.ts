@@ -1,51 +1,49 @@
-import type {ITemplatePopulated } from "../../models/template";
-import { CSVItemParser } from "./CSVItemParser";
-import { CSVTemplateParser } from "./CSVTemplateParser";
-import { FileLoader } from "../file/FileLoader";
-import { CSVPreProcessor } from "../CSVPreProcessor";
-import { EntityAdder } from "../EntityAdder";
-import { ip } from '../../stores/ipStore';
-import { CSVItemParserPopulated } from "./CSVItemParserPopulated";
+// import type {ITemplatePopulated } from "../../models/template.js";
+import { CSVTemplateParser } from "./CSVTemplateParser.js";
+import { CSVPreProcessor } from "../CSVPreProcessor.js";
+import { EntityAdder } from "../EntityAdder.js";
+// import { ip } from '../../stores/ipStore.js';
+import { CSVItemParserPopulated } from "./CSVItemParserPopulated.js";
+import type { Types } from "mongoose";
 
 export class ParserManager {
 
-    async parseFromFiles(paths: string[]) {
+    async parseFromFiles(data: string[]) {
         const adder = new EntityAdder();
-        // NOTE: assuming we have 2 paths at most
         const templateParser = new CSVTemplateParser();
-        let itemPath = "";
-        for (var path in paths) {
-            const contents = FileLoader.readFile(path);
+        let itemData = "";
+        for (var i=0; i < data.length; i++) {
+            const contents = data[i]
             if (templateParser.canParse(CSVPreProcessor.getColumns(contents))) {
                 templateParser.parse(contents);
                 let templates = templateParser.templatesToAdd;
                 let customFields = templateParser.customFieldMap;
-                let idMap = EntityAdder.addCustomFields(customFields);
+                let idMap = await adder.addCustomFields(customFields);
                 templates.map((template) => {template.fields = template.fields.map((id) => {return idMap.get(id)!})});
-                EntityAdder.addTemplates(templates);
+                await adder.addTemplates(templates);
             } else {
-                itemPath = path;
+                itemData = contents;
             }
         }
 
-        if (itemPath !== "" ) {
+        if (itemData !== "" ) {
             // get existing templates ==> will be populated
-            const responseT = await fetch(`http://${ip}/api/templates/getTemplates`, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-            });
-            if (!responseT.ok) throw new Error('Failed to fetch templates');
-            let templates = []
-            const dataT = await responseT.json();
-            templates = dataT as ITemplatePopulated[];
+            // const responseT = await fetch(new Request(`/controllers/templateController.ts/getTemplates`), {
+            //     method: 'GET',
+            //     headers: { 'Content-Type': 'application/json' },
+            // });
+            // if (!responseT.ok) throw new Error('Failed to fetch templates');
+            // let templates = []
+            // const dataT = await responseT.json();
+            // templates = dataT as ITemplatePopulated[];
 
-            const contents = FileLoader.readFile(itemPath);
-            const itemParser = new CSVItemParserPopulated(templates);
+            const contents = itemData;
+            const itemParser = new CSVItemParserPopulated([]);//templates);
             itemParser.parse(contents);
-            let itemTree = itemParser.itemTree;
-            let itemMap = itemParser.itemMap;
             let customFields = itemParser.customFieldMap;
-            let idMap = EntityAdder.addCustomFields(customFields);
+            let idMap = await adder.addCustomFields(customFields);
+            console.log(idMap.size);
+            console.log(idMap.keys().next());
             adder.addItems(itemParser.itemTree, itemParser.itemMap, idMap);        
         }
     }

@@ -1,8 +1,6 @@
 import type { Types } from "mongoose";
-import type { IBasicItem, IBasicItemPopulated } from "../../models/basicItem";
-import type { ITemplate, ITemplatePopulated } from "../../models/template";
-import type { Formatter } from "./Formatter";
-import type { ICustomField } from "../../models/customField";
+import type { IBasicItemPopulated } from "../../models/basicItem";
+import type { ITemplatePopulated } from "../../models/template";
 
 export class CSVFormatterPopulated {
     itemMap : Map<Types.ObjectId, IBasicItemPopulated>;
@@ -12,7 +10,6 @@ export class CSVFormatterPopulated {
         this.itemMap = itemMap;
         this.templateMap = templateMap;
     }
-
 
     formatTemplates(templates: ITemplatePopulated[]): String {
         let csv = "template name\n";
@@ -43,7 +40,6 @@ export class CSVFormatterPopulated {
         secondline += "\n";
         return firstline + secondline;
     }
-
     
     formatItems(itemTree: IBasicItemPopulated[], itemMap: Map<Types.ObjectId, IBasicItemPopulated>): String {
         let columns = ["item name", "template", "description"];

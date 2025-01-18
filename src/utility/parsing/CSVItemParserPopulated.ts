@@ -1,11 +1,11 @@
-import type { Types } from "mongoose";
-import type { IBasicItem } from "../../models/basicItem";
-import BasicItem from "../../models/basicItem";
-import CustomField, { type ICustomField } from "../../models/customField";
-import type { ITemplate, ITemplatePopulated } from "../../models/template";
-import { CSVPreProcessor } from "../CSVPreProcessor";
-import { CSVSplitter } from "../CSVSplitter";
-import type { Parser } from "./Parser";
+import { Types } from "mongoose";
+import type { IBasicItem } from "../../models/basicItem.js";
+import BasicItem from "../../models/basicItem.js";
+import CustomField, { type ICustomField } from "../../models/customField.js";
+import type { ITemplate, ITemplatePopulated } from "../../models/template.js";
+import { CSVPreProcessor } from "../CSVPreProcessor.js";
+import { CSVSplitter } from "../CSVSplitter.js";
+import type { Parser } from "./Parser.js";
 
 export class CSVItemParserPopulated implements Parser {
     itemTree: IBasicItem[] = [];
@@ -67,7 +67,7 @@ export class CSVItemParserPopulated implements Parser {
     parse(input: String): void {
         var data = CSVPreProcessor.preprocess(CSVSplitter.split(input));
         this.columns = data[0];
-        this.collectColumnTypes(data, this.columns)
+        this.collectColumnTypes(data, this.columns);
 
         var i = 1;
         // get first item
@@ -110,7 +110,7 @@ export class CSVItemParserPopulated implements Parser {
     }
     
     parseHelperIn(data: String[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
-        let new_item = this.parseItemFromLine(data[i], i.toString());
+        let new_item = this.parseItemFromLine(data[i]);
         if (items.length > 0) {
             let upper_item = items.pop() as IBasicItem;
             new_item.parentItem = upper_item!.id;
@@ -127,11 +127,12 @@ export class CSVItemParserPopulated implements Parser {
     }
 
     canParse(columns: String[]): boolean {
-        return columns[0] === "item name" && columns[1] === "template" && columns[2] === "description"
+        return columns[0] === "item name" && columns[1] === "template" && columns[2] === "description";
     }
 
-    parseItemFromLine(line: String[], id: string) : IBasicItem {
+    parseItemFromLine(line: String[]) : IBasicItem {
         let item = new BasicItem();
+        let id = new Types.ObjectId();
         item.id = id;
 
         // get values from required columns.
@@ -142,7 +143,7 @@ export class CSVItemParserPopulated implements Parser {
         // get custom fields.
         for (var i = 3; i < line.length; i++) {
             if (line[i].length > 0) {
-                this.addCustomFieldToItem(line, item, i)
+                this.addCustomFieldToItem(line, item, i);
             } else {
                 // consider templates
                 const template = this.templates.get(templateName);
@@ -155,7 +156,7 @@ export class CSVItemParserPopulated implements Parser {
                 }
             }
         }
-        this.itemMap.set(id as unknown as Types.ObjectId, item); // TODO: see if this works
+        this.itemMap.set(item.id, item); // TODO: see if this works
         return item;
     }
 
@@ -174,7 +175,6 @@ export class CSVItemParserPopulated implements Parser {
         customField.dataType = dataType.toString();
         item.customFields.push({field: customField.id, value: line[i]});
         this.customFieldMap.set(customField.id, customField);
-    }
-    
+    } 
 }
 

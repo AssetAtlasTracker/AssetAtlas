@@ -1,7 +1,7 @@
 import type { Types } from "mongoose";
 import type { IBasicItem } from "../../models/basicItem";
 import type { ITemplate } from "../../models/template";
-import type { Formatter } from "./Formatter";
+import type { Formatter } from "./Formatter.js";
 import type { ICustomField } from "../../models/customField";
 
 export class CSVFormatter implements Formatter {
