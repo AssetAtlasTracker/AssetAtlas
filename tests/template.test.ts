@@ -5,6 +5,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import templateRouter from '../src/routes/templateRoutes.js';
 import Template from '../src/models/template.js';
 import CustomField, { ICustomField as CustomFieldType } from '../src/models/customField.js';
+import { RecentItems } from '../src/models/recentItems.js';
 
 let app: express.Application;
 let mongoServer: MongoMemoryServer;
@@ -29,7 +30,13 @@ afterAll(async () => {
 // Clear the database before each test to ensure isolation
 beforeEach(async () => {
   await Template.deleteMany({});
+  await RecentItems.deleteMany({});
   await CustomField.deleteMany({});
+  await Promise.all([
+    RecentItems.create({ type: 'item', recentIds: [], maxItems: 5 }),
+    RecentItems.create({ type: 'template', recentIds: [], maxItems: 5 }),
+    RecentItems.create({ type: 'customField', recentIds: [], maxItems: 5 })
+  ]);
 });
 
 describe('Template API', () => {

@@ -8,6 +8,7 @@ import customFieldRouter from '../src/routes/customFieldRoutes.js';
 import CustomField from '../src/models/customField.js';
 import TemplateRouter from '../src/routes/templateRoutes.js';
 import Template from '../src/models/template.js';
+import { RecentItems } from '../src/models/recentItems.js';
 import type { ICustomField } from '../src/models/customField.js';
 
 let app: express.Application;
@@ -36,6 +37,14 @@ afterAll(async () => {
 beforeEach(async () => {
   await BasicItem.deleteMany({});
   await CustomField.deleteMany({});
+  await Template.deleteMany({});
+  await RecentItems.deleteMany({});
+  await Promise.all([
+    RecentItems.create({ type: 'item', recentIds: [], maxItems: 5 }),
+    RecentItems.create({ type: 'template', recentIds: [], maxItems: 5 }),
+    RecentItems.create({ type: 'customField', recentIds: [], maxItems: 5 })
+  ]);
+
 });
 
 describe('Item API', () => {

@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types, type CallbackError } from 'mongoose';
 import BasicItem from './basicItem.js';
-import type { ICustomField } from './customField';
+import type { ICustomField } from './customField.js';
+import { addToRecents, removeFromRecents } from './recentItems.js';
 
 export interface ITemplate extends Document {
   _id: Types.ObjectId;
@@ -30,6 +31,7 @@ TemplateSchema.pre('findOneAndDelete', async function (next) {
   if (!templateId) return next();
 
   try {
+    await removeFromRecents('template', templateId);
     //update items that use the template being deleted
     await BasicItem.updateMany(
       { template: templateId },
@@ -41,6 +43,10 @@ TemplateSchema.pre('findOneAndDelete', async function (next) {
     console.error('Error in pre-delete hook for template:', err);
     next(err as CallbackError);
   }
+});
+
+TemplateSchema.post('save', async function() {
+  await addToRecents('template', this._id as Types.ObjectId);
 });
 
 const Template = model<ITemplate>('Template', TemplateSchema);

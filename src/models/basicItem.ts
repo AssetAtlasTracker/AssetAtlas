@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types, type CallbackError } from 'mongoose';
-import type { ICustomField } from './customField';
-import type { ITemplate } from './template';
+import type { ICustomField } from './customField.js';
+import type { ITemplate } from './template.js';
+import { addToRecents, removeFromRecents } from './recentItems.js';
 //import Template from './template';
 
 export interface IBasicItem extends Document { //we can add more stuff here
@@ -135,6 +136,7 @@ BasicItemSchema.pre('findOneAndDelete', async function (next) {
   const BasicItem = model<IBasicItem>('BasicItem');
 
   try {
+    await removeFromRecents('item', itemId);
     const itemToDelete = await BasicItem.findById(itemId).exec();
     if (!itemToDelete) return next();
 
@@ -180,6 +182,10 @@ BasicItemSchema.pre('findOneAndDelete', async function (next) {
   }
 });
 
-  const BasicItem = model<IBasicItem>('BasicItem', BasicItemSchema);
-  
-  export default BasicItem;
+BasicItemSchema.post('save', async function() {
+  await addToRecents('item', this._id as Types.ObjectId);
+});
+
+const BasicItem = model<IBasicItem>('BasicItem', BasicItemSchema);
+
+export default BasicItem;

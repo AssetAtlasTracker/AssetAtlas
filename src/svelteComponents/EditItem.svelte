@@ -175,10 +175,27 @@
       }
     }
   
+    async function addToRecents(type: string, item: any) {
+      console.log('Adding to recents:', type, item); // Add debug logging
+      try {
+        await fetch(`http://${$ip}/api/recentItems/add`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type,
+            itemId: item._id,
+          }),
+        });
+      } catch (err) {
+        console.error('Error adding to recents:', err);
+      }
+    }
+  
     function selectParentItem(item: { name: string; _id: string | null }) {
       parentItemName = item.name;
       parentItemId = item._id;
       parentItemSuggestions = [];
+      if (item._id) addToRecents('items', item);
     }
   
     //Home item search handlers
@@ -209,6 +226,7 @@
       homeItemName = item.name;
       homeItemId = item._id;
       homeItemSuggestions = [];
+      if (item._id) addToRecents('items', item);
     }
   
     function handleTemplateInput(event: Event) {
@@ -254,6 +272,7 @@
       templateId = item._id;
       templateSuggestions = [];
       loadTemplateFields(templateId);
+      addToRecents('templates', item);
     }
   
     async function loadTemplateFields(templateId: string | null) {
@@ -378,6 +397,7 @@
       customFields[index].isNew = false;
       customFields[index].isExisting = true;
       customFields[index].suggestions = [];
+      addToRecents('customFields', suggestion);
     }
   
     function addCustomFieldLine() {
@@ -401,6 +421,44 @@
       // Only allow removing if not from template
       if (customFields[index].fromTemplate) return;
       customFields = customFields.filter((_, i) => i !== index);
+    }
+
+    async function loadRecentItems(type: string) {
+      try {
+        const response = await fetch(`http://${$ip}/api/recentItems/${type}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const data = await response.json();
+        return data;
+      } catch (err) {
+        console.error('Error loading recent items:', err);
+        return [];
+      }
+    }
+  
+    async function handleParentItemFocus() {
+      if (!parentItemName) {
+        parentItemSuggestions = await loadRecentItems('items');
+      }
+    }
+  
+    async function handleHomeItemFocus() {
+      if (!homeItemName) {
+        homeItemSuggestions = await loadRecentItems('items');
+      }
+    }
+  
+    async function handleTemplateFocus() {
+      if (!templateName) {
+        templateSuggestions = await loadRecentItems('templates');
+      }
+    }
+
+    async function handleCustomFieldClick(index: number) {
+      if (!customFields[index].fieldName) {
+        customFields[index].suggestions = await loadRecentItems('customFields');
+      }
     }
   
   </script>
@@ -452,6 +510,7 @@
                 class="dark-textarea py-2 px-4 w-full"
                 bind:value={parentItemName}
                 on:input={handleParentItemInput}
+                on:focus={handleParentItemFocus}
                 on:blur={() => parentItemSuggestions = []}
               />
               {#if parentItemSuggestions.length > 0}
@@ -481,6 +540,7 @@
                 class="dark-textarea py-2 px-4 w-full"
                 bind:value={homeItemName}
                 on:input={handleHomeItemInput}
+                on:focus={handleHomeItemFocus}
                 on:blur={() => homeItemSuggestions = []}
               />
               {#if homeItemSuggestions.length > 0}
@@ -512,6 +572,7 @@
                 bind:value={templateName}
                 placeholder={item.template?.name}
                 on:input={handleTemplateInput}
+                on:focus={handleTemplateFocus}
                 on:blur={() => templateSuggestions = []} 
               />
               {#if templateSuggestions.length > 0}

@@ -126,6 +126,29 @@
     }, 300);
   }
 
+  async function addToRecents(type: string, item: any) {
+    try {
+      const body = JSON.stringify({
+        type,
+        itemId: item._id,
+      });
+
+      const response = await fetch(`http://${$ip}/api/recentItems/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: body,
+      });
+
+      const responseText = await response.text();
+
+      if (!response.ok) {
+        throw new Error(`Failed to add to recents: ${responseText}`);
+      }
+    } catch (err) {
+      console.error('Error adding to recents:', err);
+    }
+  }
+
   function selectCustomFieldSuggestion(
     index: number,
     suggestion: ICustomField,
@@ -136,6 +159,9 @@
     customFields[index].isNew = false;
     customFields[index].isExisting = true;
     customFields[index].suggestions = [];
+    if (suggestion && suggestion._id) {
+      addToRecents('customFields', suggestion);
+    }
   }
 
   function addCustomFieldLine() {
@@ -186,6 +212,32 @@
       }
     }, 300);
   }
+
+  async function loadRecentCustomFields() {
+    try {
+      const response = await fetch(`http://${$ip}/api/recentItems/customFields`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await response.json();
+      return data;
+    } catch (err) {
+      console.error('Error loading recent custom fields:', err);
+      return [];
+    }
+  }
+
+  async function handleCustomFieldFocus(index: number) {
+    if (!customFields[index].fieldName) {
+      customFields[index].suggestions = await loadRecentCustomFields();
+    }
+  }
+
+  async function handleCustomFieldClick(index: number) {
+    if (!customFields[index].fieldName) {
+      customFields[index].suggestions = await loadRecentCustomFields();
+    }
+  }
 </script>
 
 <div class="template-container">
@@ -217,6 +269,7 @@
             class="dark-textarea py-2 px-4 w-full"
             bind:value={field.fieldName}
             on:input={(e) => onCustomFieldNameInput(index, e)}
+            on:focus={() => handleCustomFieldFocus(index)}
             on:blur={() => (customFields[index].suggestions = [])}
           />
           {#if field.suggestions.length > 0}
@@ -229,6 +282,7 @@
                     e.preventDefault();
                     selectCustomFieldSuggestion(index, suggestion);
                   }}
+                  on:click={() => handleCustomFieldClick(index)}
                 >
                   {suggestion.fieldName} ({suggestion.dataType})
                 </button>
