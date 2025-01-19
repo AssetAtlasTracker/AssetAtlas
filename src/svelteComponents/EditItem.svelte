@@ -128,8 +128,7 @@
             homeItem: homeItemId,
             template: templateId || null,
             customFields: formattedCustomFields,
-            image: selectedImage,
-          }),
+            }),
         });
        
         const data = await response.json();
