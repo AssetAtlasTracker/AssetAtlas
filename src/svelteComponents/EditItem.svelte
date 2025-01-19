@@ -26,10 +26,11 @@
     let homeItemId: string | null = item.homeItem?.id;
     let homeItemSuggestions: any[] = [];
     let templateName = '';
+    let templateId: string | null = null;
     if (item.template) {
       templateName = item.template?.name;
+      templateId= item.template?._id.toString();
     } 
-    let templateId: string | null = item.template?.id;
     let templateSuggestions: any[] = [];
     let debounceTimeout: NodeJS.Timeout | undefined;
 
@@ -54,12 +55,23 @@
       searchTimeout?: NodeJS.Timeout;
     }
   
-    //Start with an empty array by default so no field loads initially
+    
     let customFields: ICustomFieldEntry[] = [];
-    if (item.customFields) {
-        // customFields = item.customFields;
-        console.log(item.customFields);
+    let length = 0;
+    if (item.customFields?.length){
+      length = item.customFields?.length;
+      for (let i = 0; i < length; i ++){
+      addCustomFieldLine();
+      customFields[i].fieldName = item.customFields[i].field.fieldName;
+      customFields[i].fieldId =  (item.customFields[i].field._id as string);
+      customFields[i].dataType = item.customFields[i].field.dataType;
+      customFields[i].isNew = false;
+      customFields[i].isExisting = true;
+      customFields[i].suggestions = [];
+      customFields[i].value = (item.customFields[i].value as string);
     }
+    }
+  
   
     let showEditTemplateDialog = false;
   
@@ -67,29 +79,16 @@
       if (templateDialog) {
         templateDialog.showModal();
       }
-      resetForm();
+      
     }
   
     function resetForm() {
-      name = '';
-      description = '';
-      tags = '';
-      parentItemName = '';
-      parentItemId = null;
-      homeItemName = '';
-      homeItemId = null;
-      templateName = '';
-      templateId = null;
-      customFields = [];
-      parentItemSuggestions = [];
-      homeItemSuggestions = [];
-      templateSuggestions = [];
     }
     
 
     async function handleEditItem() {
       //If a template name is typed but not an exact match (no templateId set), block creation
-      if (templateName.trim() && !templateId) {
+       if (templateName.trim() && !templateId) {
         alert('Please select a valid template from the list or clear the field.');
         return;
       }
@@ -101,18 +100,20 @@
         if (field.fromTemplate) return true; //Always keep template fields that were loaded
         return field.fieldName.trim() !== '' && field.dataType.trim() !== '';
       });
-  
+      console.log(customFields);
       const formattedCustomFields = await Promise.all(
         customFields.map(async (field) => {
           if (!field.isNew && field.fieldId) {
             return { field: field.fieldId, value: field.value };
           } else {
             const createdField = await createCustomField(field.fieldName, field.dataType);
+            console.log(createdField);
             return { field: createdField._id, value: field.value };
           }
         })
       );
-  
+      console.log("----");
+        console.log(formattedCustomFields);
       try {
         const response = await fetch(`http://${$ip}/api/items/${item._id}`, {
           method: 'PATCH',
@@ -127,11 +128,14 @@
             customFields: formattedCustomFields,
           }),
         });
-  
+       
         const data = await response.json();
-  
+        
         if (!response.ok) throw new Error(data.message || 'Error editing item');
         console.log('Item changed:', data);
+
+        showEditTemplateDialog = false;
+        templateDialog?.close;
   
       } catch (err) {
         console.error('Error editing item:', err);
@@ -538,70 +542,87 @@
         </div>
   
         <!-- Custom Fields -->
-        <h2 class="font-bold text-lg mt-4">
-          Custom Fields
-        </h2>
-        <div class="space-y-2">
-          {#each customFields as field, index}
-            <div class="flex flex-wrap items-start mb-4 border p-2 relative">
-              <!-- If fromTemplate, do not show delete button -->
-              {#if !field.fromTemplate}
-                <button
-                  type="button"
-                  class="delete-button text-warning-500 font-bold mr-4"
-                  on:click={() => removeCustomField(index)}>
-                  X
-                </button>
-              {/if}
-              <label class="flex-1 mr-2">
-                Field Name:
+      <h2 class="font-bold text-lg mt-4">Custom Fields</h2>
+      <div class="space-y-2">
+        {#each customFields as field, index}
+          <div
+            class="flex flex-wrap items-start mb-4 border p-2 relative"
+          >
+            <!-- If fromTemplate, do not show delete button -->
+            <label class="flex-1 mr-2">
+              Field Name:
+              <span class="flex items-center">
                 <input
                   type="text"
                   class="dark-textarea py-2 px-4 w-full"
                   bind:value={field.fieldName}
                   on:input={(e) => onCustomFieldNameInput(index, e)}
-                  on:blur={() => customFields[index].suggestions = []}
+                  on:blur={() => (customFields[index].suggestions = [])}
                   disabled={field.fromTemplate}
                 />
-                {#if field.suggestions.length > 0}
-                  <ul class="suggestions bg-white border shadow mt-1 max-h-32 overflow-auto">
-                    {#each field.suggestions as suggestion}
-                      <button 
-                        type="button"
-                        class="px-2 py-1 hover:bg-primary-900 cursor-pointer" 
-                        on:mousedown={(e) => { e.preventDefault(); selectCustomFieldSuggestion(index, suggestion); }}>
-                        {suggestion.fieldName} ({suggestion.dataType})
-                      </button>
-                    {/each}
-                  </ul>
+                {#if field.fromTemplate}
+                  <InfoToolTip
+                    message='This field is required due to template "{templateName}." Value can be left empty if desired.'
+                  />
                 {/if}
-              </label>
-              <!-- TODO: Change these to not use "style="-->
-              <label class="mr-2" style="flex-basis: 50%; max-width: 200px;">
-                Data Type:
-                <select
-                  class="dark-textarea py-2 px-4 w-full"
-                  bind:value={field.dataType}
-                  disabled={field.isExisting || field.fromTemplate}>
-                  <option value="string">String</option>
-                  <option value="number">Number</option>
-                  <option value="boolean">Boolean</option>
-                </select>
-              </label>
-              <label class="flex-1">
-                Value:
-                <input
-                  type="text"
-                  class="dark-textarea py-2 px-4 w-full"
-                  bind:value={field.value}
-                />
-              </label>
-            </div>
-          {/each}
-        </div>
-        <button type="button" class="border-button hover:bg-primary-900 font-semibold shadow mt-2" on:click={addCustomFieldLine}>
-          Add Custom Field
-        </button>
+              </span>
+              {#if field.suggestions.length > 0}
+                <ul class="suggestions">
+                  {#each field.suggestions as suggestion}
+                    <button
+                      type="button"
+                      class="suggestion-item"
+                      on:mousedown={(e) => {
+                        e.preventDefault();
+                        selectCustomFieldSuggestion(index, suggestion);
+                      }}
+                    >
+                      {suggestion.fieldName} ({suggestion.dataType})
+                    </button>
+                  {/each}
+                </ul>
+              {/if}
+            </label>
+            <label class="mr-2 custom-dropdown" style="flex-basis: 150px; max-width: 150px;">
+              Data Type:
+              <select
+                class="dark-textarea py-2 px-4 w-full"
+                bind:value={field.dataType}
+                disabled={field.isExisting || field.fromTemplate}
+              >
+                <option value="string">String</option>
+                <option value="number">Number</option>
+                <option value="boolean">Boolean</option>
+              </select>
+            </label>
+            <label class="flex-1">
+              Value:
+              <input
+                type="text"
+                class="dark-textarea py-2 px-4 w-full"
+                bind:value={field.value}
+              />
+            </label>
+            {#if !field.fromTemplate}
+            <button
+              type="button"
+              class="x-button"
+              on:click={() => removeCustomField(index)}
+            >
+              X
+            </button>
+          {/if}
+          </div>
+        {/each}
+      </div>
+
+      <button
+        type="button"
+        class="border-button font-semibold shadow mt-2"
+        on:click={addCustomFieldLine}
+      >
+        Add Custom Field
+      </button>
         <!-- Submit -->
         <button class="border-button hover:bg-primary-900 font-semibold shadow mt-4 block" type="submit">
           Submit Changes
