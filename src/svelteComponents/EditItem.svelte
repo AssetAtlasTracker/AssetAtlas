@@ -32,6 +32,8 @@
       templateId= item.template?._id.toString();
     } 
     let templateSuggestions: any[] = [];
+    let selectedImage: File | null = null;
+    let imagePreview: string | null = null;
     let debounceTimeout: NodeJS.Timeout | undefined;
 
   
@@ -126,6 +128,7 @@
             homeItem: homeItemId,
             template: templateId || null,
             customFields: formattedCustomFields,
+            image: selectedImage,
           }),
         });
        
@@ -423,6 +426,14 @@
       customFields = customFields.filter((_, i) => i !== index);
     }
 
+    function handleImageChange(e: Event) {
+    const input = e.currentTarget as HTMLInputElement;
+    if (input?.files?.length) {
+      selectedImage = input.files[0];
+      imagePreview = URL.createObjectURL(selectedImage);
+    }
+  }
+
     async function loadRecentItems(type: string) {
       try {
         const response = await fetch(`http://${$ip}/api/recentItems/${type}`, {
@@ -499,6 +510,41 @@
               bind:value={description}
             />
           </label>
+
+          <div class="flex flex-col space-y-2">
+            <label class="min-w-[400px]">
+              Image:
+              <input
+                type="file"
+                accept="image/*"
+                class="dark-textarea py-2 px-4 w-full"
+                on:change={handleImageChange}
+              />
+            </label>
+            
+            {#if imagePreview}
+              <div class="relative w-48 h-48">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  class="object-cover w-full h-full"
+                />
+                <button
+                  type="button"
+                  class="absolute top-0 right-0 bg-red-500 text-white p-1"
+                  on:click={() => {
+                    if (imagePreview) {
+                      URL.revokeObjectURL(imagePreview);
+                    }
+                    selectedImage = null;
+                    imagePreview = null;
+                  }}
+                >
+                  X
+                </button>
+              </div>
+            {/if}
+          </div>
   
           <div class="flex flex-wrap space-x-4">
             <!-- Parent Item -->
