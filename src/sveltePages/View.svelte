@@ -4,18 +4,24 @@
   import TopBar from "../svelteComponents/TopBar.svelte";
   import EditItem from "../svelteComponents/EditItem.svelte";
   import Dialog from "../svelteComponents/Dialog.svelte";
+  import {navigate } from "svelte-routing";
+  
 
   import type { IBasicItemPopulated } from "../models/basicItem";
 
   import "../svelteStyles/main.css";
+    import MoveItem from "../svelteComponents/MoveItem.svelte";
 
-  export let params: { id?: string };
+  export let params: { id?: string }; 
   //console.log('View params:', params);
 
   let showDeleteDialog = false;
+  let showMoveDialog = false;
   let deleteDialog: HTMLDialogElement;
   let item: IBasicItemPopulated | null = null;
   export let dialog: HTMLDialogElement;
+  export let moveDialog: HTMLDialogElement;
+  
 
   $: if (params.id) {
     fetchItem(params.id);
@@ -58,6 +64,20 @@
     //go to the home page after successful deletion
     window.location.href = "/";
   }
+
+  async function returnToHome(){
+    showMoveDialog = false;
+    if (moveDialog) {
+      moveDialog.close();
+    }
+    navigate(`/view/${params.id}`)
+  }
+
+  function closeEdit() {
+    if (dialog) {
+      dialog.close();
+    }
+  }
 </script>
 
 <TopBar searchQuery={""}></TopBar>
@@ -72,11 +92,18 @@
       Delete
     </button>
     <br />
+    <button class="border-button" on:click={() => moveDialog.showModal()}>
+      Move
+    </button>
+    <button class="border-button" on:click={() => returnToHome}>
+      Return to Home
+    </button>
     <button class="border-button" on:click={() => dialog.showModal()}>
       Edit
     </button>
 
-    <EditItem {item} bind:dialog />
+    <EditItem {item} bind:dialog on:close={() => closeEdit()}/>
+    <MoveItem itemId={item._id} bind:dialog={moveDialog} on:close={() => returnToHome()}/>
   </div>
 {:else}
   <p>Loading item data...</p>

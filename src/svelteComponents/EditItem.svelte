@@ -4,6 +4,7 @@
     import { ip } from '../stores/ipStore';
     import CreateTemplate from './CreateTemplate.svelte'; 
     import type { IBasicItemPopulated } from '../models/basicItem';
+    import { Link, navigate } from "svelte-routing";
   
     export let dialog: { showModal: () => any };
     export let item: IBasicItemPopulated;
@@ -136,8 +137,7 @@
         if (!response.ok) throw new Error(data.message || 'Error editing item');
         console.log('Item changed:', data);
 
-        showEditTemplateDialog = false;
-        templateDialog?.close;
+        navigate(`/view/${item._id}`);
   
       } catch (err) {
         console.error('Error editing item:', err);
