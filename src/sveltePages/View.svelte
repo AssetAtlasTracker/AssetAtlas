@@ -11,13 +11,16 @@
 
   import "../svelteStyles/main.css";
     import MoveItem from "../svelteComponents/MoveItem.svelte";
+    import ReturnItem from "../svelteComponents/ReturnItem.svelte";
 
   export let params: { id?: string }; 
   //console.log('View params:', params);
 
   let showDeleteDialog = false;
   let showMoveDialog = false;
+  let showReturnDialog = false;
   let deleteDialog: HTMLDialogElement;
+  let returnDialog: HTMLDialogElement;
   let item: IBasicItemPopulated | null = null;
   export let dialog: HTMLDialogElement;
   export let moveDialog: HTMLDialogElement;
@@ -30,6 +33,12 @@
   $: if (showDeleteDialog) {
     if (deleteDialog) {
       deleteDialog.showModal();
+    }
+  }
+
+  $: if (showReturnDialog) {
+    if (returnDialog) {
+      returnDialog.showModal();
     }
   }
 
@@ -65,7 +74,7 @@
     window.location.href = "/";
   }
 
-  async function returnToHome(){
+  async function closeMove(){
     showMoveDialog = false;
     if (moveDialog) {
       moveDialog.close();
@@ -95,7 +104,7 @@
     <button class="border-button" on:click={() => moveDialog.showModal()}>
       Move
     </button>
-    <button class="border-button" on:click={() => returnToHome}>
+    <button class="border-button" on:click={() => showReturnDialog = true}>
       Return to Home
     </button>
     <button class="border-button" on:click={() => dialog.showModal()}>
@@ -103,7 +112,7 @@
     </button>
 
     <EditItem {item} bind:dialog on:close={() => closeEdit()}/>
-    <MoveItem itemId={item._id} bind:dialog={moveDialog} on:close={() => returnToHome()}/>
+    <MoveItem itemId={item._id} bind:dialog={moveDialog} on:close={() => closeMove()}/>
   </div>
 {:else}
   <p>Loading item data...</p>
@@ -127,5 +136,25 @@
       Delete
       <!--<button class="warn-button font-semibold" on:click={() => showDeleteDialog = false}></button>-->
     </DeleteItem>
+  </Dialog>
+{/if}
+
+<!-- Create Return Dialog -->
+{#if showReturnDialog}
+  <Dialog
+    bind:dialog={returnDialog}
+    on:close={() => {
+      showReturnDialog = false;
+    }}
+  >
+    <div class="simple-dialog-spacing"> 
+      Are you sure you want to return {item?.name} to it's home location?
+    </div>
+   
+    <br />
+    <!--Probably going to want an additional cancel button here-->
+    <ReturnItem itemId={params.id} parentId={item?.homeItem?._id}>
+      Return to home
+    </ReturnItem>
   </Dialog>
 {/if}

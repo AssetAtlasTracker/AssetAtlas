@@ -2,6 +2,7 @@
     import { ip } from "../stores/ipStore";
     import Dialog from '../svelteComponents/Dialog.svelte';
     import "../svelteStyles/main.css";
+    import {navigate } from "svelte-routing";
     
     export let itemId: any;
     export let dialog: { showModal: () => any };
@@ -25,11 +26,12 @@
   
         if (response.ok) {
           console.log("item moved");
+          navigate(`/view/${itemId}`);
         } else {
-          console.error("Failed to delete item:", await response.text());
+          console.error("Failed to move item:", await response.text());
         }
       } catch (error) {
-        console.error("Error deleting item:", error);
+        console.error("Error moving item:", error);
       }
     }
     //Parent item search handlers
