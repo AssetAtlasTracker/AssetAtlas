@@ -1,6 +1,5 @@
 import type { Request, Response, Express } from 'express';
 import mongoose from 'mongoose';
-import mongooseQueries from '../mongooseQueries.js';
 import BasicItem from '../models/basicItem.js';
 import type { IBasicItemPopulated } from '../models/basicItem.js';
 import Fuse from 'fuse.js';
@@ -111,29 +110,55 @@ export const deleteItemById = async (req: Request, res: Response) => {
   }
 };
 
+function sortItems(items: IBasicItemPopulated[], sortOption: string): IBasicItemPopulated[] {
+  return [...items].sort((a, b) => {
+    switch (sortOption) {
+      case 'alphabetical':
+        return a.name.localeCompare(b.name);
+      case 'firstAdded':
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      case 'lastAdded':
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      default:
+        return a.name.localeCompare(b.name);
+    }
+  });
+}
+
 export const searchItems = async (req: Request, res: Response) => {
-  const name = req.query.name as string;
+  const { name, sort = 'alphabetical', exact } = req.query;
 
   try {
     const items = await BasicItem.find({})
-    .populate('parentItem', 'name')
-    .populate('containedItems', 'name')
-    .lean<IBasicItemPopulated[]>()
-    .exec();
+      .populate('parentItem', 'name')
+      .populate('containedItems', 'name')
+      .lean<IBasicItemPopulated[]>()
+      .exec();
 
-    if (name) {
-      const fuse = new Fuse(items, {
-        keys: ['name'], //Fields to search
-        threshold: 0.3, //how fuzzy we be
-      });
-
-      const fuzzyResults = fuse.search(name);
-      const resultItems = fuzzyResults.map(result => result.item);
-
-      res.status(200).json(resultItems);
-    } else {
-      res.status(200).json(items);
+    // If no query, return all items directly
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+      const sortedItems = sortItems(items, sort as string);
+      return res.status(200).json(sortedItems);
     }
+
+    const fuse = new Fuse(items, {
+      keys: ['name'],
+      threshold: exact === 'true' ? 0 : 0.3,
+      findAllMatches: exact !== 'true',
+      location: 0,
+      distance: exact === 'true' ? 0 : 100
+    });
+
+    const fuzzyResults = fuse.search(name);
+    let resultItems = fuzzyResults.map(r => r.item);
+
+    if (resultItems.length === 0) {
+      // Fallback to all if no match
+      resultItems = items; 
+    }
+
+    const sortedItems = sortItems(resultItems, sort as string);
+    res.status(200).json(sortedItems);
   } catch (error) {
     console.error('Error during search:', error);
     res.status(500).json({ error: 'Failed to search items' });

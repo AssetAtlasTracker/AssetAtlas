@@ -329,7 +329,7 @@ input[type="file"] {
 .custom-dropdown::after {
   content: '▼';
   position: absolute;
-  top: 60%; /* Adjusted to align with the middle of the button */
+  top: 60%;
   right: 1rem;
   transform: translateY(-50%);
   pointer-events: none;
