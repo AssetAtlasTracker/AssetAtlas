@@ -3,10 +3,11 @@
   import InfoToolTip from "./InfoToolTip.svelte";
   import { ip } from "../stores/ipStore";
   import CreateTemplate from "./CreateTemplate.svelte";
+  import { actionStore } from '../stores/actionStore';
 
   import "../svelteStyles/main.css";
 
-  export let dialog: { showModal: () => any };
+  export let dialog: HTMLDialogElement;
 
   let templateDialog: HTMLDialogElement | undefined;
 
@@ -141,13 +142,19 @@
       // Then parse it as JSON
       const data = JSON.parse(rawText);
 
-      if (!response.ok) throw new Error(data.message || "Error creating item");
+      if (!response.ok) {
+        actionStore.addMessage('Error creating item');
+        throw new Error(data.message || "Error creating item");
+      }
       console.log("Item created:", data);
+      actionStore.addMessage('Item created successfully!');
+      dialog.close();
 
       //Reset the form after successful creation
       resetForm();
     } catch (err) {
       console.error("Error creating item:", err);
+      actionStore.addMessage('Error creating item');
     }
   }
 

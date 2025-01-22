@@ -4,7 +4,7 @@
   import TopBar from "../svelteComponents/TopBar.svelte";
   import EditItem from "../svelteComponents/EditItem.svelte";
   import Dialog from "../svelteComponents/Dialog.svelte";
-  import {navigate } from "svelte-routing";
+  import {navigate, Link } from "svelte-routing";
   
 
   import type { IBasicItemPopulated } from "../models/basicItem";
@@ -63,15 +63,11 @@
     }
   }
 
-  function goBack() {
-    window.history.back();
-  } //we gonna change this later fr fr
-
   function handleDelete() {
     showDeleteDialog = false;
     console.log(`Item ${params.id} deleted.`);
     //go to the home page after successful deletion
-    window.location.href = "/";
+    navigate("/");
   }
 
   async function closeMove(){

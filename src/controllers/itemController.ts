@@ -227,17 +227,16 @@ export const updateItem = async (req: Request, res: Response) => {
   }
 
   try {
-    const updatedItem = await BasicItem.findByIdAndUpdate(
-      id,
-      { $set: updates },
-      { new: true, runValidators: true } // Return updated document and validate updates
-    );
-
-    if (!updatedItem) {
+    const item = await BasicItem.findById(id);
+    if (!item) {
       return res.status(404).json({ message: 'Item not found' });
     }
 
-    res.status(200).json(updatedItem);
+    //Apply updates and save (pre-save hook will handle history)
+    Object.assign(item, updates);
+    const savedItem = await item.save();
+    
+    res.status(200).json(savedItem);
   } catch (err) {
     console.error('Error updating item:', err);
     res.status(500).json({ message: 'Error updating item', error: err });

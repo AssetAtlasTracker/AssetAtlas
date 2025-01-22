@@ -2,6 +2,11 @@
 Large component styles
 e.g. containers, theming, etc.
 */
+:root {
+  --custom-blue: 62 127 201;
+  --on-custom-blue: 255 255 255;
+}
+
 .glass{
   background: rgba(var(--color-primary-800) / 0.8) !important;
   box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4 );
@@ -334,4 +339,9 @@ input[type="file"] {
   transform: translateY(-50%);
   pointer-events: none;
   color: rgba(var(--theme-font-color-base)/.8);
+}
+
+.action-message {
+  background-color: rgba(var(--custom-blue) / 0.9);
+  color: rgb(var(--on-custom-blue));
 }

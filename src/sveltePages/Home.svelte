@@ -21,6 +21,7 @@
   }
 
   async function handleSearch(query: string) {
+    console.log('Home: Starting search operation');
     searchQuery = query;
     try {
       const response = await fetch(
@@ -37,13 +38,15 @@
       if (!response.ok) throw new Error("Failed to fetch items");
 
       const data = await response.json();
+      console.log('Home: Search completed, updating results');
       searchResults = data as IBasicItemPopulated[];
     } catch (err) {
-      console.error("Error searching items:", err);
+      console.error("Home: Error searching items:", err);
     }
   }
 
   onMount(() => {
+    console.log('Home: Component mounted');
     handleSearch("");
   });
 </script>
