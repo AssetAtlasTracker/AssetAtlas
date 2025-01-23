@@ -3,10 +3,11 @@
   import InfoToolTip from "./InfoToolTip.svelte";
   import { ip } from "../stores/ipStore";
   import CreateTemplate from "./CreateTemplate.svelte";
+  import { actionStore } from '../stores/actionStore';
 
   import "../svelteStyles/main.css";
 
-  export let dialog: { showModal: () => any };
+  export let dialog: HTMLDialogElement;
 
   let templateDialog: HTMLDialogElement | undefined;
 
@@ -22,7 +23,9 @@
   let templateName = "";
   let templateId: string | null = null;
   let templateSuggestions: any[] = [];
-  let debounceTimeout: NodeJS.Timeout | undefined;
+  let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
+  let selectedImage: File | null = null;
+  let imagePreview: string | null = null;
 
   interface ICustomField {
     _id: string;
@@ -41,7 +44,7 @@
     isSearching: boolean;
     isExisting: boolean;
     fromTemplate: boolean;
-    searchTimeout?: NodeJS.Timeout;
+    searchTimeout?: ReturnType<typeof setTimeout>;
   }
 
   //Start with an empty array by default so no field loads initially
@@ -53,7 +56,6 @@
     if (templateDialog) {
       templateDialog.showModal();
     }
-    resetForm();
   }
 
   function resetForm() {
@@ -70,61 +72,89 @@
     parentItemSuggestions = [];
     homeItemSuggestions = [];
     templateSuggestions = [];
+    selectedImage = null;
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+      imagePreview = null;
   }
 
   async function handleCreateItem() {
-    //If a template name is typed but not an exact match (no templateId set), block creation
-    if (templateName.trim() && !templateId) {
-      alert("Please select a valid template from the list or clear the field.");
-      return;
-    }
-
-    const tagsArray = tags.split(",").map((tag) => tag.trim());
-
-    //Filter out empty fields not from the template
-    customFields = customFields.filter((field) => {
-      if (field.fromTemplate) return true; //Always keep template fields that were loaded
-      return field.fieldName.trim() !== "" && field.dataType.trim() !== "";
-    });
-
-    const formattedCustomFields = await Promise.all(
-      customFields.map(async (field) => {
-        if (!field.isNew && field.fieldId) {
-          return { field: field.fieldId, value: field.value };
-        } else {
-          const createdField = await createCustomField(
-            field.fieldName,
-            field.dataType,
-          );
-          return { field: createdField._id, value: field.value };
-        }
-      }),
-    );
-
     try {
-      const response = await fetch(`http://${$ip}/api/items`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          description,
-          tags: tagsArray,
-          parentItem: parentItemId,
-          homeItem: homeItemId,
-          template: templateId || null,
-          customFields: formattedCustomFields,
-        }),
+      //If a template name is typed but not an exact match (no templateId set), block creation
+      if (templateName.trim() && !templateId) {
+        alert("Please select a valid template from the list or clear the field.");
+        return;
+      }
+
+      const tagsArray = tags.split(",").map((tag) => tag.trim());
+
+      //Filter out empty fields not from the template
+      customFields = customFields.filter((field) => {
+        if (field.fromTemplate) return true; //Always keep template fields that were loaded
+        return field.fieldName.trim() !== "" && field.dataType.trim() !== "";
       });
 
-      const data = await response.json();
+      const formattedCustomFields = await Promise.all(
+        customFields.map(async (field) => {
+          if (!field.isNew && field.fieldId) {
+            return { field: field.fieldId, value: field.value };
+          } else {
+            const createdField = await createCustomField(
+              field.fieldName,
+              field.dataType,
+            );
+            return { field: createdField._id, value: field.value };
+          }
+        }),
+      );
 
-      if (!response.ok) throw new Error(data.message || "Error creating item");
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('description', description);
+      formData.append('tags', JSON.stringify(tagsArray));
+      if (parentItemId) formData.append('parentItem', parentItemId);
+      if (homeItemId) formData.append('homeItem', homeItemId);
+      if (templateId) formData.append('template', templateId);
+      formData.append('customFields', JSON.stringify(formattedCustomFields));
+      if (selectedImage) formData.append('image', selectedImage);
+
+      console.log('Sending request with formData:');
+      for (const pair of (formData as any).entries()) {
+        console.log(pair[0], pair[1]);
+      }
+      
+      const response = await fetch(`http://${$ip}/api/items`, {
+        method: "POST",
+        body: formData
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response headers:');
+      response.headers.forEach((value, key) => {
+        console.log(key, value);
+      });
+      
+      // Try to get the raw text first
+      const rawText = await response.text();
+      console.log('Raw response:', rawText);
+      
+      // Then parse it as JSON
+      const data = JSON.parse(rawText);
+
+      if (!response.ok) {
+        actionStore.addMessage('Error creating item');
+        throw new Error(data.message || "Error creating item");
+      }
       console.log("Item created:", data);
+      actionStore.addMessage('Item created successfully!');
+      dialog.close();
 
       //Reset the form after successful creation
       resetForm();
     } catch (err) {
       console.error("Error creating item:", err);
+      actionStore.addMessage('Error creating item');
     }
   }
 
@@ -167,92 +197,60 @@
     }
   }
 
+  async function addToRecents(type: string, item: any) {
+    console.log('DEBUG - addToRecents called with:', { type, item });
+    try {
+      const body = JSON.stringify({
+        type,
+        itemId: item._id,
+      });
+      console.log('DEBUG - Request body:', body);
+
+      const response = await fetch(`http://${$ip}/api/recentItems/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: body,
+      });
+
+      const responseText = await response.text();
+    
+
+      if (!response.ok) {
+        throw new Error(`Failed to add to recents: ${responseText}`);
+      }
+    } catch (err) {
+      console.error('Error adding to recents:', err);
+    }
+  }
+
   function selectParentItem(item: { name: string; _id: string | null }) {
     parentItemName = item.name;
     parentItemId = item._id;
     parentItemSuggestions = [];
-  }
-
-  //Home item search handlers
-  function handleHomeItemInput(event: Event) {
-    const target = event.target as HTMLInputElement;
-    homeItemName = target.value;
-    homeItemId = null;
-    if (debounceTimeout) clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(() => {
-      searchHomeItems(homeItemName);
-    }, 300);
-  }
-
-  async function searchHomeItems(query: string) {
-    try {
-      const response = await fetch(
-        `http://${$ip}/api/items/search?name=${encodeURIComponent(query)}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-      const data = await response.json();
-      homeItemSuggestions = data;
-    } catch (err) {
-      console.error("Error searching home items:", err);
+    if (item && item._id) {
+      addToRecents('items', item);
     }
   }
 
   function selectHomeItem(item: { name: string; _id: string | null }) {
+    
     homeItemName = item.name;
     homeItemId = item._id;
     homeItemSuggestions = [];
-  }
-
-  function handleTemplateInput(event: Event) {
-    const target = event.target as HTMLInputElement;
-    templateName = target.value.trim();
-    //Clear templateId since user is typing something else now
-    templateId = null;
-    if (debounceTimeout) clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(() => {
-      searchTemplates(templateName);
-    }, 300);
-  }
-
-  async function searchTemplates(query: string) {
-    try {
-      const response = await fetch(
-        `http://${$ip}/api/templates/searchTemplates?name=${encodeURIComponent(query)}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-      const data = await response.json();
-      templateSuggestions = data;
-
-      //Check for an exact match
-      const exactMatch = data.find(
-        (template: { name: string }) => template.name === templateName,
-      );
-
-      if (exactMatch) {
-        if (templateId !== exactMatch._id) {
-          templateId = exactMatch._id;
-          await loadTemplateFields(templateId);
-        }
-      } else {
-        templateId = null;
-        removeTemplateFields();
-      }
-    } catch (err) {
-      console.error("Error searching templates:", err);
+    if (item && item._id) {
+      addToRecents('items', item);
     }
   }
 
   function selectTemplate(item: { name: string; _id: string }) {
+    
     templateName = item.name;
     templateId = item._id;
     templateSuggestions = [];
     loadTemplateFields(templateId);
+    if (item && item._id) {
+      addToRecents('templates', item);
+    }
   }
 
   async function loadTemplateFields(templateId: string | null) {
@@ -387,12 +385,16 @@
     index: number,
     suggestion: ICustomField,
   ) {
+  
     customFields[index].fieldName = suggestion.fieldName;
     customFields[index].fieldId = suggestion._id;
     customFields[index].dataType = suggestion.dataType;
     customFields[index].isNew = false;
     customFields[index].isExisting = true;
     customFields[index].suggestions = [];
+    if (suggestion && suggestion._id) {
+      addToRecents('customFields', suggestion);
+    }
   }
 
   function addCustomFieldLine() {
@@ -417,11 +419,132 @@
     if (customFields[index].fromTemplate) return;
     customFields = customFields.filter((_, i) => i !== index);
   }
+
+  function handleImageChange(e: Event) {
+    const input = e.currentTarget as HTMLInputElement;
+    if (input?.files?.length) {
+      selectedImage = input.files[0];
+      imagePreview = URL.createObjectURL(selectedImage);
+    }
+  }
+
+  async function loadRecentItems(type: string) {
+    
+    try {
+      const response = await fetch(`http://${$ip}/api/recentItems/${type}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await response.json();
+      return data;
+    } catch (err) {
+      console.error('Error loading recent items:', err);
+      return [];
+    }
+  }
+
+  async function handleParentItemFocus() {
+    if (!parentItemName) {
+      parentItemSuggestions = await loadRecentItems('items');
+    }
+  }
+
+  async function handleHomeItemFocus() {
+    if (!homeItemName) {
+      homeItemSuggestions = await loadRecentItems('items');
+    }
+  }
+
+  async function handleTemplateFocus() {
+    if (!templateName) {
+      templateSuggestions = await loadRecentItems('templates');
+    }
+  }
+
+  async function handleCustomFieldFocus(index: number) {
+    if (!customFields[index].fieldName) {
+      customFields[index].suggestions = await loadRecentItems('customFields');
+    }
+  }
+
+  async function handleCustomFieldClick(index: number) {
+    if (!customFields[index].fieldName) {
+      customFields[index].suggestions = await loadRecentItems('customFields');
+    }
+  }
+
+  //Home item search handlers
+  function handleHomeItemInput(event: Event) {
+    const target = event.target as HTMLInputElement;
+    homeItemName = target.value;
+    homeItemId = null;
+    if (debounceTimeout) clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+      searchHomeItems(homeItemName);
+    }, 300);
+  }
+
+  function handleTemplateInput(event: Event) {
+    const target = event.target as HTMLInputElement;
+    templateName = target.value;
+    templateId = null;
+    if (debounceTimeout) clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+      searchTemplates(templateName);
+    }, 300);
+  }
+
+  async function searchHomeItems(query: string) {
+    try {
+      const response = await fetch(
+        `http://${$ip}/api/items/search?name=${encodeURIComponent(query)}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      const data = await response.json();
+      homeItemSuggestions = data;
+    } catch (err) {
+      console.error("Error searching home items:", err);
+    }
+  }
+
+  async function searchTemplates(query: string) {
+    try {
+      const response = await fetch(
+        `http://${$ip}/api/templates/searchTemplates?name=${encodeURIComponent(query)}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      const data = await response.json();
+      templateSuggestions = data;
+
+      //Check for an exact match
+      const exactMatch = data.find(
+        (template: { name: string }) => template.name === templateName,
+      );
+
+      if (exactMatch) {
+        if (templateId !== exactMatch._id) {
+          templateId = exactMatch._id;
+          await loadTemplateFields(templateId);
+        }
+      } else {
+        templateId = null;
+        removeTemplateFields();
+      }
+    } catch (err) {
+      console.error("Error searching templates:", err);
+    }
+  }
 </script>
 
 <Dialog bind:dialog on:close={resetForm}>
   <h1 id="underline-header" class="font-bold text-center">Create New Item</h1>
-  <div class="rounded page-component">
+  <div class="page-component">
     <form on:submit|preventDefault={handleCreateItem}>
       <div class="flex flex-col space-y-4">
         <div class="flex flex-wrap space-x-4">
@@ -441,6 +564,8 @@
           <label class="flex-1 min-w-[200px]">
             Tags:
             <textarea
+              rows="1"
+              id="resize-none-textarea"
               class="dark-textarea py-2 px-4 w-full"
               bind:value={tags}
             />
@@ -451,12 +576,48 @@
         <label class="min-w-[400px]">
           Description:
           <textarea
-            rows="5"
+            rows="4"
+            id="resize-none-textarea"
             class="dark-textarea py-2 px-4 w-full"
             placeholder="My medium-sized, red toolbox"
             bind:value={description}
           />
         </label>
+
+        <div class="flex flex-col space-y-2">
+          <label class="min-w-[400px]">
+            Image:
+            <input
+              type="file"
+              accept="image/*"
+              class="dark-textarea py-2 px-4 w-full"
+              on:change={handleImageChange}
+            />
+          </label>
+          
+          {#if imagePreview}
+            <div class="relative w-48 h-48">
+              <img
+                src={imagePreview}
+                alt="Preview"
+                class="object-cover w-full h-full"
+              />
+              <button
+                type="button"
+                class="absolute top-0 right-0 bg-red-500 text-white p-1"
+                on:click={() => {
+                  if (imagePreview) {
+                    URL.revokeObjectURL(imagePreview);
+                  }
+                  selectedImage = null;
+                  imagePreview = null;
+                }}
+              >
+                X
+              </button>
+            </div>
+          {/if}
+        </div>
 
         <div class="flex flex-wrap space-x-4">
           <!-- Parent Item -->
@@ -470,12 +631,13 @@
               class="dark-textarea py-2 px-4 w-full"
               bind:value={parentItemName}
               on:input={handleParentItemInput}
+              on:focus={handleParentItemFocus}
               on:blur={() => (parentItemSuggestions = [])}
             />
             {#if parentItemSuggestions.length > 0}
               <ul class="suggestions">
-                {#each parentItemSuggestions.slice(0, 5) as item}
-                  <button 
+                {#each parentItemSuggestions as item}
+                  <button
                     class="suggestion-item"
                     type="button"
                     on:mousedown={(e) => {
@@ -501,12 +663,14 @@
               class="dark-textarea py-2 px-4 w-full"
               bind:value={homeItemName}
               on:input={handleHomeItemInput}
+              on:focus={handleHomeItemFocus}
               on:blur={() => (homeItemSuggestions = [])}
             />
             {#if homeItemSuggestions.length > 0}
               <ul class="suggestions">
-                {#each homeItemSuggestions.slice(0, 5) as item}
+                {#each homeItemSuggestions as item}
                   <button
+                    class="suggestion-item"
                     type="button"
                     on:mousedown={(e) => {
                       e.preventDefault();
@@ -533,11 +697,12 @@
               class="dark-textarea py-2 px-4 w-full"
               bind:value={templateName}
               on:input={handleTemplateInput}
+              on:focus={handleTemplateFocus}
               on:blur={() => (templateSuggestions = [])}
             />
             {#if templateSuggestions.length > 0}
               <ul class="suggestions">
-                {#each templateSuggestions.slice(0, 5) as t}
+                {#each templateSuggestions as t}
                   <button
                     class="suggestion-item"
                     type="button"
@@ -552,14 +717,16 @@
               </ul>
             {/if}
           </label>
-
-          <button
-            type="button"
-            class="border-button hover:bg-primary-900 font-semibold shadow"
-            on:click={() => (showCreateTemplateDialog = true)}
-          >
-            Create New Template
-          </button>
+          <div>
+            <br />
+            <button
+              type="button"
+              class="border-button font-semibold shadow"
+              on:click={() => (showCreateTemplateDialog = true)}
+            >
+              Create New Template
+            </button>
+          </div>
         </div>
       </div>
 
@@ -568,18 +735,9 @@
       <div class="space-y-2">
         {#each customFields as field, index}
           <div
-            class="flex flex-wrap items-start mb-4 border p-2 rounded relative"
+            class="flex flex-wrap items-start mb-4 border p-2 relative"
           >
             <!-- If fromTemplate, do not show delete button -->
-            {#if !field.fromTemplate}
-              <button
-                type="button"
-                class="x-button text-warning-500 font-bold mr-4"
-                on:click={() => removeCustomField(index)}
-              >
-                X
-              </button>
-            {/if}
             <label class="flex-1 mr-2">
               Field Name:
               <span class="flex items-center">
@@ -588,20 +746,19 @@
                   class="dark-textarea py-2 px-4 w-full"
                   bind:value={field.fieldName}
                   on:input={(e) => onCustomFieldNameInput(index, e)}
+                  on:focus={() => handleCustomFieldFocus(index)}
                   on:blur={() => (customFields[index].suggestions = [])}
                   disabled={field.fromTemplate}
                 />
                 {#if field.fromTemplate}
                   <InfoToolTip
-                    message="This field is required due to template. Value can be left empty if desired."
+                    message='This field is required due to template "{templateName}." Value can be left empty if desired.'
                   />
                 {/if}
               </span>
               {#if field.suggestions.length > 0}
-                <ul
-                  class="suggestions bg-white border rounded shadow mt-1 max-h-32 overflow-auto"
-                >
-                  {#each field.suggestions.slice(0, 5) as suggestion}
+                <ul class="suggestions">
+                  {#each field.suggestions as suggestion}
                     <button
                       type="button"
                       class="suggestion-item"
@@ -609,6 +766,7 @@
                         e.preventDefault();
                         selectCustomFieldSuggestion(index, suggestion);
                       }}
+                      on:click={() => handleCustomFieldClick(index)}
                     >
                       {suggestion.fieldName} ({suggestion.dataType})
                     </button>
@@ -616,7 +774,7 @@
                 </ul>
               {/if}
             </label>
-            <label class="mr-2" style="flex-basis: 50%; max-width: 200px;">
+            <label class="mr-2 custom-dropdown" style="flex-basis: 150px; max-width: 150px;">
               Data Type:
               <select
                 class="dark-textarea py-2 px-4 w-full"
@@ -636,20 +794,29 @@
                 bind:value={field.value}
               />
             </label>
+            {#if !field.fromTemplate}
+            <button
+              type="button"
+              class="x-button"
+              on:click={() => removeCustomField(index)}
+            >
+              X
+            </button>
+          {/if}
           </div>
         {/each}
       </div>
 
       <button
         type="button"
-        class="border-button hover:bg-primary-900 font-semibold shadow mt-2"
+        class="border-button font-semibold shadow mt-2"
         on:click={addCustomFieldLine}
       >
         Add Custom Field
       </button>
       <!-- Submit -->
       <button
-        class="border-button hover:bg-primary-900 font-semibold shadow mt-4 block"
+        class="border-button font-semibold shadow mt-4 block"
         type="submit"
       >
         Create Item
@@ -664,13 +831,11 @@
     bind:dialog={templateDialog}
     on:close={() => {
       showCreateTemplateDialog = false;
-      resetForm();
     }}
   >
     <CreateTemplate
       on:close={() => {
         showCreateTemplateDialog = false;
-        resetForm();
       }}
     />
   </Dialog>

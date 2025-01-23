@@ -3,7 +3,7 @@
   export let onSearch: (query: string) => void;
   export let results: { name: string }[] = [];
 
-  let debounceTimeout: string | number | NodeJS.Timeout | undefined;
+  let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
 
   //Debounce the search input to prevent excessive API calls
   $: if (searchQuery !== undefined) {
@@ -39,7 +39,7 @@
   <!-- Display live search suggestions -->
   {#if results.length > 0}
     <ul class="suggestions">
-      {#each results.slice(0, 5) as result}
+      {#each results as result}
         <button
           class="suggestion-item"
           type="button"
@@ -51,18 +51,3 @@
     </ul>
   {/if}
 </div>
-
-<!-- <style>
-  .searchbar {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  li {
-    border-bottom: 1px solid #eee;
-  }
-</style> -->

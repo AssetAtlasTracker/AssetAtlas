@@ -2,7 +2,7 @@
   import { AppBar } from "@skeletonlabs/skeleton";
   import SearchBar from "../svelteComponents/SearchBar.svelte";
   import { Link, navigate } from "svelte-routing";
-  import {Menu} from "lucide-svelte";
+  import { Menu } from "lucide-svelte";
 
   export let searchQuery: string = "";
   export let onSearch: (query: string) => void = navHome;
@@ -11,12 +11,16 @@
     // navigate("/");
   }
 
-    function handleClickMenu() {
-      menu.click();
-    }
+  function navigateToViewTemplates() {
+    navigate("/viewTemplates");
+  }
+
+  function handleClickMenu() {
+    menu.click();
+  }
 </script>
 
-<AppBar class="appbar-border glass">
+<AppBar class="border glass">
   <div class="px-4">
     <div class="nav-margin float-left">
       <button on:click={handleClickMenu}>
@@ -30,6 +34,11 @@
       <div class="nav-margin flex-auto pb-4">
         <SearchBar {searchQuery} {onSearch} />
       </div>
+    </div>
+    <div class="float-right">
+      <button class="nav-margin text-xl font-bold" on:click={navigateToViewTemplates}>
+        View Templates (temp location)
+      </button>
     </div>
   </div>
 </AppBar>

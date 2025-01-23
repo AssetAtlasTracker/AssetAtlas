@@ -2,21 +2,44 @@
   import ItemDetails from "../svelteComponents/ItemDetails.svelte";
   import DeleteItem from "../svelteComponents/DeleteItem.svelte";
   import TopBar from "../svelteComponents/TopBar.svelte";
+  import EditItem from "../svelteComponents/EditItem.svelte";
+  import Dialog from "../svelteComponents/Dialog.svelte";
+  import {navigate, Link } from "svelte-routing";
+  
 
   import type { IBasicItemPopulated } from "../models/basicItem";
 
   import "../svelteStyles/main.css";
+    import MoveItem from "../svelteComponents/MoveItem.svelte";
+    import ReturnItem from "../svelteComponents/ReturnItem.svelte";
 
-  export let params: { id?: string };
+  export let params: { id?: string }; 
   //console.log('View params:', params);
 
+  let showDeleteDialog = false;
+  let showMoveDialog = false;
+  let showReturnDialog = false;
+  let deleteDialog: HTMLDialogElement;
+  let returnDialog: HTMLDialogElement;
   let item: IBasicItemPopulated | null = null;
-
-  import Menu from '../svelteComponents/Menu.svelte';
-  export let menu : HTMLDialogElement;
+  export let dialog: HTMLDialogElement;
+  export let moveDialog: HTMLDialogElement;
+  
 
   $: if (params.id) {
     fetchItem(params.id);
+  }
+
+  $: if (showDeleteDialog) {
+    if (deleteDialog) {
+      deleteDialog.showModal();
+    }
+  }
+
+  $: if (showReturnDialog) {
+    if (returnDialog) {
+      returnDialog.showModal();
+    }
   }
 
   async function fetchItem(id: string) {
@@ -40,29 +63,94 @@
     }
   }
 
-  function goBack() {
-    window.history.back();
-  } //we gonna change this later fr fr
-
   function handleDelete() {
+    showDeleteDialog = false;
     console.log(`Item ${params.id} deleted.`);
     //go to the home page after successful deletion
-    window.location.href = "/";
+    navigate("/");
+  }
+
+  async function closeMove(){
+    showMoveDialog = false;
+    if (moveDialog) {
+      moveDialog.close();
+    }
+    navigate(`/view/${params.id}`)
+  }
+
+  function closeEdit() {
+    if (dialog) {
+      dialog.close();
+    }
   }
 </script>
 
-<TopBar searchQuery={""} menu={menu}></TopBar>
-
-<Menu bind:menu />
+<TopBar searchQuery={""}></TopBar>
 
 {#if item}
-  <div class="page-component glass">
+  <div class="item-view glass page-component">
     <ItemDetails {item} />
+
+    <!-- Flex these buttons (?) -->
     <br />
-    <DeleteItem itemId={params.id} onDelete={handleDelete}>
-      <button class="font-semibold"> Delete Item </button>
-    </DeleteItem>
+    <button class="warn-button" on:click={() => showDeleteDialog = true}>
+      Delete
+    </button>
+    <br />
+    <button class="border-button" on:click={() => moveDialog.showModal()}>
+      Move
+    </button>
+    <button class="border-button" on:click={() => showReturnDialog = true}>
+      Return to Home
+    </button>
+    <button class="border-button" on:click={() => dialog.showModal()}>
+      Edit
+    </button>
+
+    <EditItem {item} bind:dialog on:close={() => closeEdit()}/>
+    <MoveItem itemId={item._id} bind:dialog={moveDialog} on:close={() => closeMove()}/>
   </div>
 {:else}
   <p>Loading item data...</p>
+{/if}
+
+<!-- Create Delete Dialog -->
+{#if showDeleteDialog}
+  <Dialog
+    bind:dialog={deleteDialog}
+    on:close={() => {
+      showDeleteDialog = false;
+    }}
+  >
+    <div class="simple-dialog-spacing"> 
+      Are you sure you want to delete {item?.name}?
+    </div>
+   
+    <br />
+    <!--Probably going to want an additional cancel button here-->
+    <DeleteItem itemId={params.id} onDelete={handleDelete}>
+      Delete
+      <!--<button class="warn-button font-semibold" on:click={() => showDeleteDialog = false}></button>-->
+    </DeleteItem>
+  </Dialog>
+{/if}
+
+<!-- Create Return Dialog -->
+{#if showReturnDialog}
+  <Dialog
+    bind:dialog={returnDialog}
+    on:close={() => {
+      showReturnDialog = false;
+    }}
+  >
+    <div class="simple-dialog-spacing"> 
+      Are you sure you want to return {item?.name} to it's home location?
+    </div>
+   
+    <br />
+    <!--Probably going to want an additional cancel button here-->
+    <ReturnItem itemId={params.id} parentId={item?.homeItem?._id}>
+      Return to home
+    </ReturnItem>
+  </Dialog>
 {/if}

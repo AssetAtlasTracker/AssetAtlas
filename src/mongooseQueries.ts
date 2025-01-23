@@ -1,6 +1,6 @@
 import BasicItem from './models/basicItem.js';
 import type { IBasicItem, IBasicItemPopulated } from './models/basicItem.js';
-// import CustomField from './models/customField.js';
+import CustomField from './models/customField.js';
 
 //import mongoose from 'mongoose';
 

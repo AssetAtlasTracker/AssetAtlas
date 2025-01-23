@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types, type CallbackError } from 'mongoose';
-import type { ICustomField } from './customField';
-import type { ITemplate } from './template';
+import type { ICustomField } from './customField.js';
+import type { ITemplate } from './template.js';
+import { addToRecents, removeFromRecents } from './recentItems.js';
 //import Template from './template';
 
 export interface IBasicItem extends Document { //we can add more stuff here
@@ -12,6 +13,7 @@ export interface IBasicItem extends Document { //we can add more stuff here
   parentItem?: Types.ObjectId | null;
   homeItem?: Types.ObjectId | null;
   template?: Types.ObjectId | null;
+  image?: Types.ObjectId;
   customFields?: {
     field: Types.ObjectId;
     value: unknown;
@@ -41,6 +43,16 @@ export interface IBasicItemPopulated {
   }>;
   createdAt: Date;
   updatedAt: Date;
+  image?: {
+    _id: Types.ObjectId;
+    filename: string;
+    contentType: string;
+    length: number;
+    chunkSize: number;
+    uploadDate: Date;
+    aliases: string[];
+    metadata: Record<string, unknown>;
+  };
 }
 
   const BasicItemSchema: Schema = new Schema({
@@ -66,6 +78,7 @@ export interface IBasicItemPopulated {
         timestamp: {type: Date, required: true},
       },
     ],
+    image: { type: Schema.Types.ObjectId, ref: 'uploads.files', required: false },
   }, 
     {   
       timestamps: true, //this should mean we dont need to state createdAt and updatedAt feilds
@@ -123,6 +136,7 @@ BasicItemSchema.pre('findOneAndDelete', async function (next) {
   const BasicItem = model<IBasicItem>('BasicItem');
 
   try {
+    await removeFromRecents('item', itemId);
     const itemToDelete = await BasicItem.findById(itemId).exec();
     if (!itemToDelete) return next();
 
@@ -168,6 +182,10 @@ BasicItemSchema.pre('findOneAndDelete', async function (next) {
   }
 });
 
-  const BasicItem = model<IBasicItem>('BasicItem', BasicItemSchema);
-  
-  export default BasicItem;
+BasicItemSchema.post('save', async function() {
+  await addToRecents('item', this._id as Types.ObjectId);
+});
+
+const BasicItem = model<IBasicItem>('BasicItem', BasicItemSchema);
+
+export default BasicItem;
