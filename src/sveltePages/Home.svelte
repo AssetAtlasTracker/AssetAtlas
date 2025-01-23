@@ -54,7 +54,7 @@
   });
 </script>
 
-<TopBar {searchQuery} onSearch={handleSearch}></TopBar>
+<TopBar {searchQuery} onSearch={handleSearch} menu={menu}></TopBar>
 
 <div class="search-controls">
   <div class="sort-container custom-dropdown">
@@ -94,6 +94,7 @@
   <CreateItem bind:dialog />
 
 </div>
+
 
 <style>
   .search-controls {
