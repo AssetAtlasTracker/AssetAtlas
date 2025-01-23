@@ -5,18 +5,29 @@ import type { ITemplatePopulated } from "../../models/template";
 export class CSVFormatterPopulated {
     itemMap : Map<Types.ObjectId, IBasicItemPopulated>;
     templateMap : Map<Types.ObjectId, ITemplatePopulated>;
+    itemTree : IBasicItemPopulated[];
+    templates : ITemplatePopulated[];
 
-    constructor (itemMap: Map<Types.ObjectId, IBasicItemPopulated>, templateMap : Map<Types.ObjectId, ITemplatePopulated>) {
-        this.itemMap = itemMap;
-        this.templateMap = templateMap;
+    constructor(items: IBasicItemPopulated[], templates: ITemplatePopulated[], itemTree: IBasicItemPopulated[]) {
+        this.itemMap = new Map<Types.ObjectId, IBasicItemPopulated>();
+        items.forEach(item => this.itemMap.set(item._id, item));
+        this.templateMap = new Map<Types.ObjectId, ITemplatePopulated>();
+        templates.forEach(template => this.templateMap.set(template.id, template));
+        this.itemTree = itemTree;
+        this.templates = templates;
     }
 
-    formatTemplates(templates: ITemplatePopulated[]): String {
+    // constructor (itemMap: Map<Types.ObjectId, IBasicItemPopulated>){//, templateMap : Map<Types.ObjectId, ITemplatePopulated>) {
+    //     this.itemMap = itemMap;
+    //     //this.templateMap = templateMap;
+    // }
+
+    formatTemplates(): String {
         let csv = "template name\n";
-        for (var i = 0; i < templates.length; i++) {
-            csv += this.formatTemplate(templates[i]);
-            if (i == templates.length - 1) {
-                csv = csv.substring(0, templates.length);
+        for (var i = 0; i < this.templates.length; i++) {
+            csv += this.formatTemplate(this.templates[i]);
+            if (i == this.templates.length - 1) {
+                csv = csv.substring(0, this.templates.length);
             }
         }
         return csv;
@@ -41,9 +52,9 @@ export class CSVFormatterPopulated {
         return firstline + secondline;
     }
     
-    formatItems(itemTree: IBasicItemPopulated[], itemMap: Map<Types.ObjectId, IBasicItemPopulated>): String {
+    formatItems(): String {
         let columns = ["item name", "template", "description"];
-        columns = this.formatItemsHelper(itemTree, itemMap, columns);
+        columns = this.formatItemsHelper(this.itemTree, this.itemMap, columns);
         let csv = columns.pop();
         let line = columns.join(",");
         const indexC = line.lastIndexOf(",");

@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { AppBar } from '@skeletonlabs/skeleton';
+   import { AppBar } from '@skeletonlabs/skeleton';
     import '../svelteStyles/main.css';
     import { ip } from '../stores/ipStore';
-    import type { ITemplatePopulated } from '../models/template';
     import type { IBasicItemPopulated } from '../models/basicItem';
-    import { Types } from 'mongoose';
     import { CSVFormatterPopulated } from '../utility/formating/CSVFormatterPopulated.js';
+    import type { ITemplatePopulated } from '../models/template';
+    //import { Types } from 'mongoose';
 
     let files : FileList;
 
@@ -15,7 +15,7 @@
 
     async function handleSelected() {
       console.log(files);
-      if (!!files) {
+      if (files) {
         console.log(files.length);
       } else {
         console.error("handle called when nothing selected.");
@@ -31,19 +31,20 @@
           reader.addEventListener("load", async () => {
             console.log(reader.result);
             data.push(reader.result as string);
-            if (data.length == files.length) {
+            if (data.length === files.length) {
               try {
                 const response = await fetch(`http://${$ip}/api/csv/import`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({data: data}),
                 });
+                console.log(response);
               } catch (err) {
                 console.error('Error importing:', err);
               }
             }
           });
-          reader.readAsText(item)
+          reader.readAsText(item);
         }
       } else {
         // show pop up error
@@ -66,11 +67,11 @@
         headers: { 'Content-Type': 'application/json' },
       });
       if (!responseT.ok) throw new Error('Failed to fetch templates');
-      let templates = []
+      let templates : ITemplatePopulated[] = [];
       const dataT = await responseT.json();
       templates = dataT as ITemplatePopulated[];
-      let templateMap = new Map<Types.ObjectId, ITemplatePopulated>();
-      templates.forEach(template => templateMap.set(template.id, template));
+      //let templateMap = new Map<Types.ObjectId, ITemplatePopulated>(); // The bad line!!!
+      // templates.forEach(template => templateMap.set(template.id, template));
 
       const responseI = await fetch(`http://${$ip}/api/items/search?name=${encodeURIComponent("")}`, {
         method: 'GET',
@@ -80,13 +81,11 @@
       let items = [];
       const dataI = await responseI.json();
       items = dataI as IBasicItemPopulated[];
-      let itemMap = new Map<Types.ObjectId, IBasicItemPopulated>();
-      items.forEach(item => itemMap.set(item._id, item));
       const itemRoot = items.filter(item => item.parentItem === null);
 
-      const formatter = new CSVFormatterPopulated(itemMap, templateMap);
-      const templateContent = formatter.formatTemplates(templates);
-      const itemContent = formatter.formatItems(itemRoot, itemMap);
+      const formatter = new CSVFormatterPopulated(items, templates, itemRoot);//>templateMap);
+      const templateContent = formatter.formatTemplates();
+      const itemContent = formatter.formatItems();
 
       try {
           const response = await fetch(`http://${$ip}/api/csv/export`, {
@@ -102,7 +101,7 @@
           const res = await response.json();
         } catch (err) {
           console.error('Error exporting:', err);
-        }
+      }
     }
   </script>
   
@@ -113,8 +112,6 @@
   </AppBar>
 
   <div class="body">
-    
-
     <label for="many">Select CSV Files:</label>
     <input accept=".csv" bind:files id="many" multiple type="file">
     
@@ -124,7 +121,7 @@
     <label for="itemCSVName">Title of Item CSV:</label>
     <input type="text" id="itemCSVName">
     
-    <label for="itemCSVName">Title of Template CSV:</label>
+    <label for="templateCSVName">Title of Template CSV:</label>
     <input type="text" id="templateCSVName">
 
     <button on:click={handleExport}>Export To CSV</button>

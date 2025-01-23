@@ -20,7 +20,5 @@
   <Route path="/view/:id" let:params>
     <View {params} />
   </Route>
-  <Route path="/utility">
-    <Utility/>
-  </Route>
+  <Route path="/utility" component={Utility} />
 </Router>
