@@ -9,10 +9,15 @@
     //import { Types } from 'mongoose';
 
     let files : FileList;
+    let dialog: HTMLDialogElement;
 
     function goBack() {
       window.history.back();
     }//we gonna change this later fr fr
+
+    function setDialogText(text: string) {
+      document.getElementById("dialog-text")!.innerText = text;
+    }
 
     async function handleSelected() {
       console.log(files);
@@ -40,20 +45,27 @@
                   body: JSON.stringify({data: data}),
                 });
                 console.log(response);
+                setDialogText("Files Imported Successfully!");
+                dialog.showModal();
               } catch (err) {
                 console.error('Error importing:', err);
+                setDialogText("Error Importing from Files.");
+                dialog.showModal();
               }
             }
           });
           reader.readAsText(item);
         }
       } else {
+        setDialogText("Only Two Files can be Imported.\nOne with the templates and another with the items.");
+        dialog.showModal();
         // show pop up error
         // TODO: show error
       }
     }
 
     async function handleExport() {
+      try {
       let itemCSVName = document.getElementById("itemCSVName")?.textContent;
       let templateCSVName = document.getElementById("templateCSVName")?.textContent;
       if (!itemCSVName) {
@@ -88,7 +100,7 @@
       const templateContent = formatter.formatTemplates();
       const itemContent = formatter.formatItems();
 
-      try {
+
           const response = await fetch(`http://${$ip}/api/csv/export`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -100,8 +112,13 @@
             }),
           });
           const res = await response.json();
+          if (!res.ok) throw new Error('Error when writing formatted data.');
+          setDialogText("Data Exported Successfully!");
+          dialog.showModal();
         } catch (err) {
           console.error('Error exporting:', err);
+          setDialogText("Error Exporting to Files.");
+          dialog.showModal();
       }
     }
   </script>
@@ -128,6 +145,12 @@
     </div>
 
   </div>
+
+  <Dialog class="popover"
+    bind:dialog={dialog}>
+    <div id="dialog-text" class="simple-dialog-spacing" > 
+      Some dialog text  
+    </div>
+  </Dialog>
   
-  <Dialog></Dialog>
     

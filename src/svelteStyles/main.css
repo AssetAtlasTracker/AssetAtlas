@@ -2,10 +2,16 @@
 Large component styles
 e.g. containers, theming, etc.
 */
+
 :root {
   --custom-blue: 62 127 201;
   --on-custom-blue: 255 255 255;
 }
+
+/* .popover {
+  display: none;
+  z-index: 0;
+} */
 
 .slide-out-menu {
   position: absolute;
