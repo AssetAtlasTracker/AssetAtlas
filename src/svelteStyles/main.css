@@ -15,7 +15,29 @@ e.g. containers, theming, etc.
   background: rgb(var(--color-primary-100));
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
   margin: -1rem;
-  justify-content: start;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.utility-body {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+}
+
+.utility-body > * {
+  margin: 3em;
+}
+
+.utility-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  justify-items: left;
+}
+
+.utility-col > * + * {
+  margin: 0.3em 0pt
 }
 
 .open {

@@ -5,6 +5,7 @@
   import EditItem from "../svelteComponents/EditItem.svelte";
   import Dialog from "../svelteComponents/Dialog.svelte";
   import {navigate, Link } from "svelte-routing";
+  import Menu from "../svelteComponents/Menu.svelte";
   
 
   import type { IBasicItemPopulated } from "../models/basicItem";
@@ -24,6 +25,7 @@
   let item: IBasicItemPopulated | null = null;
   export let dialog: HTMLDialogElement;
   export let moveDialog: HTMLDialogElement;
+  export let menu: HTMLDialogElement;
   
 
   $: if (params.id) {
@@ -85,7 +87,9 @@
   }
 </script>
 
-<TopBar searchQuery={""}></TopBar>
+<TopBar searchQuery={""} menu={menu}></TopBar>
+
+<Menu bind:menu/>
 
 {#if item}
   <div class="item-view glass page-component">

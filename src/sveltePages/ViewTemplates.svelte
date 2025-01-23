@@ -1,11 +1,13 @@
 <script lang="ts">
   import TemplateList from "../svelteComponents/TemplateList.svelte";
   import TopBar from "../svelteComponents/TopBar.svelte";
+  import Menu from "../svelteComponents/Menu.svelte";
   import type { ITemplatePopulated } from "../models/template";
 
   import "../svelteStyles/main.css";
 
   let templates: ITemplatePopulated[] = [];
+  let menu : HTMLDialogElement;
 
   async function fetchTemplates() {
     try {
@@ -31,6 +33,8 @@
   fetchTemplates();
 </script>
 
-<TopBar searchQuery={""}></TopBar>
+<TopBar searchQuery={""} menu={menu}></TopBar>
+
+<Menu bind:menu/>
 
 <TemplateList {templates} />

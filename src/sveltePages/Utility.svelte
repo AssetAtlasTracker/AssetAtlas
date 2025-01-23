@@ -5,6 +5,7 @@
     import type { IBasicItemPopulated } from '../models/basicItem';
     import { CSVFormatterPopulated } from '../utility/formating/CSVFormatterPopulated.js';
     import type { ITemplatePopulated } from '../models/template';
+    import Dialog from '../svelteComponents/Dialog.svelte';
     //import { Types } from 'mongoose';
 
     let files : FileList;
@@ -111,21 +112,22 @@
     </button>
   </AppBar>
 
-  <div class="body">
-    <label for="many">Select CSV Files:</label>
-    <input accept=".csv" bind:files id="many" multiple type="file">
-    
-    <button on:click={handleSelected}>Import From CSV</button>
+  <div class="body utility-body">
+    <div class="utility-col">
+      <label for="many">Select CSV Files:</label>
+      <input accept=".csv" bind:files id="many" multiple type="file">
+      <button on:click={handleSelected}>Import From CSV</button>
+    </div>
 
-    
-    <label for="itemCSVName">Title of Item CSV:</label>
-    <input type="text" id="itemCSVName">
-    
-    <label for="templateCSVName">Title of Template CSV:</label>
-    <input type="text" id="templateCSVName">
+    <div class="utility-col">
+      <label for="itemCSVName">Title of Item CSV:</label>
+      <input type="text" id="itemCSVName"> 
+      <label for="templateCSVName">Title of Template CSV:</label>
+      <input type="text" id="templateCSVName">
+      <button on:click={handleExport}>Export To CSV</button>
+    </div>
 
-    <button on:click={handleExport}>Export To CSV</button>
   </div>
   
-  
+  <Dialog></Dialog>
     
