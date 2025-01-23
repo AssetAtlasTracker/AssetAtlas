@@ -7,6 +7,21 @@ e.g. containers, theming, etc.
   --on-custom-blue: 255 255 255;
 }
 
+.slide-out-menu {
+  position: absolute;
+  z-index: 100;
+  left: -100%;
+  transition: left 0.3s ease-in-out;
+  background: rgb(var(--color-primary-100));
+  border: 1px solid rgba(var(--color-primary-100) / 0.8);
+  margin: -1rem;
+  justify-content: start;
+}
+
+.open {
+  left: 0
+}
+
 .glass{
   background: rgba(var(--color-primary-800) / 0.8) !important;
   box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4 );

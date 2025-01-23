@@ -6,6 +6,7 @@
 
   export let searchQuery: string = "";
   export let onSearch: (query: string) => void = navHome;
+  export let menu : HTMLDialogElement;
   function navHome() {
     // navigate("/");
   }
@@ -13,12 +14,18 @@
   function navigateToViewTemplates() {
     navigate("/viewTemplates");
   }
+
+  function handleClickMenu() {
+    menu.click();
+  }
 </script>
 
 <AppBar class="border glass">
   <div class="px-4">
     <div class="nav-margin float-left">
-      <Menu />
+      <button on:click={handleClickMenu}>
+        <Menu/>
+      </button>
     </div>
     <div class="float-left">
       <Link to={"/"}>

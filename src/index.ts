@@ -10,6 +10,7 @@ import connectDB from './config/mongoConnection.js';
 import { gridFsReady } from './config/gridfs.js';
 import itemRoutes from './routes/itemRoutes.js';
 import recentItemsRoutes from './routes/recentItemsRoutes.js';
+import csvRoutes from "./routes/csvRoutes.js";
 
 const app = express();
 //const PORT = process.env.PORT || 3000;
@@ -63,9 +64,9 @@ function getEnvVariables(envPath: string) {//for .env stuff
 app.get('/api/ip', (req, res) => {
   const envPath = path.join(__dirname, '../docker', '.env');
   console.log('ENV Path:', envPath);
-  let ip = 'localhost:3000';//defaul to 3k
-  //let ip = 'localhost:3000';//proper defaukl
-
+  let ip = 'localhost:3000';//default to 3k
+  //let ip = 'localhost:3000';//proper default
+  
   //if (fs.existsSync(envPath)) {
   try {
     const envVars = getEnvVariables(envPath);
@@ -82,7 +83,8 @@ app.get('/api/ip', (req, res) => {
 
 app.use('/api/items', itemRoutes); //use routes after upload is ready
 app.use('/api/templates', templateRoutes);
-app.use('/api/customFields', customFieldRoutes)
+app.use('/api/customFields', customFieldRoutes);
+app.use('/api/csv', csvRoutes);
 app.use('/api/recentItems', recentItemsRoutes);
 
 // app.get('/', (req, res) => {

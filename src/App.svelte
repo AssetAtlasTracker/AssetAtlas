@@ -7,6 +7,7 @@
   import ViewTemplates from "./sveltePages/ViewTemplates.svelte";
   import { fetchIp } from "./stores/ipStore";
   import ActionDisplay from "./svelteComponents/ActionDisplay.svelte";
+  import Utility from "./sveltePages/Utility.svelte";
 
   onMount(() => {
     fetchIp();
@@ -23,4 +24,5 @@
     </Route>
     <Route path="/viewTemplates" component={ViewTemplates} />
   </main>
+  <Route path="/utility" component={Utility} />
 </Router>

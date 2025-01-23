@@ -20,6 +20,9 @@
     await handleSearch(searchQuery);
   }
 
+  import Menu from '../svelteComponents/Menu.svelte';
+  export let menu : HTMLDialogElement;
+
   async function handleSearch(query: string) {
     console.log('Home: Starting search operation');
     searchQuery = query;
@@ -51,25 +54,33 @@
   });
 </script>
 
-<TopBar {searchQuery} onSearch={handleSearch}></TopBar>
+<TopBar {searchQuery} onSearch={handleSearch} menu={menu}></TopBar>
 
-<div class="search-controls">
-  <div class="sort-container custom-dropdown">
-    <label for="sort">Sort By:</label>
-    <select id="sort" bind:value={sortOption} on:change={handleSortChange}>
-      <option value="alphabetical">Alphabetical</option>
-      <option value="firstAdded">First Added</option>
-      <option value="lastAdded">Last Added</option>
-    </select>
-  </div>
 
-  <label class="exact-search">
-    <input type="checkbox" bind:checked={exactSearch} on:change={() => handleSearch(searchQuery)} />
-    Exact Search
-  </label>
-</div>
+
+
 
 <div class="body">
+
+  <!-- Menu for navigation - Slides out -->
+  <Menu bind:menu />
+
+  <div class="search-controls">
+    <div class="sort-container custom-dropdown">
+      <label for="sort">Sort By:</label>
+      <select id="sort" bind:value={sortOption} on:change={handleSortChange}>
+        <option value="alphabetical">Alphabetical</option>
+        <option value="firstAdded">First Added</option>
+        <option value="lastAdded">Last Added</option>
+      </select>
+    </div>
+  
+    <label class="exact-search">
+      <input type="checkbox" bind:checked={exactSearch} on:change={() => handleSearch(searchQuery)} />
+      Exact Search
+    </label>
+  </div>
+
   {#if searchResults.length > 0}
     <ItemContainer items={searchResults} />
   {:else}
@@ -85,7 +96,9 @@
     +
   </button>
   <CreateItem bind:dialog />
+
 </div>
+
 
 <style>
   .search-controls {
