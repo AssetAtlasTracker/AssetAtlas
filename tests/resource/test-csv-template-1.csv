@@ -1,0 +1,3 @@
+template name,
+produce, expiration date, weight, source, expired
+,string, number, string, boolean

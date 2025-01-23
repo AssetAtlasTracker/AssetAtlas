@@ -45,6 +45,7 @@
                   body: JSON.stringify({data: data}),
                 });
                 console.log(response);
+                if (!response.ok) throw new Error('Error Importing from Files.');
                 setDialogText("Files Imported Successfully!");
                 dialog.showModal();
               } catch (err) {

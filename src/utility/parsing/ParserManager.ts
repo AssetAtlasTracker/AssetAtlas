@@ -17,9 +17,10 @@ export class ParserManager {
             if (templateParser.canParse(CSVPreProcessor.getColumns(contents))) {
                 templateParser.parse(contents);
                 let templates = templateParser.templatesToAdd;
+                console.log(templates);
                 let customFields = templateParser.customFieldMap;
+                console.log(customFields);
                 let idMap = await adder.addCustomFields(customFields);
-                templates.map((template) => {template.fields = template.fields.map((id) => {return idMap.get(id)!})});
                 await adder.addTemplates(templates);
             } else {
                 itemData = contents;
@@ -44,7 +45,7 @@ export class ParserManager {
             let idMap = await adder.addCustomFields(customFields);
             console.log(idMap.size);
             console.log(idMap.keys().next());
-            adder.addItems(itemParser.itemTree, itemParser.itemMap, idMap);        
+            adder.addItems(itemParser.itemTree, itemParser.itemMap);        
         }
     }
 }

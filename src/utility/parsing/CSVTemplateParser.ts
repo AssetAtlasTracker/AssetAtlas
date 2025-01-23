@@ -1,4 +1,4 @@
-import type { Types } from "mongoose";
+import { Types } from "mongoose";
 import type { IBasicItem } from "../../models/basicItem.js";
 import CustomField, { type ICustomField } from "../../models/customField.js";
 import Template, { type ITemplate } from "../../models/template.js";
@@ -29,10 +29,14 @@ export class CSVTemplateParser implements Parser {
                 this.checkEmptyKey(key);
 
                 let customField = new CustomField();
+                let newId = new Types.ObjectId();
+                customField.id = newId;
+                console.log("Custom field id: " + customField.id);
                 const valueType = data[i+1][j].toString();
                 customField.dataType = valueType;
                 customField.fieldName = key;
                 template.fields.push(customField.id);
+                console.log("Added field to template: " + customField.id);
                 this.customFieldMap.set(customField.id, customField);
             }
             this.templatesToAdd.push(template);
