@@ -5,7 +5,7 @@
     import {navigate } from "svelte-routing";
     
     export let itemId: any;
-    export let dialog: { showModal: () => any };
+    export let dialog: HTMLDialogElement;
     
     
     let parentItemName = "";
@@ -27,6 +27,7 @@
         if (response.ok) {
           console.log("item moved");
           navigate(`/view/${itemId}`);
+          dialog.close();
         } else {
           console.error("Failed to move item:", await response.text());
         }

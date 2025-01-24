@@ -6,7 +6,7 @@
     import type { IBasicItemPopulated } from '../models/basicItem';
     import { Link, navigate } from "svelte-routing";
   
-    export let dialog: { showModal: () => any };
+    export let dialog: HTMLDialogElement;
     export let item: IBasicItemPopulated;
   
     let templateDialog: HTMLDialogElement | undefined;
@@ -35,6 +35,9 @@
     let templateSuggestions: any[] = [];
     let selectedImage: File | null = null;
     let imagePreview: string | null = null;
+    if (item.image) {
+      imagePreview = `http://${$ip}/api/items/${item._id}/image`;
+    }
     let debounceTimeout: NodeJS.Timeout | undefined;
 
   
@@ -74,7 +77,9 @@
       customFields[i].value = (item.customFields[i].value as string);
     }
     }
-  
+    if (item.image){
+      getImage();
+    }
   
     let showEditTemplateDialog = false;
   
@@ -116,7 +121,7 @@
         })
       );
       console.log("----");
-        console.log(formattedCustomFields);
+        console.log(selectedImage);
       try {
         const response = await fetch(`http://${$ip}/api/items/${item._id}`, {
           method: 'PATCH',
@@ -129,6 +134,7 @@
             homeItem: homeItemId,
             template: templateId || null,
             customFields: formattedCustomFields,
+            image: selectedImage,
             }),
         });
        
@@ -138,10 +144,23 @@
         console.log('Item changed:', data);
 
         navigate(`/view/${item._id}`);
+        dialog.close();
   
       } catch (err) {
         console.error('Error editing item:', err);
       }
+    }
+
+    async function getImage() {
+      const response = await fetch(`https://${$ip}/api/items/${item._id}/image`, {
+        method: "GET",
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const data = await response.json();
+       selectedImage = data;
+      if (!response.ok) throw new Error(data.message || 'Error editing item');
+      console.log('Image: ', data);
     }
   
     async function createCustomField(fieldName: string, dataType: string): Promise<ICustomField> {

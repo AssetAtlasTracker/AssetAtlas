@@ -6,6 +6,7 @@
   import { actionStore } from '../stores/actionStore';
 
   import "../svelteStyles/main.css";
+    import { navigate } from "svelte-routing";
 
   export let dialog: HTMLDialogElement;
 
@@ -148,6 +149,7 @@
       }
       console.log("Item created:", data);
       actionStore.addMessage('Item created successfully!');
+      navigate('/');
       dialog.close();
 
       //Reset the form after successful creation

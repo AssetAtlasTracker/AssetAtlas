@@ -105,14 +105,14 @@
       Move
     </button>
     <button class="border-button" on:click={() => showReturnDialog = true}>
-      Return to Home
+      Move to Home Location
     </button>
     <button class="border-button" on:click={() => dialog.showModal()}>
       Edit
     </button>
 
-    <EditItem {item} bind:dialog on:close={() => closeEdit()}/>
-    <MoveItem itemId={item._id} bind:dialog={moveDialog} on:close={() => closeMove()}/>
+    <EditItem {item} bind:dialog/>
+    <MoveItem itemId={item._id} bind:dialog={moveDialog}/>
   </div>
 {:else}
   <p>Loading item data...</p>
