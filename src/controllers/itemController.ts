@@ -265,3 +265,55 @@ export const getParentChain = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
+export const getItemTree = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    interface TreeItem {
+      _id: mongoose.Types.ObjectId;
+      name: string;
+      description?: string;
+      children: TreeItem[];
+      hasChildren: boolean;
+    }
+
+    const getItemChildren = async (parentId: mongoose.Types.ObjectId | null): Promise<TreeItem[]> => {
+      const query = parentId ? { parentItem: parentId } : { parentItem: null };
+      const items = await BasicItem.find(query)
+        .select('name description _id')
+        .lean();
+
+      return Promise.all(items.map(async (item) => {
+        const childCount = await BasicItem.countDocuments({ parentItem: item._id });
+        return {
+          ...item,
+          children: [],
+          hasChildren: childCount > 0
+        };
+      }));
+    };
+
+    //If no ID or empty string return root items
+    if (!id || id.trim() === '') {
+      const tree = await getItemChildren(null);
+      return res.json(tree);
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid item ID' });
+    }
+
+    const root = await BasicItem.findById(id).select('name description _id').lean();
+    if (!root) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+
+    const children = await getItemChildren(root._id);
+    const childCount = await BasicItem.countDocuments({ parentItem: root._id });
+    return res.json({ ...root, children, hasChildren: childCount > 0 });
+
+  } catch (err) {
+    res.status(500).json({ message: 'Error generating tree', error: err });
+  }
+};

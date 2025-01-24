@@ -449,3 +449,55 @@ describe('Item and Template API', () => {
   });
 });
 
+describe('Item Tree API', () => {
+  it('should fetch root level items with hasChildren flag', async () => {
+    const rootItem = await BasicItem.create({ 
+      name: 'Root Item'
+    });
+
+    const childItem = await BasicItem.create({ 
+      name: 'Child Item',
+      parentItem: rootItem._id 
+    });
+
+    const emptyRoot = await BasicItem.create({ 
+      name: 'Empty Root'
+    });
+
+    const response = await request(app).get('/api/items/tree');
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveLength(2);
+    
+    const rootWithChild = response.body.find(item => item.name === 'Root Item');
+    const rootWithoutChild = response.body.find(item => item.name === 'Empty Root');
+    
+    expect(rootWithChild.hasChildren).toBe(true);
+    expect(rootWithoutChild.hasChildren).toBe(false);
+    expect(rootWithChild.children).toHaveLength(0);
+  });
+
+  it('should fetch subtree for specific item', async () => {
+    const parentItem = await BasicItem.create({ 
+      name: 'Parent'
+    });
+
+    const childItem = await BasicItem.create({ 
+      name: 'Child',
+      parentItem: parentItem._id 
+    });
+
+    const grandchildItem = await BasicItem.create({ 
+      name: 'Grandchild',
+      parentItem: childItem._id 
+    });
+
+    const response = await request(app).get(`/api/items/tree/${childItem._id}`);
+    expect(response.status).toBe(200);
+    
+    expect(response.body.name).toBe('Child');
+    expect(response.body.hasChildren).toBe(true);
+    expect(response.body.children).toHaveLength(1);
+    expect(response.body.children[0].name).toBe('Grandchild');
+    expect(response.body.children[0].hasChildren).toBe(false);
+  });
+});

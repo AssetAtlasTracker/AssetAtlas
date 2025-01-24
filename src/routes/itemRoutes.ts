@@ -7,7 +7,8 @@ import {
   getAllContainedById,
   moveItem,
   updateItem,
-  getParentChain
+  getParentChain,
+  getItemTree
 } from '../controllers/itemController.js';
 import BasicItem from '../models/basicItem.js';
 import { getUpload, gfs } from '../config/gridfs.js';
@@ -15,6 +16,7 @@ import { getUpload, gfs } from '../config/gridfs.js';
 const router = express.Router();
 
 router.get('/search', searchItems);
+router.get('/tree/:id?', getItemTree); //do not move this below get item.
 router.get('/:id', getItemById);
 router.delete('/:id', deleteItemById);
 router.get('/allContained/:parentID', getAllContainedById);
