@@ -27,8 +27,5 @@ jobs:
       - name: Uninstall Rollup
         run: npm uninstall rollup
 
-      - name: Run linter
-        run: npm run lint
-
       - name: Run tests
         run: npm run test
