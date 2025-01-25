@@ -473,7 +473,8 @@ describe('Item Tree API', () => {
     
     expect(rootWithChild.hasChildren).toBe(true);
     expect(rootWithoutChild.hasChildren).toBe(false);
-    expect(rootWithChild.children).toHaveLength(0);
+    expect(rootWithChild.children).toHaveLength(1);
+    expect(rootWithChild.children[0].name).toBe('Child Item');
   });
 
   it('should fetch subtree for specific item', async () => {

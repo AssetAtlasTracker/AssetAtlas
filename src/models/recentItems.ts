@@ -1,5 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
+const MAX_ITEMS: number = 5;
+
 export interface IRecentItems extends Document {
   type: 'item' | 'template' | 'customField';
   recentIds: Types.ObjectId[];
@@ -22,7 +24,7 @@ const RecentItemsSchema = new Schema({
         }
       }
     }],
-    maxItems: { type: Number, default: 5 }
+    maxItems: { type: Number, default: MAX_ITEMS }
   }, { collection: 'recents' });
 
 export const addToRecents = async (type: 'item' | 'template' | 'customField', id: Types.ObjectId) => {

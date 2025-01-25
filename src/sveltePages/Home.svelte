@@ -1,6 +1,7 @@
 <script lang="ts">
   import ItemContainer from "../svelteComponents/ItemContainer.svelte";
   import CreateItem from "../svelteComponents/CreateItem.svelte";
+  import ItemTree from "../svelteComponents/ItemTree.svelte";
   import type { IBasicItemPopulated } from "../models/basicItem";
   import { ip } from "../stores/ipStore";
   import TopBar from "../svelteComponents/TopBar.svelte";
@@ -13,6 +14,7 @@
   export let dialog: HTMLDialogElement;
   let sortOption: string = "alphabetical";
   let exactSearch = false;
+  let viewMode: 'list' | 'tree' = 'list';
 
   async function handleSortChange(event: Event) {
     const target = event.target as HTMLSelectElement;
@@ -48,6 +50,10 @@
     }
   }
 
+  function toggleView(mode: 'list' | 'tree') {
+    viewMode = mode;
+  }
+
   onMount(() => {
     console.log('Home: Component mounted');
     handleSearch("");
@@ -81,12 +87,21 @@
     </label>
   </div>
 
-  {#if searchResults.length > 0}
-    <ItemContainer items={searchResults} />
+  <div class="view-toggle">
+    <button class="border-button font-semibold shadow mt-4 block" on:click={() => toggleView('list')}>List View</button>
+    <button class="border-button font-semibold shadow mt-4 block" on:click={() => toggleView('tree')}>Tree View</button>
+  </div>
+
+  {#if viewMode === 'list'}
+    {#if searchResults.length > 0}
+      <ItemContainer items={searchResults} />
+    {:else}
+      <div class="page-component">
+        <p>No items found.</p>
+      </div>
+    {/if}
   {:else}
-    <div class="page-component">
-      <p>No items found.</p>
-    </div>
+    <ItemTree />
   {/if}
 
   <button
@@ -116,6 +131,10 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+  }
+
+  .view-toggle {
+    margin: 1rem;
   }
 
   select {

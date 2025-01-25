@@ -2,8 +2,6 @@ import type { Request, Response } from 'express';
 import { RecentItems, addToRecents } from '../models/recentItems.js';
 import { Types } from 'mongoose';
 
-const MAX_RECENT_ITEMS = 5;
-
 export const getRecentsByType = async (req: Request, res: Response) => {
   const { type } = req.params;
   
