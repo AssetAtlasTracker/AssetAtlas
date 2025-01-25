@@ -46,10 +46,10 @@ export const exportToFolder = async (req: Request, res: Response) => {
             folder = "../out";
         }
 
-        if (!!data) {
+        if (data) {
             FileExporter.export(filePaths[0], folder, data);
         }
-        if (!!templateData) {
+        if (templateData) {
             FileExporter.export(filePaths[1], folder, templateData);
         }
         res.status(201).json({message: 'Successfully exported data to file path(s).'});

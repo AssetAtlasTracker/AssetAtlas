@@ -17,12 +17,7 @@ export class CSVFormatterPopulated {
         this.templates = templates;
     }
 
-    // constructor (itemMap: Map<Types.ObjectId, IBasicItemPopulated>){//, templateMap : Map<Types.ObjectId, ITemplatePopulated>) {
-    //     this.itemMap = itemMap;
-    //     //this.templateMap = templateMap;
-    // }
-
-    formatTemplates(): String {
+    formatTemplates(): string {
         let csv = "template name\n";
         for (var i = 0; i < this.templates.length; i++) {
             csv += this.formatTemplate(this.templates[i]);
@@ -52,7 +47,7 @@ export class CSVFormatterPopulated {
         return firstline + secondline;
     }
     
-    formatItems(): String {
+    formatItems(): string {
         let columns = ["item name", "template", "description"];
         columns = this.formatItemsHelper(this.itemTree, this.itemMap, columns);
         let csv = columns.pop();
@@ -106,13 +101,11 @@ export class CSVFormatterPopulated {
         let line = item.name + "," + templateName + "," + item.description + ",";
         if (item.customFields !== undefined) {
             const custom = this.getColumns(item);
-            let numNotIncluded = 0;
             for (var i = 3; i < columns.length; i++) {
                 let column = columns[i];
                 if (custom.includes(column)) {
                     const index = custom.indexOf(column);
                     line += item.customFields![index].value;
-                    numNotIncluded++;
                 }
                 line += ",";
             }
