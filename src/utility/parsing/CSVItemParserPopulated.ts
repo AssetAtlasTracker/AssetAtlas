@@ -27,7 +27,12 @@ export class CSVItemParserPopulated implements Parser {
 
     collectColumnTypes(data: String[][], columns: String[]){
         for (var i = 3; i < columns.length; i++) { // first 3 columns are reserved - determine types for 4th+
-            let column = data.map(row => row[i].trim());
+            let column = data.map(row => {
+                if (!row[i]) {
+                    row[i] = ""; // fill in empty rows with no value // TODO: determine if this is the best way, else, append commas
+                }
+                return row[i].trim();
+            });
             this.columnTypes.set(columns[i], this.determineTypeOfColumn(column));
         }
     }
@@ -138,6 +143,11 @@ export class CSVItemParserPopulated implements Parser {
         // get values from required columns.
         item.name = line[0].toString();
         const templateName = line[1].toString();
+        console.log(templateName);
+        const template = this.templates.get(templateName);
+        if (template !== undefined) {
+            item.template = template!.id;
+        }
         item.description = line[2].toString();
     
         // get custom fields.
@@ -145,11 +155,9 @@ export class CSVItemParserPopulated implements Parser {
             if (line[i].length > 0) {
                 this.addCustomFieldToItem(line, item, i);
             } else {
-                // consider templates
-                const template = this.templates.get(templateName);
+                // consider templates         
                 if (template !== undefined) {
                     // consider if this column is in the template
-                    item.template = template!.id;
                     if (template.fields.map(custom => custom.fieldName).includes(this.columns[i].toString())) {
                         this.addCustomFieldToItem(line, item, i);
                     }

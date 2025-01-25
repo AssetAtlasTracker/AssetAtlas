@@ -27,16 +27,13 @@ export class CSVTemplateParser implements Parser {
             for (var j = 1; j < data[i].length; j++) {
                 const key = data[i][j].toString();
                 this.checkEmptyKey(key);
-
                 let customField = new CustomField();
                 let newId = new Types.ObjectId();
                 customField.id = newId;
-                console.log("Custom field id: " + customField.id);
                 const valueType = data[i+1][j].toString();
                 customField.dataType = valueType;
                 customField.fieldName = key;
                 template.fields.push(customField.id);
-                console.log("Added field to template: " + customField.id);
                 this.customFieldMap.set(customField.id, customField);
             }
             this.templatesToAdd.push(template);

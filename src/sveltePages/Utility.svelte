@@ -20,23 +20,21 @@
     }
 
     async function handleSelected() {
-      console.log(files);
-      if (files) {
-        console.log(files.length);
-      } else {
+      if (!files) {
         console.error("handle called when nothing selected.");
         return;
       }
       if (files.length <= 2) {
-        const reader = new FileReader();
         let data : string[] = [];
         for (var i = 0; i < files.length; i++) {
-          const item = files.item(i)!;
-          console.log(files[i]);
-          console.log(item);
+          const reader = new FileReader();
+          var item = files.item(i)!;
           reader.addEventListener("load", async () => {
-            console.log(reader.result);
-            data.push(reader.result as string);
+            console.log("Read: " + reader.result as string);
+            console.log("which is", reader.result);
+            if (!data.includes(reader.result as string)) {
+              data.push(reader.result as string);
+            }
             if (data.length === files.length) {
               try {
                 const response = await fetch(`http://${$ip}/api/csv/import`, {
@@ -44,7 +42,6 @@
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({data: data}),
                 });
-                console.log(response);
                 if (!response.ok) throw new Error('Error Importing from Files.');
                 setDialogText("Files Imported Successfully!");
                 dialog.showModal();

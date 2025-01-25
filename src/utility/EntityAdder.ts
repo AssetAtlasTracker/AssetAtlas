@@ -24,16 +24,10 @@ export class EntityAdder {
                     createdAt: new Date(),
                 });
                 await newField.save();
-                //await until(() => {return newField.id.done});
-                console.log(newField.id.done);
                 const newId = await newField.id as Types.ObjectId;
-                console.log("Adding New: " + key + ", " + newId);
                 this.customFidMap.set(key, newId);
             } else {
-                //await until(() => {return existingField.id.done});
-                console.log(existingField.id.done);
                 const newId = await existingField.id as Types.ObjectId;
-                console.log("Adding Existing: " + key + ", " + newId);
                 this.customFidMap.set(key, newId);
             }
         }
@@ -47,7 +41,9 @@ export class EntityAdder {
                 if (containedItems != undefined && containedItems != null && containedItems.length !== 0) {
                     // we have contained Items.
                     const subItemsToAdd = containedItems.map(id => map.get(id.toHexString() as unknown as Types.ObjectId)!); // TODO: while should be impossible, determine if should check for unknown here
-                    this.addItemsHelper(subItemsToAdd, map, newId);
+                    if (subItemsToAdd.length > 0) {
+                        this.addItemsHelper(subItemsToAdd, map, newId);
+                    }
                 }
             });
         });
@@ -55,14 +51,16 @@ export class EntityAdder {
 
     addItemsHelper(items: IBasicItem[], map: Map<Types.ObjectId, IBasicItem>, parentID: Types.ObjectId) {
         items.forEach((item) => {
-            item.parentItem = parentID as unknown as Types.ObjectId;
+            item.parentItem = parentID;
             const containedItems = item.containedItems;
             this.callAddItem(item).then((newId) => {
                 if (containedItems != undefined && containedItems != null && containedItems.length !== 0) {
                     // we have contained Items
-                    const subItemsToAdd = containedItems.map(id => map.get(id)!); // TODO: while should be impossible, determine if should check for unknown here
+                    const subItemsToAdd = containedItems.map(id => map.get(id.toHexString() as unknown as Types.ObjectId)!); // TODO: while should be impossible, determine if should check for unknown here
                     const parentID = newId;
-                    this.addItemsHelper(subItemsToAdd, map, parentID);
+                    if (subItemsToAdd.length > 0) {
+                        this.addItemsHelper(subItemsToAdd, map, parentID);
+                    }
                 } else {
                     return;
                 }
@@ -71,10 +69,10 @@ export class EntityAdder {
     }
 
     async addTemplates(templates: ITemplate[]) {
+        console.log("Adding templates" + templates);
         for (var i = 0; i < templates.length; i++) {
             try {
                 const template = templates[i];
-                console.log(template);
                 template.fields = template.fields?.map(field => this.customFidMap.get(field.toHexString() as unknown as Types.ObjectId)!);
                 await template.save();
                 console.log("Created Template: " + template);
@@ -85,15 +83,13 @@ export class EntityAdder {
     }
 
     async callAddItem(item: IBasicItem): Promise<Types.ObjectId> {
+        const savedContained = item.containedItems;
         item.containedItems = undefined;
-
-        const correctIds = item.customFields?.map(ele => {return this.customFidMap.get(ele.field)});
         item.customFields = item.customFields?.map(field => {return {field: this.customFidMap.get(field.field.toHexString() as unknown as Types.ObjectId)!, value: field.value}});
-
-        console.log(item);
         const newItem = new BasicItem(item);
         await newItem.save();
         const id = (await newItem.id) as Types.ObjectId;
+        item.containedItems = savedContained;
         console.log("Created Item with ID: " + id);
         return id;
     }

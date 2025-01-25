@@ -5,7 +5,6 @@
     export let menu;
 
 	function handleClicked() {
-		console.log("Clicked");
 		open = !open;
 	}
 </script>

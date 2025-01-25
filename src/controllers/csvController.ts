@@ -2,22 +2,9 @@ import type { Request, Response } from 'express';
 import { FileExporter } from '../utility/file/FileExporter.js';
 import { ParserManager } from '../utility/parsing/ParserManager.js';
 
-export const debug = async (req: Request, res: Response) => {
-  // try {
-  //   console.log("debug did");
-  //   return res.status(201).json({message: 'did'});
-  // } catch (err) {
-  //   console.error('Error in debug:', err);
-  //   return res.status(500).json({ message: 'Error in debug', error: err });
-  // }
-  //res.status(201).json({message: "No"});
-  res.send("Yes");
-};
-
 export const importFromFile = async (req: Request, res: Response) => {
     try {
       const data : string[] = req.body.data;
-      console.log(data);
 
       if (!data || data.length > 2 || data.length < 1) {
         res.status(400).json({message : 'File path(s) are required and at most two can be specified.'});
