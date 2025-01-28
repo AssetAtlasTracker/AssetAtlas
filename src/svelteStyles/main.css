@@ -151,6 +151,11 @@ Animations
 Small component styles 
 e.g. buttons, lists, textareas, etc.
 */
+
+.utility-col > input {
+  color: black;
+}
+
 #resize-none-textarea{
   resize: none
 }

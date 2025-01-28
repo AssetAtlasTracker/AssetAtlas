@@ -92,6 +92,7 @@
       let items = [];
       const dataI = await responseI.json();
       items = dataI as IBasicItemPopulated[];
+      console.log("Fetched Items for Export:", items);
       const itemRoot = items.filter(item => item.parentItem === null);
 
       const formatter = new CSVFormatterPopulated(items, templates, itemRoot);//>templateMap);

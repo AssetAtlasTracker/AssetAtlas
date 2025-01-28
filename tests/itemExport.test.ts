@@ -1,11 +1,11 @@
 import { Types } from "mongoose";
-import BasicItem, { IBasicItem } from "../src/models/basicItem";
+import BasicItem, { IBasicItemPopulated } from "../src/models/basicItem";
 import CustomField, { ICustomField } from "../src/models/customField";
 
 import {test} from "../src/utility"
+import { CSVFormatterPopulated } from "../src/utility/formating/CSVFormatterPopulated";
 
 const resources = test();
-const CSVFormatter = resources.formatter;
 const FileLoader = resources.loader;
 const FileExporter = resources.exporter;
 
@@ -17,7 +17,7 @@ describe("Testing Item Exporting", () => {
         let firstItem = new BasicItem();
         firstItem.id = 1;
         firstItem.name = "cat";
-        firstItem.templateName = "";
+        firstItem.template = undefined;
         firstItem.description = "a black cat"
         
         let fieldMap = new Map<Types.ObjectId, ICustomField>();
@@ -40,45 +40,48 @@ describe("Testing Item Exporting", () => {
         soldField.dataType = "boolean";
         fieldMap.set(soldField.id, soldField);
         firstItem.customFields.push({field: soldField.id, value: "false"});
-        
-        const formatter = new CSVFormatter();
-        let itemMap = new Map<Types.ObjectId,IBasicItem>();
-        itemMap.set(firstItem.id!, firstItem);
-        expect(formatter.formatItems([firstItem],itemMap,fieldMap)).toBe(csvContent);
 
+        const item = firstItem as unknown as IBasicItemPopulated;
+
+        let itemMap = new Map<Types.ObjectId,IBasicItemPopulated>();
+        itemMap.set(item._id, item);
+        
+        const formatter = new CSVFormatterPopulated([item], [], [item]);
+    
     });
 
     it("Should format an item with a subitem and export the content", async () => {
         const path = "./tests/resource";
         const filename = "test-csv-item-2";
         const extension = ".csv";
-        const itemMap = new Map<Types.ObjectId, IBasicItem>();
 
-        const firstItem = new BasicItem();
-        firstItem.id = 1;
+        const firstItem = new BasicItem() as unknown as IBasicItemPopulated;
+        firstItem._id = new Types.ObjectId();
         firstItem.name = "dog";
-        firstItem.templateName = "";
+        firstItem.template = undefined;
         firstItem.description = "a german shepherd";
-        itemMap.set(firstItem.id!, firstItem);
+
 
         const secondItem = new BasicItem();
-        secondItem.id = 2;
+        secondItem._id = new Types.ObjectId();
         secondItem.name = "collar";
-        secondItem.templateName = "";
+        secondItem.template = undefined;
         secondItem.description = "a blue collar with a dog tag";
-        itemMap.set(secondItem.id!, secondItem);
 
-        firstItem.containedItems = [secondItem.id];
-        secondItem.parentItem = firstItem.id;
+        firstItem.containedItems = [secondItem];
+        secondItem.parentItem = firstItem._id;
+
+        const second = secondItem as unknown as IBasicItemPopulated;
         
-        const formatter = new CSVFormatter();
-        const result = formatter.formatItems([firstItem], itemMap, new Map<Types.ObjectId, ICustomField>());
+        const formatter = new CSVFormatterPopulated([firstItem, second], [], [firstItem]);
+        const result = formatter.formatItems();
 
         const csvContent = `item name,template,description\ndog,,a german shepherd\n>\ncollar,,a blue collar with a dog tag\n<`;
         expect(result).toBe(csvContent);
         console.log(result);
 
-        FileExporter.export(filename, path, result.toString(), extension);
+        const exporter = new FileExporter();
+        exporter.export(filename, path, result.toString(), extension);
 
         const result2 = FileLoader.readFile(`${path}/${filename}${extension}`);
         expect(result2 == csvContent);

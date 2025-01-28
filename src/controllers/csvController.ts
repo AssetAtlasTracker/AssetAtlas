@@ -45,13 +45,24 @@ export const exportToFolder = async (req: Request, res: Response) => {
             // use a default folder
             folder = "../out";
         }
+        const exporter = new FileExporter();
+        let itemMessage = "";
+        let templateMessage = ""; 
 
         if (data) {
-            FileExporter.export(filePaths[0], folder, data);
+          itemMessage = await exporter.export(filePaths[0], folder, data);
         }
         if (templateData) {
-            FileExporter.export(filePaths[1], folder, templateData);
+          templateMessage = await exporter.export(filePaths[1], folder, templateData);
         }
+
+        if (itemMessage.toLowerCase().includes("error")) {
+          throw new Error(itemMessage);
+        }
+        if (templateMessage.toLowerCase().includes("error")) {
+          throw new Error(templateMessage);
+        }
+
         res.status(201).json({message: 'Successfully exported data to file path(s).'});
       } catch (err) {
         console.error('Error exporting data to file(s):', err);

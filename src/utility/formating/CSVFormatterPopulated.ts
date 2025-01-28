@@ -60,7 +60,7 @@ export class CSVFormatterPopulated {
         if (indexN == csv!.length-1) {
             csv = csv!.substring(0, indexN)
         }
-        return line + "\n" + csv;
+        return line.trim() + "\n" + csv!.trim();
     }
 
     formatItemsHelper(itemTree: IBasicItemPopulated[], itemMap: Map<Types.ObjectId, IBasicItemPopulated>, columns: string[]) : string[] {
@@ -71,9 +71,9 @@ export class CSVFormatterPopulated {
             csv += this.formatItem(item, columns);
             if (item.containedItems !== undefined && item.containedItems.length !== 0) {
                 csv += ">\n";
-                const subItemIds = item.containedItems!.map(ele => ele.id);
-                const subItems = subItemIds.map(id => itemMap.get(id.toHexString() as unknown as Types.ObjectId)).map(subItem => subItem as IBasicItemPopulated);
-                columns = this.formatItemsHelper(subItems, itemMap, columns);
+                const subItemIds = item.containedItems!.map(item => {return item._id});
+                const populatedItems = subItemIds.map(id => {return itemMap.get(id)!});
+                columns = this.formatItemsHelper(populatedItems, itemMap, columns);
                 csv += columns.pop();
                 csv += "<\n";
             }

@@ -91,7 +91,12 @@ describe("Testing Item Parsing", () => {
 
         // check items
         // -- first item
-        const firstItem = itemMap.get('1' as unknown as Types.ObjectId);
+
+        expect(items.length === 2);
+        expect(Array.from(itemMap.keys()).length === 3);
+
+
+        const firstItem = items[0];
         expect(firstItem).not.toBeNull();
         expect(firstItem!.name).toBe('one');
         expect(firstItem!.description).toBe('a number');
@@ -99,7 +104,7 @@ describe("Testing Item Parsing", () => {
         expect(firstItem!.customFields![0].value).toBe('1');
 
         // -- second item
-        const secondItem = itemMap.get('3' as unknown as Types.ObjectId);
+        const secondItem = itemMap.get(firstItem.containedItems![0].toHexString() as unknown as Types.ObjectId);
         expect(secondItem).not.toBeNull();
         expect(secondItem!.name).toBe('two');
         expect(secondItem!.description).toBe('another number');
@@ -107,7 +112,7 @@ describe("Testing Item Parsing", () => {
         expect(secondItem!.customFields![0].value).toBe('2');
 
         // -- third item
-        const thirdItem = itemMap.get('5' as unknown as Types.ObjectId);
+        const thirdItem = items[1];
         expect(thirdItem).not.toBeNull();
         expect(thirdItem!.name).toBe('three');
         expect(thirdItem!.description).toBe('a third number');
