@@ -39,6 +39,7 @@
       imagePreview = `http://${$ip}/api/items/${item._id}/image`;
     }
     let debounceTimeout: NodeJS.Timeout | undefined;
+    let removeExistingImage = false;
 
   
     interface ICustomField {
@@ -137,20 +138,27 @@
       );
       console.log("----");
         console.log(selectedImage);
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('description', description || '');
+      formData.append('tags', JSON.stringify(tagsArray));
+      if (parentItemId) formData.append('parentItem', parentItemId);
+      if (homeItemId) formData.append('homeItem', homeItemId);
+      if (templateId) formData.append('template', templateId);
+
+      //Convert customFields to JSON
+      formData.append('customFields', JSON.stringify(formattedCustomFields));
+
+      if (removeExistingImage) {
+        formData.append('removeImage', 'true');
+      } else if (selectedImage) {
+        formData.append('image', selectedImage);
+      }
+
       try {
         const response = await fetch(`http://${$ip}/api/items/${item._id}`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name,
-            description,
-            tags: tagsArray,
-            parentItem: parentItemId,
-            homeItem: homeItemId,
-            template: templateId || null,
-            customFields: formattedCustomFields,
-            image: selectedImage,
-            }),
+          body: formData
         });
        
         const data = await response.json();
@@ -167,15 +175,14 @@
     }
 
     async function getImage() {
-      const response = await fetch(`https://${$ip}/api/items/${item._id}/image`, {
-        method: "GET",
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      const data = await response.json();
-       selectedImage = data;
-      if (!response.ok) throw new Error(data.message || 'Error editing item');
-      console.log('Image: ', data);
+      try {
+        const response = await fetch(`http://${$ip}/api/items/${item._id}/image`);
+        if (!response.ok) throw new Error('Failed to fetch image');
+        const blob = await response.blob();
+        imagePreview = URL.createObjectURL(blob);
+      } catch (err) {
+        console.error('Error fetching image:', err);
+      }
     }
   
     async function createCustomField(fieldName: string, dataType: string): Promise<ICustomField> {
@@ -571,6 +578,7 @@
                     }
                     selectedImage = null;
                     imagePreview = null;
+                    removeExistingImage = true; //Set this flag when removing image
                   }}
                 >
                   X

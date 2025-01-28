@@ -21,10 +21,23 @@ router.get('/:id', getItemById);
 router.delete('/:id', deleteItemById);
 router.get('/allContained/:parentID', getAllContainedById);
 router.post('/move', moveItem);
-router.patch('/:id', updateItem);
+router.patch('/:id', (req, res, next) => {
+  //Check if request contains multipart form data
+  const contentType = req.headers['content-type'] || '';
+  if (contentType.includes('multipart/form-data')) {
+    try {
+      const upload = getUpload();
+      upload.single('image')(req, res, next);
+    } catch (err) {
+      next(err);
+    }
+  } else {
+    //No image upload, proceed directly to updateItem
+    next();
+  }
+}, updateItem);
 router.get('/parentChain/:id', getParentChain);
 
-// Add image serving route
 router.get('/:id/image', async (req, res) => {
   try {
     const item = await BasicItem.findById(req.params.id).select('image').lean();

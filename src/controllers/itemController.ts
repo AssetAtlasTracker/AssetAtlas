@@ -226,13 +226,16 @@ export const moveItem = async (req: Request, res: Response) => {
 
 export const updateItem = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const updates = req.body;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: 'Not a valid MongoDB ID' });
-  }
-
+  
   try {
+    if (typeof req.body.tags === 'string') {
+      req.body.tags = JSON.parse(req.body.tags);
+    }
+    if (typeof req.body.customFields === 'string') {
+      const parsedFields = JSON.parse(req.body.customFields);
+      req.body.customFields = Array.isArray(parsedFields) ? parsedFields : [];
+    }
+
     const item = await BasicItem.findById(id)
       .populate<{ template: ITemplate }>('template')
       .exec();
@@ -241,34 +244,21 @@ export const updateItem = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Item not found' });
     }
 
-    //Check template custom fields if item has a template and updates include customFields
-    if (item.template && updates.customFields) {
-      const template = item.template as ITemplate;
-      const templateFieldIds = template.fields.map(field => field.toString());
-      
-      //Get existing template field values from current item
-      const existingTemplateFields = (item.customFields || [])
-        .filter((cf: CustomFieldUpdate) => templateFieldIds.includes(cf.field.toString()))
-        .map((cf: CustomFieldUpdate) => cf.field.toString());
 
-      //Get template fields in the update
-      const updatedFieldIds = (updates.customFields as CustomFieldUpdate[])
-        .map((cf: CustomFieldUpdate) => cf.field.toString());
-      
-      //Check if any template fields are missing in the update
-      const missingTemplateFields = existingTemplateFields.filter(
-        fieldId => !updatedFieldIds.includes(fieldId)
-      );
-
-      if (missingTemplateFields.length > 0) {
-        return res.status(400).json({
-          message: 'Cannot remove custom fields that are part of the template',
-          missingFields: missingTemplateFields
-        });
+    // Handle image updates
+    if (req.body.removeImage === 'true') {
+      item.image = undefined; // Remove image reference
+    } else if (req.file) {
+      const gridFSFile = req.file as GridFSFile;
+      console.log('Processing uploaded file:', gridFSFile);
+      const fileId = gridFSFile.id || gridFSFile._id;
+      if (fileId) {
+        item.image = new mongoose.Types.ObjectId(fileId);
       }
     }
 
-    Object.assign(item, updates);
+    //Update other fields
+    Object.assign(item, req.body);
     const savedItem = await item.save();
     
     res.status(200).json(savedItem);
