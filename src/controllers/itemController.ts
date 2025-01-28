@@ -3,8 +3,9 @@ import mongoose from 'mongoose';
 import BasicItem from '../models/basicItem.js';
 import type { IBasicItemPopulated } from '../models/basicItem.js';
 import Fuse from 'fuse.js';
+import type { ITemplate } from '../models/template.js';
 
-// Add interface for GridFS file
+//interface for GridFS file
 interface GridFSFile extends Express.Multer.File {
   id?: string;
   _id?: string;
@@ -13,6 +14,11 @@ interface GridFSFile extends Express.Multer.File {
     originalname: string;
     mimetype: string;
   };
+}
+
+interface CustomFieldUpdate {
+  field: string | mongoose.Types.ObjectId;
+  value: unknown;
 }
 
 import '../config/gridfs.js';
@@ -227,12 +233,41 @@ export const updateItem = async (req: Request, res: Response) => {
   }
 
   try {
-    const item = await BasicItem.findById(id);
+    const item = await BasicItem.findById(id)
+      .populate<{ template: ITemplate }>('template')
+      .exec();
+      
     if (!item) {
       return res.status(404).json({ message: 'Item not found' });
     }
 
-    //Apply updates and save (pre-save hook will handle history)
+    //Check template custom fields if item has a template and updates include customFields
+    if (item.template && updates.customFields) {
+      const template = item.template as ITemplate;
+      const templateFieldIds = template.fields.map(field => field.toString());
+      
+      //Get existing template field values from current item
+      const existingTemplateFields = (item.customFields || [])
+        .filter((cf: CustomFieldUpdate) => templateFieldIds.includes(cf.field.toString()))
+        .map((cf: CustomFieldUpdate) => cf.field.toString());
+
+      //Get template fields in the update
+      const updatedFieldIds = (updates.customFields as CustomFieldUpdate[])
+        .map((cf: CustomFieldUpdate) => cf.field.toString());
+      
+      //Check if any template fields are missing in the update
+      const missingTemplateFields = existingTemplateFields.filter(
+        fieldId => !updatedFieldIds.includes(fieldId)
+      );
+
+      if (missingTemplateFields.length > 0) {
+        return res.status(400).json({
+          message: 'Cannot remove custom fields that are part of the template',
+          missingFields: missingTemplateFields
+        });
+      }
+    }
+
     Object.assign(item, updates);
     const savedItem = await item.save();
     

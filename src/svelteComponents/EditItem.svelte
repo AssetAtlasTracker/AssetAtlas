@@ -4,7 +4,7 @@
     import { ip } from '../stores/ipStore';
     import CreateTemplate from './CreateTemplate.svelte'; 
     import type { IBasicItemPopulated } from '../models/basicItem';
-    import { Link, navigate } from "svelte-routing";
+    import { navigate } from "svelte-routing";
   
     export let dialog: HTMLDialogElement;
     export let item: IBasicItemPopulated;
@@ -77,6 +77,21 @@
       customFields[i].value = (item.customFields[i].value as string);
     }
     }
+
+    if (item.template && item.template.fields?.length) {
+      //Collect template field IDs
+      const templateFieldIds = new Set(item.template.fields.map((tid: any) => 
+        typeof tid === 'string' ? tid : tid._id.toString()
+      ));
+    
+      //Mark fields as from template if their fieldId is in the set
+      for (let i = 0; i < customFields.length; i++) {
+        if (customFields[i].fieldId && templateFieldIds.has(customFields[i].fieldId?.toString())) {
+          customFields[i].fromTemplate = true;
+        }
+      }
+    }
+
     if (item.image){
       getImage();
     }
@@ -687,56 +702,20 @@
                 />
                 {#if field.fromTemplate}
                   <InfoToolTip
-                    message='This field is required due to template "{templateName}." Value can be left empty if desired.'
+                    message='This field is required by template "{templateName}" and cannot be removed. Value can be empty if desired.'
                   />
                 {/if}
               </span>
-              {#if field.suggestions.length > 0}
-                <ul class="suggestions">
-                  {#each field.suggestions as suggestion}
-                    <button
-                      type="button"
-                      class="suggestion-item"
-                      on:mousedown={(e) => {
-                        e.preventDefault();
-                        selectCustomFieldSuggestion(index, suggestion);
-                      }}
-                    >
-                      {suggestion.fieldName} ({suggestion.dataType})
-                    </button>
-                  {/each}
-                </ul>
-              {/if}
-            </label>
-            <label class="mr-2 custom-dropdown" style="flex-basis: 150px; max-width: 150px;">
-              Data Type:
-              <select
-                class="dark-textarea py-2 px-4 w-full"
-                bind:value={field.dataType}
-                disabled={field.isExisting || field.fromTemplate}
-              >
-                <option value="string">String</option>
-                <option value="number">Number</option>
-                <option value="boolean">Boolean</option>
-              </select>
-            </label>
-            <label class="flex-1">
-              Value:
-              <input
-                type="text"
-                class="dark-textarea py-2 px-4 w-full"
-                bind:value={field.value}
-              />
             </label>
             {#if !field.fromTemplate}
-            <button
-              type="button"
-              class="x-button"
-              on:click={() => removeCustomField(index)}
-            >
-              X
-            </button>
-          {/if}
+              <button
+                type="button"
+                class="x-button"
+                on:click={() => removeCustomField(index)}
+              >
+                X
+              </button>
+            {/if}
           </div>
         {/each}
       </div>
