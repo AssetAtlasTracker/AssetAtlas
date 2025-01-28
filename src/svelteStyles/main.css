@@ -102,6 +102,13 @@ e.g. containers, theming, etc.
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
 }
 
+.sort-flex{
+  display:flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+}
+
 .simple-dialog-spacing{
   padding: 3rem 3rem 1rem;
 }
@@ -112,6 +119,32 @@ e.g. containers, theming, etc.
 
 .scrollable-content {
   overflow-y: auto;
+}
+
+/*
+Animations
+*/
+@keyframes rotating-gradient {
+  0%,100%{
+    background-image:linear-gradient(0deg, 
+                                 rgba(var(--color-primary-100) / 0.9), 
+                                 rgba(var(--color-primary-100) / 0.0)) 10;
+  }
+  25%{
+    background-image:linear-gradient(90deg, 
+                                 rgba(var(--color-primary-100) / 0.9), 
+                                 rgba(var(--color-primary-100) / 0.0)) 10;
+  }
+  50%{
+    background-image:linear-gradient(180deg, 
+                                 rgba(var(--color-primary-100) / 0.9), 
+                                 rgba(var(--color-primary-100) / 0.0)) 10;
+  }
+  75%{
+    background-image:linear-gradient(270deg, 
+                                 rgba(var(--color-primary-100) / 0.9), 
+                                 rgba(var(--color-primary-100) / 0.0)) 10;
+  }
 }
 
 /* 
@@ -239,6 +272,91 @@ e.g. buttons, lists, textareas, etc.
   border-radius: 10px;
 }
 
+.custom-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-dropdown select {
+  appearance: none;
+  background: rgba(var(--color-primary-900));
+  color: rgb(var(--theme-font-color-base));
+  border: 1px solid rgba(var(--color-primary-100) /.8);
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  width: 100%;
+}
+
+.custom-dropdown select option {
+  background: rgba(var(--color-primary-900));
+  color: rgb(var(--theme-font-color-base));
+  padding: 0.5rem;
+}
+
+.custom-dropdown select option:hover {
+  background: rgba(var(--color-primary-800));
+}
+
+.custom-dropdown::after {
+  content: '▼';
+  position: absolute;
+  top: 60%;
+  right: 1rem;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: rgba(var(--theme-font-color-base)/.8);
+}
+
+.action-container {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 1000;
+}
+
+.action-message {
+  background-color: rgba(var(--color-success-600) / 0.9);
+  color: rgb(var(--theme-font-color-base));
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  text-align: center;
+}
+
+.error-message {
+  background-color: rgba(var(--color-error-500) / 0.9);
+  color: rgb(var(--theme-font-color-base));
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  text-align: center;
+}
+
+.search-controls {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0rem 0rem 1rem;
+}
+
+.sort-container {
+  min-width: 8rem;
+  max-width: 50%;
+}
+
+.exact-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.view-toggle {
+  margin: 1rem;
+}
+
 .nav-margin {
   margin: 0rem 1rem;
 }
@@ -338,6 +456,10 @@ li {
   padding: 10px 20px 1px;
 }
 
+select {
+  width: 100%;
+}
+
 ::backdrop {
   background: rgba(var(--color-surface-900) / 0.7);
 }
@@ -347,44 +469,4 @@ input[type="file"] {
   border: 1px solid #ccc;
   border-radius: 4px;
   background-color: white;
-}
-
-.custom-dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.custom-dropdown select {
-  appearance: none;
-  background: rgba(var(--color-primary-900));
-  color: rgb(var(--theme-font-color-base));
-  border: 1px solid rgba(var(--color-primary-100) /.8);
-  border-radius: 10px;
-  padding: 0.5rem 1rem;
-  width: 100%;
-}
-
-.custom-dropdown select option {
-  background: rgba(var(--color-primary-900));
-  color: rgb(var(--theme-font-color-base));
-  padding: 0.5rem;
-}
-
-.custom-dropdown select option:hover {
-  background: rgba(var(--color-primary-800));
-}
-
-.custom-dropdown::after {
-  content: '▼';
-  position: absolute;
-  top: 60%;
-  right: 1rem;
-  transform: translateY(-50%);
-  pointer-events: none;
-  color: rgba(var(--theme-font-color-base)/.8);
-}
-
-.action-message {
-  background-color: rgba(var(--custom-blue) / 0.9);
-  color: rgb(var(--on-custom-blue));
 }

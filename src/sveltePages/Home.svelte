@@ -5,7 +5,7 @@
   import type { IBasicItemPopulated } from "../models/basicItem";
   import { ip } from "../stores/ipStore";
   import TopBar from "../svelteComponents/TopBar.svelte";
-  import { onMount } from 'svelte';
+  import { onMount } from "svelte";
 
   import "../svelteStyles/main.css";
 
@@ -14,7 +14,7 @@
   export let dialog: HTMLDialogElement;
   let sortOption: string = "alphabetical";
   let exactSearch = false;
-  let viewMode: 'list' | 'tree' = 'list';
+  let viewMode: "list" | "tree" = "list";
 
   async function handleSortChange(event: Event) {
     const target = event.target as HTMLSelectElement;
@@ -22,18 +22,18 @@
     await handleSearch(searchQuery);
   }
 
-  import Menu from '../svelteComponents/Menu.svelte';
-  export let menu : HTMLDialogElement;
+  import Menu from "../svelteComponents/Menu.svelte";
+  export let menu: HTMLDialogElement;
 
   async function handleSearch(query: string) {
-    console.log('Home: Starting search operation');
+    console.log("Home: Starting search operation");
     searchQuery = query;
     try {
       const response = await fetch(
-        `http://${$ip}/api/items/search?` + 
-        `name=${encodeURIComponent(searchQuery)}&` +
-        `sort=${encodeURIComponent(sortOption)}&` +
-        `exact=${exactSearch.toString()}`,
+        `http://${$ip}/api/items/search?` +
+          `name=${encodeURIComponent(searchQuery)}&` +
+          `sort=${encodeURIComponent(sortOption)}&` +
+          `exact=${exactSearch.toString()}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -43,61 +43,85 @@
       if (!response.ok) throw new Error("Failed to fetch items");
 
       const data = await response.json();
-      console.log('Home: Search completed, updating results');
+      console.log("Home: Search completed, updating results");
       searchResults = data as IBasicItemPopulated[];
     } catch (err) {
       console.error("Home: Error searching items:", err);
     }
   }
 
-  function toggleView(mode: 'list' | 'tree') {
+  function toggleView(mode: "list" | "tree") {
     viewMode = mode;
   }
 
   onMount(() => {
-    console.log('Home: Component mounted');
+    console.log("Home: Component mounted");
     handleSearch("");
   });
 </script>
 
-<TopBar {searchQuery} onSearch={handleSearch} menu={menu}></TopBar>
-
-
-
-
+<TopBar {searchQuery} onSearch={handleSearch} {menu}></TopBar>
 
 <div class="body">
-
   <!-- Menu for navigation - Slides out -->
   <Menu bind:menu />
-
-  <div class="search-controls">
-    <div class="sort-container custom-dropdown">
-      <label for="sort">Sort By:</label>
-      <select id="sort" bind:value={sortOption} on:change={handleSortChange}>
-        <option value="alphabetical">Alphabetical</option>
-        <option value="firstAdded">First Added</option>
-        <option value="lastAdded">Last Added</option>
-      </select>
+  <div class="sort-flex">
+    <div class="search-controls">
+      <div class="sort-container custom-dropdown">
+        <label for="sort">Sort By:</label>
+        <select id="sort" bind:value={sortOption} on:change={handleSortChange}>
+          <option value="alphabetical">A-Z</option>
+          <option value="lastAdded">Newest</option>
+          <option value="firstAdded">Oldest</option>
+        </select>
+      </div>
+      <!-- This should be next to the search bar-->
+      <label class="exact-search">
+        <input
+          type="checkbox"
+          bind:checked={exactSearch}
+          on:change={() => handleSearch(searchQuery)}
+        />
+        Exact Search
+      </label>
     </div>
-  
-    <label class="exact-search">
-      <input type="checkbox" bind:checked={exactSearch} on:change={() => handleSearch(searchQuery)} />
-      Exact Search
-    </label>
+
+    <!--This should probably be an actual toggle switch-->
+    <div>
+      <br />
+      <button
+        class="border-button font-semibold shadow mt-4 block"
+        on:click={() => toggleView("list")}>List View</button
+      >
+    </div>
+    
+    <div>
+      <br />
+      <button
+        class="border-button font-semibold shadow mt-4 block"
+        on:click={() => toggleView("tree")}>Tree View</button
+      >
+    </div>
   </div>
 
-  <div class="view-toggle">
-    <button class="border-button font-semibold shadow mt-4 block" on:click={() => toggleView('list')}>List View</button>
-    <button class="border-button font-semibold shadow mt-4 block" on:click={() => toggleView('tree')}>Tree View</button>
-  </div>
-
-  {#if viewMode === 'list'}
+  {#if viewMode === "list"}
     {#if searchResults.length > 0}
       <ItemContainer items={searchResults} />
     {:else}
-      <div class="page-component">
-        <p>No items found.</p>
+      <div class="page-component glass">
+        <p class="text-center important-text">No Items Found</p>
+        <br />
+        <p class="text-center">
+          Add new items using the + button in the bottom right.
+        </p>
+        <p class="text-center">
+          Or import bulk items using the menu in the top left.
+        </p>
+        <br />
+        <p class="text-center">
+          If you are expecting items to be here, you may need to refresh the
+          page.
+        </p>
       </div>
     {/if}
   {:else}
@@ -111,34 +135,4 @@
     +
   </button>
   <CreateItem bind:dialog />
-
 </div>
-
-
-<style>
-  .search-controls {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin: 1rem;
-  }
-
-  .sort-container {
-    min-width: 200px;
-  }
-
-  .exact-search {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .view-toggle {
-    margin: 1rem;
-  }
-
-  select {
-    width: 100%;
-    min-width: 200px;
-  }
-</style>
