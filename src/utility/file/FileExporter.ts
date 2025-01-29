@@ -11,6 +11,7 @@ export class FileExporter {
             console.log(message);
         } catch (err) {
             if (err) {
+                console.error(err);
                 message = 'Some error occurred - file either not saved or corrupted file saved.';
                 console.error(message);
             }

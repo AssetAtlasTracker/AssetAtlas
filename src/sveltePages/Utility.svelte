@@ -6,6 +6,7 @@
     import { CSVFormatterPopulated } from '../utility/formating/CSVFormatterPopulated.js';
     import type { ITemplatePopulated } from '../models/template';
     import Dialog from '../svelteComponents/Dialog.svelte';
+    import { downloadFile } from '../utility/file/FileDownloader';
     //import { Types } from 'mongoose';
 
     let files : FileList;
@@ -64,60 +65,47 @@
 
     async function handleExport() {
       try {
-      let itemCSVName = document.getElementById("itemCSVName")?.textContent;
-      let templateCSVName = document.getElementById("templateCSVName")?.textContent;
-      if (!itemCSVName) {
-        itemCSVName = "items";
-      }
-      if (!templateCSVName) {
-        templateCSVName = "templates";
-      }
+        let itemCSVName = document.getElementById("itemCSVName")?.textContent;
+        let templateCSVName = document.getElementById("templateCSVName")?.textContent;
+        if (!itemCSVName) {
+          itemCSVName = "items";
+        }
+        if (!templateCSVName) {
+          templateCSVName = "templates";
+        }
 
-      const responseT = await fetch(`http://${$ip}/api/templates/getTemplates`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!responseT.ok) throw new Error('Failed to fetch templates');
-      let templates : ITemplatePopulated[] = [];
-      const dataT = await responseT.json();
-      templates = dataT as ITemplatePopulated[];
-      //let templateMap = new Map<Types.ObjectId, ITemplatePopulated>(); // The bad line!!!
-      // templates.forEach(template => templateMap.set(template.id, template));
+        const responseT = await fetch(`http://${$ip}/api/templates/getTemplates`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (!responseT.ok) throw new Error('Failed to fetch templates');
+        let templates : ITemplatePopulated[] = [];
+        const dataT = await responseT.json();
+        templates = dataT as ITemplatePopulated[];
 
-      const responseI = await fetch(`http://${$ip}/api/items/search?name=${encodeURIComponent("")}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!responseI.ok) throw new Error('Failed to fetch items');
-      let items = [];
-      const dataI = await responseI.json();
-      items = dataI as IBasicItemPopulated[];
-      console.log("Fetched Items for Export:", items);
-      const itemRoot = items.filter(item => item.parentItem === null);
+        const responseI = await fetch(`http://${$ip}/api/items/search?name=${encodeURIComponent("")}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (!responseI.ok) throw new Error('Failed to fetch items');
+        let items = [];
+        const dataI = await responseI.json();
+        items = dataI as IBasicItemPopulated[];
+        console.log("Fetched Items for Export:", items);
+        const itemRoot = items.filter(item => item.parentItem === null);
 
-      const formatter = new CSVFormatterPopulated(items, templates, itemRoot);//>templateMap);
-      const templateContent = formatter.formatTemplates();
-      const itemContent = formatter.formatItems();
+        const formatter = new CSVFormatterPopulated(items, templates, itemRoot);//>templateMap);
+        const templateContent = formatter.formatTemplates();
+        const itemContent = formatter.formatItems();
 
-
-          const response = await fetch(`http://${$ip}/api/csv/export`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              filePaths: [itemCSVName, templateCSVName],
-              data: itemContent,
-              templateData: templateContent,
-              folder: "../out",
-            }),
-          });
-          const res = await response.json();
-          if (!res.ok) throw new Error('Error when writing formatted data.');
-          setDialogText("Data Exported Successfully!");
-          dialog.showModal();
-        } catch (err) {
-          console.error('Error exporting:', err);
-          setDialogText("Error Exporting to Files.");
-          dialog.showModal();
+        downloadFile(itemCSVName, itemContent);
+        downloadFile(templateCSVName, templateContent);
+        setDialogText("Data Exported Successfully!");
+        dialog.showModal();
+      } catch (err) {
+        console.error('Error exporting:', err);
+        setDialogText("Error Exporting to Files.");
+        dialog.showModal();
       }
     }
   </script>
