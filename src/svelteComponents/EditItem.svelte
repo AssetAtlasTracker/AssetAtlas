@@ -47,7 +47,7 @@
     }
     let debounceTimeout: NodeJS.Timeout | undefined;
     let removeExistingImage = false;
-    let sameLocations: boolean = false;
+    let sameLocations: boolean = true;
 
     console.log(homeItemId);
 

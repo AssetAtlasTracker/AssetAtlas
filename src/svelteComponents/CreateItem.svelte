@@ -28,7 +28,7 @@
   let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
   let selectedImage: File | null = null;
   let imagePreview: string | null = null;
-  let sameLocations: boolean = false;
+  let sameLocations: boolean = true;
 
   interface ICustomField {
     _id: string;
