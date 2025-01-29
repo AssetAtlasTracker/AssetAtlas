@@ -5,12 +5,9 @@
   import { Menu } from "lucide-svelte";
 
   export let searchQuery: string = "";
-  export let onSearch: (query: string) => void = navHome;
+  export let onSearch: (query: string) => void;
   export let menu : HTMLDialogElement;
-  function navHome() {
-    // navigate("/");
-  }
-
+ 
   function navigateToViewTemplates() {
     navigate("/viewTemplates");
   }
@@ -35,10 +32,10 @@
         <SearchBar {searchQuery} {onSearch} />
       </div>
     </div>
-    <div class="float-right">
+    <!-- <div class="float-right">
       <button class="nav-margin text-xl font-bold" on:click={navigateToViewTemplates}>
         View Templates (temp location)
       </button>
-    </div>
+    </div> -->
   </div>
 </AppBar>
