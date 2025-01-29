@@ -7,6 +7,8 @@ import threading
 import time
 from envWriter import set_env_variable
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Function to write Tailscale auth key to .env file inside the docker folder
 def save_auth_key():
     auth_key = auth_key_entry.get()
@@ -15,7 +17,8 @@ def save_auth_key():
         return
 
     try:
-        set_env_variable("TS_AUTH_KEY", auth_key)
+        docker_env_path = os.path.join(SCRIPT_DIR, "docker", ".env")
+        set_env_variable("TS_AUTH_KEY", auth_key, docker_env_path)
 
         messagebox.showinfo("Success", "Tailscale Auth Key saved to docker/.env")
     except Exception as e:
@@ -52,16 +55,21 @@ def shutdown_docker_thread():#Why do we do this stuff in threads? docker takes a
 
 def shutdown_docker():
     try:
-        compose_file = os.path.join("docker", "docker-compose-tailscale.yml")
-        command = ["docker-compose", "-f", compose_file, "stop"]
+        #only target AssetAtlas containers
+        command = ["docker", "compose", "ls", "--filter", "name=assetatlas", "-q"]
+        running = subprocess.check_output(command).decode().strip()
+        
+        if running:
+            compose_file = os.path.join(SCRIPT_DIR, "docker", "docker-compose-tailscale.yml")
+            command = ["docker-compose", "-f", compose_file, "stop"]
 
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = process.communicate()
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out, err = process.communicate()
 
-        if process.returncode != 0:
-            shutdown_button.config(state=tk.NORMAL)
-            messagebox.showerror("Error", f"Failed to stop Docker Containers:\n{err.decode()}")
-            return
+            if process.returncode != 0:
+                shutdown_button.config(state=tk.NORMAL)
+                messagebox.showerror("Error", f"Failed to stop Docker Containers:\n{err.decode()}")
+                return
 
         shutdown_button.config(state=tk.NORMAL)
         label_status.config(text="Docker containers stopped")
@@ -69,8 +77,11 @@ def shutdown_docker():
     except Exception as e:
         shutdown_button.config(state=tk.NORMAL)
         messagebox.showerror("Error", f"Unexpected error: {e}")
-    
 
+def on_closing():
+    if messagebox.askyesno("Quit", "Do you want to shut down the Docker containers before exiting? (If you dont, you will need to shut the program down in docker desktop)"):
+        shutdown_docker()
+    root.destroy()
 
 def run_docker_compose_thread(mode):
     run_button.config(state=tk.DISABLED)
@@ -84,18 +95,21 @@ def run_docker_compose(mode):
     progressbar.start()
     try:
         if mode == "local":
-            compose_file = os.path.join("docker", "docker-compose.yml")
+            compose_file = os.path.join(SCRIPT_DIR, "docker", "docker-compose.yml")
             command = ["docker-compose", "-f", compose_file, "up", "--build", "-d"]
             url = "http://localhost:3000"
-            set_env_variable("IP", "localhost:3000")
+            set_env_variable("IP", "localhost:3000", os.path.join(SCRIPT_DIR, "docker", ".env"))
         elif mode == "tailscale":
-            compose_file = os.path.join("docker", "docker-compose-tailscale.yml")
+            compose_file = os.path.join(SCRIPT_DIR, "docker", "docker-compose-tailscale.yml")
             command = ["docker-compose", "-f", compose_file, "up", "--build", "-d"]
         elif mode == "dev":
-            compose_file = os.path.join("docker", "docker-compose.dev.yml")
+            compose_file = os.path.join(SCRIPT_DIR, "docker", "docker-compose.dev.yml")
             command = ["docker-compose", "-f", compose_file, "up", "--build", "-d"]
             url = "http://localhost:3000"
-            set_env_variable("IP", "localhost:3000")
+            set_env_variable("IP", "localhost:3000", os.path.join(SCRIPT_DIR, "docker", ".env"))
+
+        #working directory to where docker-compose files are located
+        os.chdir(os.path.join(SCRIPT_DIR, "docker"))
 
         # Run the docker-compose command
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -118,7 +132,7 @@ def run_docker_compose(mode):
                     ).decode().strip()
                     if tailscale_ip:
                         print(f"Found Tailscale IP: {tailscale_ip}")
-                        set_env_variable("IP", tailscale_ip + ":3000")
+                        set_env_variable("IP", tailscale_ip + ":3000", os.path.join(SCRIPT_DIR, "docker", ".env"))
                         break
                 except subprocess.CalledProcessError as e:
                     print(f"Attempt {attempt + 1} failed: {e}")
@@ -143,6 +157,7 @@ def run_docker_compose(mode):
 
 root = tk.Tk()
 root.title("Docker Compose Launcher")
+root.protocol("WM_DELETE_WINDOW", on_closing)
 
 # GUI for Tailscale Auth Key input
 tk.Label(root, text="Tailscale Auth Key:").grid(row=0, column=0, padx=10, pady=10)
