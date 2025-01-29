@@ -4,6 +4,7 @@
   import { ip } from "../stores/ipStore";
   import CreateTemplate from "./CreateTemplate.svelte";
   import { actionStore } from '../stores/actionStore';
+  import { SlideToggle } from '@skeletonlabs/skeleton';
 
   import "../svelteStyles/main.css";
     import { navigate } from "svelte-routing";
@@ -27,6 +28,7 @@
   let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
   let selectedImage: File | null = null;
   let imagePreview: string | null = null;
+  let sameLocations: boolean = false;
 
   interface ICustomField {
     _id: string;
@@ -89,6 +91,11 @@
       }
 
       const tagsArray = tags.split(",").map((tag) => tag.trim());
+
+      if(sameLocations){
+        parentItemId = homeItemId;
+        parentItemName = homeItemName;
+      }
 
       //Filter out empty fields not from the template
       customFields = customFields.filter((field) => {
@@ -621,21 +628,34 @@
           {/if}
         </div>
 
-        <div class="flex flex-wrap space-x-4">
+        <SlideToggle name="slide" bind:checked={sameLocations} active="bg-green-700">Use same home and current location</SlideToggle>
+        <div class="flex flex-wrap space-x-4"> 
           <!-- Parent Item -->
           <label class="flex-1 min-w-[200px] relative">
-            Parent Item:
+            Current Location:
             <InfoToolTip
               message="Where an item currently is, e.g. a shirt's parent item may be a suitcase."
             />
-            <input
+            {#if sameLocations}
+              <input
+                type="text"
+                class="dark-textarea py-2 px-4 w-full"
+                bind:value={homeItemName}
+                on:input={handleHomeItemInput}
+                on:focus={handleHomeItemFocus}
+                on:blur={() => (parentItemSuggestions = [])}
+              />
+            {:else}
+              <input
               type="text"
               class="dark-textarea py-2 px-4 w-full"
               bind:value={parentItemName}
               on:input={handleParentItemInput}
               on:focus={handleParentItemFocus}
               on:blur={() => (parentItemSuggestions = [])}
-            />
+              />
+            {/if}
+            
             {#if parentItemSuggestions.length > 0}
               <ul class="suggestions">
                 {#each parentItemSuggestions as item}
@@ -656,7 +676,7 @@
 
           <!-- Home Item -->
           <label class="flex-1 min-w-[200px] relative">
-            Home Item:
+            Home Location:
             <InfoToolTip
               message="Where an item should normally be, e.g a shirt's home item may be a drawer."
             />

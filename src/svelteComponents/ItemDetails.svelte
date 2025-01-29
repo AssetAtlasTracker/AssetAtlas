@@ -79,20 +79,20 @@
 
     {#if item.parentItem}
       <li>
-        <strong>Parent Item:</strong>
+        <strong>Current Location:</strong>
         <Link to={`/view/${item.parentItem._id}`}>{item.parentItem.name}</Link>
       </li>
     {:else}
-      <li><strong>Parent Item:</strong> No parent</li>
+      <li><strong>Current Location:</strong> No parent</li>
     {/if}
 
     {#if item.homeItem}
       <li>
-        <strong>Home Item:</strong>
+        <strong>Home Location:</strong>
         <Link to={`/view/${item.homeItem._id}`}>{item.homeItem.name}</Link>
       </li>
     {:else}
-      <li><strong>Home Item:</strong> No home ;(</li>
+      <li><strong>Home Location:</strong> No home ;(</li>
     {/if}
 
     {#if item.containedItems && item.containedItems.length > 0}

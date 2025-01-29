@@ -5,6 +5,7 @@
     import CreateTemplate from './CreateTemplate.svelte'; 
     import type { IBasicItemPopulated } from '../models/basicItem';
     import { navigate } from "svelte-routing";
+    import { SlideToggle } from '@skeletonlabs/skeleton';
   
     export let dialog: HTMLDialogElement;
     export let item: IBasicItemPopulated;
@@ -18,13 +19,19 @@
     if (item.parentItem?.name != null) {
       parentItemName = item.parentItem?.name;
     }
-    let parentItemId: string | null = item.parentItem?.id;
+    let parentItemId: string | null = null;
+    if (item.parentItem){
+      parentItemId = item.parentItem._id.toString();
+    }
     let parentItemSuggestions: any[] = [];
     let homeItemName = '';
     if (item.homeItem?.name != null) {
       homeItemName = item.homeItem?.name;
     }
-    let homeItemId: string | null = item.homeItem?.id;
+    let homeItemId: string | null = null;
+    if (item.homeItem){
+      homeItemId = item.homeItem._id.toString();
+    }
     let homeItemSuggestions: any[] = [];
     let templateName = '';
     let templateId: string | null = null;
@@ -40,8 +47,10 @@
     }
     let debounceTimeout: NodeJS.Timeout | undefined;
     let removeExistingImage = false;
+    let sameLocations: boolean = false;
 
-  
+    console.log(homeItemId);
+
     interface ICustomField {
       _id: string;
       fieldName: string;
@@ -118,26 +127,29 @@
       }
   
       const tagsArray = tags.split(',').map(tag => tag.trim());
+
+      if(sameLocations){
+        parentItemId = homeItemId;
+        parentItemName = homeItemName;
+      }
   
       //Filter out empty fields not from the template
       customFields = customFields.filter(field => {
         if (field.fromTemplate) return true; //Always keep template fields that were loaded
         return field.fieldName.trim() !== '' && field.dataType.trim() !== '';
       });
-      console.log(customFields);
+      
       const formattedCustomFields = await Promise.all(
         customFields.map(async (field) => {
           if (!field.isNew && field.fieldId) {
             return { field: field.fieldId, value: field.value };
           } else {
             const createdField = await createCustomField(field.fieldName, field.dataType);
-            console.log(createdField);
             return { field: createdField._id, value: field.value };
           }
         })
       );
-      console.log("----");
-        console.log(selectedImage);
+
       const formData = new FormData();
       formData.append('name', name);
       formData.append('description', description || '');
@@ -586,20 +598,32 @@
               </div>
             {/if}
           </div>
-  
+          
+          <SlideToggle name="slide" bind:checked={sameLocations} active="bg-green-700">Use same home and current location</SlideToggle>
           <div class="flex flex-wrap space-x-4">
             <!-- Parent Item -->
             <label class="flex-1 min-w-[200px] relative">
-              Parent Item:
+              Current Location:
               <InfoToolTip message="Where an item currently is, e.g. a shirt's parent item may be a suitcase." />
-              <input 
+              {#if sameLocations}
+              <input
                 type="text"
                 class="dark-textarea py-2 px-4 w-full"
-                bind:value={parentItemName}
-                on:input={handleParentItemInput}
-                on:focus={handleParentItemFocus}
-                on:blur={() => parentItemSuggestions = []}
+                bind:value={homeItemName}
+                on:input={handleHomeItemInput}
+                on:focus={handleHomeItemFocus}
+                on:blur={() => (parentItemSuggestions = [])}
               />
+            {:else}
+              <input
+              type="text"
+              class="dark-textarea py-2 px-4 w-full"
+              bind:value={parentItemName}
+              on:input={handleParentItemInput}
+              on:focus={handleParentItemFocus}
+              on:blur={() => (parentItemSuggestions = [])}
+              />
+            {/if}
               {#if parentItemSuggestions.length > 0}
               <ul class="suggestions">
                 {#each parentItemSuggestions as item}
@@ -620,7 +644,7 @@
   
             <!-- Home Item -->
             <label class="flex-1 min-w-[200px] relative">
-              Home Item:
+              Home Location:
               <InfoToolTip message="Where an item should normally be, e.g a shirt's home item may be a drawer." />
               <input 
                 type="text"
