@@ -4,7 +4,7 @@ AssetAtlas is a self hosted database with an object-oriented approach to keeping
 
 ## End User Setup
 
-### Multi device remote access pre-setup
+### (Optional) Multi device remote access pre-setup
 
 1. Make a Tailscale account
    - <https://login.tailscale.com/login>
@@ -21,7 +21,7 @@ AssetAtlas is a self hosted database with an object-oriented approach to keeping
 1. Make sure you have Python downloaded
    - <https://www.python.org/downloads/>
 1. Run the start.py file. It is located in the folder that was downloaded from this github page. You can right click on it and "Open with > python".
-1. If you are running tailscale mode (only needed if you want to remotley use the database from multiple devices) for the first time, do
+1. (Optional) If you are running tailscale mode (only needed if you want to remotley use the database from multiple devices) for the first time, do
    1. Create a Tailscale auth key
    1. <https://login.tailscale.com/admin/settings/keys>
    1. "Auth keys"
