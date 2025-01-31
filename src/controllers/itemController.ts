@@ -136,8 +136,12 @@ export const searchItems = async (req: Request, res: Response) => {
 
   try {
     const items = await BasicItem.find({})
-      .populate('parentItem', 'name')
-      .populate('containedItems', 'name')
+      .populate('template')
+      .populate('parentItem')
+      .populate('homeItem')
+      .populate('containedItems')
+      .populate('customFields.field')
+      .populate('itemHistory.location')
       .lean<IBasicItemPopulated[]>()
       .exec();
 
