@@ -10,6 +10,8 @@
 
     let files : FileList;
     let dialog: HTMLDialogElement;
+    let itemInput: string ="";
+    let templateInput : string="";
 
     function goBack() {
       window.history.back();
@@ -62,17 +64,6 @@
 
     async function handleExport() {
       try {
-        const itemInput = document.getElementById("itemCSVName");
-        const templateInput = document.getElementById("templateCSVName")
-        let itemCSVName = itemInput?.textContent;
-        let templateCSVName = templateInput?.textContent;
-        if (!itemCSVName) {
-          itemCSVName = "items";
-        }
-        if (!templateCSVName) {
-          templateCSVName = "templates";
-        }
-
         const responseT = await fetch(`http://${$ip}/api/templates/getTemplates`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -91,21 +82,24 @@
         const dataI = await responseI.json();
         items = dataI as IBasicItemPopulated[];
         console.log("Fetched Items for Export:", items);
-        const itemRoot = items.filter(item => item.parentItem === null);
+        const itemRoot = items.filter(item => {return item.parentItem == null});
 
         const formatter = new CSVFormatterPopulated(items, templates, itemRoot);//>templateMap);
         const templateContent = formatter.formatTemplates();
         const itemContent = formatter.formatItems();
 
-        downloadFile(itemCSVName, itemContent);
-        downloadFile(templateCSVName, templateContent);
+        if (!itemInput) {
+          itemInput = "items";
+        }
+        if (!templateInput) {
+          templateInput = "templates";
+        }
 
-        if (itemInput) {
-          itemInput!.innerText = "";
-        }
-        if (templateInput) {
-          templateInput!.innerText = "";
-        }
+        downloadFile(itemInput, itemContent);
+        downloadFile(templateInput, templateContent);
+
+        itemInput = "";
+        templateInput = "";
 
         setDialogText("Data Exported Successfully!");
         dialog.showModal();
@@ -132,9 +126,9 @@
 
     <div class="utility-col">
       <label for="itemCSVName">Title of Item CSV:</label>
-      <input type="text" id="itemCSVName"> 
+      <input type="text" id="itemCSVName" bind:value={itemInput}> 
       <label for="templateCSVName">Title of Template CSV:</label>
-      <input type="text" id="templateCSVName">
+      <input type="text" id="templateCSVName" bind:value={templateInput}>
       <button on:click={handleExport}>Export To CSV</button>
     </div>
 
