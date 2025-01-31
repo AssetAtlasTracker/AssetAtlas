@@ -40,7 +40,7 @@ export class ParserManager {
                 itemParser.parse(contents);
                 let customFields = itemParser.customFieldMap;
                 await adder.addCustomFields(customFields);
-                adder.addItems(itemParser.itemTree, itemParser.itemMap);
+                await adder.addItems(itemParser.itemTree, itemParser.itemMap);
             } else {
                 throw Error("Error: Cannot parse item data contents.");
             }

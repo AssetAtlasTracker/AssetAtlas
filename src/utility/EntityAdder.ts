@@ -34,38 +34,38 @@ export class EntityAdder {
         return this.customFidMap;
     }
 
-    addItems(items: IBasicItem[], map: Map<Types.ObjectId, IBasicItem>) {
-        items.forEach((item) => {
+    async addItems(items: IBasicItem[], map: Map<Types.ObjectId, IBasicItem>) {
+        for (var i = 0; i < items.length; i++) {
+            const item = items[i];
             const containedItems = item.containedItems;
-            this.callAddItem(item).then((newId) => {
-                if (containedItems != undefined && containedItems != null && containedItems.length !== 0) {
-                    // we have contained Items.
-                    const subItemsToAdd = containedItems.map(id => map.get(id.toHexString() as unknown as Types.ObjectId)!); // TODO: while should be impossible, determine if should check for unknown here
-                    if (subItemsToAdd.length > 0) {
-                        this.addItemsHelper(subItemsToAdd, map, newId);
-                    }
+            const newId = await this.callAddItem(item);
+            if (containedItems != undefined && containedItems != null && containedItems.length !== 0) {
+                // we have contained Items.
+                const subItemsToAdd = containedItems.map(id => map.get(id.toHexString() as unknown as Types.ObjectId)!); // TODO: while should be impossible, determine if should check for unknown here
+                if (subItemsToAdd.length > 0) {
+                    await this.addItemsHelper(subItemsToAdd, map, newId);
                 }
-            });
-        });
+            }
+        }
     }
 
-    addItemsHelper(items: IBasicItem[], map: Map<Types.ObjectId, IBasicItem>, parentID: Types.ObjectId) {
-        items.forEach((item) => {
+    async addItemsHelper(items: IBasicItem[], map: Map<Types.ObjectId, IBasicItem>, parentID: Types.ObjectId) {
+        for (var i = 0; i < items.length; i++) {
+            const item = items[i];
             item.parentItem = parentID;
             const containedItems = item.containedItems;
-            this.callAddItem(item).then((newId) => {
-                if (containedItems != undefined && containedItems != null && containedItems.length !== 0) {
-                    // we have contained Items
-                    const subItemsToAdd = containedItems.map(id => map.get(id.toHexString() as unknown as Types.ObjectId)!); // TODO: while should be impossible, determine if should check for unknown here
-                    const parentID = newId;
-                    if (subItemsToAdd.length > 0) {
-                        this.addItemsHelper(subItemsToAdd, map, parentID);
-                    }
-                } else {
-                    return;
+            const newId = await this.callAddItem(item);
+            if (containedItems != undefined && containedItems != null && containedItems.length !== 0) {
+                // we have contained Items
+                const subItemsToAdd = containedItems.map(id => map.get(id.toHexString() as unknown as Types.ObjectId)!); // TODO: while should be impossible, determine if should check for unknown here
+                const parentID = newId;
+                if (subItemsToAdd.length > 0) {
+                    this.addItemsHelper(subItemsToAdd, map, parentID);
                 }
-            });
-        });
+            } else {
+                return;
+            }
+        }
     }
 
     async addTemplates(templates: ITemplate[]) {

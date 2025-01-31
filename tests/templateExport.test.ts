@@ -1,17 +1,12 @@
-import {test} from "../src/utility"
-import Template, { ITemplate } from "../src/models/template";
-import { Types } from "mongoose";
-import CustomField, { ICustomField } from "../src/models/customField";
-import { IBasicItem } from "../src/models/basicItem";
-
-const resources = test();
-const CSVFormatter = resources.formatter;
-
+import Template, { ITemplatePopulated } from "../src/models/template";
+import CustomField from "../src/models/customField";
+import {describe, it, expect} from "vitest";
+import { CSVFormatterPopulated } from "../src/utility/formating/CSVFormatterPopulated";
 
 describe("Testing Template Formatting", () => {
 
     it("Should format one template", async () => {
-        let firstTemplate = new Template();
+        let firstTemplate = new Template() as unknown as ITemplatePopulated;
         firstTemplate.name = "first";
         firstTemplate.id = 1;
         firstTemplate.name = "first";
@@ -28,23 +23,14 @@ describe("Testing Template Formatting", () => {
         edibleField.fieldName = "edible";
         edibleField.dataType = "boolean";
 
-        firstTemplate.fields.push(nameField.id);
-        firstTemplate.fields.push(amountField.id);
-        firstTemplate.fields.push(edibleField.id);
-
-        let fieldMap = new Map<Types.ObjectId, ICustomField>();
-        fieldMap.set(nameField.id, nameField);
-        fieldMap.set(amountField.id, amountField);
-        fieldMap.set(edibleField.id, edibleField);
-
-        let templateMap = new Map<Types.ObjectId, ITemplate>();
-        templateMap.set(firstTemplate.id, firstTemplate);
-
+        firstTemplate.fields.push(nameField);
+        firstTemplate.fields.push(amountField);
+        firstTemplate.fields.push(edibleField);
 
         const csvContent = `template name\nfirst,name,amount,edible\n,string,number,boolean`;
-        const formatter = new CSVFormatter(fieldMap, new Map<Types.ObjectId, IBasicItem>(), templateMap);
-        const str = formatter.formatTemplates([firstTemplate]);
-        expect(str === csvContent);
+        const formatter = new CSVFormatterPopulated([], [firstTemplate], []);
+        const str = formatter.formatTemplates();
+        expect(str).toBe(csvContent);
     });
 
 });

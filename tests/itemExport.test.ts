@@ -1,13 +1,57 @@
 import { Types } from "mongoose";
 import BasicItem, { IBasicItemPopulated } from "../src/models/basicItem";
 import CustomField, { ICustomField } from "../src/models/customField";
-
-import {test} from "../src/utility"
 import { CSVFormatterPopulated } from "../src/utility/formating/CSVFormatterPopulated";
+import {describe, it, expect, beforeAll, afterAll, beforeEach} from "vitest";
+import { FileExporter } from "../src/utility/file/FileExporter";
+import { FileLoader } from "../src/utility/file/FileLoader";
+import {ParserManager} from "../src/utility/parsing/ParserManager";
+import request from 'supertest';
+import express from 'express';
+import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import itemRouter from '../src/routes/itemRoutes.js';
+import customFieldRouter from '../src/routes/customFieldRoutes.js';
+import TemplateRouter from '../src/routes/templateRoutes.js';
+import Template, { ITemplatePopulated } from '../src/models/template.js';
+import { RecentItems } from '../src/models/recentItems.js';
 
-const resources = test();
-const FileLoader = resources.loader;
-const FileExporter = resources.exporter;
+let app: express.Application;
+let mongoServer: MongoMemoryServer;
+
+beforeAll(async () => {
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
+  
+    await mongoose.connect(mongoUri, { dbName: 'test' });
+  
+    app = express();
+    app.use(express.json());
+    app.use('/api/items', itemRouter);
+    app.use('/api/customFields', customFieldRouter);
+    app.use('/api/templates', TemplateRouter);
+  });
+  
+  afterAll(async () => {
+    await mongoose.connection.dropDatabase();
+    await mongoose.connection.close();
+    await mongoServer.stop();
+  });
+  
+  // Clear the database before each test to ensure isolation
+  beforeEach(async () => {
+    await BasicItem.deleteMany({});
+    await CustomField.deleteMany({});
+    await Template.deleteMany({});
+    await RecentItems.deleteMany({});
+    await Promise.all([
+      RecentItems.create({ type: 'item', recentIds: [], maxItems: 5 }),
+      RecentItems.create({ type: 'template', recentIds: [], maxItems: 5 }),
+      RecentItems.create({ type: 'customField', recentIds: [], maxItems: 5 })
+    ]);
+  
+  });
+
 
 describe("Testing Item Exporting", () => {
 
@@ -54,6 +98,7 @@ describe("Testing Item Exporting", () => {
         const path = "./tests/resource";
         const filename = "test-csv-item-2";
         const extension = ".csv";
+        const loader = new FileLoader();
 
         const firstItem = new BasicItem() as unknown as IBasicItemPopulated;
         firstItem._id = new Types.ObjectId();
@@ -74,16 +119,71 @@ describe("Testing Item Exporting", () => {
         const second = secondItem as unknown as IBasicItemPopulated;
         
         const formatter = new CSVFormatterPopulated([firstItem, second], [], [firstItem]);
-        const result = formatter.formatItems();
+        const result : string = formatter.formatItems();
 
-        const csvContent = `item name,template,description\ndog,,a german shepherd\n>\ncollar,,a blue collar with a dog tag\n<`;
-        expect(result).toBe(csvContent);
+        const csvContent : string = `item name,template,description\ndog,,a german shepherd\n>\ncollar,,a blue collar with a dog tag\n<`;
+        expect(result === csvContent).toBeTruthy();
+        expect(result.length == csvContent.length);
         console.log(result);
 
         const exporter = new FileExporter();
-        exporter.export(filename, path, result.toString(), extension);
+        await exporter.export(filename, path, result, extension);
 
-        const result2 = FileLoader.readFile(`${path}/${filename}${extension}`);
-        expect(result2 == csvContent);
+        const result2 = await loader.readFile(`${path}/${filename}${extension}`);
+        expect(result2).toBe(csvContent);
     });
+
+    it("Should format an item parsed from a file and export the content", async () => {
+        const path = "./tests/resource";
+        const itemFile = "test-csv-item-3";
+        const templateFile = "test-csv-template-1";
+        const extension = ".csv";
+
+        const loader = new FileLoader();
+        const itemData = await loader.readFile(`${path}/${itemFile}${extension}`);
+        const templateData = await loader.readFile(`${path}/${templateFile}${extension}`);
+
+        const parser = new ParserManager();
+        await parser.parseFromFiles([itemData, templateData]);
+
+
+        // const responseT = await fetch(`http://${$ip}/api/templates/getTemplates`, {
+        //     method: 'GET',
+        //     headers: { 'Content-Type': 'application/json' },
+        //   });
+        const responseT = await request(app).get('/api/templates/getTemplates').send();
+        if (!responseT.ok) throw new Error('Failed to fetch templates');
+        let templates : ITemplatePopulated[] = [];
+        const dataT = await responseT.body;
+        templates = dataT as ITemplatePopulated[];
+  
+        // const responseI = await fetch(`http://${$ip}/api/items/search?name=${encodeURIComponent("")}`, {
+        //     method: 'GET',
+        //     headers: { 'Content-Type': 'application/json' },
+        // });
+        const responseI = await request(app).get(`/api/items/search?name=${encodeURIComponent("")}&sort=alphabetical&exact=false`);
+        if (!responseI.ok) throw new Error('Failed to fetch items');
+        let items : IBasicItemPopulated[] = [];
+        const dataI = await responseI.body;
+        items = dataI as IBasicItemPopulated[];
+        console.log("Fetched Items for Export:", items);
+        const itemRoot = items.filter(item => {return item.parentItem == null});
+  
+        const formatter = new CSVFormatterPopulated(items, templates, itemRoot);//>templateMap);
+        const itemContent = formatter.formatItems();
+
+
+        const csvContent = `item name,template,description, expiration date,weight, source, expired\nKitchen,, a place to cook food\n>\nFridge,, a place to put food\n>\nMaybe an Apple, produce, a green sour thing, Jan 19th, 20oz, tree?, true\n<\n<`;
+        expect(itemContent).toEqual(csvContent);
+        expect(itemContent).toBe(csvContent);
+        expect(itemContent.length == csvContent.length);
+        console.log(itemContent);
+
+        const exporter = new FileExporter();
+        await exporter.export(itemFile, path, itemContent.toString(), extension);
+
+        const result2 = await loader.readFile(`${path}/${itemFile}${extension}`);
+        expect(result2).toBe(csvContent);
+    });
+
 });

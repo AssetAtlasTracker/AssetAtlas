@@ -1,6 +1,6 @@
 export function downloadFile(filename: string, data: string) {
     try {
-        const blob = new Blob([data], {type: "text/csv"});
+        const blob = new Blob([data], {type: "text/csv;charset=utf-8;"});
         const url = URL.createObjectURL(blob);
 
         const link = document.createElement("a");

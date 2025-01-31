@@ -1,7 +1,7 @@
 import fs from "fs";
 
 export class FileLoader {
-    static readFile(filePath: string): string {
+    async readFile(filePath: string): Promise<string> {
         try {
           const content = fs.readFileSync(filePath, 'utf-8');
           return content;

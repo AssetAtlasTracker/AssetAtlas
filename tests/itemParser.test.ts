@@ -1,8 +1,8 @@
 import { Types } from "mongoose";
 import BasicItem from "../src/models/basicItem";
 import CustomField, { ICustomField } from "../src/models/customField";
-
 import {test} from "../src/utility"
+import {describe, it, expect} from "vitest";
 
 const resources = test();
 const CSVItemParser = resources.itemParser;
@@ -78,7 +78,8 @@ describe("Testing Item Parsing", () => {
 
     it("Should parse an item with a subitem from a file", async () => {
         const path = "./tests/resource/test-csv-item-1.csv";
-        const content = FileLoader.readFile(path);
+        const loader = new FileLoader();
+        const content = await loader.readFile(path);
         const itemParser = new CSVItemParser([]);
 
         const canParse = itemParser.canParse(content.split(/\n|\r/)[0].split(/,/));

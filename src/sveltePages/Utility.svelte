@@ -7,7 +7,6 @@
     import type { ITemplatePopulated } from '../models/template';
     import Dialog from '../svelteComponents/Dialog.svelte';
     import { downloadFile } from '../utility/file/FileDownloader';
-    //import { Types } from 'mongoose';
 
     let files : FileList;
     let dialog: HTMLDialogElement;
@@ -58,15 +57,15 @@
       } else {
         setDialogText("Only Two Files can be Imported.\nOne with the templates and another with the items.");
         dialog.showModal();
-        // show pop up error
-        // TODO: show error
       }
     }
 
     async function handleExport() {
       try {
-        let itemCSVName = document.getElementById("itemCSVName")?.textContent;
-        let templateCSVName = document.getElementById("templateCSVName")?.textContent;
+        const itemInput = document.getElementById("itemCSVName");
+        const templateInput = document.getElementById("templateCSVName")
+        let itemCSVName = itemInput?.textContent;
+        let templateCSVName = templateInput?.textContent;
         if (!itemCSVName) {
           itemCSVName = "items";
         }
@@ -100,6 +99,14 @@
 
         downloadFile(itemCSVName, itemContent);
         downloadFile(templateCSVName, templateContent);
+
+        if (itemInput) {
+          itemInput!.innerText = "";
+        }
+        if (templateInput) {
+          templateInput!.innerText = "";
+        }
+
         setDialogText("Data Exported Successfully!");
         dialog.showModal();
       } catch (err) {
