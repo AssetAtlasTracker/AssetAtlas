@@ -518,6 +518,12 @@
       }
     }
 
+    async function handleCustomFieldFocus(index: number) {
+      if (!customFields[index].fieldName) {
+        customFields[index].suggestions = await loadRecentItems('customFields');
+      }
+    }
+  
     async function handleCustomFieldClick(index: number) {
       if (!customFields[index].fieldName) {
         customFields[index].suggestions = await loadRecentItems('customFields');
@@ -729,6 +735,7 @@
                   class="dark-textarea py-2 px-4 w-full"
                   bind:value={field.fieldName}
                   on:input={(e) => onCustomFieldNameInput(index, e)}
+                  on:focus={() => handleCustomFieldFocus(index)}
                   on:blur={() => (customFields[index].suggestions = [])}
                   disabled={field.fromTemplate}
                 />
@@ -738,6 +745,32 @@
                   />
                 {/if}
               </span>
+              <!-- Moved suggestions inside label, right after input container -->
+              {#if field.suggestions && field.suggestions.length > 0}
+                <ul class="suggestions">
+                  {#each field.suggestions as suggestion}
+                    <button 
+                      title={"Select field " + suggestion.fieldName}
+                      type="button"
+                      class="suggestion-item"
+                      on:mousedown={(e) => { 
+                        e.preventDefault(); 
+                        selectCustomFieldSuggestion(index, suggestion);
+                      }}
+                      on:click={() => handleCustomFieldClick(index)}>
+                      {suggestion.fieldName} ({suggestion.dataType})
+                    </button>
+                  {/each}
+                </ul>
+              {/if}
+            </label>
+            <label class="mr-2" style="flex-basis: 150px; max-width: 150px;">
+              Data Type:
+              <input type="text" class="dark-textarea py-2 px-4 w-full" bind:value={field.dataType} disabled />
+            </label>
+            <label class="flex-1 mr-2">
+              Value:
+              <input type="text" bind:value={field.value} class="dark-textarea py-2 px-4 w-full" />
             </label>
             {#if !field.fromTemplate}
               <button

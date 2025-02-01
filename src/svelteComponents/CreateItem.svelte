@@ -756,10 +756,7 @@
       <h2 class="font-bold text-lg mt-4">Custom Fields</h2>
       <div class="space-y-2">
         {#each customFields as field, index}
-          <div
-            class="flex flex-wrap items-start mb-4 border p-2 relative"
-          >
-            <!-- If fromTemplate, do not show delete button -->
+          <div class="flex flex-wrap items-start mb-4 border p-2 relative">
             <label class="flex-1 mr-2">
               Field Name:
               <span class="flex items-center">
@@ -773,9 +770,7 @@
                   disabled={field.fromTemplate}
                 />
                 {#if field.fromTemplate}
-                  <InfoToolTip
-                    message='This field is required due to template "{templateName}." Value can be left empty if desired.'
-                  />
+                  <InfoToolTip message='This field is required by template "{templateName}". Value can be empty if desired.' />
                 {/if}
               </span>
               {#if field.suggestions.length > 0}
@@ -796,17 +791,14 @@
                 </ul>
               {/if}
             </label>
-            <label class="mr-2 custom-dropdown" style="flex-basis: 150px; max-width: 150px;">
+            <label class="mr-2" style="flex-basis: 150px; max-width: 150px;">
               Data Type:
-              <select
+              <input
+                type="text"
                 class="dark-textarea py-2 px-4 w-full"
                 bind:value={field.dataType}
-                disabled={field.isExisting || field.fromTemplate}
-              >
-                <option value="string">String</option>
-                <option value="number">Number</option>
-                <option value="boolean">Boolean</option>
-              </select>
+                disabled
+              />
             </label>
             <label class="flex-1">
               Value:
