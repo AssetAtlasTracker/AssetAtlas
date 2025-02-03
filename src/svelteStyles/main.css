@@ -85,10 +85,36 @@ e.g. containers, theming, etc.
   padding: 20px;
   background-color: rgba(var(--color-primary-800) / 0.8);
   box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4);
-  border-radius: 10px;
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
+  border-radius: 10px;
+  transition: 0.4s ease; /* Expand & shrink */
   display:flex;
   justify-content:space-between;
+  overflow:hidden;
+  position:relative;
+}
+
+.item-card::before{ /* Hidden gradient that slides in on hover*/
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 100%;
+  left: -200%;
+  top: 0px;
+  background: 
+    linear-gradient(90deg,
+                    rgba(var(--color-success-800) / 0.8),
+                    rgba(var(--color-primary-800) / 0.8));
+  transition: 0.7s ease; /* Gradient slide in & out*/
+  z-index: -1; /* Behind item card text */
+}
+
+.item-card:hover::before { /* Initial position of gradient */
+  left: -110%;
+}
+
+.item-card:hover{
+  transform:scale(1.05);
 }
 
 .template-card {
@@ -122,28 +148,36 @@ e.g. containers, theming, etc.
 }
 
 /*
-Animations
+Keyframe Animations
 */
-@keyframes rotating-gradient {
+@keyframes rotating-gradient { /* Looping animation  (WIP)*/ 
   0%,100%{
-    background-image:linear-gradient(0deg, 
-                                 rgba(var(--color-primary-100) / 0.9), 
-                                 rgba(var(--color-primary-100) / 0.0)) 10;
+    background-image:
+      linear-gradient(0deg, 
+                      rgba(var(--color-primary-100) / 0.9), 
+                      rgba(var(--color-primary-100) / 0.0))
+      10;
   }
   25%{
-    background-image:linear-gradient(90deg, 
-                                 rgba(var(--color-primary-100) / 0.9), 
-                                 rgba(var(--color-primary-100) / 0.0)) 10;
+    background-image:
+      linear-gradient(90deg, 
+                      rgba(var(--color-primary-100) / 0.9), 
+                      rgba(var(--color-primary-100) / 0.0))
+      10;
   }
   50%{
-    background-image:linear-gradient(180deg, 
-                                 rgba(var(--color-primary-100) / 0.9), 
-                                 rgba(var(--color-primary-100) / 0.0)) 10;
+    background-image:
+      linear-gradient(180deg, 
+                      rgba(var(--color-primary-100) / 0.9), 
+                      rgba(var(--color-primary-100) / 0.0))
+      10;
   }
   75%{
-    background-image:linear-gradient(270deg, 
-                                 rgba(var(--color-primary-100) / 0.9), 
-                                 rgba(var(--color-primary-100) / 0.0)) 10;
+    background-image:
+      linear-gradient(270deg, 
+                      rgba(var(--color-primary-100) / 0.9), 
+                      rgba(var(--color-primary-100) / 0.0))
+      10;
   }
 }
 
