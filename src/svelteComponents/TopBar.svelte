@@ -7,17 +7,13 @@
   export let searchQuery: string = "";
   export let onSearch: (query: string) => void;
   export let menu : HTMLDialogElement;
- 
-  function navigateToViewTemplates() {
-    navigate("/viewTemplates");
-  }
 
   function handleClickMenu() {
     menu.click();
   }
 </script>
 
-<AppBar id="top-bar" class="border glass">
+<AppBar class="top-bar-radius border glass">
   <div class="px-4">
     <div class="nav-margin float-left">
       <button on:click={handleClickMenu}>
@@ -32,10 +28,5 @@
         <SearchBar {searchQuery} {onSearch} />
       </div>
     </div>
-    <!-- <div class="float-right">
-      <button class="nav-margin text-xl font-bold" on:click={navigateToViewTemplates}>
-        View Templates (temp location)
-      </button>
-    </div> -->
   </div>
 </AppBar>

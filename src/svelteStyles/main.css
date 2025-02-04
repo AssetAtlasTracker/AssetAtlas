@@ -3,8 +3,8 @@ Large component styles
 e.g. containers, theming, etc.
 */
 
-#top-bar{
-  border-radius: 0 0 10px 10px;
+.top-bar-radius{
+  border-radius: 0 0 10px 10px !important;
 }
 
 #home-component{
@@ -461,7 +461,9 @@ e.g. buttons, lists, textareas, etc.
 Text styles 
 */
 #title{
+  color: rgb(var(--theme-font-color-base));
   letter-spacing: -0.1rem;
+  transition: color 0.2s ease-in-out;
 }
 
 #title:hover{
