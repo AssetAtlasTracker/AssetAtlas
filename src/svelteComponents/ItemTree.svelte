@@ -57,6 +57,7 @@
     <p>Loading tree...</p>
   {:else}
     {#each treeData as item (item._id)}
+      <!--TODO: Change to not use "style="-->
       <div class="tree-item" style="margin-left: {indentLevel}rem;">
         <button class="expand-button" on:click={() => toggleExpand(item._id)}>
           {#if item.hasChildren}
@@ -66,7 +67,7 @@
           {/if}
         </button>
         <Link to={`/view/${item._id}`}>
-          <span class="item-name">{item.name}</span>
+          <span class="tree-item-name">{item.name}</span>
         </Link>
       </div>
 
@@ -76,32 +77,3 @@
     {/each}
   {/if}
 </div>
-
-<style>
-  .tree-container {
-    padding: 0.5rem;
-  }
-
-  .tree-item {
-    display: flex;
-    align-items: center;
-    padding: 0.25rem;
-  }
-
-  .expand-button {
-    margin-right: 0.5rem;
-    cursor: pointer;
-  }
-
-  .item-name {
-    cursor: pointer;
-  }
-
-  .no-children {
-    opacity: 0.5;
-  }
-
-  .item-name:hover {
-    text-decoration: underline;
-  }
-</style>

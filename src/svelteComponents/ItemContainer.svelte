@@ -9,7 +9,7 @@
 </script>
 
 {#if items && items.length > 0}
-  <div class="glass page-component">
+  <div id="home-component" class="glass page-component">
     {#each items as item}
       <Link to={`/view/${item._id}`}>
         <div class="item-card">

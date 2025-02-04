@@ -3,15 +3,43 @@ Large component styles
 e.g. containers, theming, etc.
 */
 
-:root {
-  --custom-blue: 62 127 201;
-  --on-custom-blue: 255 255 255;
+.top-bar-radius{
+  border-radius: 0 0 10px 10px !important;
 }
 
-/* .popover {
-  display: none;
-  z-index: 0;
-} */
+#home-component{
+  margin: 1rem 2%;
+  padding: 2rem 2% 1rem 2%;
+}
+
+.glass{
+  background: rgba(var(--color-primary-800) / 0.8) !important;
+  box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4 );
+  backdrop-filter: blur( 10px );
+  -webkit-backdrop-filter: blur( 10px );
+  border-radius: 10px;
+}
+
+.page-component {
+  margin: 3rem;
+  padding: 3rem;
+  border: 1px solid rgba(var(--color-primary-100) / 0.8);
+  border-radius: 10px;
+}
+  
+.internal-component { /* For components inset within other components*/
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: rgba(var(--color-primary-900) / 0.1);
+  box-shadow: inset 5px 5px 8px -8px rgb(var(--color-primary-900));
+}
+
+.dialog-component {
+  margin: 1rem;
+  padding: 1rem;
+  background: rgb(var(--color-primary-100));
+  border: 1px solid rgba(var(--color-primary-100) / 0.8);
+}
 
 .slide-out-menu {
   position: absolute;
@@ -46,36 +74,8 @@ e.g. containers, theming, etc.
   margin: 0.3em 0pt
 }
 
-.open {
-  left: 0
-}
-
-.glass{
-  background: rgba(var(--color-primary-800) / 0.8) !important;
-  box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4 );
-  backdrop-filter: blur( 10px );
-  -webkit-backdrop-filter: blur( 10px );
-  border-radius: 10px;
-}
-
-.page-component {
-  margin: 3rem;
-  padding: 3rem;
-  border: 1px solid rgba(var(--color-primary-100) / 0.8);
-}
-  
-.internal-component { /* For components inset within other components*/
-  margin: 1rem 0;
-  padding: 1rem;
-  background-color: rgba(var(--color-primary-900) / 0.1);
-  box-shadow: inset 5px 5px 8px -8px rgb(var(--color-primary-900));
-}
-
-.dialog-component {
-  margin: 1rem;
-  padding: 1rem;
-  background: rgb(var(--color-primary-100));
-  border: 1px solid rgba(var(--color-primary-100) / 0.8);
+.open{
+  left: 0;
 }
 
 .item-card {
@@ -128,7 +128,25 @@ e.g. containers, theming, etc.
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
 }
 
+.tree-container {
+  padding: 0.5rem;
+}
+
+.tree-item {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem;
+}
+
 .sort-flex{
+  display:flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.45rem 3% 0;
+}
+
+.button-row-flex{
   display:flex;
   justify-content: flex-start;
   align-items: center;
@@ -186,10 +204,6 @@ Small component styles
 e.g. buttons, lists, textareas, etc.
 */
 
-.utility-col > input {
-  color: black;
-}
-
 #resize-none-textarea{
   resize: none
 }
@@ -238,6 +252,10 @@ e.g. buttons, lists, textareas, etc.
   background: rgb(var(--color-warning-900));
 }
 
+.utility-col > input {
+  color: black;
+}
+
 .add-button {
   background: rgb(var(--color-surface-800)) !important;
   background-repeat: no-repeat !important;
@@ -253,6 +271,10 @@ e.g. buttons, lists, textareas, etc.
 
 .add-button:hover{
   background: rgb(var(--color-primary-900));
+}
+
+.home-view-buttons{
+  margin: 0.5rem 0 0 0;
 }
 
 .suggestions {
@@ -378,7 +400,6 @@ e.g. buttons, lists, textareas, etc.
 .search-controls {
   display: flex;
   gap: 1rem;
-  margin: 1rem 0rem 0rem 1rem;
 }
 
 .sort-container {
@@ -389,6 +410,7 @@ e.g. buttons, lists, textareas, etc.
 .exact-search {
   display: flex;
   align-items: center;
+  margin: 1.5rem 0 0 0;
   gap: 0.5rem;
 }
 
@@ -398,6 +420,23 @@ e.g. buttons, lists, textareas, etc.
 
 .nav-margin {
   margin: 0rem 1rem;
+}
+
+.expand-button {
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.tree-item-name {
+  cursor: pointer;
+}
+
+.tree-item-name:hover {
+  text-decoration: underline;
+}
+
+.no-children {
+  opacity: 0.5;
 }
 
 .template {
@@ -422,7 +461,13 @@ e.g. buttons, lists, textareas, etc.
 Text styles 
 */
 #title{
+  color: rgb(var(--theme-font-color-base));
   letter-spacing: -0.1rem;
+  transition: color 0.2s ease-in-out;
+}
+
+#title:hover{
+  color:rgb(var(--color-success-500));
 }
 
 #underline-header{
@@ -442,6 +487,16 @@ Text styles
   font-weight: lighter;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.clickable-text{
+  color: rgb(var(--color-success-400));
+  text-decoration: underline;
+}
+
+.clickable-text:hover{
+  color: rgb(var(--color-success-500));
+  text-decoration: underline;
 }
 
 .text-icon {
@@ -509,3 +564,4 @@ input[type="file"] {
   border-radius: 4px;
   background-color: white;
 }
+

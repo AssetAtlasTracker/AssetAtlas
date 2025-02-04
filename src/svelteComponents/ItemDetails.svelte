@@ -35,9 +35,10 @@
     {#each parentChain as parent, index}
       {#if index < parentChain.length - 1}
         <!-- Render clickable links for all but the last item -->
-        <span>
+        <span class="clickable-text">
           <Link to={`/view/${parent._id}`}>{parent.name}</Link>
         </span>
+          <span class="separator"> &gt; </span>
       {:else}
         <!-- Render the last item as bold and non-clickable -->
         <span class="current-item">{parent.name}</span>
@@ -56,8 +57,8 @@
   <!-- Add image display right after the name -->
   {#if item.image}
     <div class="item-image">
-      <img 
-        src={`http://${$ip}/api/items/${item._id}/image`} 
+      <img
+        src={`http://${$ip}/api/items/${item._id}/image`}
         alt={item.name}
         class="max-w-md mx-auto my-4 rounded shadow-lg"
       />
@@ -80,7 +81,10 @@
     {#if item.parentItem}
       <li>
         <strong>Current Location:</strong>
-        <Link to={`/view/${item.parentItem._id}`}>{item.parentItem.name}</Link>
+        <span class="clickable-text">
+          <Link to={`/view/${item.parentItem._id}`}>{item.parentItem.name}</Link
+          >
+        </span>
       </li>
     {:else}
       <li><strong>Current Location:</strong> No parent</li>
@@ -89,10 +93,12 @@
     {#if item.homeItem}
       <li>
         <strong>Home Location:</strong>
-        <Link to={`/view/${item.homeItem._id}`}>{item.homeItem.name}</Link>
+        <span class="clickable-text">
+          <Link to={`/view/${item.homeItem._id}`}>{item.homeItem.name}</Link>
+        </span>
       </li>
     {:else}
-      <li><strong>Home Location:</strong> No home ;(</li>
+      <li><strong>Home Location:</strong> No home</li>
     {/if}
 
     {#if item.containedItems && item.containedItems.length > 0}
@@ -101,8 +107,11 @@
         <ul>
           {#each item.containedItems as containedItem}
             <li>
-              <Link to={`/view/${containedItem._id}`}>{containedItem.name}</Link
-              >
+              <span class="clickable-text">
+                <Link to={`/view/${containedItem._id}`}
+                  >{containedItem.name}</Link
+                >
+              </span>
             </li>
           {/each}
         </ul>
@@ -130,9 +139,11 @@
             <li>
               {#if history.location}
                 <strong> Location:</strong>
-                <Link to={`/view/${history.location._id}`}
-                  >{history.location.name}</Link
-                >
+                <span class="clickable-text">
+                  <Link to={`/view/${history.location._id}`}
+                    >{history.location.name}</Link
+                  >
+                </span>
               {:else}
                 <strong> Location:</strong> None
               {/if}
