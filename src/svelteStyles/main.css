@@ -3,15 +3,34 @@ Large component styles
 e.g. containers, theming, etc.
 */
 
-:root {
-  --custom-blue: 62 127 201;
-  --on-custom-blue: 255 255 255;
+.glass{
+  background: rgba(var(--color-primary-800) / 0.8) !important;
+  box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4 );
+  backdrop-filter: blur( 10px );
+  -webkit-backdrop-filter: blur( 10px );
+  border-radius: 10px;
 }
 
-/* .popover {
-  display: none;
-  z-index: 0;
-} */
+.page-component {
+  margin: 3rem;
+  padding: 3rem;
+  border: 1px solid rgba(var(--color-primary-100) / 0.8);
+  border-radius: 10px;
+}
+  
+.internal-component { /* For components inset within other components*/
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: rgba(var(--color-primary-900) / 0.1);
+  box-shadow: inset 5px 5px 8px -8px rgb(var(--color-primary-900));
+}
+
+.dialog-component {
+  margin: 1rem;
+  padding: 1rem;
+  background: rgb(var(--color-primary-100));
+  border: 1px solid rgba(var(--color-primary-100) / 0.8);
+}
 
 .slide-out-menu {
   position: absolute;
@@ -44,38 +63,6 @@ e.g. containers, theming, etc.
 
 .utility-col > * + * {
   margin: 0.3em 0pt
-}
-
-.open {
-  left: 0
-}
-
-.glass{
-  background: rgba(var(--color-primary-800) / 0.8) !important;
-  box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4 );
-  backdrop-filter: blur( 10px );
-  -webkit-backdrop-filter: blur( 10px );
-  border-radius: 10px;
-}
-
-.page-component {
-  margin: 3rem;
-  padding: 3rem;
-  border: 1px solid rgba(var(--color-primary-100) / 0.8);
-}
-  
-.internal-component { /* For components inset within other components*/
-  margin: 1rem 0;
-  padding: 1rem;
-  background-color: rgba(var(--color-primary-900) / 0.1);
-  box-shadow: inset 5px 5px 8px -8px rgb(var(--color-primary-900));
-}
-
-.dialog-component {
-  margin: 1rem;
-  padding: 1rem;
-  background: rgb(var(--color-primary-100));
-  border: 1px solid rgba(var(--color-primary-100) / 0.8);
 }
 
 .item-card {
@@ -128,7 +115,24 @@ e.g. containers, theming, etc.
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
 }
 
+.tree-container {
+  padding: 0.5rem;
+}
+
+.tree-item {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem;
+}
+
 .sort-flex{
+  display:flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+}
+
+.button-row-flex{
   display:flex;
   justify-content: flex-start;
   align-items: center;
@@ -400,6 +404,23 @@ e.g. buttons, lists, textareas, etc.
   margin: 0rem 1rem;
 }
 
+.expand-button {
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.tree-item-name {
+  cursor: pointer;
+}
+
+.tree-item-name:hover {
+  text-decoration: underline;
+}
+
+.no-children {
+  opacity: 0.5;
+}
+
 .template {
   display: inline-block;
   width: 25%;
@@ -442,6 +463,16 @@ Text styles
   font-weight: lighter;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.clickable-text{
+  color: rgb(var(--color-success-400));
+  text-decoration: underline;
+}
+
+.clickable-text:hover{
+  color: rgb(var(--color-success-500));
+  text-decoration: underline;
 }
 
 .text-icon {
@@ -509,3 +540,4 @@ input[type="file"] {
   border-radius: 4px;
   background-color: white;
 }
+
