@@ -16,6 +16,8 @@
   let exactSearch = false;
   let viewMode: "list" | "tree" = "list";
 
+  let topLevel = true;
+
   async function handleSortChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     sortOption = target.value;
@@ -23,6 +25,7 @@
   }
 
   import Menu from "../svelteComponents/Menu.svelte";
+    import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
   export let menu: HTMLDialogElement;
 
   async function handleSearch(query: string) {
@@ -59,6 +62,10 @@
     handleSearch("");
   });
 </script>
+
+{#if topLevel}
+  <ActionDisplay/>
+{/if}
 
 <TopBar {searchQuery} onSearch={handleSearch} {menu}></TopBar>
 
@@ -130,9 +137,12 @@
 
   <button
     class="add-button text-icon font-bold shadow"
-    on:click={() => dialog.showModal()}
+    on:click={() => {
+        topLevel = false;
+        dialog.showModal()}
+      }
   >
     +
   </button>
-  <CreateItem bind:dialog />
+  <CreateItem bind:dialog on:open={() => {topLevel = false}} on:close={()=>{topLevel=true}}/>
 </div>

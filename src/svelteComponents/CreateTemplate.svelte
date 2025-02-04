@@ -1,7 +1,9 @@
 <script lang="ts">
+    import { actionStore } from "../stores/actionStore";
   import { ip } from "../stores/ipStore";
 
   import "../svelteStyles/main.css";
+    import ActionDisplay from "./ActionDisplay.svelte";
 
   let name = "";
   let customFields: ICustomFieldEntry[] = [];
@@ -73,8 +75,11 @@
       name = "";
       nameError = "";
       customFields = [];
+
+      actionStore.addMessage("Template created successfully!");
     } catch (err) {
       console.error("Error creating template:", err);
+      actionStore.addMessage("Error creating template.");
     }
   }
 
@@ -239,6 +244,8 @@
     }
   }
 </script>
+
+<ActionDisplay/>
 
 <div class="template-container">
   <h1 id="underline-header" class="font-bold text-center">Create New Template</h1>

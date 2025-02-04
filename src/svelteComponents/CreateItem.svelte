@@ -8,6 +8,7 @@
 
   import "../svelteStyles/main.css";
     import { navigate } from "svelte-routing";
+    import ActionDisplay from "./ActionDisplay.svelte";
 
   export let dialog: HTMLDialogElement;
 
@@ -550,6 +551,10 @@
     }
   }
 </script>
+
+{#if !showCreateTemplateDialog}
+  <ActionDisplay />
+{/if}
 
 <Dialog bind:dialog on:close={resetForm}>
   <h1 id="underline-header" class="font-bold text-center">Create New Item</h1>

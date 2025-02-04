@@ -13,6 +13,7 @@
   import "../svelteStyles/main.css";
     import MoveItem from "../svelteComponents/MoveItem.svelte";
     import ReturnItem from "../svelteComponents/ReturnItem.svelte";
+    import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
 
   export let params: { id?: string }; 
   //console.log('View params:', params);
@@ -86,6 +87,8 @@
     }
   }
 </script>
+
+<ActionDisplay/>
 
 <TopBar searchQuery={""} menu={menu}></TopBar>
 

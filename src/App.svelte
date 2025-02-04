@@ -14,8 +14,6 @@
   });
 </script>
 
-<ActionDisplay />
-
 <Router>
   <main>
     <Route path="/" component={Home} />
