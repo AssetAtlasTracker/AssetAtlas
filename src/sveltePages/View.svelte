@@ -4,7 +4,7 @@
   import TopBar from "../svelteComponents/TopBar.svelte";
   import EditItem from "../svelteComponents/EditItem.svelte";
   import Dialog from "../svelteComponents/Dialog.svelte";
-  import { navigate, Link } from "svelte-routing";
+  import { navigate } from "svelte-routing";
   import Menu from "../svelteComponents/Menu.svelte";
 
   import type { IBasicItemPopulated } from "../models/basicItem";
@@ -70,19 +70,19 @@
     navigate("/");
   }
 
-  async function closeMove() {
-    showMoveDialog = false;
-    if (moveDialog) {
-      moveDialog.close();
-    }
-    navigate(`/view/${params.id}`);
-  }
+  // async function closeMove() {
+  //   showMoveDialog = false;
+  //   if (moveDialog) {
+  //     moveDialog.close();
+  //   }
+  //   navigate(`/view/${params.id}`);
+  // }
 
-  function closeEdit() {
-    if (dialog) {
-      dialog.close();
-    }
-  }
+  // function closeEdit() {
+  //   if (dialog) {
+  //     dialog.close();
+  //   }
+  // }
 </script>
 
 <TopBar searchQuery={""} {menu}></TopBar>
@@ -104,17 +104,16 @@
       <button class="border-button" on:click={() => dialog.showModal()}>
         Edit
       </button>
+      <button class="warn-button" on:click={() => (showDeleteDialog = true)}>
+        Delete
+      </button>
     </div>
-
-    <br />
-    <button class="warn-button" on:click={() => (showDeleteDialog = true)}>
-      Delete
-    </button>
 
     <EditItem {item} bind:dialog />
     <MoveItem itemId={item._id} bind:dialog={moveDialog} />
   </div>
 {:else}
+  <!--TODO: Polish this up a bit-->
   <p>Loading item data...</p>
 {/if}
 
@@ -132,10 +131,7 @@
 
     <br />
     <!--Probably going to want an additional cancel button here-->
-    <DeleteItem itemId={params.id} onDelete={handleDelete}>
-      Delete
-      <!--<button class="warn-button font-semibold" on:click={() => showDeleteDialog = false}></button>-->
-    </DeleteItem>
+    <DeleteItem itemId={params.id} onDelete={handleDelete}>Delete</DeleteItem>
   </Dialog>
 {/if}
 

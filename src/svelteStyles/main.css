@@ -3,6 +3,15 @@ Large component styles
 e.g. containers, theming, etc.
 */
 
+#top-bar{
+  border-radius: 0 0 10px 10px;
+}
+
+#home-component{
+  margin: 1rem 2%;
+  padding: 2rem 2% 1rem 2%;
+}
+
 .glass{
   background: rgba(var(--color-primary-800) / 0.8) !important;
   box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4 );
@@ -63,6 +72,10 @@ e.g. containers, theming, etc.
 
 .utility-col > * + * {
   margin: 0.3em 0pt
+}
+
+.open{
+  left: 0;
 }
 
 .item-card {
@@ -130,6 +143,7 @@ e.g. containers, theming, etc.
   justify-content: flex-start;
   align-items: center;
   gap: 1rem;
+  padding: 0.45rem 3% 0;
 }
 
 .button-row-flex{
@@ -190,10 +204,6 @@ Small component styles
 e.g. buttons, lists, textareas, etc.
 */
 
-.utility-col > input {
-  color: black;
-}
-
 #resize-none-textarea{
   resize: none
 }
@@ -242,6 +252,10 @@ e.g. buttons, lists, textareas, etc.
   background: rgb(var(--color-warning-900));
 }
 
+.utility-col > input {
+  color: black;
+}
+
 .add-button {
   background: rgb(var(--color-surface-800)) !important;
   background-repeat: no-repeat !important;
@@ -257,6 +271,10 @@ e.g. buttons, lists, textareas, etc.
 
 .add-button:hover{
   background: rgb(var(--color-primary-900));
+}
+
+.home-view-buttons{
+  margin: 0.5rem 0 0 0;
 }
 
 .suggestions {
@@ -382,7 +400,6 @@ e.g. buttons, lists, textareas, etc.
 .search-controls {
   display: flex;
   gap: 1rem;
-  margin: 1rem 0rem 0rem 1rem;
 }
 
 .sort-container {
@@ -393,6 +410,7 @@ e.g. buttons, lists, textareas, etc.
 .exact-search {
   display: flex;
   align-items: center;
+  margin: 1.5rem 0 0 0;
   gap: 0.5rem;
 }
 
@@ -444,6 +462,10 @@ Text styles
 */
 #title{
   letter-spacing: -0.1rem;
+}
+
+#title:hover{
+  color:rgb(var(--color-success-500));
 }
 
 #underline-header{

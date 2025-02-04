@@ -17,7 +17,7 @@
   }
 </script>
 
-<AppBar class="border glass">
+<AppBar id="top-bar" class="border glass">
   <div class="px-4">
     <div class="nav-margin float-left">
       <button on:click={handleClickMenu}>

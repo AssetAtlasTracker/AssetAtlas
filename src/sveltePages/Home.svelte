@@ -87,16 +87,14 @@
     </div>
 
     <!--This should probably be an actual toggle switch-->
-    <div>
-      <br />
+    <div class="home-view-buttons">
       <button
         class="border-button font-semibold shadow mt-4 block"
         on:click={() => toggleView("list")}>List View</button
       >
     </div>
     
-    <div>
-      <br />
+    <div class="home-view-buttons">
       <button
         class="border-button font-semibold shadow mt-4 block"
         on:click={() => toggleView("tree")}>Tree View</button
@@ -108,7 +106,7 @@
     {#if searchResults.length > 0}
       <ItemContainer items={searchResults} />
     {:else}
-      <div class="page-component glass">
+      <div id="home-component" class="page-component glass">
         <p class="text-center important-text">No Items Found</p>
         <br />
         <p class="text-center">
