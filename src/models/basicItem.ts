@@ -92,6 +92,23 @@ BasicItemSchema.pre('save', async function (next) {
 
   const BasicItem = model<IBasicItem>('BasicItem');
 
+  //Prevent self-referencing
+  if (item.parentItem && item._id && item.parentItem.equals(item._id)) {
+    return next(new Error("An item cannot be its own parent."));
+  }
+
+  //Prevent cyclic nesting
+  if (item.parentItem) {
+    let current = await BasicItem.findById(item.parentItem).exec();
+    while (current) {
+      if (current._id.equals(item._id)) {
+        return next(new Error("Cyclic nesting detected: an item cannot be nested inside one of its descendants."));
+      }
+      if (!current.parentItem) break;
+      current = await BasicItem.findById(current.parentItem).exec();
+    }
+  }
+
   // Handle new items or items with modified parentItem
   if (item.isNew || item.isModified('parentItem')) {
     // For existing items, remove from the old parent's containedItems

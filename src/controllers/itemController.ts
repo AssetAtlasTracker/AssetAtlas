@@ -199,10 +199,8 @@ export const getAllContainedById = async (req: Request, res: Response) => {
 export const moveItem = async (req: Request, res: Response) => {
   try {
     const { itemId, newParentId } = req.body;
-
-    if (!itemId || !newParentId) {
-      return res.status(400).json({ error: 'itemId and newParentId are required' });
-    }
+    //Treat an empty string (or only whitespace) as no parent
+    const newParent = newParentId && newParentId.trim() !== "" ? newParentId : null;
 
     const item = await BasicItem.findById(itemId).exec();
 
@@ -210,13 +208,17 @@ export const moveItem = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Item not found' });
     }
 
-    const newParent = await BasicItem.findById(newParentId).exec();
+    if (newParent) {
+      const newParentItem = await BasicItem.findById(newParent).exec();
 
-    if (!newParent) {
-      return res.status(404).json({ error: 'New parent item not found' });
+      if (!newParentItem) {
+        return res.status(404).json({ error: 'New parent item not found' });
+      }
+
+      //self-reference and cyclic checks here based on newParent
     }
 
-    item.parentItem = newParentId;
+    item.parentItem = newParent;
 
     //pre-save will handle the history and parent containers
     await item.save();

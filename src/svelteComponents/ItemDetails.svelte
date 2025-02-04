@@ -38,6 +38,7 @@
         <span class="clickable-text">
           <Link to={`/view/${parent._id}`}>{parent.name}</Link>
         </span>
+          <span class="separator"> &gt; </span>
       {:else}
         <!-- Render the last item as bold and non-clickable -->
         <span class="current-item">{parent.name}</span>
