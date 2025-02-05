@@ -20,6 +20,28 @@ const PORT = parseInt(process.env.PORT || '3000', 10);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+function getEnvVariables(envPath: string) {
+  const envData = fs.readFileSync(envPath, 'utf-8');
+  const envVars: { [key: string]: string } = {};
+  envData.split('\n').forEach(line => {
+    const [key, value] = line.split('=');
+    if (key && value) {
+      envVars[key.trim()] = value.trim().replace(/\r$/, '');
+    }
+  });
+  return envVars;
+}
+
+//Cache IP at startup, this makes it work better
+const envPath = path.join(__dirname, '../docker', '.env');
+let cachedIp = 'localhost:3000';
+try {
+  const envVars = getEnvVariables(envPath);
+  cachedIp = envVars['IP'] || cachedIp;
+  console.log('Cached IP at startup:', cachedIp);
+} catch (error) {
+  console.error('Error reading .env file during startup:', error);
+}
 
 console.log('connectDB() about to call mongoose.connect...');
 await connectDB();
@@ -45,40 +67,8 @@ app.use(cors({
 
 app.use(express.json());
 
-function getEnvVariables(envPath: string) {//for .env stuff
-  const envData = fs.readFileSync(envPath, 'utf-8');
-  const envVars: { [key: string]: string } = {};
-
-  // Split into lines and process each key-value pair
-  envData.split('\n').forEach(line => {
-    const [key, value] = line.split('=');
-    if (key && value) {
-      envVars[key.trim()] = value.trim().replace(/\r$/, '');//trimming
-    }
-  });
-
-  return envVars;
-}
-
-
 app.get('/api/ip', (req, res) => {
-  const envPath = path.join(__dirname, '../docker', '.env');
-  console.log('ENV Path:', envPath);
-  let ip = 'localhost:3000';//default to 3k
-  //let ip = 'localhost:3000';//proper default
-  
-  //if (fs.existsSync(envPath)) {
-  try {
-    const envVars = getEnvVariables(envPath);
-    console.log('Parsed envVars:', envVars);
-    ip = envVars['IP'] || ip;
-    console.log('IP from .env:', ip);
-  } catch (error) {
-    console.error('Error reading .env file:', error);
-    return res.status(500).json({ error: 'Failed to read .env file' });
-  }
-  //}
-  res.json({ ip });
+  res.json({ ip: cachedIp });
 });
 
 app.use('/api/items', itemRoutes); //use routes after upload is ready

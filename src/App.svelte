@@ -6,7 +6,6 @@
   import View from "./sveltePages/View.svelte";
   import ViewTemplates from "./sveltePages/ViewTemplates.svelte";
   import { fetchIp } from "./stores/ipStore";
-  import ActionDisplay from "./svelteComponents/ActionDisplay.svelte";
   import Utility from "./sveltePages/Utility.svelte";
 
   onMount(() => {
