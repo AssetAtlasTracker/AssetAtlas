@@ -47,7 +47,7 @@
     }
     let debounceTimeout: NodeJS.Timeout | undefined;
     let removeExistingImage = false;
-    let sameLocations: boolean = true;
+    let sameLocations: boolean = false;
 
     console.log(homeItemId);
 
@@ -608,19 +608,10 @@
           <SlideToggle name="slide" bind:checked={sameLocations} active="bg-green-700">Use same home and current location</SlideToggle>
           <div class="flex flex-wrap space-x-4">
             <!-- Parent Item -->
+            {#if !sameLocations}
             <label class="flex-1 min-w-[200px] relative">
               Current Location:
               <InfoToolTip message="Where an item currently is, e.g. a shirt's parent item may be a suitcase." />
-              {#if sameLocations}
-              <input
-                type="text"
-                class="dark-textarea py-2 px-4 w-full"
-                bind:value={homeItemName}
-                on:input={handleHomeItemInput}
-                on:focus={handleHomeItemFocus}
-                on:blur={() => (parentItemSuggestions = [])}
-              />
-            {:else}
               <input
               type="text"
               class="dark-textarea py-2 px-4 w-full"
@@ -629,7 +620,6 @@
               on:focus={handleParentItemFocus}
               on:blur={() => (parentItemSuggestions = [])}
               />
-            {/if}
               {#if parentItemSuggestions.length > 0}
               <ul class="suggestions">
                 {#each parentItemSuggestions as item}
@@ -647,6 +637,7 @@
               </ul>
             {/if}
             </label>
+            {/if}
   
             <!-- Home Item -->
             <label class="flex-1 min-w-[200px] relative">
