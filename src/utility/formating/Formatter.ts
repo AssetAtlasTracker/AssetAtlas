@@ -1,7 +1,7 @@
 import type { Types } from "mongoose";
-import type { IBasicItem } from "../../models/basicItem";
-import type { ITemplate } from "../../models/template";
-import type { ICustomField } from "../../models/customField";
+import type { IBasicItem } from "../../models/basicItem.js";
+import type { ITemplate } from "../../models/template.js";
+import type { ICustomField } from "../../models/customField.js";
 
 export interface Formatter {
     formatTemplates(templates: ITemplate[]) : string

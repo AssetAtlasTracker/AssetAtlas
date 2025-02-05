@@ -1,9 +1,9 @@
 <script lang="ts">
   import Dialog from "../svelteComponents/Dialog.svelte";
   import InfoToolTip from "./InfoToolTip.svelte";
-  import { ip } from "../stores/ipStore";
+  import { ip } from "../stores/ipStore.js";
   import CreateTemplate from "./CreateTemplate.svelte";
-  import { actionStore } from "../stores/actionStore";
+  import { actionStore } from "../stores/actionStore.js";
   import { SlideToggle } from "@skeletonlabs/skeleton";
 
   import "../svelteStyles/main.css";

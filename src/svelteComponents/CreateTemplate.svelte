@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { actionStore } from "../stores/actionStore";
-  import { ip } from "../stores/ipStore";
+    import { actionStore } from "../stores/actionStore.js";
+  import { ip } from "../stores/ipStore.js";
 
   import "../svelteStyles/main.css";
     import ActionDisplay from "./ActionDisplay.svelte";

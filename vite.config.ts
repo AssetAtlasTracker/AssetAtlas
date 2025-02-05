@@ -13,13 +13,12 @@ export default defineConfig({
     })
   ],
   build: {
-    outDir: '../dist',
+    outDir: '../dist', //Outputs files one level up at project root dist folder
     sourcemap: !production,
-    emptyOutDir: true
+    emptyOutDir: false
   },
   server: {
     host: "0.0.0.0",
     port: 3001,
   }
-  // Removed test config from here.
 });

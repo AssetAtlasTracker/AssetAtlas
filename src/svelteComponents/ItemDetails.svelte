@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Link } from "svelte-routing";
-  import { ip } from "../stores/ipStore";
+  import { ip } from "../stores/ipStore.js";
   import { onMount } from "svelte";
   import type { IBasicItemPopulated } from "../models/basicItem.js";
 

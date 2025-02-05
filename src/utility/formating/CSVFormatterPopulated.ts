@@ -1,6 +1,6 @@
 import type { Types } from "mongoose";
-import type { IBasicItemPopulated } from "../../models/basicItem";
-import type { ITemplatePopulated } from "../../models/template";
+import type { IBasicItemPopulated } from "../../models/basicItem.js";
+import type { ITemplatePopulated } from "../../models/template.js";
 
 export class CSVFormatterPopulated {
     itemMap : Map<Types.ObjectId, IBasicItemPopulated>;

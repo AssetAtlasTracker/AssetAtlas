@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { ip } from "../stores/ipStore";
+    import { ip } from "../stores/ipStore.js";
     import Dialog from '../svelteComponents/Dialog.svelte';
     import "../svelteStyles/main.css";
     import {navigate } from "svelte-routing";
