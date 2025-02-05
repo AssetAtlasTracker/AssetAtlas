@@ -1,35 +1,44 @@
-# Base image with necessary build tools
-FROM node:20-bullseye AS base
+FROM node:20-bullseye AS build
+
+# Install OS dependencies
 RUN apt-get update && apt-get install -y python3 make g++ iputils-ping && rm -rf /var/lib/apt/lists/*
 
-# Cache dependencies
-FROM base AS deps_cache
+# Set working directory
 WORKDIR /usr/src/app
+
+# Copy only package.json + package-lock.json to install dependencies first
 COPY package*.json ./
+
+# Install all (dev+prod) dependencies
 RUN npm ci
 
-# Development dependencies and app setup
-FROM deps_cache AS build_deps
-WORKDIR /usr/src/app
 COPY . .
-# Add cache mount for rollup/typescript
-RUN --mount=type=cache,target=/usr/src/app/.rollup-cache \
-    --mount=type=cache,target=/usr/src/app/node_modules/.cache/rollup \
-    --mount=type=cache,target=/usr/src/app/.tsbuildcache \
-    npm run build
 
-# Production dependencies only
-FROM deps_cache AS prod_deps
-WORKDIR /usr/src/app
-# Install only production dependencies
-RUN npm ci --omit=dev
+# Build
+RUN npm run build
 
-# Final production image
-FROM prod_deps AS runner
+# Debug: show what's in dist/ after the build
+RUN echo "DEBUG: Listing dist folder..." && ls -l dist
+
+FROM node:20-bullseye AS production
+
+# Install OS dependencies
+RUN apt-get update && apt-get install -y python3 make g++ iputils-ping && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /usr/src/app
 ENV NODE_ENV=production
-# Copy the built app from build_deps stage
-COPY --from=build_deps /usr/src/app/dist ./dist
+
+# Copy package.json + lock to install only prod dependencies
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# Copy over the dist folder from the build stage
+COPY --from=build /usr/src/app/dist ./dist
+
+# Switch to non-root user
 USER node
+
 EXPOSE 3000
+
 CMD ["node", "dist/index.js"]
+
