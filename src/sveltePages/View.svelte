@@ -4,17 +4,17 @@
   import TopBar from "../svelteComponents/TopBar.svelte";
   import EditItem from "../svelteComponents/EditItem.svelte";
   import Dialog from "../svelteComponents/Dialog.svelte";
-  import {navigate, Link } from "svelte-routing";
+  import { navigate } from "svelte-routing";
   import Menu from "../svelteComponents/Menu.svelte";
-  
 
   import type { IBasicItemPopulated } from "../models/basicItem";
 
   import "../svelteStyles/main.css";
-    import MoveItem from "../svelteComponents/MoveItem.svelte";
-    import ReturnItem from "../svelteComponents/ReturnItem.svelte";
+  import MoveItem from "../svelteComponents/MoveItem.svelte";
+  import ReturnItem from "../svelteComponents/ReturnItem.svelte";
+    import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
 
-  export let params: { id?: string }; 
+  export let params: { id?: string };
   //console.log('View params:', params);
 
   let showDeleteDialog = false;
@@ -26,7 +26,6 @@
   export let dialog: HTMLDialogElement;
   export let moveDialog: HTMLDialogElement;
   export let menu: HTMLDialogElement;
-  
 
   $: if (params.id) {
     fetchItem(params.id);
@@ -72,49 +71,54 @@
     navigate("/");
   }
 
-  async function closeMove(){
-    showMoveDialog = false;
-    if (moveDialog) {
-      moveDialog.close();
-    }
-    navigate(`/view/${params.id}`)
-  }
+  // async function closeMove() {
+  //   showMoveDialog = false;
+  //   if (moveDialog) {
+  //     moveDialog.close();
+  //   }
+  //   navigate(`/view/${params.id}`);
+  // }
 
-  function closeEdit() {
-    if (dialog) {
-      dialog.close();
-    }
-  }
+  // function closeEdit() {
+  //   if (dialog) {
+  //     dialog.close();
+  //   }
+  // }
+
+  function onSearch (query: string) {}
 </script>
 
-<TopBar searchQuery={""} menu={menu}></TopBar>
+<ActionDisplay/>
 
-<Menu bind:menu/>
+<TopBar searchQuery={""} onSearch={onSearch} {menu}></TopBar>
+
+<Menu bind:menu />
 
 {#if item}
   <div class="item-view glass page-component">
     <ItemDetails {item} />
 
-    <!-- Flex these buttons (?) -->
     <br />
-    <button class="warn-button" on:click={() => showDeleteDialog = true}>
-      Delete
-    </button>
-    <br />
-    <button class="border-button" on:click={() => moveDialog.showModal()}>
-      Move
-    </button>
-    <button class="border-button" on:click={() => showReturnDialog = true}>
-      Move to Home Location
-    </button>
-    <button class="border-button" on:click={() => dialog.showModal()}>
-      Edit
-    </button>
+    <div class="button-row-flex">
+      <button class="border-button" on:click={() => moveDialog.showModal()}>
+        Move
+      </button>
+      <button class="border-button" on:click={() => (showReturnDialog = true)}>
+        Return to Home Location
+      </button>
+      <button class="border-button" on:click={() => dialog.showModal()}>
+        Edit
+      </button>
+      <button class="warn-button" on:click={() => (showDeleteDialog = true)}>
+        Delete
+      </button>
+    </div>
 
-    <EditItem {item} bind:dialog/>
-    <MoveItem itemId={item._id} bind:dialog={moveDialog}/>
+    <EditItem {item} bind:dialog />
+    <MoveItem itemId={item._id} bind:dialog={moveDialog} />
   </div>
 {:else}
+  <!--TODO: Polish this up a bit-->
   <p>Loading item data...</p>
 {/if}
 
@@ -126,16 +130,13 @@
       showDeleteDialog = false;
     }}
   >
-    <div class="simple-dialog-spacing"> 
+    <div class="simple-dialog-spacing">
       Are you sure you want to delete {item?.name}?
     </div>
-   
+
     <br />
     <!--Probably going to want an additional cancel button here-->
-    <DeleteItem itemId={params.id} onDelete={handleDelete}>
-      Delete
-      <!--<button class="warn-button font-semibold" on:click={() => showDeleteDialog = false}></button>-->
-    </DeleteItem>
+    <DeleteItem itemId={params.id} onDelete={handleDelete}>Delete</DeleteItem>
   </Dialog>
 {/if}
 
@@ -147,10 +148,10 @@
       showReturnDialog = false;
     }}
   >
-    <div class="simple-dialog-spacing"> 
+    <div class="simple-dialog-spacing">
       Are you sure you want to return {item?.name} to it's home location?
     </div>
-   
+
     <br />
     <!--Probably going to want an additional cancel button here-->
     <ReturnItem itemId={params.id} parentId={item?.homeItem?._id}>

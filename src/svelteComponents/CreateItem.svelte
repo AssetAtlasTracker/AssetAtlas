@@ -1,13 +1,14 @@
 <script lang="ts">
   import Dialog from "../svelteComponents/Dialog.svelte";
   import InfoToolTip from "./InfoToolTip.svelte";
-  import { ip } from "../stores/ipStore";
+  import { ip } from "../stores/ipStore.js";
   import CreateTemplate from "./CreateTemplate.svelte";
-  import { actionStore } from '../stores/actionStore';
-  import { SlideToggle } from '@skeletonlabs/skeleton';
+  import { actionStore } from "../stores/actionStore.js";
+  import { SlideToggle } from "@skeletonlabs/skeleton";
 
   import "../svelteStyles/main.css";
-    import { navigate } from "svelte-routing";
+  import { navigate } from "svelte-routing";
+    import ActionDisplay from "./ActionDisplay.svelte";
 
   export let dialog: HTMLDialogElement;
 
@@ -76,23 +77,25 @@
     homeItemSuggestions = [];
     templateSuggestions = [];
     selectedImage = null;
-      if (imagePreview) {
-        URL.revokeObjectURL(imagePreview);
-      }
-      imagePreview = null;
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+    }
+    imagePreview = null;
   }
 
   async function handleCreateItem() {
     try {
       //If a template name is typed but not an exact match (no templateId set), block creation
       if (templateName.trim() && !templateId) {
-        alert("Please select a valid template from the list or clear the field.");
+        alert(
+          "Please select a valid template from the list or clear the field.",
+        );
         return;
       }
 
       const tagsArray = tags.split(",").map((tag) => tag.trim());
 
-      if(sameLocations){
+      if (sameLocations) {
         parentItemId = homeItemId;
         parentItemName = homeItemName;
       }
@@ -118,52 +121,53 @@
       );
 
       const formData = new FormData();
-      formData.append('name', name);
-      formData.append('description', description);
-      formData.append('tags', JSON.stringify(tagsArray));
-      if (parentItemId) formData.append('parentItem', parentItemId);
-      if (homeItemId) formData.append('homeItem', homeItemId);
-      if (templateId) formData.append('template', templateId);
-      formData.append('customFields', JSON.stringify(formattedCustomFields));
-      if (selectedImage) formData.append('image', selectedImage);
+      formData.append("name", name);
+      formData.append("description", description);
+      formData.append("tags", JSON.stringify(tagsArray));
+      if (parentItemId) formData.append("parentItem", parentItemId);
+      if (homeItemId) formData.append("homeItem", homeItemId);
+      if (templateId) formData.append("template", templateId);
+      formData.append("customFields", JSON.stringify(formattedCustomFields));
+      if (selectedImage) formData.append("image", selectedImage);
 
-      console.log('Sending request with formData:');
+      console.log("Sending request with formData:");
       for (const pair of (formData as any).entries()) {
         console.log(pair[0], pair[1]);
       }
-      
+
       const response = await fetch(`http://${$ip}/api/items`, {
         method: "POST",
-        body: formData
+        body: formData,
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:');
+      console.log("Response status:", response.status);
+      console.log("Response headers:");
       response.headers.forEach((value, key) => {
         console.log(key, value);
       });
-      
+
       // Try to get the raw text first
       const rawText = await response.text();
-      console.log('Raw response:', rawText);
-      
+      console.log("Raw response:", rawText);
+
       // Then parse it as JSON
       const data = JSON.parse(rawText);
 
       if (!response.ok) {
-        actionStore.addMessage('Error creating item');
+        actionStore.addMessage("Error creating item");
         throw new Error(data.message || "Error creating item");
       }
       console.log("Item created:", data);
-      actionStore.addMessage('Item created successfully!');
-      navigate('/');
+      actionStore.addMessage("Item created successfully!");
       dialog.close();
+      location.reload();
+
 
       //Reset the form after successful creation
       resetForm();
     } catch (err) {
       console.error("Error creating item:", err);
-      actionStore.addMessage('Error creating item');
+      actionStore.addMessage("Error creating item");
     }
   }
 
@@ -207,28 +211,27 @@
   }
 
   async function addToRecents(type: string, item: any) {
-    console.log('DEBUG - addToRecents called with:', { type, item });
+    console.log("DEBUG - addToRecents called with:", { type, item });
     try {
       const body = JSON.stringify({
         type,
         itemId: item._id,
       });
-      console.log('DEBUG - Request body:', body);
+      console.log("DEBUG - Request body:", body);
 
       const response = await fetch(`http://${$ip}/api/recentItems/add`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: body,
       });
 
       const responseText = await response.text();
-    
 
       if (!response.ok) {
         throw new Error(`Failed to add to recents: ${responseText}`);
       }
     } catch (err) {
-      console.error('Error adding to recents:', err);
+      console.error("Error adding to recents:", err);
     }
   }
 
@@ -237,28 +240,26 @@
     parentItemId = item._id;
     parentItemSuggestions = [];
     if (item && item._id) {
-      addToRecents('items', item);
+      addToRecents("items", item);
     }
   }
 
   function selectHomeItem(item: { name: string; _id: string | null }) {
-    
     homeItemName = item.name;
     homeItemId = item._id;
     homeItemSuggestions = [];
     if (item && item._id) {
-      addToRecents('items', item);
+      addToRecents("items", item);
     }
   }
 
   function selectTemplate(item: { name: string; _id: string }) {
-    
     templateName = item.name;
     templateId = item._id;
     templateSuggestions = [];
     loadTemplateFields(templateId);
     if (item && item._id) {
-      addToRecents('templates', item);
+      addToRecents("templates", item);
     }
   }
 
@@ -394,7 +395,6 @@
     index: number,
     suggestion: ICustomField,
   ) {
-  
     customFields[index].fieldName = suggestion.fieldName;
     customFields[index].fieldId = suggestion._id;
     customFields[index].dataType = suggestion.dataType;
@@ -402,7 +402,7 @@
     customFields[index].isExisting = true;
     customFields[index].suggestions = [];
     if (suggestion && suggestion._id) {
-      addToRecents('customFields', suggestion);
+      addToRecents("customFields", suggestion);
     }
   }
 
@@ -438,47 +438,46 @@
   }
 
   async function loadRecentItems(type: string) {
-    
     try {
       const response = await fetch(`http://${$ip}/api/recentItems/${type}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
       });
       const data = await response.json();
       return data;
     } catch (err) {
-      console.error('Error loading recent items:', err);
+      console.error("Error loading recent items:", err);
       return [];
     }
   }
 
   async function handleParentItemFocus() {
     if (!parentItemName) {
-      parentItemSuggestions = await loadRecentItems('items');
+      parentItemSuggestions = await loadRecentItems("items");
     }
   }
 
   async function handleHomeItemFocus() {
     if (!homeItemName) {
-      homeItemSuggestions = await loadRecentItems('items');
+      homeItemSuggestions = await loadRecentItems("items");
     }
   }
 
   async function handleTemplateFocus() {
     if (!templateName) {
-      templateSuggestions = await loadRecentItems('templates');
+      templateSuggestions = await loadRecentItems("templates");
     }
   }
 
   async function handleCustomFieldFocus(index: number) {
     if (!customFields[index].fieldName) {
-      customFields[index].suggestions = await loadRecentItems('customFields');
+      customFields[index].suggestions = await loadRecentItems("customFields");
     }
   }
 
   async function handleCustomFieldClick(index: number) {
     if (!customFields[index].fieldName) {
-      customFields[index].suggestions = await loadRecentItems('customFields');
+      customFields[index].suggestions = await loadRecentItems("customFields");
     }
   }
 
@@ -551,6 +550,10 @@
   }
 </script>
 
+{#if !showCreateTemplateDialog}
+  <ActionDisplay />
+{/if}
+
 <Dialog bind:dialog on:close={resetForm}>
   <h1 id="underline-header" class="font-bold text-center">Create New Item</h1>
   <div class="page-component">
@@ -603,7 +606,7 @@
               on:change={handleImageChange}
             />
           </label>
-          
+
           {#if imagePreview}
             <div class="relative w-48 h-48">
               <img
@@ -628,8 +631,12 @@
           {/if}
         </div>
 
-        <SlideToggle name="slide" bind:checked={sameLocations} active="bg-green-700">Use same home and current location</SlideToggle>
-        <div class="flex flex-wrap space-x-4"> 
+        <SlideToggle
+          name="slide"
+          bind:checked={sameLocations}
+          active="bg-green-700">Use same home and current location</SlideToggle
+        >
+        <div class="flex flex-wrap space-x-4">
           <!-- Parent Item -->
           {#if !sameLocations}
             <label class="flex-1 min-w-[200px] relative">
@@ -761,7 +768,9 @@
                   disabled={field.fromTemplate}
                 />
                 {#if field.fromTemplate}
-                  <InfoToolTip message='This field is required by template "{templateName}". Value can be empty if desired.' />
+                  <InfoToolTip
+                    message="This field is required by template '{templateName}'. Value can be empty if desired."
+                  />
                 {/if}
               </span>
               {#if field.suggestions.length > 0}
@@ -800,14 +809,14 @@
               />
             </label>
             {#if !field.fromTemplate}
-            <button
-              type="button"
-              class="x-button"
-              on:click={() => removeCustomField(index)}
-            >
-              X
-            </button>
-          {/if}
+              <button
+                type="button"
+                class="x-button"
+                on:click={() => removeCustomField(index)}
+              >
+                X
+              </button>
+            {/if}
           </div>
         {/each}
       </div>

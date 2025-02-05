@@ -16,6 +16,8 @@
   let exactSearch = false;
   let viewMode: "list" | "tree" = "list";
 
+  let topLevel = true;
+
   async function handleSortChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     sortOption = target.value;
@@ -23,6 +25,7 @@
   }
 
   import Menu from "../svelteComponents/Menu.svelte";
+    import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
   export let menu: HTMLDialogElement;
 
   async function handleSearch(query: string) {
@@ -60,6 +63,10 @@
   });
 </script>
 
+{#if topLevel}
+  <ActionDisplay/>
+{/if}
+
 <TopBar {searchQuery} onSearch={handleSearch} {menu}></TopBar>
 
 <div class="body">
@@ -87,16 +94,14 @@
     </div>
 
     <!--This should probably be an actual toggle switch-->
-    <div>
-      <br />
+    <div class="home-view-buttons">
       <button
         class="border-button font-semibold shadow mt-4 block"
         on:click={() => toggleView("list")}>List View</button
       >
     </div>
     
-    <div>
-      <br />
+    <div class="home-view-buttons">
       <button
         class="border-button font-semibold shadow mt-4 block"
         on:click={() => toggleView("tree")}>Tree View</button
@@ -108,7 +113,7 @@
     {#if searchResults.length > 0}
       <ItemContainer items={searchResults} />
     {:else}
-      <div class="page-component glass">
+      <div id="home-component" class="page-component glass">
         <p class="text-center important-text">No Items Found</p>
         <br />
         <p class="text-center">
@@ -130,9 +135,12 @@
 
   <button
     class="add-button text-icon font-bold shadow"
-    on:click={() => dialog.showModal()}
+    on:click={() => {
+        topLevel = false;
+        dialog.showModal()}
+      }
   >
     +
   </button>
-  <CreateItem bind:dialog />
+  <CreateItem bind:dialog on:open={() => {topLevel = false}} on:close={()=>{topLevel=true}}/>
 </div>

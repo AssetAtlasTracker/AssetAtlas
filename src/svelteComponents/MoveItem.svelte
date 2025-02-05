@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { ip } from "../stores/ipStore";
+    import { ip } from "../stores/ipStore.js";
     import Dialog from '../svelteComponents/Dialog.svelte';
     import "../svelteStyles/main.css";
     import {navigate } from "svelte-routing";
@@ -29,10 +29,14 @@
           navigate(`/view/${itemId}`);
           dialog.close();
         } else {
-          console.error("Failed to move item:", await response.text());
+          //Show a popup with the error message from the server (we need to make this the more informative message)
+          const errorMsg = await response.text();
+          alert(`Error moving item: ${errorMsg}`);
+          console.error("Failed to move item:", errorMsg);
         }
       } catch (error) {
         console.error("Error moving item:", error);
+        alert("An unexpected error occurred while moving the item.");
       }
     }
     //Parent item search handlers
@@ -161,4 +165,3 @@ async function loadRecentItems(type: string) {
     </button>
     <br>
 </Dialog>
-  

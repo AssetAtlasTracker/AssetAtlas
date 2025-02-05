@@ -1,14 +1,24 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'vite';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
+import sveltePreprocess from 'svelte-preprocess';
+
+const production = process.env.NODE_ENV === 'production';
 
 export default defineConfig({
-
+  root: 'src',
+  plugins: [
+    svelte({
+      preprocess: sveltePreprocess(),
+      compilerOptions: { dev: !production }
+    })
+  ],
+  build: {
+    outDir: '../dist', //Outputs files one level up at project root dist folder
+    sourcemap: !production,
+    emptyOutDir: false
+  },
   server: {
-    host: "0.0.0.0", // Bind to all interfaces for Docker compatibility
-    port: 3001, //doesnt break testing? needed for vite host?
-  },
-  
-  test: {
-    globals: true, // This makes functions like `beforeAll`, `describe`, etc., available globally
-    environment: 'node', // Use Node environment if working on server-side code
-  },
+    host: "0.0.0.0",
+    port: 3001,
+  }
 });

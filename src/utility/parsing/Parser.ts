@@ -1,5 +1,5 @@
-import type { IBasicItem } from "../../models/basicItem";
-import type { ITemplate } from "../../models/template";
+import type { IBasicItem } from "../../models/basicItem.js";
+import type { ITemplate } from "../../models/template.js";
 
 export interface Parser {
     parse(input:string) : void;

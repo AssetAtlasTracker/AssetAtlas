@@ -1,3 +1,5 @@
+// This file is no longer used since we're migrating to esbuild.
+// ...existing code...
 import svelte from 'rollup-plugin-svelte';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
@@ -25,8 +27,7 @@ const __dirname = path.dirname(__filename);
 export default {
   input: 'src/main.ts',
   output: {
-    sourcemap: true,
-    //sourcemap: !production,
+    sourcemap: production ? false : true,
     format: 'iife',
     name: 'app',
     file: './dist/bundle.js'
@@ -56,8 +57,9 @@ export default {
 
     commonjs(),
     typescript({
+      check: false,
       verbosity: 3,
-      sourceMap: true,
+      sourceMap: !production,
       inlineSources: !production,
       clean: true
       //useTsconfigDeclarationDir: true
