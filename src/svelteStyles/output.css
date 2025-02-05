@@ -4929,10 +4929,6 @@ a.\!chip:hover,
   z-index: 999;
 }
 
-.float-right {
-  float: right;
-}
-
 .float-left {
   float: left;
 }
@@ -5462,6 +5458,11 @@ a.\!chip:hover,
   background-color: rgb(31 41 55 / var(--tw-bg-opacity, 1));
 }
 
+.bg-green-700 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(21 128 61 / var(--tw-bg-opacity, 1));
+}
+
 .bg-neutral-900\/90 {
   background-color: rgb(23 23 23 / 0.9);
 }
@@ -5536,10 +5537,6 @@ a.\!chip:hover,
   padding: 0.25rem;
 }
 
-.p-12 {
-  padding: 3rem;
-}
-
 .p-2 {
   padding: 0.5rem;
 }
@@ -5592,12 +5589,24 @@ a.\!chip:hover,
   padding-bottom: 1rem;
 }
 
+.pl-12 {
+  padding-left: 3rem;
+}
+
 .pl-4 {
   padding-left: 1rem;
 }
 
+.pr-12 {
+  padding-right: 3rem;
+}
+
 .pt-1 {
   padding-top: 0.25rem;
+}
+
+.pt-4 {
+  padding-top: 1rem;
 }
 
 .text-center {

@@ -69,7 +69,7 @@
       }
 
       const data = await response.json();
-      console.log("Template created:", data);
+      console.log("Template created: ", data);
 
       //Reset form
       name = "";

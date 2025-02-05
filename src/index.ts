@@ -77,16 +77,13 @@ app.use('/api/customFields', customFieldRoutes);
 app.use('/api/csv', csvRoutes);
 app.use('/api/recentItems', recentItemsRoutes);
 
-// app.get('/', (req, res) => {
-//   res.send('API is running...');
-// });
-
+//Serve static assets from the dist folder
 app.use(express.static(path.join(__dirname, '../dist')));
 
+//Fallback: serve index.html for any unmatched routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
-
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);

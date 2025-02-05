@@ -6,11 +6,16 @@ services:
     image: assetatlas
     volumes:
       - ./.env:/usr/src/app/docker/.env
+      - rollup-cache:/usr/src/app/.rollup-cache
+      - rollup-module-cache:/usr/src/app/node_modules/.cache/rollup
+      - tsbuild-cache:/usr/src/app/.tsbuildcache
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
       args:
         BUILDKIT_INLINE_CACHE: "1"
+      cache_from:
+        - assetatlas:latest
     environment:
       NODE_ENV: production
       MONGO_URI: mongodb://mongo:27017/assetatlas_db
@@ -37,3 +42,9 @@ networks:
 
 volumes:
   mongo-data:
+  rollup-cache:
+    name: assetatlas-rollup-cache
+  rollup-module-cache:
+    name: assetatlas-rollup-module-cache
+  tsbuild-cache:
+    name: assetatlas-tsbuild-cache

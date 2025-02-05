@@ -12,7 +12,11 @@ RUN npm ci
 FROM deps_cache AS build_deps
 WORKDIR /usr/src/app
 COPY . .
-RUN npm run build
+# Add cache mount for rollup/typescript
+RUN --mount=type=cache,target=/usr/src/app/.rollup-cache \
+    --mount=type=cache,target=/usr/src/app/node_modules/.cache/rollup \
+    --mount=type=cache,target=/usr/src/app/.tsbuildcache \
+    npm run build
 
 # Production dependencies only
 FROM deps_cache AS prod_deps
