@@ -29,8 +29,6 @@
   export let menu: HTMLDialogElement;
 
   let unique = {} 
-  
-
   function restart() {
    unique = {}
   }
@@ -173,7 +171,6 @@
 <button
     class="add-button text-icon font-bold shadow"
     on:click={() => {
-        topLevel = false;
         createDialog.showModal()}
       }
   >

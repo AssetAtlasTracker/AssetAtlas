@@ -5,9 +5,12 @@
   import type { ITemplatePopulated } from "../models/template";
 
   import "../svelteStyles/main.css";
+    import CreateTemplate from "../svelteComponents/CreateTemplate.svelte";
+    import Dialog from "../svelteComponents/Dialog.svelte";
 
   let templates: ITemplatePopulated[] = [];
   let menu : HTMLDialogElement;
+  let templateDialog: HTMLDialogElement | undefined;
 
   async function fetchTemplates() {
     try {
@@ -30,11 +33,45 @@
     }
   }
 
+  let showCreateTemplateDialog = false;
+
+  $: if (showCreateTemplateDialog) {
+    if (templateDialog) {
+      templateDialog.showModal();
+    }
+}
+
   fetchTemplates();
+
+  function onSearch (query: string) {}
 </script>
 
-<TopBar searchQuery={""} menu={menu}></TopBar>
+<TopBar searchQuery={""} onSearch={onSearch} menu={menu}></TopBar>
 
 <Menu bind:menu/>
 
 <TemplateList {templates} />
+
+<button
+    class="add-button text-icon font-bold shadow"
+    on:click={() => {
+        showCreateTemplateDialog = true}
+      }
+  >
+    +
+  </button>
+  {#if showCreateTemplateDialog}
+  <Dialog
+    bind:dialog={templateDialog}
+    on:close={() => {
+      showCreateTemplateDialog = false;
+      location.reload();
+    }}
+  >
+    <CreateTemplate
+      on:close={() => {
+        showCreateTemplateDialog = false;
+      }}
+    />
+  </Dialog>
+{/if}

@@ -15,7 +15,7 @@
 			<Link to={`/utility`}>Utility</Link>
 		</nav>
 		<nav class="pl-12 pr-12 pt-4 pb-4 text-xl">
-			<Link to={`/viewTemplates`}>View Templates</Link>
+			<Link to={`/viewTemplates`}>Templates</Link>
 		</nav>
 	</div>
 </button>
