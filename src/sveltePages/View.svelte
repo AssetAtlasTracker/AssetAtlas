@@ -13,7 +13,7 @@
   import MoveItem from "../svelteComponents/MoveItem.svelte";
   import ReturnItem from "../svelteComponents/ReturnItem.svelte";
     import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
-
+    import CreateItem from "../svelteComponents/CreateItem.svelte";
   export let params: { id?: string };
   //console.log('View params:', params);
 
@@ -21,11 +21,21 @@
   let showMoveDialog = false;
   let showReturnDialog = false;
   let deleteDialog: HTMLDialogElement;
+  let createDialog: HTMLDialogElement;
   let returnDialog: HTMLDialogElement;
   let item: IBasicItemPopulated | null = null;
   export let dialog: HTMLDialogElement;
   export let moveDialog: HTMLDialogElement;
   export let menu: HTMLDialogElement;
+
+  let unique = {} 
+  
+
+  function restart() {
+   unique = {}
+  }
+
+  let topLevel = true;
 
   $: if (params.id) {
     fetchItem(params.id);
@@ -58,6 +68,7 @@
       const data: IBasicItemPopulated = await response.json();
       item = data;
       console.log("Fetched item data:", item);
+      restart();
     } catch (err) {
       console.error("Error fetching item:", err);
       item = null;
@@ -87,7 +98,6 @@
 
   function onSearch (query: string) {}
 </script>
-
 <ActionDisplay/>
 
 <TopBar searchQuery={""} onSearch={onSearch} {menu}></TopBar>
@@ -159,3 +169,16 @@
     </ReturnItem>
   </Dialog>
 {/if}
+
+<button
+    class="add-button text-icon font-bold shadow"
+    on:click={() => {
+        topLevel = false;
+        createDialog.showModal()}
+      }
+  >
+    +
+  </button>
+  {#key unique}
+    <CreateItem bind:dialog={createDialog} curLocation={item}/>
+  {/key}

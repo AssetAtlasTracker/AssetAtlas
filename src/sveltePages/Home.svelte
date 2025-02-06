@@ -142,5 +142,5 @@
   >
     +
   </button>
-  <CreateItem bind:dialog on:open={() => {topLevel = false}} on:close={()=>{topLevel=true}}/>
+  <CreateItem bind:dialog parent={null} on:open={() => {topLevel = false}} on:close={()=>{topLevel=true}}/>
 </div>

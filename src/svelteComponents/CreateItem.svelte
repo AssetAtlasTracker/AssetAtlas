@@ -9,19 +9,27 @@
   import "../svelteStyles/main.css";
   import { navigate } from "svelte-routing";
     import ActionDisplay from "./ActionDisplay.svelte";
+    import type { IBasicItemPopulated } from "../models/basicItem.js";
 
   export let dialog: HTMLDialogElement;
 
   let templateDialog: HTMLDialogElement | undefined;
+
+  export let curLocation : IBasicItemPopulated | null;
 
   let name = "";
   let description = "";
   let tags = "";
   let parentItemName = "";
   let parentItemId: string | null = null;
+  let sameLocations: boolean = true;
   let parentItemSuggestions: any[] = [];
   let homeItemName = "";
   let homeItemId: string | null = null;
+  if (curLocation != null) {
+    homeItemName = curLocation.name;
+    homeItemId = curLocation._id.toString();
+  }
   let homeItemSuggestions: any[] = [];
   let templateName = "";
   let templateId: string | null = null;
@@ -29,7 +37,6 @@
   let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
   let selectedImage: File | null = null;
   let imagePreview: string | null = null;
-  let sameLocations: boolean = true;
 
   interface ICustomField {
     _id: string;
@@ -82,7 +89,7 @@
     }
     imagePreview = null;
   }
-
+ 
   async function handleCreateItem() {
     try {
       //If a template name is typed but not an exact match (no templateId set), block creation
