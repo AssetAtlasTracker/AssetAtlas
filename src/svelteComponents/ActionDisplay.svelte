@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { actionStore } from '../stores/actionStore';
+  import { actionStore } from '../stores/actionStore.js';
   import { fade } from 'svelte/transition';
 </script>
 

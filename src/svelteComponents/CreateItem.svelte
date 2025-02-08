@@ -5,11 +5,11 @@
   import CreateTemplate from "./CreateTemplate.svelte";
   import { actionStore } from "../stores/actionStore.js";
   import { SlideToggle } from "@skeletonlabs/skeleton";
+  import CustomFieldPicker from "./CustomFieldPicker.svelte";
 
   import "../svelteStyles/main.css";
-  import { navigate } from "svelte-routing";
-    import ActionDisplay from "./ActionDisplay.svelte";
-    import type { IBasicItemPopulated } from "../models/basicItem.js";
+  import ActionDisplay from "./ActionDisplay.svelte";
+  import type { IBasicItemPopulated } from "../models/basicItem.js";
 
   export let dialog: HTMLDialogElement;
 
@@ -761,69 +761,30 @@
       <h2 class="font-bold text-lg mt-4">Custom Fields</h2>
       <div class="space-y-2">
         {#each customFields as field, index}
-          <div class="flex flex-wrap items-start mb-4 border p-2 relative">
-            <label class="flex-1 mr-2">
-              Field Name:
-              <span class="flex items-center">
-                <input
-                  type="text"
-                  class="dark-textarea py-2 px-4 w-full"
-                  bind:value={field.fieldName}
-                  on:input={(e) => onCustomFieldNameInput(index, e)}
-                  on:focus={() => handleCustomFieldFocus(index)}
-                  on:blur={() => (customFields[index].suggestions = [])}
-                  disabled={field.fromTemplate}
-                />
-                {#if field.fromTemplate}
-                  <InfoToolTip
-                    message="This field is required by template '{templateName}'. Value can be empty if desired."
-                  />
-                {/if}
-              </span>
-              {#if field.suggestions.length > 0}
-                <ul class="suggestions">
-                  {#each field.suggestions as suggestion}
-                    <button
-                      type="button"
-                      class="suggestion-item"
-                      on:mousedown={(e) => {
-                        e.preventDefault();
-                        selectCustomFieldSuggestion(index, suggestion);
-                      }}
-                      on:click={() => handleCustomFieldClick(index)}
-                    >
-                      {suggestion.fieldName} ({suggestion.dataType})
-                    </button>
-                  {/each}
-                </ul>
-              {/if}
-            </label>
-            <label class="mr-2" style="flex-basis: 150px; max-width: 150px;">
-              Data Type:
-              <input
-                type="text"
-                class="dark-textarea py-2 px-4 w-full"
-                bind:value={field.dataType}
-                disabled
-              />
-            </label>
-            <label class="flex-1">
-              Value:
-              <input
-                type="text"
-                class="dark-textarea py-2 px-4 w-full"
-                bind:value={field.value}
-              />
-            </label>
-            {#if !field.fromTemplate}
-              <button
-                type="button"
-                class="x-button"
-                on:click={() => removeCustomField(index)}
-              >
-                X
-              </button>
-            {/if}
+          <div class="field-row">
+            <CustomFieldPicker
+              bind:field={field}
+              onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
+              onFieldFocus={() => handleCustomFieldFocus(index)}
+              onFieldBlur={() => (customFields[index].suggestions = [])}
+              showDeleteButton={!field.fromTemplate}
+              onDelete={() => removeCustomField(index)}
+            >
+              <svelte:fragment slot="suggestions">
+                {#each field.suggestions as suggestion}
+                  <button
+                    class="suggestion-item"
+                    type="button"
+                    on:mousedown={(e) => {
+                      e.preventDefault();
+                      selectCustomFieldSuggestion(index, suggestion);
+                    }}
+                  >
+                    {suggestion.fieldName} ({suggestion.dataType})
+                  </button>
+                {/each}
+              </svelte:fragment>
+            </CustomFieldPicker>
           </div>
         {/each}
       </div>

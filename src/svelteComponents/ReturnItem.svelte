@@ -1,7 +1,7 @@
 <script>
     export let itemId;
     export let parentId;
-    import {navigate } from "svelte-routing";
+    import { navigate } from "svelte-routing";
     
   
     async function returnItem() {

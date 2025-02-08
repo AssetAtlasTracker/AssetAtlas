@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { ip } from "../stores/ipStore";
-  import type { ITemplatePopulated } from "../models/template";
-  import type { ICustomField } from "../models/customField";
+  import { ip } from "../stores/ipStore.js";
+  import type { ITemplatePopulated } from "../models/template.js";
+  import type { ICustomField } from "../models/customField.js";
+  import CustomFieldPicker from "./CustomFieldPicker.svelte";
 
   export let template: ITemplatePopulated;
   export let onClose: () => void;
@@ -297,35 +298,6 @@
 <div class="template-container">
   <h1 id="underline-header" class="font-bold text-center">Edit Template</h1>
   <form on:submit|preventDefault={handleEditTemplate}>
-    <div class="flex flex-wrap space-x-4 items-center">
-      <label class="flex-1 min-w-[200px] relative">
-        Template:
-        <input
-          type="text"
-          class="dark-textarea py-2 px-4 w-full"
-          bind:value={templateName}
-          on:input={handleTemplateInput}
-          on:focus={handleTemplateFocus}
-          on:blur={() => (templateSuggestions = [])}
-        />
-        {#if templateSuggestions.length > 0}
-          <ul class="suggestions">
-            {#each templateSuggestions as t}
-              <button
-                class="suggestion-item"
-                type="button"
-                on:mousedown={(e) => {
-                  e.preventDefault();
-                  selectTemplate(t);
-                }}
-              >
-                {t.name}
-              </button>
-            {/each}
-          </ul>
-        {/if}
-      </label>
-    </div>
     <label class="block mb-4">
       Name:
       <input
@@ -340,61 +312,35 @@
       {/if}
     </label>
 
-    <h3 class="font-bold text-lg mb-2">Custom Fields</h3>
-    {#each customFields as field, index}
-      <div class="flex items-start mb-2 relative">
-        <label class="flex-grow mr-2 relative">
-          Field Name:
-          <input
-            type="text"
-            placeholder="Field Name"
-            class="dark-textarea py-2 px-4 w-full"
-            bind:value={field.fieldName}
-            on:input={(e) => onCustomFieldNameInput(index, e)}
-            on:focus={() => handleCustomFieldFocus(index)}
-            on:blur={() => (customFields[index].suggestions = [])}
-          />
-          {#if field.suggestions.length > 0}
-            <ul class="suggestions">
-              {#each field.suggestions as suggestion}
-                <button
-                  class="suggestion-item"
-                  type="button"
-                  on:mousedown={(e) => {
-                    e.preventDefault();
-                    selectCustomFieldSuggestion(index, suggestion);
-                  }}
-                  on:click={() => handleCustomFieldClick(index)}
-                >
-                  {suggestion.fieldName} ({suggestion.dataType})
-                </button>
-              {/each}
-            </ul>
-          {/if}
-        </label>
-        <!-- TODO: Change these to not use "style="-->
-        <label class="mr-2" style="flex-basis: 150px; max-width: 150px;">
-          Data Type:
-          <select
-            class="dark-textarea py-2 px-4 w-full"
-            bind:value={field.dataType}
-            disabled={field.isExisting}
-          >
-            <option value="string">String</option>
-            <option value="number">Number</option>
-            <option value="boolean">Boolean</option>
-          </select>
-        </label>
-
-        <button
-          type="button"
-          class="border-button font-semibold shadow ml-2"
-          on:click={() => removeCustomField(index)}
+    <h3 class="font-bold text-lg mb-4">Custom Fields</h3>
+    <div class="space-y-4">
+      {#each customFields as field, index}
+        <CustomFieldPicker
+          bind:field={field}
+          mode="template"
+          onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
+          onFieldFocus={() => handleCustomFieldFocus(index)}
+          onFieldBlur={() => (customFields[index].suggestions = [])}
+          showDeleteButton={true}
+          onDelete={() => removeCustomField(index)}
         >
-          Remove
-        </button>
-      </div>
-    {/each}
+          <svelte:fragment slot="suggestions">
+            {#each field.suggestions as suggestion}
+              <button
+                class="suggestion-item"
+                type="button"
+                on:mousedown={(e) => {
+                  e.preventDefault();
+                  selectCustomFieldSuggestion(index, suggestion);
+                }}
+              >
+                {suggestion.fieldName} ({suggestion.dataType})
+              </button>
+            {/each}
+          </svelte:fragment>
+        </CustomFieldPicker>
+      {/each}
+    </div>
 
     <button
       type="button"

@@ -1,11 +1,12 @@
 <script lang="ts">
     import Dialog from '../svelteComponents/Dialog.svelte';
     import InfoToolTip from './InfoToolTip.svelte';
-    import { ip } from '../stores/ipStore';
+    import { ip } from '../stores/ipStore.js';
     import CreateTemplate from './CreateTemplate.svelte'; 
-    import type { IBasicItemPopulated } from '../models/basicItem';
+    import type { IBasicItemPopulated } from '../models/basicItem.js';
     import { navigate } from "svelte-routing";
     import { SlideToggle } from '@skeletonlabs/skeleton';
+    import CustomFieldPicker from "./CustomFieldPicker.svelte";
   
     export let dialog: HTMLDialogElement;
     export let item: IBasicItemPopulated;
@@ -72,38 +73,54 @@
   }
 
   let customFields: ICustomFieldEntry[] = [];
-  let length = 0;
   if (item.customFields?.length) {
-    length = item.customFields?.length;
-    for (let i = 0; i < length; i++) {
-      addCustomFieldLine();
-      customFields[i].fieldName = item.customFields[i].field.fieldName;
-      customFields[i].fieldId = item.customFields[i].field._id as string;
-      customFields[i].dataType = item.customFields[i].field.dataType;
-      customFields[i].isNew = false;
-      customFields[i].isExisting = true;
-      customFields[i].suggestions = [];
-      customFields[i].value = item.customFields[i].value as string;
+    //First load non-template fields
+    let nonTemplateFields = item.customFields.map(cf => ({
+      fieldName: cf.field.fieldName,
+      fieldId: cf.field._id as string,
+      dataType: cf.field.dataType,
+      value: cf.value as string,
+      suggestions: [],
+      isNew: false,
+      isSearching: false,
+      isExisting: true,
+      fromTemplate: false
+    }));
+
+    if (item.template && item.template.fields?.length) {
+      const templateFieldIds = new Set(
+        item.template.fields.map((tid: any) =>
+          typeof tid === "string" ? tid : tid._id.toString()
+        )
+      );
+
+      //Split fields into template and non-template
+      const templateFields = nonTemplateFields.filter(field => 
+        field.fieldId && templateFieldIds.has(field.fieldId.toString())
+      ).map(field => ({ ...field, fromTemplate: true }));
+
+      const remainingFields = nonTemplateFields.filter(field => 
+        !field.fieldId || !templateFieldIds.has(field.fieldId.toString())
+      );
+
+      //Combine with template fields first
+      customFields = [...templateFields, ...remainingFields];
+    } else {
+      customFields = nonTemplateFields;
     }
   }
 
   if (item.template && item.template.fields?.length) {
-    //Collect template field IDs
     const templateFieldIds = new Set(
       item.template.fields.map((tid: any) =>
-        typeof tid === "string" ? tid : tid._id.toString(),
-      ),
+        typeof tid === "string" ? tid : tid._id.toString()
+      )
     );
 
-    //Mark fields as from template if their fieldId is in the set
-    for (let i = 0; i < customFields.length; i++) {
-      if (
-        customFields[i].fieldId &&
-        templateFieldIds.has(customFields[i].fieldId?.toString())
-      ) {
-        customFields[i].fromTemplate = true;
-      }
-    }
+    customFields = customFields.map(field => ({
+      ...field,
+      fromTemplate: field.fieldId ? templateFieldIds.has(field.fieldId.toString()) : false
+    }));
   }
 
   if (item.image) {
@@ -424,8 +441,9 @@
 
       console.log("Loaded template fields:", templateFields);
 
-      //display template fields before any user-defined fields
-      customFields = [...templateFields, ...customFields];
+      //template fields first, then other fields
+      const nonTemplateFields = customFields.filter(f => !f.fromTemplate);
+      customFields = [...templateFields, ...nonTemplateFields];
       console.log("Updated customFields:", customFields);
     } catch (err) {
       console.error("Error loading template fields:", err);
@@ -750,72 +768,30 @@
       <h2 class="font-bold text-lg mt-4">Custom Fields</h2>
       <div class="space-y-2">
         {#each customFields as field, index}
-          <div class="flex flex-wrap items-start mb-4 border p-2 relative">
-            <!-- If fromTemplate, do not show delete button -->
-            <label class="flex-1 mr-2">
-              Field Name:
-              <span class="flex items-center">
-                <input
-                  type="text"
-                  class="dark-textarea py-2 px-4 w-full"
-                  bind:value={field.fieldName}
-                  on:input={(e) => onCustomFieldNameInput(index, e)}
-                  on:focus={() => handleCustomFieldFocus(index)}
-                  on:blur={() => (customFields[index].suggestions = [])}
-                  disabled={field.fromTemplate}
-                />
-                {#if field.fromTemplate}
-                  <InfoToolTip
-                    message="This field is required by template '{templateName}' and cannot be removed. Value can be empty if desired."
-                  />
-                {/if}
-              </span>
-              <!-- Moved suggestions inside label, right after input container -->
-              {#if field.suggestions && field.suggestions.length > 0}
-                <ul class="suggestions">
-                  {#each field.suggestions as suggestion}
-                    <button
-                      title={"Select field " + suggestion.fieldName}
-                      type="button"
-                      class="suggestion-item"
-                      on:mousedown={(e) => {
-                        e.preventDefault();
-                        selectCustomFieldSuggestion(index, suggestion);
-                      }}
-                      on:click={() => handleCustomFieldClick(index)}
-                    >
-                      {suggestion.fieldName} ({suggestion.dataType})
-                    </button>
-                  {/each}
-                </ul>
-              {/if}
-            </label>
-            <label class="mr-2" style="flex-basis: 150px; max-width: 150px;">
-              Data Type:
-              <input
-                type="text"
-                class="dark-textarea py-2 px-4 w-full"
-                bind:value={field.dataType}
-                disabled
-              />
-            </label>
-            <label class="flex-1 mr-2">
-              Value:
-              <input
-                type="text"
-                bind:value={field.value}
-                class="dark-textarea py-2 px-4 w-full"
-              />
-            </label>
-            {#if !field.fromTemplate}
-              <button
-                type="button"
-                class="x-button"
-                on:click={() => removeCustomField(index)}
-              >
-                X
-              </button>
-            {/if}
+          <div class="field-row">
+            <CustomFieldPicker
+              bind:field={field}
+              onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
+              onFieldFocus={() => handleCustomFieldFocus(index)}
+              onFieldBlur={() => (customFields[index].suggestions = [])}
+              showDeleteButton={!field.fromTemplate}
+              onDelete={() => removeCustomField(index)}
+            >
+              <svelte:fragment slot="suggestions">
+                {#each field.suggestions as suggestion}
+                  <button
+                    class="suggestion-item"
+                    type="button"
+                    on:mousedown={(e) => {
+                      e.preventDefault();
+                      selectCustomFieldSuggestion(index, suggestion);
+                    }}
+                  >
+                    {suggestion.fieldName} ({suggestion.dataType})
+                  </button>
+                {/each}
+              </svelte:fragment>
+            </CustomFieldPicker>
           </div>
         {/each}
       </div>

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Link } from "svelte-routing";
-  import type { IBasicItemPopulated } from "../models/basicItem";
+  import type { IBasicItemPopulated } from "../models/basicItem.js";
 
   export let items: IBasicItemPopulated[];
 
