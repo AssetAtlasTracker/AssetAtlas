@@ -7,11 +7,17 @@
     import type { ITemplatePopulated } from '../models/template';
     import Dialog from '../svelteComponents/Dialog.svelte';
     import { downloadFile } from '../utility/file/FileDownloader';
+    import JSZip from "jszip";
 
     let files : FileList;
     let dialog: HTMLDialogElement;
     let itemInput: string ="";
     let templateInput : string="";
+
+    let csvData : string[] = [];
+    let images : File[] = [];
+    let addedLength = 0;
+
 
     function goBack() {
       window.history.back();
@@ -21,48 +27,84 @@
       document.getElementById("dialog-text")!.innerText = text;
     }
 
+    async function handleFile(file: File, last: boolean) {
+      switch (file.type) {
+            case "image/jpeg":
+            case "image/png" : handleImportImages(file); break;
+            case ".csv" : handleImportCSV(file,last); break;
+            case ".zip" : await handleImportZip(file,last); break;
+            default: throw new Error("Error: Unexpected Type of File Inputted.");
+          }
+    }
+
     async function handleSelected() {
       if (!files) {
         console.error("handle called when nothing selected.");
         return;
       }
-      if (files.length <= 2) {
-        let data : string[] = [];
+      if (files.length >= 1) {
         for (var i = 0; i < files.length; i++) {
-          const reader = new FileReader();
           var item = files.item(i)!;
-          reader.addEventListener("load", async () => {
-            console.log("Read: " + reader.result as string);
-            console.log("which is", reader.result);
-            if (!data.includes(reader.result as string)) {
-              data.push(reader.result as string);
-            }
-            if (data.length === files.length) {
-              try {
-                const response = await fetch(`http://${$ip}/api/csv/import`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({data: data}),
-                });
-                if (!response.ok) throw new Error('Error Importing from Files.');
-                setDialogText("Files Imported Successfully!");
-                dialog.showModal();
-              } catch (err) {
-                console.error('Error importing:', err);
-                setDialogText("Error Importing from Files.");
-                dialog.showModal();
-              }
-            }
-          });
-          reader.readAsText(item);
+          let last = false;
+          if (i == files.length - 1) last = true;
+          await handleFile(item,last);
         }
-      } else {
-        setDialogText("Only Two Files can be Imported.\nOne with the templates and another with the items.");
-        dialog.showModal();
+        if (images.length + csvData.length == files.length + addedLength) {
+          // done -- last to finish was not a csv, so continue.
+          handleCallImport();
+        }
       }
+
+
+      //     reader.addEventListener("load", async (event) => {
+      //       console.log("Read: " + reader.result as string);
+      //       console.log("which is", reader.result);
+      //       if (!data.includes(reader.result as string)) {
+      //         data.push(reader.result as string);
+      //       }
+      //       if (data.length === files.length) {
+      //         try {
+      //           const response = await fetch(`http://${$ip}/api/csv/import`, {
+      //             method: 'POST',
+      //             headers: { 'Content-Type': 'application/json' },
+      //             body: JSON.stringify({data: data}),
+      //           });
+      //           if (!response.ok) throw new Error('Error Importing from Files.');
+      //           setDialogText("Files Imported Successfully!");
+      //           dialog.showModal();
+      //         } catch (err) {
+      //           console.error('Error importing:', err);
+      //           setDialogText("Error Importing from Files.");
+      //           dialog.showModal();
+      //         }
+      //       }
+      //     });
+      //     reader.readAsText(item);
+      //   }
+      // } else {
+      //   setDialogText("Only Two Files can be Imported.\nOne with the templates and another with the items.");
+      //   dialog.showModal();
+      // }
     }
 
-    async function handleExport() {
+  async function handleCallImport() {
+    try {
+      const response = await fetch(`http://${$ip}/api/csv/import`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({data: csvData}),
+      });
+      if (!response.ok) throw new Error('Error Importing from Files.');
+        setDialogText("Files Imported Successfully!");
+        dialog.showModal();
+      } catch (err) {
+        console.error('Error importing:', err);
+        setDialogText("Error Importing from Files.");
+        dialog.showModal();
+      }
+  }
+
+  async function handleExport() {
       try {
         const responseT = await fetch(`http://${$ip}/api/templates/getTemplates`, {
           method: 'GET',
@@ -109,7 +151,50 @@
         dialog.showModal();
       }
     }
-  </script>
+  
+
+    function handleImportImages(item: File) {
+      images.push(item);
+    }
+
+
+    function handleImportCSV(item: File, last: boolean) {
+        const reader = new FileReader();
+        reader.addEventListener("load", () => {
+          if (!csvData.includes(reader.result as string)) {
+              csvData.push(reader.result as string);
+          }
+          if (last) {
+            // make call here
+            handleCallImport();
+          }
+        });
+        reader.readAsText(item);
+    }
+
+
+    async function handleImportZip(item: File, last: boolean) {
+        const zip = new JSZip();
+        const unzipped = await zip.loadAsync(item);
+        addedLength -= 1;
+        for (var i = 0; i < unzipped.length; i++) {
+          const zobj = unzipped.files[i];
+          if (zobj.dir) continue;
+          addedLength += 1;
+          const blob = await zobj.async("blob");
+          const file = new File([blob], zobj.name, {
+            lastModified: zobj.date.getTime(),
+          });
+          let lastOf = false;
+          if (i == unzipped.length - 1) lastOf = true;
+          await handleFile(file, last && lastOf);
+        }
+    }
+
+    function checkLastLoad() {
+        throw new Error('Function not implemented.');
+    }
+</script>
   
   <AppBar class="appbar-border glass"> 
     <button class="back-button" on:click={goBack}>
@@ -120,7 +205,7 @@
   <div class="body utility-body">
     <div class="utility-col">
       <label for="many">Select CSV Files:</label>
-      <input accept=".csv" bind:files id="many" multiple type="file">
+      <input accept=".csv,image/png,image/jpeg,.zip" bind:files id="many" multiple type="file">
       <button on:click={handleSelected}>Import From CSV</button>
     </div>
 
