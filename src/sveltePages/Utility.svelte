@@ -1,13 +1,12 @@
 <script lang="ts">
    import { AppBar } from '@skeletonlabs/skeleton';
     import '../svelteStyles/main.css';
-    import { ip } from '../stores/ipStore';
-    import type { IBasicItemPopulated } from '../models/basicItem';
+    import { ip } from '../stores/ipStore.js';
+    import type { IBasicItemPopulated } from '../models/basicItem.js';
     import { CSVFormatterPopulated } from '../utility/formating/CSVFormatterPopulated.js';
-    import type { ITemplatePopulated } from '../models/template';
+    import type { ITemplatePopulated } from '../models/template.js';
     import Dialog from '../svelteComponents/Dialog.svelte';
-    import { downloadFile } from '../utility/file/FileDownloader';
-    import JSZip from "jszip";
+    import { downloadFile } from '../utility/file/FileDownloader.js';
 
     let files : FileList;
     let dialog: HTMLDialogElement;
@@ -28,16 +27,24 @@
     }
 
     async function handleFile(file: File, last: boolean) {
-      switch (file.type) {
-            case "image/jpeg":
-            case "image/png" : handleImportImages(file); break;
+      let type = getTypeOfFile(file.name);
+      switch (type) {
+            case ".jpeg":
+            case ".jpg" :
+            case ".png" : handleImportImages(file); break;
             case ".csv" : handleImportCSV(file,last); break;
             case ".zip" : await handleImportZip(file,last); break;
-            default: throw new Error("Error: Unexpected Type of File Inputted.");
+            default: throw new Error("Error: Unexpected Type of File Inputted: " + type);
           }
     }
 
+    function getTypeOfFile(name : string) {
+      const ind = name.lastIndexOf('.');
+      return name.substring(ind, name.length);
+    }
+
     async function handleSelected() {
+      try {
       if (!files) {
         console.error("handle called when nothing selected.");
         return;
@@ -54,6 +61,9 @@
           handleCallImport();
         }
       }
+    } catch (err) {
+
+    }
 
 
       //     reader.addEventListener("load", async (event) => {
@@ -174,21 +184,21 @@
 
 
     async function handleImportZip(item: File, last: boolean) {
-        const zip = new JSZip();
-        const unzipped = await zip.loadAsync(item);
-        addedLength -= 1;
-        for (var i = 0; i < unzipped.length; i++) {
-          const zobj = unzipped.files[i];
-          if (zobj.dir) continue;
-          addedLength += 1;
-          const blob = await zobj.async("blob");
-          const file = new File([blob], zobj.name, {
-            lastModified: zobj.date.getTime(),
-          });
-          let lastOf = false;
-          if (i == unzipped.length - 1) lastOf = true;
-          await handleFile(file, last && lastOf);
-        }
+        // const zip = new JSZip();
+        // const unzipped = await zip.loadAsync(item);
+        // addedLength -= 1;
+        // for (var i = 0; i < unzipped.length; i++) {
+        //   const zobj = unzipped.files[i];
+        //   if (zobj.dir) continue;
+        //   addedLength += 1;
+        //   const blob = await zobj.async("blob");
+        //   const file = new File([blob], zobj.name, {
+        //     lastModified: zobj.date.getTime(),
+        //   });
+        //   let lastOf = false;
+        //   if (i == unzipped.length - 1) lastOf = true;
+        //   await handleFile(file, last && lastOf);
+        //}
     }
 
     function checkLastLoad() {
