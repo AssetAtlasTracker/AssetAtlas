@@ -7,6 +7,8 @@
     import { navigate } from "svelte-routing";
     import { SlideToggle } from '@skeletonlabs/skeleton';
     import CustomFieldPicker from "./CustomFieldPicker.svelte";
+    import { createEventDispatcher, onMount } from 'svelte';
+    import ImageSelector from './ImageSelector.svelte';
   
     export let dialog: HTMLDialogElement;
     export let item: IBasicItemPopulated;
@@ -135,76 +137,9 @@
     }
   }
 
+  const dispatch = createEventDispatcher();
+
   function resetForm() {}
-
-  async function handleEditItem() {
-    //If a template name is typed but not an exact match (no templateId set), block creation
-    if (templateName.trim() && !templateId) {
-      alert("Please select a valid template from the list or clear the field.");
-      return;
-    }
-
-    const tagsArray = tags.split(",").map((tag) => tag.trim());
-
-    if (sameLocations) {
-      parentItemId = homeItemId;
-      parentItemName = homeItemName;
-    }
-
-    //Filter out empty fields not from the template
-    customFields = customFields.filter((field) => {
-      if (field.fromTemplate) return true; //Always keep template fields that were loaded
-      return field.fieldName.trim() !== "" && field.dataType.trim() !== "";
-    });
-
-    const formattedCustomFields = await Promise.all(
-      customFields.map(async (field) => {
-        if (!field.isNew && field.fieldId) {
-          return { field: field.fieldId, value: field.value };
-        } else {
-          const createdField = await createCustomField(
-            field.fieldName,
-            field.dataType,
-          );
-          return { field: createdField._id, value: field.value };
-        }
-      }),
-    );
-
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("description", description || "");
-    formData.append("tags", JSON.stringify(tagsArray));
-    if (parentItemId) formData.append("parentItem", parentItemId);
-    if (homeItemId) formData.append("homeItem", homeItemId);
-    if (templateId) formData.append("template", templateId);
-
-    //Convert customFields to JSON
-    formData.append("customFields", JSON.stringify(formattedCustomFields));
-
-    if (removeExistingImage) {
-      formData.append("removeImage", "true");
-    } else if (selectedImage) {
-      formData.append("image", selectedImage);
-    }
-
-    try {
-      const response = await fetch(`http://${$ip}/api/items/${item._id}`, {
-        method: "PATCH",
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) throw new Error(data.message || "Error editing item");
-      console.log("Item changed:", data);
-
-      navigate(`/view/${item._id}`);
-      dialog.close();
-    } catch (err) {
-      console.error("Error editing item:", err);
-    }
-  }
 
   async function getImage() {
     try {
@@ -528,12 +463,10 @@
     customFields = customFields.filter((_, i) => i !== index);
   }
 
-  function handleImageChange(e: Event) {
-    const input = e.currentTarget as HTMLInputElement;
-    if (input?.files?.length) {
-      selectedImage = input.files[0];
-      imagePreview = URL.createObjectURL(selectedImage);
-    }
+  function handleImageChange(event: CustomEvent) {
+    const { selectedImage: newImage, removeExistingImage: remove } = event.detail;
+    selectedImage = newImage;
+    removeExistingImage = remove;
   }
 
   async function loadRecentItems(type: string) {
@@ -579,6 +512,108 @@
       customFields[index].suggestions = await loadRecentItems("customFields");
     }
   }
+
+  async function checkImageExists() {
+    try {
+      const response = await fetch(`http://${$ip}/api/items/${item._id}/image`);
+      if (response.ok) {
+        const timestamp = Date.now();
+        imagePreview = `http://${$ip}/api/items/${item._id}/image?t=${timestamp}`;
+        removeExistingImage = false;
+      } else {
+        imagePreview = null;
+        removeExistingImage = true;
+      }
+    } catch (err) {
+      console.error("Error checking image:", err);
+      imagePreview = null;
+      removeExistingImage = true;
+    }
+  }
+
+  onMount(() => {
+    if (item._id) {
+      checkImageExists();
+    }
+  });
+
+  async function handleEditItem() {
+    //If a template name is typed but not an exact match (no templateId set), block creation
+    if (templateName.trim() && !templateId) {
+      alert("Please select a valid template from the list or clear the field.");
+      return;
+    }
+
+    const tagsArray = tags.split(",").map((tag) => tag.trim());
+
+    if (sameLocations) {
+      parentItemId = homeItemId;
+      parentItemName = homeItemName;
+    }
+
+    //Filter out empty fields not from the template
+    customFields = customFields.filter((field) => {
+      if (field.fromTemplate) return true; //Always keep template fields that were loaded
+      return field.fieldName.trim() !== "" && field.dataType.trim() !== "";
+    });
+
+    const formattedCustomFields = await Promise.all(
+      customFields.map(async (field) => {
+        if (!field.isNew && field.fieldId) {
+          return { field: field.fieldId, value: field.value };
+        } else {
+          const createdField = await createCustomField(
+            field.fieldName,
+            field.dataType,
+          );
+          return { field: createdField._id, value: field.value };
+        }
+      }),
+    );
+
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("description", description || "");
+    formData.append("tags", JSON.stringify(tagsArray));
+    if (parentItemId) formData.append("parentItem", parentItemId);
+    if (homeItemId) formData.append("homeItem", homeItemId);
+    if (templateId) formData.append("template", templateId);
+
+    //Convert customFields to JSON
+    formData.append("customFields", JSON.stringify(formattedCustomFields));
+
+    if (removeExistingImage) {
+      formData.append("removeImage", "true");
+    } else if (selectedImage) {
+      formData.append("image", selectedImage);
+    }
+
+    try {
+      const response = await fetch(`http://${$ip}/api/items/${item._id}`, {
+        method: "PATCH",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.message || "Error editing item");
+      console.log("Item changed:", data);
+
+      //Wait for the server to process the image
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      //Dispatch an event to notify parent component to reload
+      dispatch('itemUpdated', {
+        ...data,
+        imageChanged: selectedImage !== null || removeExistingImage
+      });
+
+      navigate(`/view/${item._id}`);
+      dialog.close();
+    } catch (err) {
+      console.error("Error editing item:", err);
+    }
+  }
 </script>
 
 <Dialog bind:dialog on:close={resetForm}>
@@ -619,41 +654,11 @@
           />
         </label>
 
-          <div class="flex flex-col space-y-2">
-            <label class="min-w-[400px]">
-              Image:
-              <input
-                type="file"
-                accept="image/*"
-                class="dark-textarea py-2 px-4 w-full"
-                on:change={handleImageChange}
-              />
-            </label>
-            
-            {#if imagePreview}
-              <div class="relative w-48 h-48">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  class="object-cover w-full h-full"
-                />
-                <button
-                  type="button"
-                  class="absolute top-0 right-0 bg-red-500 text-white p-1"
-                  on:click={() => {
-                    if (imagePreview) {
-                      URL.revokeObjectURL(imagePreview);
-                    }
-                    selectedImage = null;
-                    imagePreview = null;
-                    removeExistingImage = true; //Set this flag when removing image
-                  }}
-                >
-                  X
-                </button>
-              </div>
-            {/if}
-          </div>
+          <ImageSelector 
+            itemId={item._id.toString()}
+            existingImage={!!item.image}
+            on:imageChange={handleImageChange}
+          />
           
           <SlideToggle name="slide" bind:checked={sameLocations} active="bg-green-700">Use same home and current location</SlideToggle>
           <div class="flex flex-wrap space-x-4">

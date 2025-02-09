@@ -1,8 +1,15 @@
 <script lang="ts">
   import { Link } from "svelte-routing";
   import { ip } from "../stores/ipStore.js";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import type { IBasicItemPopulated } from "../models/basicItem.js";
+
+  interface ItemUpdateEvent extends CustomEvent {
+    detail: {
+      imageChanged: boolean;
+      [key: string]: any;
+    }
+  }
 
   export let item: IBasicItemPopulated;
   let parentChain: { _id: string; name: string }[] = [];
@@ -26,6 +33,55 @@
   onMount(loadParentChain);
   $: if (item._id) {
     loadParentChain();
+  }
+
+  let isImageExpanded = false;
+
+  function toggleImage() {
+    isImageExpanded = !isImageExpanded;
+  }
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      toggleImage();
+    }
+  }
+
+  async function reloadImage() {
+    if (item.image) {
+      try {
+        const response = await fetch(`http://${$ip}/api/items/${item._id}/image`);
+        if (response.ok) {
+          const imgElement = document.querySelector('.item-image') as HTMLImageElement;
+          if (imgElement) {
+            imgElement.src = `http://${$ip}/api/items/${item._id}/image?t=${Date.now()}`;
+          }
+        }
+      } catch (error) {
+        console.error("Error reloading image:", error);
+      }
+    }
+  }
+
+  //Handle updates from EditItem
+  function handleItemUpdated(event: ItemUpdateEvent) {
+    if (event.detail.imageChanged) {
+      setTimeout(reloadImage, 500);
+    }
+  }
+
+  //Add event listener on mount and clean up on destroy
+  onMount(() => {
+    window.addEventListener('itemUpdated', handleItemUpdated as EventListener);
+  });
+
+  onDestroy(() => {
+    window.removeEventListener('itemUpdated', handleItemUpdated as EventListener);
+  });
+
+  $: if (item._id) {
+    reloadImage();
   }
 </script>
 
@@ -54,21 +110,26 @@
     {item.name}
   </h1>
 
-  <!-- Add image display right after the name -->
   {#if item.image}
-    <div class="item-image">
+    <button 
+      type="button"
+      class="item-image-container" 
+      class:expanded={isImageExpanded}
+      on:click={toggleImage}
+      on:keydown={handleKeydown}
+      aria-label="Toggle image size"
+    >
       <img
         src={`http://${$ip}/api/items/${item._id}/image`}
         alt={item.name}
-        class="max-w-md mx-auto my-4 rounded shadow-lg"
+        class="item-image"
       />
-    </div>
+    </button>
   {/if}
 
   {#if item.template}
     <p><strong>Template Name:</strong> {item.template.name}</p>
   {/if}
-  <br />
   <ul>
     {#if item.description}
       <li><strong>Description:</strong> {item.description}</li>
@@ -167,3 +228,37 @@
 {:else}
   <p>Loading item data...</p>
 {/if}
+
+<style>
+  .item-image-container {
+    width: 100px;
+    height: 100px;
+    overflow: hidden;
+    margin: 10px 0 0px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    border: none;
+    background: none;
+    display: block;
+  }
+
+  .item-image-container.expanded {
+    width: auto; /* Let the image determine its width */
+    height: auto;
+  }
+
+  .item-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .item-image-container.expanded .item-image {
+    width: auto; /* Original image width */
+    height: auto; /* Original image height */
+    object-fit: none;
+  }
+</style>
