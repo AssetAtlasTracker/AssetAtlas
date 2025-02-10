@@ -7,6 +7,7 @@
     import type { ITemplatePopulated } from '../models/template.js';
     import Dialog from '../svelteComponents/Dialog.svelte';
     import { downloadFile } from '../utility/file/FileDownloader.js';
+    import JSZip from "jszip";
 
     let files : FileList;
     let dialog: HTMLDialogElement;
@@ -30,7 +31,7 @@
       let type = getTypeOfFile(file.name);
       switch (type) {
             case ".jpeg":
-            case ".jpg" :
+            case ".jpg" : console.log("handling", type);
             case ".png" : handleImportImages(file); break;
             case ".csv" : handleImportCSV(file,last); break;
             case ".zip" : await handleImportZip(file,last); break;
@@ -40,30 +41,32 @@
 
     function getTypeOfFile(name : string) {
       const ind = name.lastIndexOf('.');
-      return name.substring(ind, name.length);
+      return name.substring(ind, name.length).toLowerCase();
     }
 
     async function handleSelected() {
       try {
-      if (!files) {
-        console.error("handle called when nothing selected.");
-        return;
-      }
-      if (files.length >= 1) {
-        for (var i = 0; i < files.length; i++) {
-          var item = files.item(i)!;
-          let last = false;
-          if (i == files.length - 1) last = true;
-          await handleFile(item,last);
+        if (!files) {
+          console.error("handle called when nothing selected.");
+          return;
         }
-        if (images.length + csvData.length == files.length + addedLength) {
-          // done -- last to finish was not a csv, so continue.
-          handleCallImport();
+        if (files.length >= 1) {
+          for (var i = 0; i < files.length; i++) {
+            var item = files.item(i)!;
+            let last = false;
+            if (i == files.length - 1) last = true;
+            await handleFile(item,last);
+          }
+          if (images.length + csvData.length == files.length + addedLength) {
+            // done -- last to finish was not a csv, so continue.
+            handleCallImport();
+          }
         }
+      } catch (err) {
+        console.error('Error importing:', err);
+        setDialogText("Error Importing from Files.");
+        dialog.showModal();
       }
-    } catch (err) {
-
-    }
 
 
       //     reader.addEventListener("load", async (event) => {
@@ -99,6 +102,10 @@
 
   async function handleCallImport() {
     try {
+      console.log(files);
+      console.log(images);
+      console.log(csvData);
+      console.log(addedLength);
       const response = await fetch(`http://${$ip}/api/csv/import`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -164,6 +171,7 @@
   
 
     function handleImportImages(item: File) {
+      console.log("I1");
       images.push(item);
     }
 
@@ -184,25 +192,25 @@
 
 
     async function handleImportZip(item: File, last: boolean) {
-        // const zip = new JSZip();
-        // const unzipped = await zip.loadAsync(item);
-        // addedLength -= 1;
-        // for (var i = 0; i < unzipped.length; i++) {
-        //   const zobj = unzipped.files[i];
-        //   if (zobj.dir) continue;
-        //   addedLength += 1;
-        //   const blob = await zobj.async("blob");
-        //   const file = new File([blob], zobj.name, {
-        //     lastModified: zobj.date.getTime(),
-        //   });
-        //   let lastOf = false;
-        //   if (i == unzipped.length - 1) lastOf = true;
-        //   await handleFile(file, last && lastOf);
-        //}
-    }
-
-    function checkLastLoad() {
-        throw new Error('Function not implemented.');
+        const zip = new JSZip();
+        const unzipped = await zip.loadAsync(item);
+        addedLength -= 1;
+        const length = Object.keys(unzipped.files).length;
+        let blobs : Promise<Blob>[] = [];
+        let objs : JSZip.JSZipObject[] = [];
+        unzipped.forEach((path, obj) => {
+          i++;
+          if (!obj.dir) {
+            objs.push(obj);
+            addedLength++;
+            blobs.push(obj.async('blob'));
+          }
+        });
+        const loadedBlobs = await Promise.all(blobs);
+        for (var i = 0; i < loadedBlobs.length; i++) {
+          const file =new File([loadedBlobs[i]],objs[i].name, {lastModified: objs[i].date.getTime()});
+          await handleFile(file, last && i == loadedBlobs.length-1);
+        }
     }
 </script>
   
@@ -229,7 +237,7 @@
 
   </div>
 
-  <Dialog class="popover"
+  <Dialog
     bind:dialog={dialog}>
     <div id="dialog-text" class="simple-dialog-spacing" > 
       Some dialog text  
