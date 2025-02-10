@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ITemplatePopulated } from "../models/template";
+  import type { ITemplatePopulated } from "../models/template.js";
   import DeleteTemplate from "./DeleteTemplate.svelte";
   import EditTemplate from "./EditTemplate.svelte";
   import Dialog from "./Dialog.svelte";

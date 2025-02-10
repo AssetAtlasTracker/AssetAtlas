@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { ip } from '../stores/ipStore';
+  import { ip } from '../stores/ipStore.js';
   import { Link } from "svelte-routing";
 
   interface TreeItem {

@@ -1,6 +1,5 @@
 <script>
   import { actionStore } from '../stores/actionStore';
-  import { navigate, Link } from 'svelte-routing';
   export let itemId;
   export let onDelete = () => {};
 

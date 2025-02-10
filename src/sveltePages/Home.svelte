@@ -2,8 +2,8 @@
   import ItemContainer from "../svelteComponents/ItemContainer.svelte";
   import CreateItem from "../svelteComponents/CreateItem.svelte";
   import ItemTree from "../svelteComponents/ItemTree.svelte";
-  import type { IBasicItemPopulated } from "../models/basicItem";
-  import { ip } from "../stores/ipStore";
+  import type { IBasicItemPopulated } from "../models/basicItem.js";
+  import { ip } from "../stores/ipStore.js";
   import TopBar from "../svelteComponents/TopBar.svelte";
   import { onMount } from "svelte";
 
@@ -142,5 +142,10 @@
   >
     +
   </button>
-  <CreateItem bind:dialog parent={null} on:open={() => {topLevel = false}} on:close={()=>{topLevel=true}}/>
+  <CreateItem 
+    bind:dialog 
+    curLocation={null} 
+    on:open={() => {topLevel = false}} 
+    on:close={()=>{topLevel = true}}
+  />
 </div>

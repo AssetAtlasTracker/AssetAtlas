@@ -147,20 +147,12 @@ describe("Testing Item Exporting", () => {
         await parser.parseFromFiles([itemData, templateData]);
 
 
-        // const responseT = await fetch(`http://${$ip}/api/templates/getTemplates`, {
-        //     method: 'GET',
-        //     headers: { 'Content-Type': 'application/json' },
-        //   });
         const responseT = await request(app).get('/api/templates/getTemplates').send();
         if (!responseT.ok) throw new Error('Failed to fetch templates');
         let templates : ITemplatePopulated[] = [];
         const dataT = await responseT.body;
         templates = dataT as ITemplatePopulated[];
   
-        // const responseI = await fetch(`http://${$ip}/api/items/search?name=${encodeURIComponent("")}`, {
-        //     method: 'GET',
-        //     headers: { 'Content-Type': 'application/json' },
-        // });
         const responseI = await request(app).get(`/api/items/search?name=${encodeURIComponent("")}&sort=alphabetical&exact=false`);
         if (!responseI.ok) throw new Error('Failed to fetch items');
         let items : IBasicItemPopulated[] = [];
@@ -169,11 +161,11 @@ describe("Testing Item Exporting", () => {
         console.log("Fetched Items for Export:", items);
         const itemRoot = items.filter(item => {return item.parentItem == null});
   
-        const formatter = new CSVFormatterPopulated(items, templates, itemRoot);//>templateMap);
+        const formatter = new CSVFormatterPopulated(items, templates, itemRoot);
+        const tempContent = formatter.formatTemplates();
         const itemContent = formatter.formatItems();
 
-
-        const csvContent = `item name,template,description, expiration date,weight, source, expired\nKitchen,, a place to cook food\n>\nFridge,, a place to put food\n>\nMaybe an Apple, produce, a green sour thing, Jan 19th, 20oz, tree?, true\n<\n<`;
+        const csvContent = `item name,template,description,expiration date,weight,source,expired\nkitchen,,a place to cook food\n>\nfridge,,a place to put food\n>\nmaybe an apple,produce,a green sour thing,Jan 19th,20oz,tree?,true\n<\n<`;
         expect(itemContent).toEqual(csvContent);
         expect(itemContent).toBe(csvContent);
         expect(itemContent.length == csvContent.length);

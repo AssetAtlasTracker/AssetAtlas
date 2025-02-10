@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { actionStore } from "../stores/actionStore.js";
+  import { actionStore } from "../stores/actionStore.js";
   import { ip } from "../stores/ipStore.js";
-
+  import CustomFieldPicker from "./CustomFieldPicker.svelte";
   import "../svelteStyles/main.css";
-    import ActionDisplay from "./ActionDisplay.svelte";
+  import ActionDisplay from "./ActionDisplay.svelte";
 
   let name = "";
   let customFields: ICustomFieldEntry[] = [];
@@ -264,63 +264,35 @@
       {/if}
     </label>
 
-    <h3 class="font-bold text-lg mb-2">Custom Fields</h3>
-    {#each customFields as field, index}
-      <div class="flex items-start mb-2 relative">
-        <!-- Field Name & Suggestions -->
-        <label class="flex-grow mr-2 relative">
-          Field Name:
-          <input
-            type="text"
-            placeholder="Field Name"
-            class="dark-textarea py-2 px-4 w-full"
-            bind:value={field.fieldName}
-            on:input={(e) => onCustomFieldNameInput(index, e)}
-            on:focus={() => handleCustomFieldFocus(index)}
-            on:blur={() => (customFields[index].suggestions = [])}
-          />
-          {#if field.suggestions.length > 0}
-            <ul class="suggestions">
-              {#each field.suggestions as suggestion}
-                <button
-                  class="suggestion-item"
-                  type="button"
-                  on:mousedown={(e) => {
-                    e.preventDefault();
-                    selectCustomFieldSuggestion(index, suggestion);
-                  }}
-                  on:click={() => handleCustomFieldClick(index)}
-                >
-                  {suggestion.fieldName} ({suggestion.dataType})
-                </button>
-              {/each}
-            </ul>
-          {/if}
-        </label>
-
-        <!-- Data Type -->
-        <label class="mr-2 custom-dropdown" style="flex-basis: 150px; max-width: 150px;">
-          Data Type:
-          <select
-            bind:value={field.dataType}
-            disabled={field.isExisting}
-          >
-            <option value="string">String</option>
-            <option value="number">Number</option>
-            <option value="boolean">Boolean</option>
-          </select>
-        </label>
-
-        <!-- Remove Button -->
-        <button
-          type="button"
-          class="border-button font-semibold shadow ml-2"
-          on:click={() => removeCustomField(index)}
+    <h3 class="font-bold text-lg mb-4">Custom Fields</h3>
+    <div class="space-y-4">
+      {#each customFields as field, index}
+        <CustomFieldPicker
+          bind:field={field}
+          mode="template"
+          onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
+          onFieldFocus={() => handleCustomFieldFocus(index)}
+          onFieldBlur={() => (customFields[index].suggestions = [])}
+          showDeleteButton={true}
+          onDelete={() => removeCustomField(index)}
         >
-          Remove
-        </button>
-      </div>
-    {/each}
+          <svelte:fragment slot="suggestions">
+            {#each field.suggestions as suggestion}
+              <button
+                class="suggestion-item"
+                type="button"
+                on:mousedown={(e) => {
+                  e.preventDefault();
+                  selectCustomFieldSuggestion(index, suggestion);
+                }}
+              >
+                {suggestion.fieldName} ({suggestion.dataType})
+              </button>
+            {/each}
+          </svelte:fragment>
+        </CustomFieldPicker>
+      {/each}
+    </div>
 
     <button
       type="button"
