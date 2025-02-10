@@ -14,14 +14,10 @@ export class CSVItemParserPopulated implements Parser {
     columns: string[] = [];
     columnTypes: Map<string, string> = new Map<string, string>;
     templates: Map<string, ITemplatePopulated> = new Map<string, ITemplatePopulated>();
-    imageNameMap: Map<string,Types.ObjectId> = new Map<string,Types.ObjectId>();
 
-    constructor(templates : ITemplatePopulated[], names: string[], ids: string[]) {
+    constructor(templates : ITemplatePopulated[]) {
         for (var i = 0; i < templates.length; i++) {
             this.templates.set(templates[i].name, templates[i]);
-        }
-        for (var j = 0; j < ids.length; j++) {
-            this.imageNameMap.set(names[j], ids[j] as unknown as Types.ObjectId);
         }
     }
 
@@ -157,17 +153,7 @@ export class CSVItemParserPopulated implements Parser {
         // get custom fields.
         for (var i = 3; i < line.length; i++) {
             if (line[i].length > 0) {
-                if (this.columns[i] == "image") {
-                    // add image
-                    const imageId = this.imageNameMap.get(line[i]);
-                    if (imageId) {
-                        item.image = imageId;
-                    } else {
-                        throw new Error("Error: Linked image " + line[i] + " not found.");
-                    }
-                } else {
-                    this.addCustomFieldToItem(line, item, i);
-                }
+                this.addCustomFieldToItem(line, item, i);
             } else {
                 // consider templates         
                 if (template !== undefined) {
@@ -178,7 +164,7 @@ export class CSVItemParserPopulated implements Parser {
                 }
             }
         }
-        this.itemMap.set(item.id, item);
+        this.itemMap.set(item.id, item); // TODO: see if this works
         return item;
     }
 

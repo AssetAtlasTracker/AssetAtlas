@@ -7,7 +7,6 @@ import BasicItem from "../models/basicItem.js";
 
 export class EntityAdder {
     customFidMap = new Map<Types.ObjectId, Types.ObjectId>();
-    images: Map<Types.ObjectId,string> = new Map<Types.ObjectId, string>();
 
     async addCustomFields(fieldMap: Map<Types.ObjectId, ICustomField>) : Promise<Map<Types.ObjectId, Types.ObjectId>> {
         let keysIter = fieldMap.keys()
