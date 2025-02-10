@@ -6,6 +6,7 @@
   import { actionStore } from "../stores/actionStore.js";
   import { SlideToggle } from "@skeletonlabs/skeleton";
   import CustomFieldPicker from "./CustomFieldPicker.svelte";
+  import ImageSelector from './ImageSelector.svelte';
 
   import "../svelteStyles/main.css";
   import ActionDisplay from "./ActionDisplay.svelte";
@@ -36,7 +37,7 @@
   let templateSuggestions: any[] = [];
   let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
   let selectedImage: File | null = null;
-  let imagePreview: string | null = null;
+  let removeExistingImage = false;
 
   interface ICustomField {
     _id: string;
@@ -84,10 +85,7 @@
     homeItemSuggestions = [];
     templateSuggestions = [];
     selectedImage = null;
-    if (imagePreview) {
-      URL.revokeObjectURL(imagePreview);
-    }
-    imagePreview = null;
+    removeExistingImage = false;
   }
  
   async function handleCreateItem() {
@@ -436,12 +434,10 @@
     customFields = customFields.filter((_, i) => i !== index);
   }
 
-  function handleImageChange(e: Event) {
-    const input = e.currentTarget as HTMLInputElement;
-    if (input?.files?.length) {
-      selectedImage = input.files[0];
-      imagePreview = URL.createObjectURL(selectedImage);
-    }
+  function handleImageChange(event: CustomEvent) {
+    const { selectedImage: newImage, removeExistingImage: remove } = event.detail;
+    selectedImage = newImage;
+    removeExistingImage = remove;
   }
 
   async function loadRecentItems(type: string) {
@@ -604,38 +600,9 @@
         </label>
 
         <div class="flex flex-col space-y-2">
-          <label class="min-w-[400px]">
-            Image:
-            <input
-              type="file"
-              accept="image/*"
-              class="dark-textarea py-2 px-4 w-full"
-              on:change={handleImageChange}
+            <ImageSelector 
+              on:imageChange={handleImageChange}
             />
-          </label>
-
-          {#if imagePreview}
-            <div class="relative w-48 h-48">
-              <img
-                src={imagePreview}
-                alt="Preview"
-                class="object-cover w-full h-full"
-              />
-              <button
-                type="button"
-                class="absolute top-0 right-0 bg-red-500 text-white p-1"
-                on:click={() => {
-                  if (imagePreview) {
-                    URL.revokeObjectURL(imagePreview);
-                  }
-                  selectedImage = null;
-                  imagePreview = null;
-                }}
-              >
-                X
-              </button>
-            </div>
-          {/if}
         </div>
 
         <SlideToggle
