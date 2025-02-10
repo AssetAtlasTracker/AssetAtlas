@@ -1,0 +1,3 @@
+template name,,,,
+car,Color,Liscense,Doors,Automatic Trunk
+,string,string,number,boolean

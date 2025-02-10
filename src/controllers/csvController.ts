@@ -5,13 +5,15 @@ import { ParserManager } from '../utility/parsing/ParserManager.js';
 export const importFromFile = async (req: Request, res: Response) => {
     try {
       const data : string[] = req.body.data;
+      const ids : string[] = req.body.ids;
+      const names : string[] = req.body.names;
 
       if (!data || data.length > 2 || data.length < 1) {
         res.status(400).json({message : 'File path(s) are required and at most two can be specified.'});
         return;
       }
       const parser = new ParserManager();//templates); // TODO: fix
-      await parser.parseFromFiles(data);
+      await parser.parseFromFiles(data, names, ids);
       res.status(201).json({message: 'Successfully imported from file path(s).'});
     } catch (err) {
       console.error('Error importing from file(s):', err);
