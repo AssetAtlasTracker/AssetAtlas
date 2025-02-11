@@ -71,10 +71,18 @@
 
   async function handleCallImport() {
     try {
+      const responseImg = await fetch(`http://${$ip}/api/images/`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(images),
+      });
+      if (!responseImg.ok) throw new Error('Error Uploading Images for Import');
+      let ids : string[] = await responseImg.json() as string[];
+      const names = images.map(image => {return image.name});
       const response = await fetch(`http://${$ip}/api/csv/import`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({data: csvData}),
+        body: JSON.stringify({data: csvData, names: names, ids: ids}),
       });
       if (!response.ok) throw new Error('Error Importing from Files.');
         setDialogText("Files Imported Successfully!");

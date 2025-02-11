@@ -14,10 +14,14 @@ export class CSVItemParserPopulated implements Parser {
     columns: string[] = [];
     columnTypes: Map<string, string> = new Map<string, string>;
     templates: Map<string, ITemplatePopulated> = new Map<string, ITemplatePopulated>();
+    imageNameIdMap : Map<string, Types.ObjectId> = new Map<string, Types.ObjectId>()
 
-    constructor(templates : ITemplatePopulated[]) {
+    constructor(templates : ITemplatePopulated[], names: string[], ids: string[]) {
         for (var i = 0; i < templates.length; i++) {
             this.templates.set(templates[i].name, templates[i]);
+        }
+        for (var j = 0; j < ids.length; j++) {
+            this.imageNameIdMap.set(names[j], ids[j] as unknown as Types.ObjectId)
         }
     }
 
@@ -151,6 +155,15 @@ export class CSVItemParserPopulated implements Parser {
         // get custom fields.
         for (var i = 3; i < line.length; i++) {
             if (line[i].length > 0) {
+                if (this.columns[i] == "image") {
+                    const imageId = this.imageNameIdMap.get(line[i]);
+                    if (imageId) {
+
+                    } else {
+                        throw new Error("Error: Unable to find uploaded image " + line[i]);
+                    }
+                }
+
                 this.addCustomFieldToItem(line, item, i);
             } else {
                 // consider templates         
