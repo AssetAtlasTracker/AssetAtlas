@@ -79,26 +79,25 @@ export class CSVItemParserPopulated implements Parser {
 
         var items: IBasicItem[] = [];
         var last_item : IBasicItem | null = null;
-        this.parseHelper(data, i, items, last_item);     
+        this.parseHelper(data, i, items, last_item);    
     }
 
     parseHelper(data : string[][], i : number, items: IBasicItem[], last_item : IBasicItem | null) {
         if (i == data.length) {
             return;
         }
-
         switch (data[i][0]) {
-            case ">": this.parseHelperItem(data, i, items, last_item); break;
+            case ">": this.parseHelperIn(data, i, items, last_item); break;
             case "<": this.parseHelperOut(data,i, items); break;
-            default: this.parseHelperIn(data,i, items, last_item);
+            default: this.parseHelperItem(data,i, items, last_item);
         }
     }
 
     
 
-    parseHelperItem(data: string[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
+    parseHelperIn(data: string[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
         if (!last_item) {
-            this.parseHelperIn(data, i, items, last_item);
+            this.parseHelperItem(data, i, items, last_item);
         } else {
             items.push(last_item!);
             this.parseHelper(data, i+1, items, null);
@@ -114,7 +113,7 @@ export class CSVItemParserPopulated implements Parser {
         }
     }
     
-    parseHelperIn(data: string[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
+    parseHelperItem(data: string[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
         let new_item = this.parseItemFromLine(data[i]);
         if (items.length > 0) {
             let upper_item = items.pop() as IBasicItem;
@@ -143,7 +142,6 @@ export class CSVItemParserPopulated implements Parser {
         // get values from required columns.
         item.name = line[0].toString();
         const templateName = line[1].toString();
-        console.log(templateName);
         const template = this.templates.get(templateName);
         if (template !== undefined) {
             item.template = template!.id;
