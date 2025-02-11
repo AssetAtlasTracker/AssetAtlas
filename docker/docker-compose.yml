@@ -1,4 +1,3 @@
-#version: '3'
 name: assetatlas-project
 
 services:
@@ -6,8 +5,6 @@ services:
     image: assetatlas
     volumes:
       - ./.env:/usr/src/app/docker/.env
-      - rollup-cache:/usr/src/app/.rollup-cache
-      - rollup-module-cache:/usr/src/app/node_modules/.cache/rollup
       - tsbuild-cache:/usr/src/app/.tsbuildcache
     build:
       context: ..
@@ -42,9 +39,5 @@ networks:
 
 volumes:
   mongo-data:
-  rollup-cache:
-    name: assetatlas-rollup-cache
-  rollup-module-cache:
-    name: assetatlas-rollup-module-cache
   tsbuild-cache:
     name: assetatlas-tsbuild-cache
