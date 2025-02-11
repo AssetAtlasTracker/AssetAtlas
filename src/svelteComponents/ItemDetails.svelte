@@ -233,19 +233,16 @@
   .item-image-container {
     width: 100px;
     height: 100px;
-    overflow: hidden;
-    margin: 10px 0 0px 20px;
+    margin: 10px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    padding: 0;
-    border: none;
-    background: none;
+    transition: none;
     display: block;
   }
 
   .item-image-container.expanded {
-    width: auto; /* Let the image determine its width */
+    width: auto;
     height: auto;
+    max-width: calc(100% - 20px);
   }
 
   .item-image {
@@ -253,12 +250,24 @@
     height: 100%;
     object-fit: cover;
     border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: none;
   }
 
   .item-image-container.expanded .item-image {
-    width: auto; /* Original image width */
-    height: auto; /* Original image height */
-    object-fit: none;
+    width: 100%;
+    height: auto;
+    max-width: 500px; /* Hard cap on image width */
+    object-fit: contain;
+  }
+
+  :global(.item-view) {
+    width: max-content;
+    height: fit-content;
+    max-width: 800px;
+    margin: 0;
+  }
+
+  .item-chain {
+    margin-bottom: 1rem;
   }
 </style>

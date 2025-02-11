@@ -14,6 +14,7 @@
   export let parentId: string | null = null;
   export let indentLevel: number = 0;
   export let rootData: TreeItem[] | null = null;
+  export let currentId: string | null = null;
 
   let treeData: TreeItem[] = [];
   let expanded: Record<string, boolean> = {};
@@ -40,6 +41,7 @@
       treeData = await fetchTree(parentId || undefined);
     }
     loading = false;
+    autoExpandTree(treeData);
   }
 
   function toggleExpand(id: string) {
@@ -47,9 +49,23 @@
     expanded = expanded;
   }
 
+  function autoExpandTree(items: TreeItem[]) {
+    if (items.length === 1) {
+      const item = items[0];
+      if (item.hasChildren && item.children && item.children.length > 0) {
+        expanded[item._id] = true;
+        autoExpandTree(item.children);
+      }
+    }
+  }
+
   onMount(() => {
     loadTree();
   });
+
+  $: if (parentId) {
+    loadTree();
+  }
 </script>
 
 <div class="tree-container">
@@ -66,13 +82,17 @@
             <span class="no-children">•</span>
           {/if}
         </button>
-        <Link to={`/view/${item._id}`}>
-          <span class="tree-item-name">{item.name}</span>
+        <Link class="clickable-text" to={`/view/${item._id}`}>
+          {#if item._id === currentId}
+            <strong>{item.name}</strong>
+          {:else}
+            {item.name}
+          {/if}
         </Link>
       </div>
 
       {#if expanded[item._id] && item.children}
-        <svelte:self rootData={item.children} indentLevel={indentLevel + 1} />
+        <svelte:self rootData={item.children} indentLevel={indentLevel + 1} currentId={currentId} />
       {/if}
     {/each}
   {/if}
