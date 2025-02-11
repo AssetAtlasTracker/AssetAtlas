@@ -13,8 +13,8 @@
   }
 </script>
 
-<AppBar class="top-bar-radius border glass">
-  <div class="px-4">
+<AppBar class="top-bar border glass">
+  <div class="px-4 top-bar-flex">
     <div class="nav-margin float-left">
       <button on:click={handleClickMenu}>
         <Menu/>

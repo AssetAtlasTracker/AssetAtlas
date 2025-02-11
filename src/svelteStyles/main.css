@@ -3,20 +3,30 @@ Large component styles
 e.g. containers, theming, etc.
 */
 
-.top-bar-radius{
-  border-radius: 0 0 10px 10px !important;
-}
-
 #home-component{
   margin: 1rem 2vw;
   padding: 2rem 2% 1rem 2vw;
 }
 
+.top-bar{
+  border-radius: 0 0 10px 10px !important;
+  padding: 0 !important;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1;
+}
+
+.top-bar-flex{
+  display: flex;
+  align-items: center;
+}
+
 .glass{
   background: rgba(var(--color-primary-800) / 0.8) !important;
-  box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) / 0.4 );
-  backdrop-filter: blur( 10px );
-  -webkit-backdrop-filter: blur( 10px );
+  box-shadow: 0 8px 16px 0 rgb(var(--color-primary-900));
+  backdrop-filter: blur( 14px );
+  -webkit-backdrop-filter: blur( 14px );
   border-radius: 10px;
 }
 
@@ -162,7 +172,7 @@ e.g. containers, theming, etc.
   justify-content: flex-start;
   align-items: center;
   gap: 1rem;
-  padding: 0.45rem 3% 0;
+  padding: 6.5rem 3vw 0;
 }
 
 .button-row-flex{
@@ -188,7 +198,6 @@ e.g. containers, theming, etc.
   position: relative;
   width: 100%;
   height: calc(100vh - 60px);
-  overflow: hidden;
 }
 
 /* Draggable window containers */
@@ -203,9 +212,9 @@ e.g. containers, theming, etc.
 }
 
 .window-bar {
-  margin: -1rem -2vw;
+  margin: -1rem -2vw 0;
   height: 2rem;
-  background-color: rgb(var(--color-primary-900));
+  background-color: rgb(var(--color-primary-900) / .8);
   cursor: move;
   border-radius: 10px 10px 0 0;
 }
