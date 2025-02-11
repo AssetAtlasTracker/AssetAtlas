@@ -31,7 +31,7 @@
       let type = getTypeOfFile(file.name);
       switch (type) {
             case ".jpeg":
-            case ".jpg" : console.log("handling", type);
+            case ".jpg" :
             case ".png" : handleImportImages(file); break;
             case ".csv" : handleImportCSV(file,last); break;
             case ".zip" : await handleImportZip(file,last); break;
@@ -67,45 +67,10 @@
         setDialogText("Error Importing from Files.");
         dialog.showModal();
       }
-
-
-      //     reader.addEventListener("load", async (event) => {
-      //       console.log("Read: " + reader.result as string);
-      //       console.log("which is", reader.result);
-      //       if (!data.includes(reader.result as string)) {
-      //         data.push(reader.result as string);
-      //       }
-      //       if (data.length === files.length) {
-      //         try {
-      //           const response = await fetch(`http://${$ip}/api/csv/import`, {
-      //             method: 'POST',
-      //             headers: { 'Content-Type': 'application/json' },
-      //             body: JSON.stringify({data: data}),
-      //           });
-      //           if (!response.ok) throw new Error('Error Importing from Files.');
-      //           setDialogText("Files Imported Successfully!");
-      //           dialog.showModal();
-      //         } catch (err) {
-      //           console.error('Error importing:', err);
-      //           setDialogText("Error Importing from Files.");
-      //           dialog.showModal();
-      //         }
-      //       }
-      //     });
-      //     reader.readAsText(item);
-      //   }
-      // } else {
-      //   setDialogText("Only Two Files can be Imported.\nOne with the templates and another with the items.");
-      //   dialog.showModal();
-      // }
     }
 
   async function handleCallImport() {
     try {
-      console.log(files);
-      console.log(images);
-      console.log(csvData);
-      console.log(addedLength);
       const response = await fetch(`http://${$ip}/api/csv/import`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -171,7 +136,6 @@
   
 
     function handleImportImages(item: File) {
-      console.log("I1");
       images.push(item);
     }
 
