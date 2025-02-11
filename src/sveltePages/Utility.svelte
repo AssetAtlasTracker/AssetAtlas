@@ -9,7 +9,6 @@
     import { downloadFile } from '../utility/file/FileDownloader.js';
     import JSZip from "jszip";
 
-
     let files : FileList;
     let dialog: HTMLDialogElement;
     let itemInput: string ="";
@@ -72,35 +71,19 @@
 
   async function handleCallImport() {
     try {
-      // first upload images
-      let ids: string[] = [];
-      let names : string[] = [];
-      if (images) {
-        const responseImg = await fetch(`http://${ip}/api/images/`, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(images),
-       });
-        if (!responseImg.ok) throw new Error("Error Uploading Images During Import.");
-        // get image ids
-        ids = await responseImg.json();
-        names = images.map(img => {return img.name});
-      }
-      // pass along
-      // call parser manager
       const response = await fetch(`http://${$ip}/api/csv/import`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({data: csvData, names: names, ids: ids}),
+        body: JSON.stringify({data: csvData}),
       });
       if (!response.ok) throw new Error('Error Importing from Files.');
         setDialogText("Files Imported Successfully!");
         dialog.showModal();
-    } catch (err) {
-      console.error('Error importing:', err);
-      setDialogText("Error Importing from Files.");
-      dialog.showModal();
-    }
+      } catch (err) {
+        console.error('Error importing:', err);
+        setDialogText("Error Importing from Files.");
+        dialog.showModal();
+      }
   }
 
   async function handleExport() {

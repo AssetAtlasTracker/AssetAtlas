@@ -7,7 +7,6 @@ import BasicItem from "../models/basicItem.js";
 
 export class EntityAdder {
     customFidMap = new Map<Types.ObjectId, Types.ObjectId>();
-    images: Map<Types.ObjectId,string> = new Map<Types.ObjectId, string>();
 
     async addCustomFields(fieldMap: Map<Types.ObjectId, ICustomField>) : Promise<Map<Types.ObjectId, Types.ObjectId>> {
         let keysIter = fieldMap.keys()
@@ -59,18 +58,14 @@ export class EntityAdder {
             if (containedItems != undefined && containedItems != null && containedItems.length !== 0) {
                 // we have contained Items
                 const subItemsToAdd = containedItems.map(id => map.get(id.toHexString() as unknown as Types.ObjectId)!); // TODO: while should be impossible, determine if should check for unknown here
-                const parentID = newId;
                 if (subItemsToAdd.length > 0) {
-                    this.addItemsHelper(subItemsToAdd, map, parentID);
+                    this.addItemsHelper(subItemsToAdd, map, newId);
                 }
-            } else {
-                return;
             }
         }
     }
 
     async addTemplates(templates: ITemplate[]) {
-        console.log("Adding templates" + templates);
         for (var i = 0; i < templates.length; i++) {
             try {
                 const template = templates[i];

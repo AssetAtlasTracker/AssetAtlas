@@ -6,7 +6,7 @@
   import { actionStore } from "../stores/actionStore.js";
   import { SlideToggle } from "@skeletonlabs/skeleton";
   import CustomFieldPicker from "./CustomFieldPicker.svelte";
-  import ImageSelector from './ImageSelector.svelte';
+  import ImageSelector from "./ImageSelector.svelte";
 
   import "../svelteStyles/main.css";
   import ActionDisplay from "./ActionDisplay.svelte";
@@ -16,7 +16,7 @@
 
   let templateDialog: HTMLDialogElement | undefined;
 
-  export let curLocation : IBasicItemPopulated | null;
+  export let curLocation: IBasicItemPopulated | null;
 
   let name = "";
   let description = "";
@@ -87,7 +87,7 @@
     selectedImage = null;
     removeExistingImage = false;
   }
- 
+
   async function handleCreateItem() {
     try {
       //If a template name is typed but not an exact match (no templateId set), block creation
@@ -166,7 +166,6 @@
       actionStore.addMessage("Item created successfully!");
       dialog.close();
       location.reload();
-
 
       //Reset the form after successful creation
       resetForm();
@@ -435,7 +434,8 @@
   }
 
   function handleImageChange(event: CustomEvent) {
-    const { selectedImage: newImage, removeExistingImage: remove } = event.detail;
+    const { selectedImage: newImage, removeExistingImage: remove } =
+      event.detail;
     selectedImage = newImage;
     removeExistingImage = remove;
   }
@@ -557,9 +557,9 @@
   <ActionDisplay />
 {/if}
 
-<Dialog bind:dialog on:close={resetForm}>
+<Dialog isLarge={true} bind:dialog on:close={resetForm}>
   <h1 id="underline-header" class="font-bold text-center">Create New Item</h1>
-  <div class="page-component">
+  <div class="page-component large-dialog-internal">
     <form on:submit|preventDefault={handleCreateItem}>
       <div class="flex flex-col space-y-4">
         <div class="flex flex-wrap space-x-4">
@@ -599,16 +599,17 @@
           />
         </label>
 
+        <br />
         <div class="flex flex-col space-y-2">
-            <ImageSelector 
-              on:imageChange={handleImageChange}
-            />
+          <ImageSelector on:imageChange={handleImageChange} />
         </div>
+        <br />
 
         <SlideToggle
           name="slide"
           bind:checked={sameLocations}
-          active="bg-green-700">Use same home and current location</SlideToggle
+          active="toggle-background"
+          >Use same home and current location</SlideToggle
         >
         <div class="flex flex-wrap space-x-4">
           <!-- Parent Item -->
@@ -618,32 +619,32 @@
               <InfoToolTip
                 message="Where an item currently is, e.g. a shirt's parent item may be a suitcase."
               />
-              
-                <input
+
+              <input
                 type="text"
                 class="dark-textarea py-2 px-4 w-full"
                 bind:value={parentItemName}
                 on:input={handleParentItemInput}
                 on:focus={handleParentItemFocus}
                 on:blur={() => (parentItemSuggestions = [])}
-                />
-            {#if parentItemSuggestions.length > 0}
-              <ul class="suggestions">
-                {#each parentItemSuggestions as item}
-                  <button
-                    class="suggestion-item"
-                    type="button"
-                    on:mousedown={(e) => {
-                      e.preventDefault();
-                      selectParentItem(item);
-                    }}
-                  >
-                    {item.name}
-                  </button>
-                {/each}
-              </ul>
-            {/if}
-          </label>
+              />
+              {#if parentItemSuggestions.length > 0}
+                <ul class="suggestions">
+                  {#each parentItemSuggestions as item}
+                    <button
+                      class="suggestion-item"
+                      type="button"
+                      on:mousedown={(e) => {
+                        e.preventDefault();
+                        selectParentItem(item);
+                      }}
+                    >
+                      {item.name}
+                    </button>
+                  {/each}
+                </ul>
+              {/if}
+            </label>
           {/if}
 
           <!-- Home Item -->
@@ -678,6 +679,7 @@
             {/if}
           </label>
         </div>
+        <br />
 
         <!-- Template Field and Create Template Button -->
         <div class="flex flex-wrap space-x-4 items-center">
@@ -723,38 +725,35 @@
           </div>
         </div>
       </div>
+      <br />
 
       <!-- Custom Fields -->
       <h2 class="font-bold text-lg mt-4">Custom Fields</h2>
-      <div class="space-y-2">
-        {#each customFields as field, index}
-          <div class="field-row">
-            <CustomFieldPicker
-              bind:field={field}
-              onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
-              onFieldFocus={() => handleCustomFieldFocus(index)}
-              onFieldBlur={() => (customFields[index].suggestions = [])}
-              showDeleteButton={!field.fromTemplate}
-              onDelete={() => removeCustomField(index)}
-            >
-              <svelte:fragment slot="suggestions">
-                {#each field.suggestions as suggestion}
-                  <button
-                    class="suggestion-item"
-                    type="button"
-                    on:mousedown={(e) => {
-                      e.preventDefault();
-                      selectCustomFieldSuggestion(index, suggestion);
-                    }}
-                  >
-                    {suggestion.fieldName} ({suggestion.dataType})
-                  </button>
-                {/each}
-              </svelte:fragment>
-            </CustomFieldPicker>
-          </div>
-        {/each}
-      </div>
+      {#each customFields as field, index}
+        <CustomFieldPicker
+          bind:field
+          onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
+          onFieldFocus={() => handleCustomFieldFocus(index)}
+          onFieldBlur={() => (customFields[index].suggestions = [])}
+          showDeleteButton={!field.fromTemplate}
+          onDelete={() => removeCustomField(index)}
+        >
+          <svelte:fragment slot="suggestions">
+            {#each field.suggestions as suggestion}
+              <button
+                class="suggestion-item"
+                type="button"
+                on:mousedown={(e) => {
+                  e.preventDefault();
+                  selectCustomFieldSuggestion(index, suggestion);
+                }}
+              >
+                {suggestion.fieldName} ({suggestion.dataType})
+              </button>
+            {/each}
+          </svelte:fragment>
+        </CustomFieldPicker>
+      {/each}
 
       <button
         type="button"
@@ -764,12 +763,14 @@
         Add Custom Field
       </button>
       <!-- Submit -->
-      <button
-        class="border-button font-semibold shadow mt-4 block"
-        type="submit"
-      >
-        Create Item
-      </button>
+      <div class="flex-right">
+        <button
+          class="success-button font-semibold shadow mt-4 block"
+          type="submit"
+        >
+          Create Item
+        </button>
+      </div>
     </form>
   </div>
 </Dialog>

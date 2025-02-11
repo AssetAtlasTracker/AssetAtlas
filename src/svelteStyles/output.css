@@ -4933,6 +4933,16 @@ a.\!chip:hover,
   float: left;
 }
 
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.my-4 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
 .-mt-\[15px\] {
   margin-top: -15px;
 }
@@ -5159,6 +5169,10 @@ a.\!chip:hover,
   max-width: 640px;
 }
 
+.max-w-md {
+  max-width: 28rem;
+}
+
 .max-w-xs {
   max-width: 20rem;
 }
@@ -5175,8 +5189,8 @@ a.\!chip:hover,
   flex: none;
 }
 
-.flex-shrink {
-  flex-shrink: 1;
+.flex-grow {
+  flex-grow: 1;
 }
 
 .origin-\[50\%_50\%\] {

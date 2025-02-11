@@ -229,36 +229,3 @@
   <p>Loading item data...</p>
 {/if}
 
-<style>
-  .item-image-container {
-    width: 100px;
-    height: 100px;
-    overflow: hidden;
-    margin: 10px 0 0px 20px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    padding: 0;
-    border: none;
-    background: none;
-    display: block;
-  }
-
-  .item-image-container.expanded {
-    width: auto; /* Let the image determine its width */
-    height: auto;
-  }
-
-  .item-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  .item-image-container.expanded .item-image {
-    width: auto; /* Original image width */
-    height: auto; /* Original image height */
-    object-fit: none;
-  }
-</style>

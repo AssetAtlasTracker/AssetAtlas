@@ -2,23 +2,18 @@
   import ItemDetails from "../svelteComponents/ItemDetails.svelte";
   import DeleteItem from "../svelteComponents/DeleteItem.svelte";
   import TopBar from "../svelteComponents/TopBar.svelte";
-  import EditItem from "../svelteComponents/EditItem.svelte";
   import Dialog from "../svelteComponents/Dialog.svelte";
   import { navigate } from "svelte-routing";
   import Menu from "../svelteComponents/Menu.svelte";
-
-  import type { IBasicItemPopulated } from "../models/basicItem";
-
+  import ItemTree from "../svelteComponents/ItemTree.svelte";
+  import type { IBasicItemPopulated } from "../models/basicItem.js";
   import "../svelteStyles/main.css";
-  import MoveItem from "../svelteComponents/MoveItem.svelte";
   import ReturnItem from "../svelteComponents/ReturnItem.svelte";
-    import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
-    import CreateItem from "../svelteComponents/CreateItem.svelte";
+  import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
+  import CreateItem from "../svelteComponents/CreateItem.svelte";
   export let params: { id?: string };
-  //console.log('View params:', params);
 
   let showDeleteDialog = false;
-  let showMoveDialog = false;
   let showReturnDialog = false;
   let deleteDialog: HTMLDialogElement;
   let createDialog: HTMLDialogElement;
@@ -28,41 +23,33 @@
   export let moveDialog: HTMLDialogElement;
   export let menu: HTMLDialogElement;
 
-  let unique = {} 
+  let unique = {};
   function restart() {
-   unique = {}
+    unique = {};
   }
 
-  let topLevel = true;
-
+  //If item ID changes, fetch that item
   $: if (params.id) {
     fetchItem(params.id);
   }
 
-  $: if (showDeleteDialog) {
-    if (deleteDialog) {
-      deleteDialog.showModal();
-    }
+  $: if (showDeleteDialog && deleteDialog) {
+    deleteDialog.showModal();
   }
-
-  $: if (showReturnDialog) {
-    if (returnDialog) {
-      returnDialog.showModal();
-    }
+  $: if (showReturnDialog && returnDialog) {
+    returnDialog.showModal();
   }
 
   async function fetchItem(id: string) {
     try {
       console.log("Fetching item from:", `/api/items/${id}`);
-
       const response = await fetch(`/api/items/${id}`);
 
       if (!response.ok) {
         throw new Error(
-          `Failed to fetch item: ${response.status} ${response.statusText}`,
+          `Failed to fetch item: ${response.status} ${response.statusText}`
         );
       }
-
       const data: IBasicItemPopulated = await response.json();
       item = data;
       console.log("Fetched item data:", item);
@@ -76,57 +63,118 @@
   function handleDelete() {
     showDeleteDialog = false;
     console.log(`Item ${params.id} deleted.`);
-    //go to the home page after successful deletion
+    // go to the home page after successful deletion
     navigate("/");
   }
 
-  // async function closeMove() {
-  //   showMoveDialog = false;
-  //   if (moveDialog) {
-  //     moveDialog.close();
-  //   }
-  //   navigate(`/view/${params.id}`);
-  // }
+  function onSearch(query: string) {
+  }
 
-  // function closeEdit() {
-  //   if (dialog) {
-  //     dialog.close();
-  //   }
-  // }
+  let detailsContainer: HTMLElement;
+  let treeContainer: HTMLElement;
+  let activeContainer: HTMLElement | null = null;
+  let startX = 0;
+  let startY = 0;
 
-  function onSearch (query: string) {}
+  function handleMouseDown(event: MouseEvent, container: HTMLElement) {
+    //Disable text-selection while dragging
+    document.body.style.userSelect = "none";
+    activeContainer = container;
+
+    const style = window.getComputedStyle(container);
+    const matrix = new DOMMatrixReadOnly(style.transform);
+
+    const currentX = matrix.m41;
+    const currentY = matrix.m42;
+
+    startX = event.clientX - currentX;
+    startY = event.clientY - currentY;
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  }
+
+  function handleMouseMove(event: MouseEvent) {
+    if (!activeContainer) return;
+
+    const newX = event.clientX - startX;
+    const newY = event.clientY - startY;
+
+    activeContainer.style.transform = `translate(${newX}px, ${newY}px)`;
+  }
+
+  function handleMouseUp() {
+    //Re-enable text selection
+    document.body.style.userSelect = "";
+    activeContainer = null;
+    window.removeEventListener("mousemove", handleMouseMove);
+    window.removeEventListener("mouseup", handleMouseUp);
+  }
 </script>
-<ActionDisplay/>
 
-<TopBar searchQuery={""} onSearch={onSearch} {menu}></TopBar>
+<!-- Action display above everything -->
+<ActionDisplay />
 
+<!-- Top bar and menu -->
+<TopBar searchQuery={""} onSearch={onSearch} {menu} />
 <Menu bind:menu />
 
 {#if item}
-  <div class="item-view glass page-component">
-    <ItemDetails {item} />
+  <div class="view-layout">
+    <!-- Item Details Window -->
+    <div
+      bind:this={detailsContainer}
+      class="floating-container glass page-component"
+      style="transform: translate(2rem, 2rem);" 
+    >
+      <div
+        class="window-bar"
+        role="button"
+        tabindex="0"
+        on:mousedown={(e) => handleMouseDown(e, detailsContainer)}
+        aria-label="Drag to move item details"
+      ></div>
 
-    <br />
-    <div class="button-row-flex">
-      <button class="border-button" on:click={() => moveDialog.showModal()}>
-        Move
-      </button>
-      <button class="border-button" on:click={() => (showReturnDialog = true)}>
-        Return to Home Location
-      </button>
-      <button class="border-button" on:click={() => dialog.showModal()}>
-        Edit
-      </button>
-      <button class="warn-button" on:click={() => (showDeleteDialog = true)}>
-        Delete
-      </button>
+      <div class="window-content">
+        <ItemDetails {item} />
+
+        <div class="button-row-flex">
+          <button class="border-button" on:click={() => moveDialog.showModal()}>
+            Move
+          </button>
+          <button class="border-button" on:click={() => (showReturnDialog = true)}>
+            Return to Home Location
+          </button>
+          <button class="border-button" on:click={() => dialog.showModal()}>
+            Edit
+          </button>
+          <button class="warn-button" on:click={() => (showDeleteDialog = true)}>
+            Delete
+          </button>
+        </div>
+      </div>
     </div>
 
-    <EditItem {item} bind:dialog />
-    <MoveItem itemId={item._id} bind:dialog={moveDialog} />
+    <!-- Item Tree Window -->
+    <div
+      bind:this={treeContainer}
+      class="floating-container glass page-component"
+      style="transform: translate(calc(400px + 2rem), 1rem);" 
+    >
+      <div
+        class="window-bar"
+        role="button"
+        tabindex="0"
+        on:mousedown={(e) => handleMouseDown(e, treeContainer)}
+        aria-label="Drag to move item tree"
+      ></div>
+
+      <div class="window-content">
+        <ItemTree parentId={item._id.toString()} currentId={item._id.toString()} />
+      </div>
+    </div>
   </div>
 {:else}
-  <!--TODO: Polish this up a bit-->
   <p>Loading item data...</p>
 {/if}
 
@@ -141,10 +189,9 @@
     <div class="simple-dialog-spacing">
       Are you sure you want to delete {item?.name}?
     </div>
-
-    <br />
-    <!--Probably going to want an additional cancel button here-->
-    <DeleteItem itemId={params.id} onDelete={handleDelete}>Delete</DeleteItem>
+    <DeleteItem itemId={params.id} onDelete={handleDelete}>
+      Delete
+    </DeleteItem>
   </Dialog>
 {/if}
 
@@ -157,25 +204,23 @@
     }}
   >
     <div class="simple-dialog-spacing">
-      Are you sure you want to return {item?.name} to it's home location?
+      Are you sure you want to return {item?.name} to its home location?
     </div>
-
-    <br />
-    <!--Probably going to want an additional cancel button here-->
     <ReturnItem itemId={params.id} parentId={item?.homeItem?._id}>
       Return to home
     </ReturnItem>
   </Dialog>
 {/if}
 
+<!-- Create Item Dialog -->
 <button
-    class="add-button text-icon font-bold shadow"
-    on:click={() => {
-        createDialog.showModal()}
-      }
-  >
-    +
-  </button>
-  {#key unique}
-    <CreateItem bind:dialog={createDialog} curLocation={item}/>
-  {/key}
+  class="add-button text-icon font-bold shadow"
+  on:click={() => createDialog.showModal()}
+>
+  +
+</button>
+
+{#key unique}
+  <CreateItem bind:dialog={createDialog} curLocation={item} />
+{/key}
+

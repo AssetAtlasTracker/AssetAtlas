@@ -7,7 +7,7 @@ import Template from "../../models/template.js";
 
 export class ParserManager {
 
-    async parseFromFiles(data: string[], names: string[], ids: string[]) {
+    async parseFromFiles(data: string[]) {
         const adder = new EntityAdder();
         const templateParser = new CSVTemplateParser();
         let itemData = "";
@@ -35,7 +35,7 @@ export class ParserManager {
             let templates : ITemplatePopulated[] =  await Template.find().populate('fields').exec() as unknown as ITemplatePopulated[];
 
             const contents = itemData;
-            const itemParser = new CSVItemParserPopulated(templates, names, ids);
+            const itemParser = new CSVItemParserPopulated(templates);
             if (itemParser.canParse(CSVPreProcessor.getColumns(contents))) {
                 itemParser.parse(contents);
                 let customFields = itemParser.customFieldMap;

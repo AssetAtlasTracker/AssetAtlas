@@ -14,14 +14,10 @@ export class CSVItemParserPopulated implements Parser {
     columns: string[] = [];
     columnTypes: Map<string, string> = new Map<string, string>;
     templates: Map<string, ITemplatePopulated> = new Map<string, ITemplatePopulated>();
-    imageNameMap: Map<string,Types.ObjectId> = new Map<string,Types.ObjectId>();
 
-    constructor(templates : ITemplatePopulated[], names: string[], ids: string[]) {
+    constructor(templates : ITemplatePopulated[]) {
         for (var i = 0; i < templates.length; i++) {
             this.templates.set(templates[i].name, templates[i]);
-        }
-        for (var j = 0; j < ids.length; j++) {
-            this.imageNameMap.set(names[j], ids[j] as unknown as Types.ObjectId);
         }
     }
 
@@ -83,26 +79,25 @@ export class CSVItemParserPopulated implements Parser {
 
         var items: IBasicItem[] = [];
         var last_item : IBasicItem | null = null;
-        this.parseHelper(data, i, items, last_item);     
+        this.parseHelper(data, i, items, last_item);    
     }
 
     parseHelper(data : string[][], i : number, items: IBasicItem[], last_item : IBasicItem | null) {
         if (i == data.length) {
             return;
         }
-
         switch (data[i][0]) {
-            case ">": this.parseHelperItem(data, i, items, last_item); break;
+            case ">": this.parseHelperIn(data, i, items, last_item); break;
             case "<": this.parseHelperOut(data,i, items); break;
-            default: this.parseHelperIn(data,i, items, last_item);
+            default: this.parseHelperItem(data,i, items, last_item);
         }
     }
 
     
 
-    parseHelperItem(data: string[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
+    parseHelperIn(data: string[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
         if (!last_item) {
-            this.parseHelperIn(data, i, items, last_item);
+            this.parseHelperItem(data, i, items, last_item);
         } else {
             items.push(last_item!);
             this.parseHelper(data, i+1, items, null);
@@ -118,7 +113,7 @@ export class CSVItemParserPopulated implements Parser {
         }
     }
     
-    parseHelperIn(data: string[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
+    parseHelperItem(data: string[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
         let new_item = this.parseItemFromLine(data[i]);
         if (items.length > 0) {
             let upper_item = items.pop() as IBasicItem;
@@ -147,7 +142,6 @@ export class CSVItemParserPopulated implements Parser {
         // get values from required columns.
         item.name = line[0].toString();
         const templateName = line[1].toString();
-        console.log(templateName);
         const template = this.templates.get(templateName);
         if (template !== undefined) {
             item.template = template!.id;
@@ -157,17 +151,7 @@ export class CSVItemParserPopulated implements Parser {
         // get custom fields.
         for (var i = 3; i < line.length; i++) {
             if (line[i].length > 0) {
-                if (this.columns[i] == "image") {
-                    // add image
-                    const imageId = this.imageNameMap.get(line[i]);
-                    if (imageId) {
-                        item.image = imageId;
-                    } else {
-                        throw new Error("Error: Linked image " + line[i] + " not found.");
-                    }
-                } else {
-                    this.addCustomFieldToItem(line, item, i);
-                }
+                this.addCustomFieldToItem(line, item, i);
             } else {
                 // consider templates         
                 if (template !== undefined) {
@@ -178,7 +162,7 @@ export class CSVItemParserPopulated implements Parser {
                 }
             }
         }
-        this.itemMap.set(item.id, item);
+        this.itemMap.set(item.id, item); // TODO: see if this works
         return item;
     }
 
