@@ -1,8 +1,8 @@
-item name,template,description, expiration date,weight, source, expired
-Kitchen,, a place to cook food
+item name,template,description,expiration date,weight,source,expired
+kitchen,,a place to cook food
 >
-Fridge,, a place to put food
+fridge,,a place to put food
 >
-Maybe an Apple, produce, a green sour thing, Jan 19th, 20oz, tree?, true
+maybe an apple,,a green sour thing,jan 19th, 20oz, tree?, true
 <
 <
