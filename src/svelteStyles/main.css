@@ -8,21 +8,21 @@ e.g. containers, theming, etc.
 }
 
 #home-component{
-  margin: 1rem 2%;
-  padding: 2rem 2% 1rem 2%;
+  margin: 1rem 2vw;
+  padding: 2rem 2% 1rem 2vw;
 }
 
 .glass{
   background: rgba(var(--color-primary-800) / 0.8) !important;
-  box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4 );
+  box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) / 0.4 );
   backdrop-filter: blur( 10px );
   -webkit-backdrop-filter: blur( 10px );
   border-radius: 10px;
 }
 
 .page-component {
-  margin: 2rem 2%;
-  padding: 1rem 2%;
+  margin: 2rem 2vw;
+  padding: 1rem 2vw;
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
   border-radius: 10px;
 }
@@ -182,6 +182,47 @@ e.g. containers, theming, etc.
   background-color: rgb(var(--color-primary-900) / .6);
   border-color: rgba(0 0 0 / .0);
   border-radius: 10px;
+}
+
+.view-layout {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+}
+
+/* Draggable window containers */
+.floating-container {
+  position: absolute;
+  width: fit-content;    /* Let the container size to its content */
+  min-width: 300px;      /* Minimum width to prevent too narrow containers */
+  max-width: 800px;      /* Maximum width to prevent excessive stretching */
+  z-index: 1;
+  overflow: visible;     /* Allow content to determine size */
+  border-radius: 10px;
+}
+
+.window-bar {
+  margin: -1rem -2vw;
+  height: 2rem;
+  background-color: rgb(var(--color-primary-900));
+  cursor: move;
+  border-radius: 10px 10px 0 0;
+}
+
+.window-content {
+  padding: 1rem;
+  width: max-content;
+  min-width: 100%;
+  user-select: text; 
+}
+
+.button-row-flex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  width: max-content;
 }
 
 .simple-dialog-spacing{
@@ -361,19 +402,16 @@ e.g. buttons, lists, textareas, etc.
 .item-image-container {
   width: 100px;
   height: 100px;
-  overflow: hidden;
-  margin: 10px 0 0px 20px;
+  margin: 10px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 0;
-  border: none;
-  background: none;
+  transition: none;
   display: block;
 }
 
 .item-image-container.expanded {
-  width: auto; /* Let the image determine its width */
+  width: auto;
   height: auto;
+  max-width: calc(100% - 20px);
 }
 
 select option { /* Select dropdown options */
@@ -391,13 +429,14 @@ select option:hover {
   height: 100%;
   object-fit: cover;
   border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: none;
 }
 
 .item-image-container.expanded .item-image {
-  width: auto; /* Original image width */
-  height: auto; /* Original image height */
-  object-fit: none;
+  width: 100%;
+  height: auto;
+  max-width: 500px; /* Hard cap on image width */
+  object-fit: contain;
 }
 
 .custom-dropdown {
