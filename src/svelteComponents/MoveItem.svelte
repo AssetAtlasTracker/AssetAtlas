@@ -160,7 +160,7 @@ async function loadRecentItems(type: string) {
     </label>
     </div>
     <br>
-    <button on:click={moveItem} class="border-button" type="submit">
+    <button on:click={moveItem} class="success-button" type="submit">
         Submit
     </button>
     <br>

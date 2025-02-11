@@ -26,7 +26,7 @@
     }
   </script>
   
-  <button on:click={returnItem} class="border-button">
+  <button on:click={returnItem} class="success-button">
     Submit
   </button>
   
