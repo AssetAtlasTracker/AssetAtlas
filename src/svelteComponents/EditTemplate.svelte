@@ -355,7 +355,7 @@
       disabled={!!nameError}>Save</button>
     <button
       type="button"
-      class="border-button font-semibold shadow mt-4 ml-2"
+      class="warn-button font-semibold shadow mt-4 ml-2"
       on:click={onClose}>Cancel</button>
   </form>
 </div>

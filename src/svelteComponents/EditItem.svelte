@@ -810,7 +810,7 @@
       </button>
       <!-- Submit -->
       <button
-        class="border-button hover:bg-primary-900 font-semibold shadow mt-4 block"
+        class="success-button hover:bg-primary-900 font-semibold shadow mt-4 block"
         type="submit"
       >
         Submit Changes
