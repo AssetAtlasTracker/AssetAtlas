@@ -2,14 +2,14 @@
   import TemplateList from "../svelteComponents/TemplateList.svelte";
   import TopBar from "../svelteComponents/TopBar.svelte";
   import Menu from "../svelteComponents/Menu.svelte";
-  import type { ITemplatePopulated } from "../models/template";
+  import type { ITemplatePopulated } from "../models/template.js";
 
   import "../svelteStyles/main.css";
-    import CreateTemplate from "../svelteComponents/CreateTemplate.svelte";
-    import Dialog from "../svelteComponents/Dialog.svelte";
+  import CreateTemplate from "../svelteComponents/CreateTemplate.svelte";
+  import Dialog from "../svelteComponents/Dialog.svelte";
 
   let templates: ITemplatePopulated[] = [];
-  let menu : HTMLDialogElement;
+  let menu: HTMLDialogElement;
   let templateDialog: HTMLDialogElement | undefined;
 
   async function fetchTemplates() {
@@ -39,39 +39,40 @@
     if (templateDialog) {
       templateDialog.showModal();
     }
-}
+  }
 
   fetchTemplates();
 
-  function onSearch (query: string) {}
+  function onSearch(query: string) {}
 </script>
 
-<TopBar searchQuery={""} onSearch={onSearch} menu={menu}></TopBar>
+<TopBar searchQuery={""} {onSearch} {menu}></TopBar>
 
-<Menu bind:menu/>
+<div class="page-with-topbar">
+  <Menu bind:menu />
+  <TemplateList {templates} />
 
-<TemplateList {templates} />
-
-<button
+  <button
     class="add-button text-icon font-bold shadow"
     on:click={() => {
-        showCreateTemplateDialog = true}
-      }
+      showCreateTemplateDialog = true;
+    }}
   >
     +
   </button>
   {#if showCreateTemplateDialog}
-  <Dialog
-    bind:dialog={templateDialog}
-    on:close={() => {
-      showCreateTemplateDialog = false;
-      location.reload();
-    }}
-  >
-    <CreateTemplate
+    <Dialog
+      bind:dialog={templateDialog}
       on:close={() => {
         showCreateTemplateDialog = false;
+        location.reload();
       }}
-    />
-  </Dialog>
-{/if}
+    >
+      <CreateTemplate
+        on:close={() => {
+          showCreateTemplateDialog = false;
+        }}
+      />
+    </Dialog>
+  {/if}
+</div>

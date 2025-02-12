@@ -2,29 +2,29 @@
   import { AppBar } from "@skeletonlabs/skeleton";
   import SearchBar from "../svelteComponents/SearchBar.svelte";
   import { Link, navigate } from "svelte-routing";
-  import { Menu } from "lucide-svelte";
+  import MdMenu from "svelte-icons/md/MdMenu.svelte";
 
   export let searchQuery: string = "";
   export let onSearch: (query: string) => void;
-  export let menu : HTMLDialogElement;
+  export let menu: HTMLDialogElement | undefined;
 
   function handleClickMenu() {
-    menu.click();
+    menu?.click();
   }
 </script>
 
-<AppBar class="top-bar border glass">
-  <div class="px-4 top-bar-flex">
-    <div class="nav-margin float-left">
-      <button on:click={handleClickMenu}>
-        <Menu/>
-      </button>
-    </div>
-    <div class="float-left">
+<AppBar class="top-bar border glass z-10">
+  <div class="top-bar-flex">
+    <button class="nav-margin" on:click={handleClickMenu}>
+      <div style="width: 24px; height: 24px">
+        <MdMenu />
+      </div>
+    </button>
+    <div class="flex-1" style="margin: 1rem;">
       <Link to={"/"}>
         <div id="title" class="nav-margin text-2xl font-bold">AssetAtlas</div>
       </Link>
-      <div class="nav-margin flex-auto pb-4">
+      <div class="nav-margin">
         <SearchBar {searchQuery} {onSearch} />
       </div>
     </div>

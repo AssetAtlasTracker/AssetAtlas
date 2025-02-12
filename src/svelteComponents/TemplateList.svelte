@@ -10,7 +10,9 @@
   let editDialog: HTMLDialogElement | undefined;
 
   function handleDelete(templateId: string) {
-    templates = templates.filter(template => template._id.toString() !== templateId);
+    templates = templates.filter(
+      (template) => template._id.toString() !== templateId,
+    );
   }
 
   function handleEdit(template: ITemplatePopulated) {
@@ -44,10 +46,16 @@
         </ul>
       </div>
 
-      <DeleteTemplate templateId={template._id.toString()} onDelete={handleDelete}>
+      <DeleteTemplate
+        templateId={template._id.toString()}
+        onDelete={handleDelete}
+      >
         Delete
       </DeleteTemplate>
-      <button class="border-button font-semibold shadow ml-2" on:click={() => handleEdit(template)}>
+      <button
+        class="border-button font-semibold shadow ml-2"
+        on:click={() => handleEdit(template)}
+      >
         Edit
       </button>
     </div>

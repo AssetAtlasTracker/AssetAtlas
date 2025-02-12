@@ -34,7 +34,6 @@
     "babel-jest": "^29.7.0",
     "eslint": "^9.14.0",
     "globals": "^15.11.0",
-    "lucide-svelte": "^0.468.0",
     "mongodb-memory-server": "^10.1.2",
     "postcss": "^8.4.47",
     "supertest": "^7.0.0",
@@ -57,10 +56,8 @@
     "multer-gridfs-storage": "^5.0.2",
     "nodemon": "^3.1.7",
     "svelte": "4.2.19",
+    "svelte-icons": "^2.1.0",
     "svelte-routing": "^2.13.0",
     "tslib": "^2.7.0"
-  },
-  "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.28.0"
   }
 }

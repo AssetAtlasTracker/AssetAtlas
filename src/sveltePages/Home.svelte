@@ -71,7 +71,7 @@
 
 <TopBar {searchQuery} onSearch={handleSearch} {menu}></TopBar>
 
-<div class="body">
+<div class="body page-with-topbar">
   <!-- Menu for navigation - Slides out -->
   <Menu bind:menu />
   <div class="sort-flex">
@@ -147,8 +147,9 @@
     class="add-button text-icon font-bold shadow"
     on:click={() => {
         topLevel = false;
-        dialog.showModal()}
+        if (dialog) dialog.showModal();
       }
+    }
   >
     +
   </button>

@@ -14,12 +14,21 @@ e.g. containers, theming, etc.
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: 1;
+  z-index: 10;
+  height: auto; /* Allow height to adjust based on content */
 }
 
 .top-bar-flex{
   display: flex;
   align-items: center;
+  padding: 0 1rem; /* Add padding for spacing */
+}
+
+.flex-1 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0.5rem;
 }
 
 .glass{
@@ -62,15 +71,20 @@ e.g. containers, theming, etc.
 }
 
 .slide-out-menu {
-  position: absolute;
-  z-index: 100;
+  position: fixed;
+  z-index: 5;
+  top: var(--top-bar-height, 64px); /* were using the CSS variable with a harcoded fallback for height*/
   left: -100%;
+  height: calc(100vh - var(--top-bar-height, 64px));
   transition: left 0.3s ease-in-out;
   background: rgb(var(--color-primary-100));
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
-  margin: -1rem;
+  margin: 0;
+  padding: 1rem;
   display: flex;
   justify-content: flex-start;
+  overflow-y: auto; /* Allow scrolling within the menu */
+  overscroll-behavior: contain; /* Prevent scroll chaining */
 }
 
 .utility-body {
@@ -172,7 +186,7 @@ e.g. containers, theming, etc.
   justify-content: flex-start;
   align-items: center;
   gap: 1rem;
-  padding: 6.5rem 3vw 0;
+  padding: 0 3vw;  /* Remove the top padding since we're using page-with-topbar */
 }
 
 .button-row-flex{
@@ -508,8 +522,6 @@ select option:hover {
   color: rgb(var(--theme-font-color-base));
   padding: 1rem 2rem;
   border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  text-align: center;
 }
 
 .search-controls {
@@ -696,5 +708,10 @@ input[type="file"]::file-selector-button {
 
 ::backdrop {
   background: rgba(var(--color-surface-900) / 0.7);
+}
+
+.page-with-topbar {
+  margin-top: calc(var(--top-bar-height, 64px) + 1rem);
+  width: 100%;
 }
 
