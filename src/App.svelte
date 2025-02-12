@@ -9,6 +9,7 @@
   import Utility from "./sveltePages/Utility.svelte";
 
   onMount(async () => {
+    localStorage.removeItem('ip'); //clear the old IP, if any
     await fetchIp();
   });
 </script>
