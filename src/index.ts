@@ -56,7 +56,7 @@ console.log('GridFS initialization completed');
 const allowedOrigins = [
   'http://localhost:3000', //Allow localhost
   'http://localhost:3001', //screwing around with dev hosting with vite
-  `http://${process.env.IP}`, //Allow the IP from .env or dynamically
+  `http://${cachedIp}`, //Allow the IP from .env or dynamically
 ];
 
 app.use(cors({

@@ -8,8 +8,8 @@
   import { fetchIp } from "./stores/ipStore.js";
   import Utility from "./sveltePages/Utility.svelte";
 
-  onMount(() => {
-    fetchIp();
+  onMount(async () => {
+    await fetchIp();
   });
 </script>
 
