@@ -158,13 +158,13 @@ export class CSVItemParserPopulated implements Parser {
                 if (this.columns[i] == "image") {
                     const imageId = this.imageNameIdMap.get(line[i]);
                     if (imageId) {
-
+                        item.image = imageId;
                     } else {
                         throw new Error("Error: Unable to find uploaded image " + line[i]);
                     }
+                } else {
+                    this.addCustomFieldToItem(line, item, i);
                 }
-
-                this.addCustomFieldToItem(line, item, i);
             } else {
                 // consider templates         
                 if (template !== undefined) {

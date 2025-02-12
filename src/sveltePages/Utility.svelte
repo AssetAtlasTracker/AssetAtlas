@@ -71,10 +71,12 @@
 
   async function handleCallImport() {
     try {
+      let formdata = new FormData();
+      formdata.append('images', JSON.stringify(images));
+
       const responseImg = await fetch(`http://${$ip}/api/images/`, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(images),
+        body: formdata,
       });
       if (!responseImg.ok) throw new Error('Error Uploading Images for Import');
       let ids : string[] = await responseImg.json() as string[];

@@ -4,9 +4,10 @@ import { getUpload } from '../config/gridfs.js';
 
 const router = express.Router();
 
-router.all('/', (req, res, next) => {
+router.post('/', (req, res, next) => {
     try {
         const upload = getUpload();
+        
         upload.array('images')(req,res,next);
     } catch (err) {
         next(err);
