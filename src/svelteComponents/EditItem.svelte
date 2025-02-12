@@ -22,7 +22,6 @@
   });
 
   let templateDialog: HTMLDialogElement | undefined;
-  let editDialog: HTMLDialogElement | undefined;
 
   let name = item.name;
   let description = item.description;

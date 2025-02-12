@@ -4,7 +4,6 @@
   import { onMount, onDestroy } from "svelte";
   import type { IBasicItemPopulated } from "../models/basicItem.js";
   import EditItem from "../svelteComponents/EditItem.svelte";
-  import Dialog from "../svelteComponents/Dialog.svelte";
 
   interface ItemUpdateEvent extends CustomEvent {
     detail: {
@@ -94,7 +93,6 @@
   }
 
   let showEditDialog = false;
-  let editDialog: HTMLDialogElement | undefined;
 
   function openEditDialog() {
     console.log("Opening edit dialog");
@@ -126,8 +124,6 @@
   <h1 id="underline-header" class="font-bold item-name">
     {item.name}
   </h1>
-
-  <button on:click={openEditDialog}>Edit</button>
 
   {#if item.image}
     <button
