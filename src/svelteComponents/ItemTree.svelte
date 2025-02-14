@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { ip } from '../stores/ipStore.js';
+  import { onMount } from "svelte";
+  import { ip } from "../stores/ipStore.js";
   import { Link } from "svelte-routing";
 
   interface TreeItem {
@@ -22,13 +22,15 @@
 
   async function fetchTree(id?: string) {
     try {
-      const url = id ? `http://${$ip}/api/items/tree/${id}` : `http://${$ip}/api/items/tree`;
+      const url = id
+        ? `http://${$ip}/api/items/tree/${id}`
+        : `http://${$ip}/api/items/tree`;
       const res = await fetch(url);
-      if (!res.ok) throw new Error('Failed to fetch tree data');
+      if (!res.ok) throw new Error("Failed to fetch tree data");
       const data = await res.json();
       return Array.isArray(data) ? data : [data];
     } catch (err) {
-      console.error('Error fetching tree:', err);
+      console.error("Error fetching tree:", err);
       return [];
     }
   }
@@ -77,7 +79,7 @@
       <div class="tree-item" style="margin-left: {indentLevel}rem;">
         <button class="expand-button" on:click={() => toggleExpand(item._id)}>
           {#if item.hasChildren}
-            {expanded[item._id] ? '▼' : '▶'}
+            {expanded[item._id] ? "▼" : "▶"}
           {:else}
             <span class="no-children">•</span>
           {/if}
@@ -92,7 +94,11 @@
       </div>
 
       {#if expanded[item._id] && item.children}
-        <svelte:self rootData={item.children} indentLevel={indentLevel + 1} currentId={currentId} />
+        <svelte:self
+          rootData={item.children}
+          indentLevel={indentLevel + 1}
+          {currentId}
+        />
       {/if}
     {/each}
   {/if}

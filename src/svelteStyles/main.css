@@ -3,20 +3,39 @@ Large component styles
 e.g. containers, theming, etc.
 */
 
-.top-bar-radius{
-  border-radius: 0 0 10px 10px !important;
-}
-
 #home-component{
   margin: 1rem 2vw;
   padding: 2rem 2% 1rem 2vw;
 }
 
+.top-bar{
+  border-radius: 0 0 10px 10px !important;
+  padding: 0 !important;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+  height: auto; /* Allow height to adjust based on content */
+}
+
+.top-bar-flex{
+  display: flex;
+  align-items: center;
+  padding: 0 1rem; /* Add padding for spacing */
+}
+
+.flex-1 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0.5rem;
+}
+
 .glass{
   background: rgba(var(--color-primary-800) / 0.8) !important;
-  box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) / 0.4 );
-  backdrop-filter: blur( 10px );
-  -webkit-backdrop-filter: blur( 10px );
+  box-shadow: 0 8px 16px 0 rgb(var(--color-primary-900));
+  backdrop-filter: blur( 14px );
+  -webkit-backdrop-filter: blur( 14px );
   border-radius: 10px;
 }
 
@@ -52,15 +71,20 @@ e.g. containers, theming, etc.
 }
 
 .slide-out-menu {
-  position: absolute;
-  z-index: 100;
+  position: fixed;
+  z-index: 5;
+  top: var(--top-bar-height, 64px); /* were using the CSS variable with a harcoded fallback for height*/
   left: -100%;
+  height: calc(100vh - var(--top-bar-height, 64px));
   transition: left 0.3s ease-in-out;
   background: rgb(var(--color-primary-100));
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
-  margin: -1rem;
+  margin: 0;
+  padding: 1rem;
   display: flex;
   justify-content: flex-start;
+  overflow-y: auto; /* Allow scrolling within the menu */
+  overscroll-behavior: contain; /* Prevent scroll chaining */
 }
 
 .utility-body {
@@ -162,7 +186,7 @@ e.g. containers, theming, etc.
   justify-content: flex-start;
   align-items: center;
   gap: 1rem;
-  padding: 0.45rem 3% 0;
+  padding: 0 3vw;  /* Remove the top padding since we're using page-with-topbar */
 }
 
 .button-row-flex{
@@ -188,7 +212,6 @@ e.g. containers, theming, etc.
   position: relative;
   width: 100%;
   height: calc(100vh - 60px);
-  overflow: hidden;
 }
 
 /* Draggable window containers */
@@ -203,9 +226,9 @@ e.g. containers, theming, etc.
 }
 
 .window-bar {
-  margin: -1rem -2vw;
+  margin: -1rem -2vw 0;
   height: 2rem;
-  background-color: rgb(var(--color-primary-900));
+  background-color: rgb(var(--color-primary-900) / .8);
   cursor: move;
   border-radius: 10px 10px 0 0;
 }
@@ -499,8 +522,6 @@ select option:hover {
   color: rgb(var(--theme-font-color-base));
   padding: 1rem 2rem;
   border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  text-align: center;
 }
 
 .search-controls {
@@ -687,5 +708,10 @@ input[type="file"]::file-selector-button {
 
 ::backdrop {
   background: rgba(var(--color-surface-900) / 0.7);
+}
+
+.page-with-topbar {
+  margin-top: calc(var(--top-bar-height, 64px) + 1rem);
+  width: 100%;
 }
 

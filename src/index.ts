@@ -34,13 +34,17 @@ function getEnvVariables(envPath: string) {
 
 //Cache IP at startup, this makes it work better
 const envPath = path.join(__dirname, '../docker', '.env');
-let cachedIp = 'localhost:3000';
+let cachedIp: string;
 try {
   const envVars = getEnvVariables(envPath);
-  cachedIp = envVars['IP'] || cachedIp;
+  if (!envVars['IP']) {
+    throw new Error("IP not defined in .env");
+  }
+  cachedIp = envVars['IP'];
   console.log('Cached IP at startup:', cachedIp);
 } catch (error) {
   console.error('Error reading .env file during startup:', error);
+  process.exit(1);
 }
 
 console.log('connectDB() about to call mongoose.connect...');
@@ -56,7 +60,7 @@ console.log('GridFS initialization completed');
 const allowedOrigins = [
   'http://localhost:3000', //Allow localhost
   'http://localhost:3001', //screwing around with dev hosting with vite
-  `http://${process.env.IP}`, //Allow the IP from .env or dynamically
+  `http://${cachedIp}`, //Allow the IP from .env or dynamically
 ];
 
 app.use(cors({
@@ -68,7 +72,16 @@ app.use(cors({
 app.use(express.json());
 
 app.get('/api/ip', (req, res) => {
-  res.json({ ip: cachedIp });
+  try {
+    const envVars = getEnvVariables(envPath);
+    if (!envVars['IP']) {
+      throw new Error("IP not defined in .env");
+    }
+    res.json({ ip: envVars['IP'] });
+  } catch (error) {
+    console.error('Error reading .env file on /api/ip:', error);
+    res.status(500).json({ error: "Error reading IP" });
+  }
 });
 
 app.use('/api/items', itemRoutes); //use routes after upload is ready

@@ -17,6 +17,7 @@
   let viewMode: "list" | "tree" = "list";
 
   let topLevel = true;
+  let itemCount = -1;
 
   async function handleSortChange(event: Event) {
     const target = event.target as HTMLSelectElement;
@@ -48,6 +49,7 @@
       const data = await response.json();
       console.log("Home: Search completed, updating results");
       searchResults = data as IBasicItemPopulated[];
+      itemCount = searchResults.length;
     } catch (err) {
       console.error("Home: Error searching items:", err);
     }
@@ -69,7 +71,7 @@
 
 <TopBar {searchQuery} onSearch={handleSearch} {menu}></TopBar>
 
-<div class="body">
+<div class="body page-with-topbar">
   <!-- Menu for navigation - Slides out -->
   <Menu bind:menu />
   <div class="sort-flex">
@@ -110,9 +112,9 @@
   </div>
 
   {#if viewMode === "list"}
-    {#if searchResults.length > 0}
+    {#if itemCount > 0}
       <ItemContainer items={searchResults} />
-    {:else}
+    {:else if itemCount == 0}
       <div id="home-component" class="page-component glass">
         <p class="text-center important-text">No Items Found</p>
         <br />
@@ -128,6 +130,14 @@
           page.
         </p>
       </div>
+    {:else}
+      <div id="home-component" class="page-component glass">
+        <p class="text-center important-text">Loading Items</p>
+
+        <br />
+        <div class="placeholder animate-pulse" />
+        
+      </div>
     {/if}
   {:else}
     <ItemTree />
@@ -137,8 +147,9 @@
     class="add-button text-icon font-bold shadow"
     on:click={() => {
         topLevel = false;
-        dialog.showModal()}
+        if (dialog) dialog.showModal();
       }
+    }
   >
     +
   </button>

@@ -8,11 +8,14 @@
     import Dialog from '../svelteComponents/Dialog.svelte';
     import { downloadFile } from '../utility/file/FileDownloader.js';
     import JSZip from "jszip";
+    import TopBar from "../svelteComponents/TopBar.svelte";
+    import Menu from "../svelteComponents/Menu.svelte";
 
     let files : FileList;
     let dialog: HTMLDialogElement;
     let itemInput: string ="";
     let templateInput : string="";
+    let menu: HTMLDialogElement;
 
     let csvData : string[] = [];
     let images : File[] = [];
@@ -176,36 +179,34 @@
           await handleFile(file, last && i == loadedBlobs.length-1);
         }
     }
+
+    function onSearch(query: string) {}
 </script>
   
-  <AppBar class="appbar-border glass"> 
-    <button class="back-button" on:click={goBack}>
-      ⬅ Back 
-    </button>
-  </AppBar>
+<TopBar searchQuery={""} onSearch={onSearch} {menu} />
+<Menu bind:menu />
 
-  <div class="body utility-body">
-    <div class="utility-col">
-      <label for="many">Select CSV Files:</label>
-      <input accept=".csv,image/png,image/jpeg,.zip" bind:files id="many" multiple type="file">
-      <button on:click={handleSelected}>Import From CSV</button>
-    </div>
-
-    <div class="utility-col">
-      <label for="itemCSVName">Title of Item CSV:</label>
-      <input type="text" id="itemCSVName" bind:value={itemInput}> 
-      <label for="templateCSVName">Title of Template CSV:</label>
-      <input type="text" id="templateCSVName" bind:value={templateInput}>
-      <button on:click={handleExport}>Export To CSV</button>
-    </div>
-
+<div class="body utility-body page-with-topbar">
+  <div class="utility-col">
+    <label for="many">Select CSV Files:</label>
+    <input accept=".csv,image/png,image/jpeg,.zip" bind:files id="many" multiple type="file">
+    <button on:click={handleSelected}>Import From CSV</button>
   </div>
 
-  <Dialog
-    bind:dialog={dialog}>
-    <div id="dialog-text" class="simple-dialog-spacing" > 
-      Some dialog text  
-    </div>
-  </Dialog>
-  
-    
+  <div class="utility-col">
+    <label for="itemCSVName">Title of Item CSV:</label>
+    <input type="text" id="itemCSVName" bind:value={itemInput}> 
+    <label for="templateCSVName">Title of Template CSV:</label>
+    <input type="text" id="templateCSVName" bind:value={templateInput}>
+    <button on:click={handleExport}>Export To CSV</button>
+  </div>
+
+</div>
+
+<Dialog
+  bind:dialog={dialog}>
+  <div id="dialog-text" class="simple-dialog-spacing" > 
+    Some dialog text  
+  </div>
+</Dialog>
+
