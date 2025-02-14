@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 import BasicItem, { IBasicItemPopulated } from "../src/models/basicItem";
 import CustomField, { ICustomField } from "../src/models/customField";
 import { CSVFormatterPopulated } from "../src/utility/formating/CSVFormatterPopulated";
-import {describe, it, expect, beforeAll, afterAll, beforeEach} from "vitest";
+import {describe, it, expect} from "vitest";
 import { FileExporter } from "../src/utility/file/FileExporter";
 import { FileLoader } from "../src/utility/file/FileLoader";
 import {ParserManager} from "../src/utility/parsing/ParserManager";
@@ -18,39 +18,6 @@ import { RecentItems } from '../src/models/recentItems.js';
 
 let app: express.Application;
 let mongoServer: MongoMemoryServer;
-
-beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
-  
-    await mongoose.connect(mongoUri, { dbName: 'test' });
-  
-    app = express();
-    app.use(express.json());
-    app.use('/api/items', itemRouter);
-    app.use('/api/customFields', customFieldRouter);
-    app.use('/api/templates', TemplateRouter);
-  });
-  
-  afterAll(async () => {
-    await mongoose.connection.dropDatabase();
-    await mongoose.connection.close();
-    await mongoServer.stop();
-  });
-  
-  // Clear the database before each test to ensure isolation
-  beforeEach(async () => {
-    await BasicItem.deleteMany({});
-    await CustomField.deleteMany({});
-    await Template.deleteMany({});
-    await RecentItems.deleteMany({});
-    await Promise.all([
-      RecentItems.create({ type: 'item', recentIds: [], maxItems: 5 }),
-      RecentItems.create({ type: 'template', recentIds: [], maxItems: 5 }),
-      RecentItems.create({ type: 'customField', recentIds: [], maxItems: 5 })
-    ]);
-  
-  });
 
 
 describe("Testing Item Exporting", () => {
@@ -95,6 +62,28 @@ describe("Testing Item Exporting", () => {
     });
 
     it("Should format an item with a subitem and export the content", async () => {
+      mongoServer = await MongoMemoryServer.create();
+      const mongoUri = mongoServer.getUri();
+    
+      await mongoose.connect(mongoUri, { dbName: 'test' });
+    
+      app = express();
+      app.use(express.json());
+      app.use('/api/items', itemRouter);
+      app.use('/api/customFields', customFieldRouter);
+      app.use('/api/templates', TemplateRouter);
+
+      await BasicItem.deleteMany({});
+      await CustomField.deleteMany({});
+      await Template.deleteMany({});
+      await RecentItems.deleteMany({});
+      await Promise.all([
+        RecentItems.create({ type: 'item', recentIds: [], maxItems: 5 }),
+        RecentItems.create({ type: 'template', recentIds: [], maxItems: 5 }),
+        RecentItems.create({ type: 'customField', recentIds: [], maxItems: 5 })
+      ]);
+
+
         const path = "./tests/resource";
         const filename = "test-csv-item-2";
         const extension = ".csv";
@@ -144,7 +133,8 @@ describe("Testing Item Exporting", () => {
         const templateData = await loader.readFile(`${path}/${templateFile}${extension}`);
 
         const parser = new ParserManager();
-        await parser.parseFromFiles([itemData, templateData]);
+        parser.parseFromFiles([itemData, templateData]).then(async () => {
+
 
 
         const responseT = await request(app).get('/api/templates/getTemplates').send();
@@ -174,6 +164,11 @@ describe("Testing Item Exporting", () => {
 
         const result2 = await loader.readFile(`${path}/${itemFile}${extension}`);
         //expect(result2).toBe(csvContent);
+
+        await mongoose.connection.dropDatabase();
+        await mongoose.connection.close();
+        await mongoServer.stop();
+        });
     });
 
 });
