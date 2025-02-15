@@ -71,20 +71,28 @@
 
   async function handleCallImport() {
     try {
-      let formdata = new FormData();
-      formdata.append('images', JSON.stringify(images));
+      // let formdata = new FormData();
+      // console.log(images);
+      // formdata.append('images', JSON.stringify(images));
+      // console.log(formdata);
 
-      const responseImg = await fetch(`http://${$ip}/api/images/`, {
-        method: 'POST',
-        body: formdata,
-      });
-      if (!responseImg.ok) throw new Error('Error Uploading Images for Import');
-      let ids : string[] = await responseImg.json() as string[];
-      const names = images.map(image => {return image.name});
+      // const responseImg = await fetch(`http://${$ip}/api/images/`, {
+      //   method: 'PUT',
+      //   body: formdata,
+      // });
+      // if(responseImg.status == 404) {
+      //   console.log("FUCK");
+      // }
+      // if (!responseImg.ok) throw new Error('Error Uploading Images for Import');
+      // let ids : string[] = await responseImg.json() as string[];
+      // const names = images.map(image => {return image.name});
+      console.log(images);
+      console.log(JSON.stringify(images));
+
       const response = await fetch(`http://${$ip}/api/csv/import`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({data: csvData, names: names, ids: ids}),
+        body: {data: csvData, images: images},
       });
       if (!response.ok) throw new Error('Error Importing from Files.');
         setDialogText("Files Imported Successfully!");

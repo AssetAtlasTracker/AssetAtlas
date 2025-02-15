@@ -1,12 +1,15 @@
 import type { Request, Response } from 'express';
 import { FileExporter } from '../utility/file/FileExporter.js';
 import { ParserManager } from '../utility/parsing/ParserManager.js';
+import type { GridFSFile } from 'mongodb';
+import type { Types } from 'mongoose';
 
 export const importFromFile = async (req: Request, res: Response) => {
     try {
       const data : string[] = req.body.data;
-      const names : string[] = req.body.names;
-      const ids : string[] = req.body.ids;
+      const files = req.files as unknown as GridFSFile[];
+      const ids = files.map(file => {return (file._id || file.filename).toString()});
+      const names = files.map(file => {return file.filename});
 
       if (!data || data.length > 2 || data.length < 1) {
         res.status(400).json({message : 'File path(s) are required and at most two can be specified.'});
