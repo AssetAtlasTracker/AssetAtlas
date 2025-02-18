@@ -630,7 +630,7 @@
                 on:blur={() => (parentItemSuggestions = [])}
               />
               {#if parentItemSuggestions.length > 0}
-                <ul class="suggestions">
+                <ul class="suggestions suggestion-box">
                   {#each parentItemSuggestions as item}
                     <button
                       class="suggestion-item"
@@ -665,7 +665,7 @@
               on:blur={() => (homeItemSuggestions = [])}
             />
             {#if homeItemSuggestions.length > 0}
-              <ul class="suggestions">
+              <ul class="suggestions suggestion-box">
                 {#each homeItemSuggestions as item}
                   <button
                     class="suggestion-item"
@@ -702,7 +702,7 @@
               on:blur={() => (templateSuggestions = [])}
             />
             {#if templateSuggestions.length > 0}
-              <ul class="suggestions">
+              <ul class="suggestions suggestion-box">
                 {#each templateSuggestions as t}
                   <button
                     class="suggestion-item"

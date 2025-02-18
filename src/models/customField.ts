@@ -9,7 +9,11 @@ export interface ICustomField extends Document {
 
 const CustomFieldSchema = new Schema<ICustomField>({
   fieldName: { type: String, unique: true, required: true },
-  dataType: { type: String, required: true },
+  dataType: { 
+    type: String, 
+    required: true,
+    enum: ['string', 'number', 'boolean', 'date'] 
+  },
   createdAt: { type: Date, default: Date.now },
 });
 
