@@ -60,7 +60,7 @@
   let removeExistingImage = false;
   let sameLocations: boolean = false;
 
-  console.log(homeItemId);
+  
 
   interface ICustomField {
     _id: string;

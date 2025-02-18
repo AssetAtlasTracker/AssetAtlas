@@ -16,7 +16,8 @@
 
   let templateDialog: HTMLDialogElement | undefined;
 
-  export let curLocation: IBasicItemPopulated | null;
+  export let item: IBasicItemPopulated | null;
+  export let duplicate = false;
 
   let name = "";
   let description = "";
@@ -27,10 +28,6 @@
   let parentItemSuggestions: any[] = [];
   let homeItemName = "";
   let homeItemId: string | null = null;
-  if (curLocation != null) {
-    homeItemName = curLocation.name;
-    homeItemId = curLocation._id.toString();
-  }
   let homeItemSuggestions: any[] = [];
   let templateName = "";
   let templateId: string | null = null;
@@ -38,6 +35,34 @@
   let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
   let selectedImage: File | null = null;
   let removeExistingImage = false;
+
+  if (item != null) {
+    homeItemName = item.name;
+    homeItemId = item._id.toString();
+    if (duplicate) {
+      name = item.name;
+      if (item.description) {
+        description = item.description;
+      }
+      tags = item.tags.toString();
+      if (item.parentItem?.name != null) {
+      parentItemName = item.parentItem?.name;
+      }
+      if (item.parentItem) {
+        parentItemId = item.parentItem._id.toString();
+      }
+      if (item.homeItem?.name != null) {
+        homeItemName = item.homeItem?.name;
+      }
+      if (item.homeItem) {
+        homeItemId = item.homeItem._id.toString();
+      }
+      if (item.template) {
+        templateName = item.template?.name;
+        templateId = item.template?._id.toString();
+      }
+    }
+  }
 
   interface ICustomField {
     _id: string;

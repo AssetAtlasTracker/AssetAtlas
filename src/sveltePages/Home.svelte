@@ -155,7 +155,8 @@
   </button>
   <CreateItem 
     bind:dialog 
-    curLocation={null} 
+    item={null} 
+    duplicate={false}
     on:open={() => {topLevel = false}} 
     on:close={()=>{topLevel = true}}
   />

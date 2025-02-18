@@ -284,7 +284,8 @@
 {#key unique}
   <CreateItem
     bind:dialog={createDialog}
-    curLocation={item}
+    item={item}
+    duplicate={false}
     on:close={() => createDialog?.close()}
   />
 {/key}
