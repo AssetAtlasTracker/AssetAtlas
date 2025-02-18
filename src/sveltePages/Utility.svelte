@@ -89,10 +89,17 @@
       console.log(images);
       console.log(JSON.stringify(images));
 
+      let formdata = new FormData();
+      for (var i = 0; i < images.length; i++) {
+        formdata.append('images', images[i]);
+      }
+      for (var data in csvData) {
+        formdata.append('data', data);
+      }
+
       const response = await fetch(`http://${$ip}/api/csv/import`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: {data: csvData, images: images},
+        body: formdata,
       });
       if (!response.ok) throw new Error('Error Importing from Files.');
         setDialogText("Files Imported Successfully!");

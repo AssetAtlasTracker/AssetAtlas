@@ -2,12 +2,15 @@ import type { Request, Response } from 'express';
 import { FileExporter } from '../utility/file/FileExporter.js';
 import { ParserManager } from '../utility/parsing/ParserManager.js';
 import type { GridFSFile } from 'mongodb';
-import type { Types } from 'mongoose';
 
 export const importFromFile = async (req: Request, res: Response) => {
     try {
-      const data : string[] = req.body.data;
+      const data = req.body.data;
+      console.log(req.body);
+      console.log(data);
       const files = req.files as unknown as GridFSFile[];
+      console.log(req.files);
+      console.log(files);
       const ids = files.map(file => {return (file._id || file.filename).toString()});
       const names = files.map(file => {return file.filename});
 
