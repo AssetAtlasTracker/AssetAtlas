@@ -98,6 +98,12 @@
     console.log("Opening edit dialog");
     showEditDialog = true;
   }
+
+  let isHistoryExpanded = false;
+
+  function toggleHistory() {
+    isHistoryExpanded = !isHistoryExpanded;
+  }
 </script>
 
 <div class="item-chain">
@@ -209,25 +215,32 @@
 
     {#if item.itemHistory && item.itemHistory.length > 0}
       <li>
-        <strong>History Entries:</strong>
-        <ul>
-          {#each item.itemHistory as history}
-            <li>
-              {#if history.location}
-                <strong> Location:</strong>
-                <span class="clickable-text">
-                  <Link to={`/view/${history.location._id}`}
-                    >{history.location.name}</Link
-                  >
-                </span>
-              {:else}
-                <strong> Location:</strong> None
-              {/if}
-              <strong>Timestamp:</strong>
-              {new Date(history.timestamp).toLocaleString()}
-            </li>
-          {/each}
-        </ul>
+        <div class="tree-container">
+          <button class="expand-button" on:click={toggleHistory}>
+            {isHistoryExpanded ? "▼" : "▶"}
+          </button>
+          <strong>History Entries:</strong>
+        </div>
+        {#if isHistoryExpanded}
+          <ul>
+            {#each item.itemHistory as history}
+              <li>
+                {#if history.location}
+                  <strong> Location:</strong>
+                  <span class="clickable-text">
+                    <Link to={`/view/${history.location._id}`}
+                      >{history.location.name}</Link
+                    >
+                  </span>
+                {:else}
+                  <strong> Location:</strong> None
+                {/if}
+                <strong>Timestamp:</strong>
+                {new Date(history.timestamp).toLocaleString()}
+              </li>
+            {/each}
+          </ul>
+        {/if}
       </li>
     {/if}
 
