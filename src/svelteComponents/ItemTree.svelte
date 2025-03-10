@@ -75,31 +75,34 @@
     <p>Loading tree...</p>
   {:else}
     {#each treeData as item (item._id)}
-      <!--TODO: Change to not use "style="-->
-      <div class="tree-item" style="margin-left: {indentLevel}rem;">
-        <button class="expand-button" on:click={() => toggleExpand(item._id)}>
+      <div class="tree-branch" style="padding-left: {indentLevel * 0.75}rem;">
+        <div class="tree-item">
           {#if item.hasChildren}
-            {expanded[item._id] ? "▼" : "▶"}
+            <button class="expand-button" on:click={() => toggleExpand(item._id)} aria-label={expanded[item._id] ? "Collapse" : "Expand"}>
+              <span class="tree-icon">{expanded[item._id] ? "▾" : "▸"}</span>
+            </button>
           {:else}
-            <span class="no-children">•</span>
+            <span class="expand-button placeholder-icon"></span>
           {/if}
-        </button>
-        <Link class="clickable-text" to={`/view/${item._id}`}>
-          {#if item._id === currentId}
-            <strong>{item.name}</strong>
-          {:else}
-            {item.name}
-          {/if}
-        </Link>
-      </div>
+          
+          <Link to={`/view/${item._id}`} style="text-decoration: none;">
+            <button 
+              class="tree-item-button {item._id === currentId ? 'current' : ''}" 
+              aria-current={item._id === currentId}
+            >
+              {item.name}
+            </button>
+          </Link>
+        </div>
 
-      {#if expanded[item._id] && item.children}
-        <svelte:self
-          rootData={item.children}
-          indentLevel={indentLevel + 1}
-          {currentId}
-        />
-      {/if}
+        {#if expanded[item._id] && item.children}
+          <svelte:self
+            rootData={item.children}
+            indentLevel={indentLevel + 1}
+            {currentId}
+          />
+        {/if}
+      </div>
     {/each}
   {/if}
 </div>

@@ -140,7 +140,9 @@
       </div>
     {/if}
   {:else}
-    <ItemTree />
+    <div id="home-component" class="glass page-component">
+      <ItemTree />
+    </div>
   {/if}
 
   <button

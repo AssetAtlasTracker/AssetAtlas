@@ -215,11 +215,11 @@
 
     {#if item.itemHistory && item.itemHistory.length > 0}
       <li>
-        <div class="tree-container">
+        <div class="tree-container" style="display: flex; align-items: center; gap: 4px;">
+          <strong>History Entries:</strong>
           <button class="expand-button" on:click={toggleHistory}>
             {isHistoryExpanded ? "▼" : "▶"}
           </button>
-          <strong>History Entries:</strong>
         </div>
         {#if isHistoryExpanded}
           <ul>
