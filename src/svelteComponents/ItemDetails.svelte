@@ -3,12 +3,13 @@
   import { ip } from "../stores/ipStore.js";
   import { onMount, onDestroy } from "svelte";
   import type { IBasicItemPopulated } from "../models/basicItem.js";
+  import EditItem from "../svelteComponents/EditItem.svelte";
 
   interface ItemUpdateEvent extends CustomEvent {
     detail: {
       imageChanged: boolean;
       [key: string]: any;
-    }
+    };
   }
 
   export let item: IBasicItemPopulated;
@@ -42,7 +43,7 @@
   }
 
   function handleKeydown(event: KeyboardEvent) {
-    if (event.key === 'Enter' || event.key === ' ') {
+    if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       toggleImage();
     }
@@ -51,9 +52,13 @@
   async function reloadImage() {
     if (item.image) {
       try {
-        const response = await fetch(`http://${$ip}/api/items/${item._id}/image`);
+        const response = await fetch(
+          `http://${$ip}/api/items/${item._id}/image`,
+        );
         if (response.ok) {
-          const imgElement = document.querySelector('.item-image') as HTMLImageElement;
+          const imgElement = document.querySelector(
+            ".item-image",
+          ) as HTMLImageElement;
           if (imgElement) {
             imgElement.src = `http://${$ip}/api/items/${item._id}/image?t=${Date.now()}`;
           }
@@ -73,15 +78,31 @@
 
   //Add event listener on mount and clean up on destroy
   onMount(() => {
-    window.addEventListener('itemUpdated', handleItemUpdated as EventListener);
+    window.addEventListener("itemUpdated", handleItemUpdated as EventListener);
   });
 
   onDestroy(() => {
-    window.removeEventListener('itemUpdated', handleItemUpdated as EventListener);
+    window.removeEventListener(
+      "itemUpdated",
+      handleItemUpdated as EventListener,
+    );
   });
 
   $: if (item._id) {
     reloadImage();
+  }
+
+  let showEditDialog = false;
+
+  function openEditDialog() {
+    console.log("Opening edit dialog");
+    showEditDialog = true;
+  }
+
+  let isHistoryExpanded = false;
+
+  function toggleHistory() {
+    isHistoryExpanded = !isHistoryExpanded;
   }
 </script>
 
@@ -94,7 +115,7 @@
         <span class="clickable-text">
           <Link to={`/view/${parent._id}`}>{parent.name}</Link>
         </span>
-          <span class="separator"> &gt; </span>
+        <span class="separator"> &gt; </span>
       {:else}
         <!-- Render the last item as bold and non-clickable -->
         <span class="current-item">{parent.name}</span>
@@ -111,9 +132,9 @@
   </h1>
 
   {#if item.image}
-    <button 
+    <button
       type="button"
-      class="item-image-container" 
+      class="item-image-container"
       class:expanded={isImageExpanded}
       on:click={toggleImage}
       on:keydown={handleKeydown}
@@ -194,25 +215,32 @@
 
     {#if item.itemHistory && item.itemHistory.length > 0}
       <li>
-        <strong>History Entries:</strong>
-        <ul>
-          {#each item.itemHistory as history}
-            <li>
-              {#if history.location}
-                <strong> Location:</strong>
-                <span class="clickable-text">
-                  <Link to={`/view/${history.location._id}`}
-                    >{history.location.name}</Link
-                  >
-                </span>
-              {:else}
-                <strong> Location:</strong> None
-              {/if}
-              <strong>Timestamp:</strong>
-              {new Date(history.timestamp).toLocaleString()}
-            </li>
-          {/each}
-        </ul>
+        <div class="tree-container">
+          <button class="expand-button" on:click={toggleHistory}>
+            {isHistoryExpanded ? "▼" : "▶"}
+          </button>
+          <strong>History Entries:</strong>
+        </div>
+        {#if isHistoryExpanded}
+          <ul>
+            {#each item.itemHistory as history}
+              <li>
+                {#if history.location}
+                  <strong> Location:</strong>
+                  <span class="clickable-text">
+                    <Link to={`/view/${history.location._id}`}
+                      >{history.location.name}</Link
+                    >
+                  </span>
+                {:else}
+                  <strong> Location:</strong> None
+                {/if}
+                <strong>Timestamp:</strong>
+                {new Date(history.timestamp).toLocaleString()}
+              </li>
+            {/each}
+          </ul>
+        {/if}
       </li>
     {/if}
 
@@ -229,3 +257,12 @@
   <p>Loading item data...</p>
 {/if}
 
+{#if showEditDialog}
+  <EditItem
+    {item}
+    on:close={() => {
+      showEditDialog = false;
+      location.reload();
+    }}
+  />
+{/if}

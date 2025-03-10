@@ -1,56 +1,64 @@
 <script lang="ts">
-    import Dialog from '../svelteComponents/Dialog.svelte';
-    import InfoToolTip from './InfoToolTip.svelte';
-    import { ip } from '../stores/ipStore.js';
-    import CreateTemplate from './CreateTemplate.svelte'; 
-    import type { IBasicItemPopulated } from '../models/basicItem.js';
-    import { navigate } from "svelte-routing";
-    import { SlideToggle } from '@skeletonlabs/skeleton';
-    import CustomFieldPicker from "./CustomFieldPicker.svelte";
-    import { createEventDispatcher, onMount } from 'svelte';
-    import ImageSelector from './ImageSelector.svelte';
-  
-    export let dialog: HTMLDialogElement;
-    export let item: IBasicItemPopulated;
-  
-    let templateDialog: HTMLDialogElement | undefined;
-  
-    let name = item.name;
-    let description = item.description;
-    let tags = item.tags.toString();
-    let parentItemName = '';
-    if (item.parentItem?.name != null) {
-      parentItemName = item.parentItem?.name;
-    }
-    let parentItemId: string | null = null;
-    if (item.parentItem){
-      parentItemId = item.parentItem._id.toString();
-    }
-    let parentItemSuggestions: any[] = [];
-    let homeItemName = '';
-    if (item.homeItem?.name != null) {
-      homeItemName = item.homeItem?.name;
-    }
-    let homeItemId: string | null = null;
-    if (item.homeItem){
-      homeItemId = item.homeItem._id.toString();
-    }
-    let homeItemSuggestions: any[] = [];
-    let templateName = '';
-    let templateId: string | null = null;
-    if (item.template) {
-      templateName = item.template?.name;
-      templateId= item.template?._id.toString();
-    } 
-    let templateSuggestions: any[] = [];
-    let selectedImage: File | null = null;
-    let imagePreview: string | null = null;
-    if (item.image) {
-      imagePreview = `http://${$ip}/api/items/${item._id}/image`;
-    }
-    let debounceTimeout: NodeJS.Timeout | undefined;
-    let removeExistingImage = false;
-    let sameLocations: boolean = false;
+  import InfoToolTip from "./InfoToolTip.svelte";
+  import { ip } from "../stores/ipStore.js";
+  import { actionStore } from "../stores/actionStore.js";
+  import CreateTemplate from "./CreateTemplate.svelte";
+  import type { IBasicItemPopulated } from "../models/basicItem.js";
+  import { navigate } from "svelte-routing";
+  import { SlideToggle } from "@skeletonlabs/skeleton";
+  import CustomFieldPicker from "./CustomFieldPicker.svelte";
+  import { createEventDispatcher, onMount } from "svelte";
+  import ImageSelector from "./ImageSelector.svelte";
+  import Dialog from "../svelteComponents/Dialog.svelte";
+
+  export let item: IBasicItemPopulated;
+
+  console.log("EditItem component mounted");
+  console.log("Received item:", item);
+
+  onMount(() => {
+    console.log("EditItem onMount");
+    console.log("Item data:", item);
+  });
+
+  let templateDialog: HTMLDialogElement | undefined;
+
+  let name = item.name;
+  let description = item.description;
+  let tags = item.tags.toString();
+  let parentItemName = "";
+  if (item.parentItem?.name != null) {
+    parentItemName = item.parentItem?.name;
+  }
+  let parentItemId: string | null = null;
+  if (item.parentItem) {
+    parentItemId = item.parentItem._id.toString();
+  }
+  let parentItemSuggestions: any[] = [];
+  let homeItemName = "";
+  if (item.homeItem?.name != null) {
+    homeItemName = item.homeItem?.name;
+  }
+  let homeItemId: string | null = null;
+  if (item.homeItem) {
+    homeItemId = item.homeItem._id.toString();
+  }
+  let homeItemSuggestions: any[] = [];
+  let templateName = "";
+  let templateId: string | null = null;
+  if (item.template) {
+    templateName = item.template?.name;
+    templateId = item.template?._id.toString();
+  }
+  let templateSuggestions: any[] = [];
+  let selectedImage: File | null = null;
+  let imagePreview: string | null = null;
+  if (item.image) {
+    imagePreview = `http://${$ip}/api/items/${item._id}/image`;
+  }
+  let debounceTimeout: NodeJS.Timeout | undefined;
+  let removeExistingImage = false;
+  let sameLocations: boolean = false;
 
   console.log(homeItemId);
 
@@ -77,7 +85,7 @@
   let customFields: ICustomFieldEntry[] = [];
   if (item.customFields?.length) {
     //First load non-template fields
-    let nonTemplateFields = item.customFields.map(cf => ({
+    let nonTemplateFields = item.customFields.map((cf) => ({
       fieldName: cf.field.fieldName,
       fieldId: cf.field._id as string,
       dataType: cf.field.dataType,
@@ -86,23 +94,27 @@
       isNew: false,
       isSearching: false,
       isExisting: true,
-      fromTemplate: false
+      fromTemplate: false,
     }));
 
     if (item.template && item.template.fields?.length) {
       const templateFieldIds = new Set(
         item.template.fields.map((tid: any) =>
-          typeof tid === "string" ? tid : tid._id.toString()
-        )
+          typeof tid === "string" ? tid : tid._id.toString(),
+        ),
       );
 
       //Split fields into template and non-template
-      const templateFields = nonTemplateFields.filter(field => 
-        field.fieldId && templateFieldIds.has(field.fieldId.toString())
-      ).map(field => ({ ...field, fromTemplate: true }));
+      const templateFields = nonTemplateFields
+        .filter(
+          (field) =>
+            field.fieldId && templateFieldIds.has(field.fieldId.toString()),
+        )
+        .map((field) => ({ ...field, fromTemplate: true }));
 
-      const remainingFields = nonTemplateFields.filter(field => 
-        !field.fieldId || !templateFieldIds.has(field.fieldId.toString())
+      const remainingFields = nonTemplateFields.filter(
+        (field) =>
+          !field.fieldId || !templateFieldIds.has(field.fieldId.toString()),
       );
 
       //Combine with template fields first
@@ -115,13 +127,15 @@
   if (item.template && item.template.fields?.length) {
     const templateFieldIds = new Set(
       item.template.fields.map((tid: any) =>
-        typeof tid === "string" ? tid : tid._id.toString()
-      )
+        typeof tid === "string" ? tid : tid._id.toString(),
+      ),
     );
 
-    customFields = customFields.map(field => ({
+    customFields = customFields.map((field) => ({
       ...field,
-      fromTemplate: field.fieldId ? templateFieldIds.has(field.fieldId.toString()) : false
+      fromTemplate: field.fieldId
+        ? templateFieldIds.has(field.fieldId.toString())
+        : false,
     }));
   }
 
@@ -377,7 +391,7 @@
       console.log("Loaded template fields:", templateFields);
 
       //template fields first, then other fields
-      const nonTemplateFields = customFields.filter(f => !f.fromTemplate);
+      const nonTemplateFields = customFields.filter((f) => !f.fromTemplate);
       customFields = [...templateFields, ...nonTemplateFields];
       console.log("Updated customFields:", customFields);
     } catch (err) {
@@ -464,7 +478,8 @@
   }
 
   function handleImageChange(event: CustomEvent) {
-    const { selectedImage: newImage, removeExistingImage: remove } = event.detail;
+    const { selectedImage: newImage, removeExistingImage: remove } =
+      event.detail;
     selectedImage = newImage;
     removeExistingImage = remove;
   }
@@ -514,6 +529,8 @@
   }
 
   async function checkImageExists() {
+    if (!item?._id) return;
+
     try {
       const response = await fetch(`http://${$ip}/api/items/${item._id}/image`);
       if (response.ok) {
@@ -532,151 +549,131 @@
   }
 
   onMount(() => {
-    if (item._id) {
+    if (item?._id && item.image) {
       checkImageExists();
     }
   });
 
   async function handleEditItem() {
-    //If a template name is typed but not an exact match (no templateId set), block creation
-    if (templateName.trim() && !templateId) {
-      alert("Please select a valid template from the list or clear the field.");
-      return;
-    }
-
-    const tagsArray = tags.split(",").map((tag) => tag.trim());
-
-    if (sameLocations) {
-      parentItemId = homeItemId;
-      parentItemName = homeItemName;
-    }
-
-    //Filter out empty fields not from the template
-    customFields = customFields.filter((field) => {
-      if (field.fromTemplate) return true; //Always keep template fields that were loaded
-      return field.fieldName.trim() !== "" && field.dataType.trim() !== "";
-    });
-
-    const formattedCustomFields = await Promise.all(
-      customFields.map(async (field) => {
-        if (!field.isNew && field.fieldId) {
-          return { field: field.fieldId, value: field.value };
-        } else {
-          const createdField = await createCustomField(
-            field.fieldName,
-            field.dataType,
-          );
-          return { field: createdField._id, value: field.value };
-        }
-      }),
-    );
-
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("description", description || "");
-    formData.append("tags", JSON.stringify(tagsArray));
-    if (parentItemId) formData.append("parentItem", parentItemId);
-    if (homeItemId) formData.append("homeItem", homeItemId);
-    if (templateId) formData.append("template", templateId);
-
-    //Convert customFields to JSON
-    formData.append("customFields", JSON.stringify(formattedCustomFields));
-
-    if (removeExistingImage) {
-      formData.append("removeImage", "true");
-    } else if (selectedImage) {
-      formData.append("image", selectedImage);
-    }
-
     try {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("description", description || "");
+      formData.append(
+        "tags",
+        JSON.stringify(tags.split(",").map((t) => t.trim())),
+      );
+      if (parentItemId) formData.append("parentItem", parentItemId);
+      if (homeItemId) formData.append("homeItem", homeItemId);
+      if (templateId) formData.append("template", templateId);
+
+      // Add custom fields
+      const formattedFields = await Promise.all(
+        customFields.map(async (field) => {
+          if (!field.isNew && field.fieldId) {
+            return { field: field.fieldId, value: field.value };
+          } else {
+            const createdField = await createCustomField(
+              field.fieldName,
+              field.dataType,
+            );
+            return { field: createdField._id, value: field.value };
+          }
+        }),
+      );
+      formData.append("customFields", JSON.stringify(formattedFields));
+
+      // Handle image
+      if (removeExistingImage) {
+        formData.append("removeImage", "true");
+      } else if (selectedImage) {
+        formData.append("image", selectedImage);
+      }
+
       const response = await fetch(`http://${$ip}/api/items/${item._id}`, {
         method: "PATCH",
         body: formData,
       });
 
       const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.message || "Failed to update item");
 
-      if (!response.ok) throw new Error(data.message || "Error editing item");
-      console.log("Item changed:", data);
-
-      //Wait for the server to process the image
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      //Dispatch an event to notify parent component to reload
-      dispatch('itemUpdated', {
-        ...data,
-        imageChanged: selectedImage !== null || removeExistingImage
-      });
-
-      navigate(`/view/${item._id}`);
-      dialog.close();
+      // Notify parent and close dialog
+      dispatch("close");
+      actionStore.addMessage("Item updated successfully");
+      location.reload();
     } catch (err) {
-      console.error("Error editing item:", err);
+      console.error("Error updating item:", err);
+      actionStore.addMessage("Error updating item");
     }
   }
 </script>
 
-<Dialog bind:dialog on:close={resetForm}>
-  <h1 id="underline-header" class="font-bold text-center">Edit Item</h1>
-  <div class="page-component">
-    <form on:submit|preventDefault={handleEditItem}>
-      <div class="flex flex-col space-y-4">
-        <div class="flex flex-wrap space-x-4">
-          <!-- Name -->
-          <label class="flex-1 min-w-[200px]">
-            Name (required):
-            <input
-              class="dark-textarea py-2 px-4 w-full"
-              type="text"
-              bind:value={name}
-              required
-            />
-          </label>
-
-          <!-- Tags -->
-          <label class="flex-1 min-w-[200px]">
-            Tags:
-            <textarea
-              class="dark-textarea py-2 px-4 w-full"
-              bind:value={tags}
-            />
-          </label>
-        </div>
-
-        <!-- Description -->
-        <label class="min-w-[400px]">
-          Description:
-          <textarea
-            rows="5"
+<div class="page-component">
+  <form on:submit|preventDefault={handleEditItem}>
+    <div class="flex flex-col space-y-4">
+      <div class="flex flex-wrap space-x-4">
+        <!-- Name -->
+        <label class="flex-1 min-w-[200px]">
+          Name (required):
+          <input
             class="dark-textarea py-2 px-4 w-full"
-            placeholder={item.description}
-            bind:value={description}
+            type="text"
+            bind:value={name}
+            required
           />
         </label>
 
-          <ImageSelector 
-            itemId={item._id.toString()}
-            existingImage={!!item.image}
-            on:imageChange={handleImageChange}
-          />
-          
-          <SlideToggle name="slide" bind:checked={sameLocations} active="bg-green-700">Use same home and current location</SlideToggle>
-          <div class="flex flex-wrap space-x-4">
-            <!-- Parent Item -->
-            {#if !sameLocations}
-            <label class="flex-1 min-w-[200px] relative">
-              Current Location:
-              <InfoToolTip message="Where an item currently is, e.g. a shirt's parent item may be a suitcase." />
-              <input
-                type="text"
-                class="dark-textarea py-2 px-4 w-full"
-                bind:value={parentItemName}
-                on:input={handleParentItemInput}
-                on:focus={handleParentItemFocus}
-                on:blur={() => (parentItemSuggestions = [])}
+        <!-- Tags -->
+        <label class="flex-1 min-w-[200px]">
+          Tags:
+          <textarea class="dark-textarea py-2 px-4 w-full" bind:value={tags} />
+        </label>
+      </div>
+
+      <!-- Description -->
+      <label class="min-w-[400px]">
+        Description:
+        <textarea
+          rows="5"
+          class="dark-textarea py-2 px-4 w-full"
+          placeholder={item.description}
+          bind:value={description}
+        />
+      </label>
+
+      <ImageSelector
+        itemId={item._id.toString()}
+        existingImage={!!item.image}
+        on:imageChange={handleImageChange}
+      />
+
+      <SlideToggle
+        name="slide"
+        bind:checked={sameLocations}
+        active="bg-green-700">Use same home and current location</SlideToggle
+      >
+      <div class="flex flex-wrap space-x-4">
+        <!-- Parent Item -->
+        {#if !sameLocations}
+          <label class="flex-1 min-w-[200px] relative">
+            <div class="flex items-center gap-2">
+              <span>Current Location:</span>
+              <InfoToolTip
+                message="Where an item currently is, e.g. a shirt's parent item may be a suitcase."
               />
-              {#if parentItemSuggestions.length > 0}
-              <ul class="suggestions">
+            </div>
+            <input
+              type="text"
+              class="dark-textarea py-2 px-4 w-full"
+              bind:value={parentItemName}
+              on:input={handleParentItemInput}
+              on:focus={handleParentItemFocus}
+              on:blur={() => (parentItemSuggestions = [])}
+            />
+            {#if parentItemSuggestions.length > 0}
+              <ul class="suggestions suggestion-box">
                 {#each parentItemSuggestions as item}
                   <button
                     class="suggestion-item"
@@ -691,133 +688,138 @@
                 {/each}
               </ul>
             {/if}
-            </label>
-            {/if}
-  
-            <!-- Home Item -->
-            <label class="flex-1 min-w-[200px] relative">
-              Home Location:
-              <InfoToolTip message="Where an item should normally be, e.g a shirt's home item may be a drawer." />
-              <input 
-                type="text"
-                class="dark-textarea py-2 px-4 w-full"
-                bind:value={homeItemName}
-                on:input={handleHomeItemInput}
-                on:focus={handleHomeItemFocus}
-                on:blur={() => homeItemSuggestions = []}
-              />
-              {#if homeItemSuggestions.length > 0}
-              <ul class="suggestions">
-                {#each homeItemSuggestions as item}
-                  <button
-                    class="suggestion-item"
-                    type="button"
-                    on:mousedown={(e) => {
-                      e.preventDefault();
-                      selectHomeItem(item);
-                    }}
-                  >
-                    {item.name}
-                  </button>
-                {/each}
-              </ul>
-            {/if}
           </label>
-        </div>
+        {/if}
 
-        <!-- Template Field and Create Template Button -->
-        <div class="flex flex-wrap space-x-4 items-center">
-          <label class="flex-1 min-w-[200px] relative">
-            Template:
+        <!-- Home Item -->
+        <label class="flex-1 min-w-[200px] relative">
+          <div class="flex items-center gap-2">
+            <span>Home Location:</span>
+            <InfoToolTip
+              message="Where an item should normally be, e.g a shirt's home item may be a drawer."
+            />
+          </div>
+          <input
+            type="text"
+            class="dark-textarea py-2 px-4 w-full"
+            bind:value={homeItemName}
+            on:input={handleHomeItemInput}
+            on:focus={handleHomeItemFocus}
+            on:blur={() => (homeItemSuggestions = [])}
+          />
+          {#if homeItemSuggestions.length > 0}
+            <ul class="suggestions suggestion-box">
+              {#each homeItemSuggestions as item}
+                <button
+                  class="suggestion-item"
+                  type="button"
+                  on:mousedown={(e) => {
+                    e.preventDefault();
+                    selectHomeItem(item);
+                  }}
+                >
+                  {item.name}
+                </button>
+              {/each}
+            </ul>
+          {/if}
+        </label>
+      </div>
+
+      <!-- Template Field and Create Template Button -->
+      <div class="flex flex-wrap space-x-4 items-center">
+        <label class="flex-1 min-w-[200px] relative">
+          <div class="flex items-center gap-2">
+            <span>Template:</span>
             <InfoToolTip
               message="A template is a more narrow category of similar items that share common fields. Select an existing template or create a new one."
             />
-            <input
-              type="text"
-              class="dark-textarea py-2 px-4 w-full"
-              bind:value={templateName}
-              placeholder={item.template?.name}
-              on:input={handleTemplateInput}
-              on:focus={handleTemplateFocus}
-              on:blur={() => (templateSuggestions = [])}
-            />
-            {#if templateSuggestions.length > 0}
-              <ul class="suggestions">
-                {#each templateSuggestions as t}
-                  <button
-                    class="suggestion-item"
-                    type="button"
-                    on:mousedown={(e) => {
-                      e.preventDefault();
-                      selectTemplate(t);
-                    }}
-                  >
-                    {t.name}
-                  </button>
-                {/each}
-              </ul>
-            {/if}
-          </label>
-
-          <button
-            type="button"
-            class="border-button hover:bg-primary-900 font-semibold shadow"
-            on:click={() => (showEditTemplateDialog = true)}
-          >
-            Create New Template
-          </button>
-        </div>
-      </div>
-
-      <!-- Custom Fields -->
-      <h2 class="font-bold text-lg mt-4">Custom Fields</h2>
-      <div class="space-y-2">
-        {#each customFields as field, index}
-          <div class="field-row">
-            <CustomFieldPicker
-              bind:field={field}
-              onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
-              onFieldFocus={() => handleCustomFieldFocus(index)}
-              onFieldBlur={() => (customFields[index].suggestions = [])}
-              showDeleteButton={!field.fromTemplate}
-              onDelete={() => removeCustomField(index)}
-            >
-              <svelte:fragment slot="suggestions">
-                {#each field.suggestions as suggestion}
-                  <button
-                    class="suggestion-item"
-                    type="button"
-                    on:mousedown={(e) => {
-                      e.preventDefault();
-                      selectCustomFieldSuggestion(index, suggestion);
-                    }}
-                  >
-                    {suggestion.fieldName} ({suggestion.dataType})
-                  </button>
-                {/each}
-              </svelte:fragment>
-            </CustomFieldPicker>
           </div>
-        {/each}
-      </div>
+          <input
+            type="text"
+            class="dark-textarea py-2 px-4 w-full"
+            bind:value={templateName}
+            placeholder={item.template?.name}
+            on:input={handleTemplateInput}
+            on:focus={handleTemplateFocus}
+            on:blur={() => (templateSuggestions = [])}
+          />
+          {#if templateSuggestions.length > 0}
+            <ul class="suggestions suggestion-box">
+              {#each templateSuggestions as t}
+                <button
+                  class="suggestion-item"
+                  type="button"
+                  on:mousedown={(e) => {
+                    e.preventDefault();
+                    selectTemplate(t);
+                  }}
+                >
+                  {t.name}
+                </button>
+              {/each}
+            </ul>
+          {/if}
+        </label>
 
-      <button
-        type="button"
-        class="border-button font-semibold shadow mt-2"
-        on:click={addCustomFieldLine}
-      >
-        Add Custom Field
-      </button>
-      <!-- Submit -->
-      <button
-        class="success-button hover:bg-primary-900 font-semibold shadow mt-4 block"
-        type="submit"
-      >
-        Submit Changes
-      </button>
-    </form>
-  </div>
-</Dialog>
+        <button
+          type="button"
+          class="border-button hover:bg-primary-900 font-semibold shadow"
+          on:click={() => (showEditTemplateDialog = true)}
+        >
+          Create New Template
+        </button>
+      </div>
+    </div>
+
+    <!-- Custom Fields -->
+    <h2 class="font-bold text-lg mt-4">Custom Fields</h2>
+    <div class="space-y-2">
+      {#each customFields as field, index}
+        <div class="field-row">
+          <CustomFieldPicker
+            bind:field
+            onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
+            onFieldFocus={() => handleCustomFieldFocus(index)}
+            onFieldBlur={() => (customFields[index].suggestions = [])}
+            showDeleteButton={!field.fromTemplate}
+            onDelete={() => removeCustomField(index)}
+          >
+            <svelte:fragment slot="suggestions">
+              {#each field.suggestions as suggestion}
+                <button
+                  class="suggestion-item"
+                  type="button"
+                  on:mousedown={(e) => {
+                    e.preventDefault();
+                    selectCustomFieldSuggestion(index, suggestion);
+                  }}
+                >
+                  {suggestion.fieldName} ({suggestion.dataType})
+                </button>
+              {/each}
+            </svelte:fragment>
+          </CustomFieldPicker>
+        </div>
+      {/each}
+    </div>
+
+    <button
+      type="button"
+      class="border-button font-semibold shadow mt-2"
+      on:click={addCustomFieldLine}
+    >
+      Add Custom Field
+    </button>
+    <!-- Submit -->
+    <button
+      class="success-button hover:bg-primary-900 font-semibold shadow mt-4 block"
+      type="submit"
+    >
+      Submit Changes
+    </button>
+  </form>
+</div>
 
 {#if showEditTemplateDialog}
   <Dialog

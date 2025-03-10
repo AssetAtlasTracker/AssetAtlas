@@ -8,8 +8,9 @@
   import { fetchIp } from "./stores/ipStore.js";
   import Utility from "./sveltePages/Utility.svelte";
 
-  onMount(() => {
-    fetchIp();
+  onMount(async () => {
+    localStorage.removeItem('ip'); //clear the old IP, if any
+    await fetchIp();
   });
 </script>
 

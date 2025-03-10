@@ -615,11 +615,12 @@
           <!-- Parent Item -->
           {#if !sameLocations}
             <label class="flex-1 min-w-[200px] relative">
-              Current Location:
-              <InfoToolTip
-                message="Where an item currently is, e.g. a shirt's parent item may be a suitcase."
-              />
-
+              <div class="flex items-center gap-2">
+                <span>Current Location:</span>
+                <InfoToolTip
+                  message="Where an item currently is, e.g. a shirt's parent item may be a suitcase."
+                />
+              </div>
               <input
                 type="text"
                 class="dark-textarea py-2 px-4 w-full"
@@ -629,7 +630,7 @@
                 on:blur={() => (parentItemSuggestions = [])}
               />
               {#if parentItemSuggestions.length > 0}
-                <ul class="suggestions">
+                <ul class="suggestions suggestion-box">
                   {#each parentItemSuggestions as item}
                     <button
                       class="suggestion-item"
@@ -649,10 +650,12 @@
 
           <!-- Home Item -->
           <label class="flex-1 min-w-[200px] relative">
-            Home Location:
-            <InfoToolTip
-              message="Where an item should normally be, e.g a shirt's home item may be a drawer."
-            />
+            <div class="flex items-center gap-2">
+              <span>Home Location:</span>
+              <InfoToolTip
+                message="Where an item should normally be, e.g a shirt's home item may be a drawer."
+              />
+            </div>
             <input
               type="text"
               class="dark-textarea py-2 px-4 w-full"
@@ -662,7 +665,7 @@
               on:blur={() => (homeItemSuggestions = [])}
             />
             {#if homeItemSuggestions.length > 0}
-              <ul class="suggestions">
+              <ul class="suggestions suggestion-box">
                 {#each homeItemSuggestions as item}
                   <button
                     class="suggestion-item"
@@ -684,10 +687,12 @@
         <!-- Template Field and Create Template Button -->
         <div class="flex flex-wrap space-x-4 items-center">
           <label class="flex-1 min-w-[200px] relative">
-            Template:
-            <InfoToolTip
-              message="A template is a more narrow category of similar items that share common fields. Select an existing template or create a new one."
-            />
+            <div class="flex items-center gap-2">
+              <span>Template:</span>
+              <InfoToolTip
+                message="A template is a more narrow category of similar items that share common fields. Select an existing template or create a new one."
+              />
+            </div>
             <input
               type="text"
               class="dark-textarea py-2 px-4 w-full"
@@ -697,7 +702,7 @@
               on:blur={() => (templateSuggestions = [])}
             />
             {#if templateSuggestions.length > 0}
-              <ul class="suggestions">
+              <ul class="suggestions suggestion-box">
                 {#each templateSuggestions as t}
                   <button
                     class="suggestion-item"

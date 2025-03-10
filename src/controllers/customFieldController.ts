@@ -10,6 +10,14 @@ export const addCustomField = async (req: Request, res: Response) => {
       if (!fieldName || !dataType) {
         return res.status(400).json({ message: 'Field name and data type are required.' });
       }
+
+      // Validate data type
+      const validTypes = ['string', 'number', 'boolean', 'date'];
+      if (!validTypes.includes(dataType)) {
+        return res.status(400).json({ 
+          message: `Invalid data type. Must be one of: ${validTypes.join(', ')}`
+        });
+      }
   
       // Check if the field already exists
       const existingField = await CustomField.findOne({ fieldName }).exec();

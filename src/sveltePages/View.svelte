@@ -11,17 +11,22 @@
   import ReturnItem from "../svelteComponents/ReturnItem.svelte";
   import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
   import CreateItem from "../svelteComponents/CreateItem.svelte";
+  import EditItem from "../svelteComponents/EditItem.svelte";
+  import MoveItem from "../svelteComponents/MoveItem.svelte";
   export let params: { id?: string };
 
   let showDeleteDialog = false;
   let showReturnDialog = false;
-  let deleteDialog: HTMLDialogElement;
+  let showEditDialog = false;
+  let showMoveDialog = false;
+  let editDialog: HTMLDialogElement | undefined;
+  let deleteDialog: HTMLDialogElement | undefined;
   let createDialog: HTMLDialogElement;
-  let returnDialog: HTMLDialogElement;
+  let returnDialog: HTMLDialogElement | undefined;
   let item: IBasicItemPopulated | null = null;
-  export let dialog: HTMLDialogElement;
-  export let moveDialog: HTMLDialogElement;
-  export let menu: HTMLDialogElement;
+  let dialog: HTMLDialogElement | undefined;
+  let moveDialog: HTMLDialogElement | undefined;
+  let menu: HTMLDialogElement | undefined;
 
   let unique = {};
   function restart() {
@@ -39,6 +44,12 @@
   $: if (showReturnDialog && returnDialog) {
     returnDialog.showModal();
   }
+  $: if (showEditDialog && editDialog) {
+    editDialog.showModal();
+  }
+  $: if (showMoveDialog && moveDialog) {
+    moveDialog.showModal();
+  }
 
   async function fetchItem(id: string) {
     try {
@@ -47,7 +58,7 @@
 
       if (!response.ok) {
         throw new Error(
-          `Failed to fetch item: ${response.status} ${response.statusText}`
+          `Failed to fetch item: ${response.status} ${response.statusText}`,
         );
       }
       const data: IBasicItemPopulated = await response.json();
@@ -67,8 +78,7 @@
     navigate("/");
   }
 
-  function onSearch(query: string) {
-  }
+  function onSearch(query: string) {}
 
   let detailsContainer: HTMLElement;
   let treeContainer: HTMLElement;
@@ -116,16 +126,16 @@
 <ActionDisplay />
 
 <!-- Top bar and menu -->
-<TopBar searchQuery={""} onSearch={onSearch} {menu} />
+<TopBar searchQuery={""} {onSearch} {menu} />
 <Menu bind:menu />
 
 {#if item}
-  <div class="view-layout">
+  <div class="view-layout page-with-topbar">
     <!-- Item Details Window -->
     <div
       bind:this={detailsContainer}
       class="floating-container glass page-component"
-      style="transform: translate(2rem, 2rem);" 
+      style="transform: translate(2rem, 2rem);"
     >
       <div
         class="window-bar"
@@ -139,16 +149,28 @@
         <ItemDetails {item} />
 
         <div class="button-row-flex">
-          <button class="border-button" on:click={() => moveDialog.showModal()}>
+          <button
+            class="border-button"
+            on:click={() => (showMoveDialog = true)}
+          >
             Move
           </button>
-          <button class="border-button" on:click={() => (showReturnDialog = true)}>
+          <button
+            class="border-button"
+            on:click={() => (showReturnDialog = true)}
+          >
             Return to Home Location
           </button>
-          <button class="border-button" on:click={() => dialog.showModal()}>
+          <button
+            class="border-button"
+            on:click={() => (showEditDialog = true)}
+          >
             Edit
           </button>
-          <button class="warn-button" on:click={() => (showDeleteDialog = true)}>
+          <button
+            class="warn-button"
+            on:click={() => (showDeleteDialog = true)}
+          >
             Delete
           </button>
         </div>
@@ -159,7 +181,7 @@
     <div
       bind:this={treeContainer}
       class="floating-container glass page-component"
-      style="transform: translate(calc(400px + 2rem), 1rem);" 
+      style="transform: translate(calc(400px + 2rem), 1rem);"
     >
       <div
         class="window-bar"
@@ -170,7 +192,10 @@
       ></div>
 
       <div class="window-content">
-        <ItemTree parentId={item._id.toString()} currentId={item._id.toString()} />
+        <ItemTree
+          parentId={item._id.toString()}
+          currentId={item._id.toString()}
+        />
       </div>
     </div>
   </div>
@@ -189,9 +214,7 @@
     <div class="simple-dialog-spacing">
       Are you sure you want to delete {item?.name}?
     </div>
-    <DeleteItem itemId={params.id} onDelete={handleDelete}>
-      Delete
-    </DeleteItem>
+    <DeleteItem itemId={params.id} onDelete={handleDelete}>Delete</DeleteItem>
   </Dialog>
 {/if}
 
@@ -212,15 +235,56 @@
   </Dialog>
 {/if}
 
+<!-- Edit Dialog -->
+{#if showEditDialog && item}
+  <Dialog
+    bind:dialog={editDialog}
+    on:close={() => {
+      showEditDialog = false;
+    }}
+  >
+    <EditItem
+      {item}
+      on:close={() => {
+        showEditDialog = false;
+        location.reload();
+      }}
+    />
+  </Dialog>
+{/if}
+
+{#if showMoveDialog}
+  <Dialog
+    bind:dialog={moveDialog}
+    on:close={() => {
+      showMoveDialog = false;
+    }}
+  >
+    <div class="simple-dialog-spacing">
+      Move {item?.name} to:
+    </div>
+    <MoveItem
+      itemId={params.id}
+      on:close={() => {
+        showMoveDialog = false;
+        location.reload();
+      }}
+    />
+  </Dialog>
+{/if}
+
 <!-- Create Item Dialog -->
 <button
   class="add-button text-icon font-bold shadow"
-  on:click={() => createDialog.showModal()}
+  on:click={() => createDialog?.showModal()}
 >
   +
 </button>
 
 {#key unique}
-  <CreateItem bind:dialog={createDialog} curLocation={item} />
+  <CreateItem
+    bind:dialog={createDialog}
+    curLocation={item}
+    on:close={() => createDialog?.close()}
+  />
 {/key}
-
