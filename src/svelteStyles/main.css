@@ -172,13 +172,126 @@ e.g. containers, theming, etc.
 }
 
 .tree-container {
-  padding: 0.5rem;
+  padding: 0.25rem;
+  position: relative;
+}
+
+.tree-branch {
+  position: relative;
+  margin: 0;
+  padding-left: 0;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .tree-item {
   display: flex;
   align-items: center;
-  padding: 0.25rem;
+  padding: 0;
+  position: relative;
+  margin: 0;
+  height: 1.5rem;
+}
+
+.tree-item-button {
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+  margin: 0;
+  font-size: 0.9rem;
+  transition: all 0.1s ease;
+  position: relative;
+  cursor: pointer;
+  text-decoration: none;
+  color: rgb(var(--theme-font-color-base));
+}
+
+.tree-item-button:hover {
+  background: rgba(var(--color-primary-800), 0.4);
+}
+
+.tree-item-button.current {
+  background: rgba(var(--color-success-900), 0.2);
+  font-weight: 500;
+  color: rgb(var(--color-success-400));
+}
+
+.expand-button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: 1rem;
+  height: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-right: 0.25rem;
+  position: relative;
+  font-size: 0.8rem;
+  color: rgb(var(--theme-font-color-base));
+}
+
+.tree-icon {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  line-height: 1rem;
+  text-align: center;
+}
+
+.placeholder-icon {
+  visibility: hidden;
+  width: 1rem;
+}
+
+.tree-item-button {
+  background: rgba(var(--color-primary-900), 0.3);
+  border: 1px solid rgba(var(--color-primary-100), 0.4);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  margin: 0.05rem 0;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  position: relative;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.tree-item-button:hover {
+  background: rgba(var(--color-primary-800), 0.5);
+  transform: translateX(2px);
+}
+
+.tree-item-button.current {
+  background: rgba(var(--color-success-900), 0.2);
+  border-color: rgba(var(--color-success-400), 0.6);
+  font-weight: 500;
+  color: rgb(var(--color-success-400));
+}
+
+.expand-button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-right: 0.25rem;
+  position: relative;
+}
+
+.tree-item-name {
+  display: none;
+}
+
+.no-children {
+  display: none;
 }
 
 .sort-flex{
@@ -598,7 +711,7 @@ select option:hover {
 }
 
 .no-children {
-  opacity: 0.5;
+  display: none;
 }
 
 .template {
