@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from "svelte";
-  import { ip } from "../stores/ipStore.js";
   import ItemLink from "../svelteComponents/ItemLink.svelte";
   import { Link } from "svelte-routing";
 
@@ -27,8 +26,8 @@
   async function fetchTree(id?: string) {
     try {
       const url = id
-        ? `http://${$ip}/api/items/tree/${id}`
-        : `http://${$ip}/api/items/tree`;
+        ? `/api/items/tree/${id}`
+        : `/api/items/tree`;
       const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch tree data");
       const data = await res.json();

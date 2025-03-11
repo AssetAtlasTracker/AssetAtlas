@@ -1,7 +1,6 @@
 <script lang="ts">
    import { AppBar } from '@skeletonlabs/skeleton';
     import '../svelteStyles/main.css';
-    import { ip } from '../stores/ipStore.js';
     import type { IBasicItemPopulated } from '../models/basicItem.js';
     import { CSVFormatterPopulated } from '../utility/formating/CSVFormatterPopulated.js';
     import type { ITemplatePopulated } from '../models/template.js';
@@ -74,7 +73,7 @@
 
   async function handleCallImport() {
     try {
-      const response = await fetch(`http://${$ip}/api/csv/import`, {
+      const response = await fetch(`/api/csv/import`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({data: csvData}),
@@ -91,7 +90,7 @@
 
   async function handleExport() {
       try {
-        const responseT = await fetch(`http://${$ip}/api/templates/getTemplates`, {
+        const responseT = await fetch(`/api/templates/getTemplates`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         });
@@ -100,7 +99,7 @@
         const dataT = await responseT.json();
         templates = dataT as ITemplatePopulated[];
 
-        const responseI = await fetch(`http://${$ip}/api/items/search?name=${encodeURIComponent("")}`, {
+        const responseI = await fetch(`/api/items/search?name=${encodeURIComponent("")}`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         });

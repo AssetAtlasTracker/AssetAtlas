@@ -1,6 +1,5 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { ip } from "../stores/ipStore.js";
   import { actionStore } from "../stores/actionStore.js";
 
   export let itemId: string | undefined;
@@ -14,7 +13,7 @@
     if (!parentItemId || !itemId) return;
 
     try {
-      const response = await fetch(`http://${$ip}/api/items/move`, {
+      const response = await fetch(`/api/items/move`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -40,7 +39,7 @@
   async function searchItems(query: string) {
     try {
       const response = await fetch(
-        `http://${$ip}/api/items/search?name=${encodeURIComponent(query)}`,
+        `/api/items/search?name=${encodeURIComponent(query)}`,
       );
       const data = await response.json();
       suggestions = data;

@@ -1,10 +1,8 @@
 <script lang="ts">
   import InfoToolTip from "./InfoToolTip.svelte";
-  import { ip } from "../stores/ipStore.js";
   import { actionStore } from "../stores/actionStore.js";
   import CreateTemplate from "./CreateTemplate.svelte";
   import type { IBasicItemPopulated } from "../models/basicItem.js";
-  import { navigate } from "svelte-routing";
   import { SlideToggle } from "@skeletonlabs/skeleton";
   import CustomFieldPicker from "./CustomFieldPicker.svelte";
   import { createEventDispatcher, onMount } from "svelte";
@@ -54,7 +52,7 @@
   let selectedImage: File | null = null;
   let imagePreview: string | null = null;
   if (item.image) {
-    imagePreview = `http://${$ip}/api/items/${item._id}/image`;
+    imagePreview = `/api/items/${item._id}/image`;
   }
   let debounceTimeout: NodeJS.Timeout | undefined;
   let removeExistingImage = false;
@@ -157,7 +155,7 @@
 
   async function getImage() {
     try {
-      const response = await fetch(`http://${$ip}/api/items/${item._id}/image`);
+      const response = await fetch(`/api/items/${item._id}/image`);
       if (!response.ok) throw new Error("Failed to fetch image");
       const blob = await response.blob();
       imagePreview = URL.createObjectURL(blob);
@@ -170,7 +168,7 @@
     fieldName: string,
     dataType: string,
   ): Promise<ICustomField> {
-    const response = await fetch(`http://${$ip}/api/customFields`, {
+    const response = await fetch(`/api/customFields`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fieldName, dataType }),
@@ -192,7 +190,7 @@
   async function searchParentItems(query: string) {
     try {
       const response = await fetch(
-        `http://${$ip}/api/items/search?name=${encodeURIComponent(query)}`,
+        `/api/items/search?name=${encodeURIComponent(query)}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -208,7 +206,7 @@
   async function addToRecents(type: string, item: any) {
     console.log("Adding to recents:", type, item); // Add debug logging
     try {
-      await fetch(`http://${$ip}/api/recentItems/add`, {
+      await fetch(`/api/recentItems/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -242,7 +240,7 @@
   async function searchHomeItems(query: string) {
     try {
       const response = await fetch(
-        `http://${$ip}/api/items/search?name=${encodeURIComponent(query)}`,
+        `/api/items/search?name=${encodeURIComponent(query)}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -276,7 +274,7 @@
   async function searchTemplates(query: string) {
     try {
       const response = await fetch(
-        `http://${$ip}/api/templates/searchTemplates?name=${encodeURIComponent(query)}`,
+        `/api/templates/searchTemplates?name=${encodeURIComponent(query)}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -319,12 +317,8 @@
       if (!templateName || templateName.trim() === "") {
         return;
       }
-
-      console.log(
-        `Fetching template details from: http://${$ip}/api/templates/${templateId}`,
-      );
       const response = await fetch(
-        `http://${$ip}/api/templates/${templateId}`,
+        `/api/templates/${templateId}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -355,7 +349,7 @@
       const templateFields = await Promise.all(
         data.fields.map(async (field: { _id: string }) => {
           const fieldId = field._id;
-          const fieldUrl = `http://${$ip}/api/customFields/${fieldId}`;
+          const fieldUrl = `/api/customFields/${fieldId}`;
           console.log(`Fetching field details from: ${fieldUrl}`);
 
           const fieldRes = await fetch(fieldUrl, {
@@ -427,7 +421,7 @@
 
       try {
         const response = await fetch(
-          `http://${$ip}/api/customFields/search?fieldName=${encodeURIComponent(query)}`,
+          `/api/customFields/search?fieldName=${encodeURIComponent(query)}`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },
@@ -486,7 +480,7 @@
 
   async function loadRecentItems(type: string) {
     try {
-      const response = await fetch(`http://${$ip}/api/recentItems/${type}`, {
+      const response = await fetch(`/api/recentItems/${type}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -532,10 +526,10 @@
     if (!item?._id) return;
 
     try {
-      const response = await fetch(`http://${$ip}/api/items/${item._id}/image`);
+      const response = await fetch(`/api/items/${item._id}/image`);
       if (response.ok) {
         const timestamp = Date.now();
-        imagePreview = `http://${$ip}/api/items/${item._id}/image?t=${timestamp}`;
+        imagePreview = `/api/items/${item._id}/image?t=${timestamp}`;
         removeExistingImage = false;
       } else {
         imagePreview = null;
@@ -590,7 +584,7 @@
         formData.append("image", selectedImage);
       }
 
-      const response = await fetch(`http://${$ip}/api/items/${item._id}`, {
+      const response = await fetch(`/api/items/${item._id}`, {
         method: "PATCH",
         body: formData,
       });

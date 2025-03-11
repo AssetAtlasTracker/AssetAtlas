@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { ip } from "../stores/ipStore.js";
   import { onMount, onDestroy } from "svelte";
   import type { IBasicItemPopulated } from "../models/basicItem.js";
   import EditItem from "../svelteComponents/EditItem.svelte";
@@ -24,7 +23,7 @@
   async function loadItemById(id: string) {
     loading = true;
     try {
-      const response = await fetch(`http://${$ip}/api/items/${id}`);
+      const response = await fetch(`/api/items/${id}`);
       if (response.ok) {
         item = await response.json();
       } else {
@@ -44,7 +43,7 @@
     parentChain = [];
     try {
       const response = await fetch(
-        `http://${$ip}/api/items/parentChain/${item._id}`,
+        `/api/items/parentChain/${item._id}`,
       );
       if (response.ok) {
         parentChain = await response.json();
@@ -90,14 +89,14 @@
     if (item?.image) {
       try {
         const response = await fetch(
-          `http://${$ip}/api/items/${item._id}/image`,
+          `/api/items/${item._id}/image`,
         );
         if (response.ok) {
           const imgElement = document.querySelector(
             ".item-image",
           ) as HTMLImageElement;
           if (imgElement) {
-            imgElement.src = `http://${$ip}/api/items/${item._id}/image?t=${Date.now()}`;
+            imgElement.src = `/api/items/${item._id}/image?t=${Date.now()}`;
           }
         }
       } catch (error) {
@@ -192,7 +191,7 @@
       aria-label="Toggle image size"
     >
       <img
-        src={`http://${$ip}/api/items/${item._id}/image`}
+        src={`/api/items/${item._id}/image`}
         alt={item.name}
         class="item-image"
       />

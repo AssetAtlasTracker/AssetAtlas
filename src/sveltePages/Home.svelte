@@ -3,7 +3,6 @@
   import CreateItem from "../svelteComponents/CreateItem.svelte";
   import ItemTree from "../svelteComponents/ItemTree.svelte";
   import type { IBasicItemPopulated } from "../models/basicItem.js";
-  import { ip } from "../stores/ipStore.js";
   import TopBar from "../svelteComponents/TopBar.svelte";
   import { onMount } from "svelte";
 
@@ -34,7 +33,7 @@
     searchQuery = query;
     try {
       const response = await fetch(
-        `http://${$ip}/api/items/search?` +
+        `/api/items/search?` +
           `name=${encodeURIComponent(searchQuery)}&` +
           `sort=${encodeURIComponent(sortOption)}&` +
           `exact=${exactSearch.toString()}`,

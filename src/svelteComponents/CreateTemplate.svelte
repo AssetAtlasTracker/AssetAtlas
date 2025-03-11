@@ -1,6 +1,5 @@
 <script lang="ts">
   import { actionStore } from "../stores/actionStore.js";
-  import { ip } from "../stores/ipStore.js";
   import CustomFieldPicker from "./CustomFieldPicker.svelte";
   import "../svelteStyles/main.css";
   import ActionDisplay from "./ActionDisplay.svelte";
@@ -52,7 +51,7 @@
 
     try {
       const response = await fetch(
-        `http://${$ip}/api/templates/createTemplate`,
+        `/api/templates/createTemplate`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -87,7 +86,7 @@
     fieldName: string,
     dataType: string,
   ): Promise<ICustomField> {
-    const response = await fetch(`http://${$ip}/api/customFields`, {
+    const response = await fetch(`/api/customFields`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fieldName, dataType }),
@@ -117,7 +116,7 @@
 
       try {
         const response = await fetch(
-          `http://${$ip}/api/customFields/search?fieldName=${encodeURIComponent(query)}`,
+          `/api/customFields/search?fieldName=${encodeURIComponent(query)}`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },
@@ -138,7 +137,7 @@
         itemId: item._id,
       });
 
-      const response = await fetch(`http://${$ip}/api/recentItems/add`, {
+      const response = await fetch(`/api/recentItems/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: body,
@@ -198,7 +197,7 @@
 
       try {
         const response = await fetch(
-          `http://${$ip}/api/templates/searchTemplates?name=${encodeURIComponent(name)}`,
+          `/api/templates/searchTemplates?name=${encodeURIComponent(name)}`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },
@@ -220,7 +219,7 @@
 
   async function loadRecentCustomFields() {
     try {
-      const response = await fetch(`http://${$ip}/api/recentItems/customFields`, {
+      const response = await fetch(`/api/recentItems/customFields`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });

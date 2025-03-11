@@ -1,7 +1,6 @@
 <script lang="ts">
   import Dialog from "../svelteComponents/Dialog.svelte";
   import InfoToolTip from "./InfoToolTip.svelte";
-  import { ip } from "../stores/ipStore.js";
   import CreateTemplate from "./CreateTemplate.svelte";
   import { actionStore } from "../stores/actionStore.js";
   import { SlideToggle } from "@skeletonlabs/skeleton";
@@ -140,7 +139,7 @@
         console.log(pair[0], pair[1]);
       }
 
-      const response = await fetch(`http://${$ip}/api/items`, {
+      const response = await fetch(`/api/items`, {
         method: "POST",
         body: formData,
       });
@@ -179,7 +178,7 @@
     fieldName: string,
     dataType: string,
   ): Promise<ICustomField> {
-    const response = await fetch(`http://${$ip}/api/customFields`, {
+    const response = await fetch(`/api/customFields`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fieldName, dataType }),
@@ -201,7 +200,7 @@
   async function searchParentItems(query: string) {
     try {
       const response = await fetch(
-        `http://${$ip}/api/items/search?name=${encodeURIComponent(query)}`,
+        `/api/items/search?name=${encodeURIComponent(query)}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -223,7 +222,7 @@
       });
       console.log("DEBUG - Request body:", body);
 
-      const response = await fetch(`http://${$ip}/api/recentItems/add`, {
+      const response = await fetch(`/api/recentItems/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: body,
@@ -274,12 +273,8 @@
       if (!templateName || templateName.trim() === "") {
         return;
       }
-
-      console.log(
-        `Fetching template details from: http://${$ip}/api/templates/${templateId}`,
-      );
       const response = await fetch(
-        `http://${$ip}/api/templates/${templateId}`,
+        `/api/templates/${templateId}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -310,7 +305,7 @@
       const templateFields = await Promise.all(
         data.fields.map(async (field: { _id: string }) => {
           const fieldId = field._id;
-          const fieldUrl = `http://${$ip}/api/customFields/${fieldId}`;
+          const fieldUrl = `/api/customFields/${fieldId}`;
           console.log(`Fetching field details from: ${fieldUrl}`);
 
           const fieldRes = await fetch(fieldUrl, {
@@ -381,7 +376,7 @@
 
       try {
         const response = await fetch(
-          `http://${$ip}/api/customFields/search?fieldName=${encodeURIComponent(query)}`,
+          `/api/customFields/search?fieldName=${encodeURIComponent(query)}`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },
@@ -442,7 +437,7 @@
 
   async function loadRecentItems(type: string) {
     try {
-      const response = await fetch(`http://${$ip}/api/recentItems/${type}`, {
+      const response = await fetch(`/api/recentItems/${type}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -508,7 +503,7 @@
   async function searchHomeItems(query: string) {
     try {
       const response = await fetch(
-        `http://${$ip}/api/items/search?name=${encodeURIComponent(query)}`,
+        `/api/items/search?name=${encodeURIComponent(query)}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -524,7 +519,7 @@
   async function searchTemplates(query: string) {
     try {
       const response = await fetch(
-        `http://${$ip}/api/templates/searchTemplates?name=${encodeURIComponent(query)}`,
+        `/api/templates/searchTemplates?name=${encodeURIComponent(query)}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
