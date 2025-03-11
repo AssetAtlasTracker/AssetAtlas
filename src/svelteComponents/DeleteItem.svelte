@@ -26,6 +26,6 @@
   }
 </script>
 
-<button on:click={deleteItem} class="warn-button">
+<button on:click={deleteItem} class="warn-button font-semibold shadow">
   <slot></slot>
 </button>

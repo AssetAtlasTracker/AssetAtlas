@@ -13,25 +13,7 @@
   }
 </script>
 
-<button class="item-link" on:click={handleClick}>
+<button class="clickable-text" on:click={handleClick}>
   <slot>{itemName}</slot>
 </button>
 
-<style>
-  .item-link {
-    background: none;
-    border: none;
-    padding: 0;
-    margin: 0;
-    color: #0066cc;
-    cursor: pointer;
-    text-decoration: underline;
-    display: inline;
-    font: inherit;
-    text-align: left;
-  }
-  
-  .item-link:hover {
-    color: #004080;
-  }
-</style>

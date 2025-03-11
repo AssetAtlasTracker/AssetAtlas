@@ -758,7 +758,7 @@
 
         <button
           type="button"
-          class="border-button hover:bg-primary-900 font-semibold shadow"
+          class="border-button font-semibold shadow"
           on:click={() => (showEditTemplateDialog = true)}
         >
           Create New Template
@@ -807,7 +807,7 @@
     </button>
     <!-- Submit -->
     <button
-      class="success-button hover:bg-primary-900 font-semibold shadow mt-4 block"
+      class="success-button font-semibold shadow mt-4 w-full block"
       type="submit"
     >
       Submit Changes

@@ -146,25 +146,25 @@
 
       <div class="button-row-flex">
         <button
-          class="border-button"
+          class="border-button font-semibold shadow"
           on:click={() => (showMoveDialog = true)}
         >
           Move
         </button>
         <button
-          class="border-button"
+          class="border-button font-semibold shadow"
           on:click={() => (showReturnDialog = true)}
         >
           Return to Home Location
         </button>
         <button
-          class="border-button"
+          class="border-button font-semibold shadow"
           on:click={() => (showEditDialog = true)}
         >
           Edit
         </button>
         <button
-          class="warn-button"
+          class="warn-button font-semibold shadow"
           on:click={() => (showDeleteDialog = true)}
         >
           Delete
@@ -173,7 +173,7 @@
         <!-- Add Show Item Tree button when tree is hidden -->
         {#if !showItemTree}
           <button
-            class="border-button highlight-button"
+            class="border-button font-semibold shadow"
             on:click={() => (showItemTree = true)}
           >
             Show Item Tree
@@ -311,16 +311,3 @@
     on:close={() => createDialog?.close()}
   />
 {/key}
-
-<style>
-  .highlight-button {
-    background-color: rgba(0, 100, 255, 0.08);
-    color: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(0, 100, 255, 0.4);
-  }
-  
-  .highlight-button:hover {
-    background-color: rgba(0, 100, 255, 0.3);
-    color: rgb(255, 255, 255);
-  }
-</style>

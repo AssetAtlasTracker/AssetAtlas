@@ -82,7 +82,11 @@
     {/if}
   </label>
 
-  <button class="success-button" disabled={!parentItemId} on:click={handleMove}>
+  <button
+    class="success-button font-semibold shadow mt-4 w-full block"
+    disabled={!parentItemId}
+    on:click={handleMove}
+  >
     Move Item
   </button>
 </div>

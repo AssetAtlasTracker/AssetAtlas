@@ -302,7 +302,7 @@
     </button>
     <button
       type="submit"
-      class="success-button font-semibold shadow mt-4"
+      class="success-button font-semibold shadow mt-4 w-full block"
       disabled={!!nameError}>Create Template</button
     >
   </form>
