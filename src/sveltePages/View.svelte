@@ -13,6 +13,7 @@
   import CreateItem from "../svelteComponents/CreateItem.svelte";
   import EditItem from "../svelteComponents/EditItem.svelte";
   import MoveItem from "../svelteComponents/MoveItem.svelte";
+  import Window from "../svelteComponents/Window.svelte";
   export let params: { id?: string };
 
   let showDeleteDialog = false;
@@ -79,47 +80,6 @@
   }
 
   function onSearch(query: string) {}
-
-  let detailsContainer: HTMLElement;
-  let treeContainer: HTMLElement;
-  let activeContainer: HTMLElement | null = null;
-  let startX = 0;
-  let startY = 0;
-
-  function handleMouseDown(event: MouseEvent, container: HTMLElement) {
-    //Disable text-selection while dragging
-    document.body.style.userSelect = "none";
-    activeContainer = container;
-
-    const style = window.getComputedStyle(container);
-    const matrix = new DOMMatrixReadOnly(style.transform);
-
-    const currentX = matrix.m41;
-    const currentY = matrix.m42;
-
-    startX = event.clientX - currentX;
-    startY = event.clientY - currentY;
-
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
-  }
-
-  function handleMouseMove(event: MouseEvent) {
-    if (!activeContainer) return;
-
-    const newX = event.clientX - startX;
-    const newY = event.clientY - startY;
-
-    activeContainer.style.transform = `translate(${newX}px, ${newY}px)`;
-  }
-
-  function handleMouseUp() {
-    //Re-enable text selection
-    document.body.style.userSelect = "";
-    activeContainer = null;
-    window.removeEventListener("mousemove", handleMouseMove);
-    window.removeEventListener("mouseup", handleMouseUp);
-  }
 </script>
 
 <!-- Action display above everything -->
@@ -132,72 +92,44 @@
 {#if item}
   <div class="view-layout page-with-topbar">
     <!-- Item Details Window -->
-    <div
-      bind:this={detailsContainer}
-      class="floating-container glass page-component"
-      style="transform: translate(2rem, 2rem);"
-    >
-      <div
-        class="window-bar"
-        role="button"
-        tabindex="0"
-        on:mousedown={(e) => handleMouseDown(e, detailsContainer)}
-        aria-label="Drag to move item details"
-      ></div>
+    <Window initialX={32} initialY={32} windowTitle="Item Details" windowClass="page-component">
+      <ItemDetails {item} />
 
-      <div class="window-content">
-        <ItemDetails {item} />
-
-        <div class="button-row-flex">
-          <button
-            class="border-button"
-            on:click={() => (showMoveDialog = true)}
-          >
-            Move
-          </button>
-          <button
-            class="border-button"
-            on:click={() => (showReturnDialog = true)}
-          >
-            Return to Home Location
-          </button>
-          <button
-            class="border-button"
-            on:click={() => (showEditDialog = true)}
-          >
-            Edit
-          </button>
-          <button
-            class="warn-button"
-            on:click={() => (showDeleteDialog = true)}
-          >
-            Delete
-          </button>
-        </div>
+      <div class="button-row-flex">
+        <button
+          class="border-button"
+          on:click={() => (showMoveDialog = true)}
+        >
+          Move
+        </button>
+        <button
+          class="border-button"
+          on:click={() => (showReturnDialog = true)}
+        >
+          Return to Home Location
+        </button>
+        <button
+          class="border-button"
+          on:click={() => (showEditDialog = true)}
+        >
+          Edit
+        </button>
+        <button
+          class="warn-button"
+          on:click={() => (showDeleteDialog = true)}
+        >
+          Delete
+        </button>
       </div>
-    </div>
+    </Window>
 
     <!-- Item Tree Window -->
-    <div
-      bind:this={treeContainer}
-      class="floating-container glass page-component"
-      style="transform: translate(calc(400px + 2rem), 1rem);"
-    >
-      <div
-        class="window-bar"
-        role="button"
-        tabindex="0"
-        on:mousedown={(e) => handleMouseDown(e, treeContainer)}
-        aria-label="Drag to move item tree"
-      ></div>
-
-      <div class="window-content">
-        <ItemTree
-          parentId={item._id.toString()}
-          currentId={item._id.toString()}
-        />
-      </div>
-    </div>
+    <Window initialX={400 + 32} initialY={16} windowTitle="Item Tree" windowClass="page-component">
+      <ItemTree
+        parentId={item._id.toString()}
+        currentId={item._id.toString()}
+      />
+    </Window>
   </div>
 {:else}
   <p>Loading item data...</p>
