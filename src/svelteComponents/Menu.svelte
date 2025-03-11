@@ -29,7 +29,7 @@
 >
 	<div class="block">
 		<nav class="pl-12 pr-12 pt-4 pb-4 text-xl">
-			<Link to={`/utility`}>Utility</Link>
+			<Link to={`/utility`}>Import/Export</Link>
 		</nav>
 		<nav class="pl-12 pr-12 pt-4 pb-4 text-xl">
 			<Link to={`/viewTemplates`}>Templates</Link>

@@ -8,7 +8,7 @@
     class="text-gray-600 hover:text-gray-800 cursor-pointer select-none"
     aria-label="info"
   >
-    ℹ️
+    🛈
   </span>
 
   <div

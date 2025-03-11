@@ -107,14 +107,11 @@
       
       {#if showClose}
         <button 
-          class="window-control-button close-button" 
+          class="window-control-button x-button" 
           on:click|stopPropagation={closeWindow}
           aria-label="Close window"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          X
         </button>
       {/if}
     </div>
@@ -124,99 +121,3 @@
     <slot></slot>
   </div>
 </div>
-
-<style>
-  .floating-container {
-    position: absolute;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    min-width: 200px;
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .window-bar {
-    width: 100%;
-    height: 30px;
-    background: rgba(0, 0, 0, 0.1);
-    cursor: move;
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-    padding: 0 8px;
-    box-sizing: border-box;
-    margin: 0;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-    justify-content: space-between;
-  }
-  
-  .window-bar:hover {
-    background: rgba(0, 0, 0, 0.15);
-  }
-  
-  .window-bar:active {
-    background: rgba(0, 0, 0, 0.2);
-  }
-  
-  .window-title {
-    font-size: 14px;
-    font-weight: bold;
-    margin-left: 8px;
-    pointer-events: none; /* Prevents text selection when dragging */
-  }
-  
-  .window-content {
-    padding: 16px;
-    overflow-y: auto;
-    flex-grow: 1;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .window-controls {
-    display: flex;
-    align-items: center;
-    margin-left: auto;
-  }
-  
-  .window-control-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 4px;
-    margin-left: 4px;
-    padding: 0;
-    transition: background-color 0.2s, color 0.2s;
-  }
-  
-  .window-control-button:hover {
-    background-color: rgba(0, 0, 0, 0.1);
-  }
-  
-  .close-button {
-    color: rgba(255, 0, 0, 0.7);
-  }
-  
-  .close-button:hover {
-    background-color: rgba(255, 0, 0, 0.2);
-    color: rgba(255, 0, 0, 1);
-  }
-  
-  .external-link-button {
-    color: rgba(0, 100, 255, 0.7);
-  }
-  
-  .external-link-button:hover {
-    background-color: rgba(0, 100, 255, 0.2);
-    color: rgba(0, 100, 255, 1);
-  }
-</style>

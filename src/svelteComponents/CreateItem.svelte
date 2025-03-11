@@ -770,7 +770,7 @@
       <!-- Submit -->
       <div class="flex-right">
         <button
-          class="success-button font-semibold shadow mt-4 block"
+          class="success-button font-semibold shadow mt-4 w-full block"
           type="submit"
         >
           Create Item

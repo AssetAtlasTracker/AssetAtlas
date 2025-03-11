@@ -26,7 +26,7 @@
   }
 
   import Menu from "../svelteComponents/Menu.svelte";
-    import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
+  import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
   export let menu: HTMLDialogElement;
 
   async function handleSearch(query: string) {
@@ -66,7 +66,7 @@
 </script>
 
 {#if topLevel}
-  <ActionDisplay/>
+  <ActionDisplay />
 {/if}
 
 <TopBar {searchQuery} onSearch={handleSearch} {menu}></TopBar>
@@ -102,7 +102,7 @@
         on:click={() => toggleView("list")}>List View</button
       >
     </div>
-    
+
     <div class="home-view-buttons">
       <button
         class="border-button font-semibold shadow mt-4 block"
@@ -132,11 +132,16 @@
       </div>
     {:else}
       <div id="home-component" class="page-component glass">
-        <p class="text-center important-text">Loading Items</p>
+        <p class="text-center important-text">Loading Items...</p>
 
         <br />
         <div class="placeholder animate-pulse" />
-        
+        <br />
+
+        <p class="text-center sub-text">
+          If loading takes longer than expected, you may need to refresh
+          the page.
+        </p>
       </div>
     {/if}
   {:else}
@@ -148,17 +153,20 @@
   <button
     class="add-button text-icon font-bold shadow"
     on:click={() => {
-        topLevel = false;
-        if (dialog) dialog.showModal();
-      }
-    }
+      topLevel = false;
+      if (dialog) dialog.showModal();
+    }}
   >
     +
   </button>
-  <CreateItem 
-    bind:dialog 
-    curLocation={null} 
-    on:open={() => {topLevel = false}} 
-    on:close={()=>{topLevel = true}}
+  <CreateItem
+    bind:dialog
+    curLocation={null}
+    on:open={() => {
+      topLevel = false;
+    }}
+    on:close={() => {
+      topLevel = true;
+    }}
   />
 </div>
