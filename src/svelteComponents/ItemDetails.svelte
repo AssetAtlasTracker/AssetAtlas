@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { Link } from "svelte-routing";
   import { ip } from "../stores/ipStore.js";
   import { onMount, onDestroy } from "svelte";
   import type { IBasicItemPopulated } from "../models/basicItem.js";
   import EditItem from "../svelteComponents/EditItem.svelte";
+  import ItemLink from "../svelteComponents/ItemLink.svelte";
+  import { createEventDispatcher } from "svelte";
 
   interface ItemUpdateEvent extends CustomEvent {
     detail: {
@@ -12,10 +13,34 @@
     };
   }
 
-  export let item: IBasicItemPopulated;
+  // Add optional itemId prop
+  export let item: IBasicItemPopulated | null = null;
+  export let itemId: string | null = null;
+  
   let parentChain: { _id: string; name: string }[] = [];
+  let loading = !!itemId && !item;
+
+  // Load item by ID if needed
+  async function loadItemById(id: string) {
+    loading = true;
+    try {
+      const response = await fetch(`http://${$ip}/api/items/${id}`);
+      if (response.ok) {
+        item = await response.json();
+      } else {
+        console.error("Failed to fetch item:", await response.text());
+      }
+    } catch (error) {
+      console.error("Error fetching item:", error);
+    } finally {
+      loading = false;
+    }
+  }
 
   async function loadParentChain() {
+    // Only proceed if we have an item
+    if (!item) return;
+    
     parentChain = [];
     try {
       const response = await fetch(
@@ -31,9 +56,21 @@
     }
   }
 
-  onMount(loadParentChain);
-  $: if (item._id) {
+  onMount(async () => {
+    if (itemId && !item) {
+      await loadItemById(itemId);
+    }
+    if (item) {
+      loadParentChain();
+    }
+  });
+  
+  $: if (item?._id) {
     loadParentChain();
+  }
+  
+  $: if (itemId && !item) {
+    loadItemById(itemId);
   }
 
   let isImageExpanded = false;
@@ -50,7 +87,7 @@
   }
 
   async function reloadImage() {
-    if (item.image) {
+    if (item?.image) {
       try {
         const response = await fetch(
           `http://${$ip}/api/items/${item._id}/image`,
@@ -88,7 +125,7 @@
     );
   });
 
-  $: if (item._id) {
+  $: if (item?._id) {
     reloadImage();
   }
 
@@ -104,29 +141,43 @@
   function toggleHistory() {
     isHistoryExpanded = !isHistoryExpanded;
   }
+
+  function ensureString(id: any): string {
+    if (!id) return "";
+    return typeof id === 'string' ? id : id.toString();
+  }
+
+  //Forward the openItem event from ItemLink
+  const dispatch = createEventDispatcher();
+  
+  function handleItemLinkClick(event: CustomEvent) {
+    //Forward the event to parent
+    dispatch("openItem", event.detail);
+  }
 </script>
 
-<div class="item-chain">
-  {#if parentChain.length > 0}
-    <span>Item Chain: </span>
-    {#each parentChain as parent, index}
-      {#if index < parentChain.length - 1}
-        <!-- Render clickable links for all but the last item -->
-        <span class="clickable-text">
-          <Link to={`/view/${parent._id}`}>{parent.name}</Link>
-        </span>
-        <span class="separator"> &gt; </span>
-      {:else}
-        <!-- Render the last item as bold and non-clickable -->
-        <span class="current-item">{parent.name}</span>
-      {/if}
-    {/each}
-  {:else}
-    <p>Loading item chain...</p>
-  {/if}
-</div>
+{#if loading}
+  <p>Loading item details...</p>
+{:else if item}
+  <div class="item-chain">
+    {#if parentChain.length > 0}
+      <span>Item Chain: </span>
+      {#each parentChain as parent, index}
+        {#if index < parentChain.length - 1}
+          <span class="clickable-text">
+            <ItemLink itemId={ensureString(parent._id)} itemName={parent.name} on:openItem={handleItemLinkClick} />
+          </span>
+          <span class="separator"> &gt; </span>
+        {:else}
+          <!-- Render the last item as bold and non-clickable -->
+          <span class="current-item">{parent.name}</span>
+        {/if}
+      {/each}
+    {:else}
+      <p>Loading item chain...</p>
+    {/if}
+  </div>
 
-{#if item}
   <h1 id="underline-header" class="font-bold item-name">
     {item.name}
   </h1>
@@ -164,8 +215,7 @@
       <li>
         <strong>Current Location:</strong>
         <span class="clickable-text">
-          <Link to={`/view/${item.parentItem._id}`}>{item.parentItem.name}</Link
-          >
+          <ItemLink itemId={ensureString(item.parentItem._id)} itemName={item.parentItem.name} on:openItem={handleItemLinkClick} />
         </span>
       </li>
     {:else}
@@ -176,7 +226,7 @@
       <li>
         <strong>Home Location:</strong>
         <span class="clickable-text">
-          <Link to={`/view/${item.homeItem._id}`}>{item.homeItem.name}</Link>
+          <ItemLink itemId={ensureString(item.homeItem._id)} itemName={item.homeItem.name} on:openItem={handleItemLinkClick} />
         </span>
       </li>
     {:else}
@@ -190,9 +240,7 @@
           {#each item.containedItems as containedItem}
             <li>
               <span class="clickable-text">
-                <Link to={`/view/${containedItem._id}`}
-                  >{containedItem.name}</Link
-                >
+                <ItemLink itemId={ensureString(containedItem._id)} itemName={containedItem.name} on:openItem={handleItemLinkClick} />
               </span>
             </li>
           {/each}
@@ -228,9 +276,7 @@
                 {#if history.location}
                   <strong> Location:</strong>
                   <span class="clickable-text">
-                    <Link to={`/view/${history.location._id}`}
-                      >{history.location.name}</Link
-                    >
+                    <ItemLink itemId={ensureString(history.location._id)} itemName={history.location.name} on:openItem={handleItemLinkClick} />
                   </span>
                 {:else}
                   <strong> Location:</strong> None
@@ -257,9 +303,9 @@
   <p>Loading item data...</p>
 {/if}
 
-{#if showEditDialog}
+{#if showEditDialog && item}
   <EditItem
-    {item}
+    item={item}
     on:close={() => {
       showEditDialog = false;
       location.reload();

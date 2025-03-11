@@ -87,6 +87,42 @@
   }
 
   function onSearch(query: string) {}
+
+  //Track additional item windows
+  interface ItemWindow {
+    id: string;
+    x: number;
+    y: number;
+  }
+  
+  let additionalWindows: ItemWindow[] = [];
+  
+  function handleOpenItem(event: CustomEvent) {
+    console.log("Opening item in new window:", event.detail);
+    const { id } = event.detail;
+    
+    //Check if the window for this item already exists
+    const existingWindow = additionalWindows.find(w => w.id === id);
+    if (existingWindow) {
+      return;
+    }
+    
+    const offsetX = 50 + (additionalWindows.length * 30);
+    const offsetY = 50 + (additionalWindows.length * 30);
+    
+    additionalWindows = [
+      ...additionalWindows, 
+      { id, x: offsetX, y: offsetY }
+    ];
+  }
+  
+  function handleCloseWindow(id: string) {
+    additionalWindows = additionalWindows.filter(w => w.id !== id);
+  }
+
+  function openInNewTab(itemId: string) {
+    window.open(`/view/${itemId}`, '_blank');
+  }
 </script>
 
 <!-- Action display above everything -->
@@ -98,9 +134,15 @@
 
 {#if item}
   <div class="view-layout page-with-topbar">
-    <!-- Item Details Window -->
-    <Window initialX={32} initialY={32} windowTitle="Item Details" windowClass="page-component">
-      <ItemDetails {item} />
+    <Window 
+      initialX={32} 
+      initialY={32} 
+      windowTitle="Item Details" 
+      windowClass="page-component"
+      showClose={false}
+      showOpenInNewTab={false}
+    >
+      <ItemDetails {item} on:openItem={handleOpenItem} />
 
       <div class="button-row-flex">
         <button
@@ -140,22 +182,45 @@
       </div>
     </Window>
 
-    {#if showItemTree}
+    <!-- Item Tree Window, has X button -->
+    {#if showItemTree && item}
       <Window 
         initialX={400 + 32} 
         initialY={16} 
         windowTitle="Item Tree" 
         windowClass="page-component"
         showClose={true}
-        showOpenInNewTab={true}
+        showOpenInNewTab={false}
         on:close={handleTreeClose}
       >
         <ItemTree
           parentId={item._id.toString()}
           currentId={item._id.toString()}
+          useWindowView={true}
+          on:openItem={handleOpenItem}
         />
       </Window>
     {/if}
+    
+    <!-- Additional item windows, both buttons -->
+    {#each additionalWindows as window (window.id)}
+      <Window 
+        initialX={window.x} 
+        initialY={window.y} 
+        windowTitle={`Item View`}
+        windowClass="page-component"
+        showClose={true}
+        showOpenInNewTab={true}
+        on:close={() => handleCloseWindow(window.id)}
+        on:openNewTab={() => openInNewTab(window.id)}
+      >
+        <ItemDetails 
+          item={null} 
+          itemId={window.id}
+          on:openItem={handleOpenItem}
+        />
+      </Window>
+    {/each}
   </div>
 {:else}
   <p>Loading item data...</p>
