@@ -34,9 +34,16 @@
     unique = {};
   }
 
-  //If item ID changes, fetch that item
+  let showItemTree = true;
+  
+  function handleTreeClose() {
+    console.log("Close tree window clicked");
+    showItemTree = false;
+  }
+  
   $: if (params.id) {
     fetchItem(params.id);
+    showItemTree = true;
   }
 
   $: if (showDeleteDialog && deleteDialog) {
@@ -120,16 +127,35 @@
         >
           Delete
         </button>
+        
+        <!-- Add Show Item Tree button when tree is hidden -->
+        {#if !showItemTree}
+          <button
+            class="border-button highlight-button"
+            on:click={() => (showItemTree = true)}
+          >
+            Show Item Tree
+          </button>
+        {/if}
       </div>
     </Window>
 
-    <!-- Item Tree Window -->
-    <Window initialX={400 + 32} initialY={16} windowTitle="Item Tree" windowClass="page-component">
-      <ItemTree
-        parentId={item._id.toString()}
-        currentId={item._id.toString()}
-      />
-    </Window>
+    {#if showItemTree}
+      <Window 
+        initialX={400 + 32} 
+        initialY={16} 
+        windowTitle="Item Tree" 
+        windowClass="page-component"
+        showClose={true}
+        showOpenInNewTab={true}
+        on:close={handleTreeClose}
+      >
+        <ItemTree
+          parentId={item._id.toString()}
+          currentId={item._id.toString()}
+        />
+      </Window>
+    {/if}
   </div>
 {:else}
   <p>Loading item data...</p>
@@ -220,3 +246,16 @@
     on:close={() => createDialog?.close()}
   />
 {/key}
+
+<style>
+  .highlight-button {
+    background-color: rgba(0, 100, 255, 0.08);
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 100, 255, 0.4);
+  }
+  
+  .highlight-button:hover {
+    background-color: rgba(0, 100, 255, 0.3);
+    color: rgb(255, 255, 255);
+  }
+</style>
