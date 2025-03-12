@@ -350,6 +350,8 @@ e.g. containers, theming, etc.
   flex-direction: column;
   padding: 0;
   margin: 0;
+  will-change: transform, left, top;
+  transform: translateZ(0); /* hardware acceleration */
 }
 
 .window-bar {
@@ -366,6 +368,10 @@ e.g. containers, theming, etc.
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
   justify-content: space-between;
+  user-select: none;
+  touch-action: none;
+  -webkit-user-drag: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .window-bar:hover {
@@ -389,6 +395,7 @@ e.g. containers, theming, etc.
   flex-grow: 1;
   width: 100%;
   box-sizing: border-box;
+  cursor: default;
 }
 
 .window-controls {
@@ -422,6 +429,18 @@ e.g. containers, theming, etc.
   gap: 0.5rem;
   margin-top: 1rem;
   width: max-content;
+}
+
+.floating-container.no-select,
+.floating-container.no-select * {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+.floating-container.no-select .window-content ::selection {
+  background: transparent;
 }
 
 /* New utility classes for input and dropdown coloring (from CreateItem.svelte styles) */

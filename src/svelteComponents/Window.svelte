@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { onMount, createEventDispatcher } from 'svelte';
+  import { onMount, createEventDispatcher, onDestroy } from 'svelte';
   import { bringToFront } from '../stores/zIndexStore.js';
+  import { topBarHeight } from '../stores/topBarStore.js';
   
   export let initialX = 0;
   export let initialY = 0;
@@ -12,42 +13,114 @@
   const dispatch = createEventDispatcher();
   
   let container: HTMLElement;
+  let windowBar: HTMLElement;
   let startX = 0;
   let startY = 0;
   let isDragging = false;
   let currentX = initialX;
   let currentY = initialY;
   let zIndex = 1;
+  let currentTopBarHeight: number;
+  
+  const unsubscribe = topBarHeight.subscribe(value => {
+    currentTopBarHeight = value;
+  });
   
   function handleMouseDown(event: MouseEvent) {
+    //prevent default browser drag behavior
+    event.preventDefault();
+
+    if (windowBar && 'pointerId' in event) {
+      windowBar.setPointerCapture((event as PointerEvent).pointerId);
+    }
+    
     document.body.style.userSelect = "none";
+    if (container) {
+      container.style.userSelect = "none";
+    }
+    
     isDragging = true;
 
     startX = event.clientX - currentX;
     startY = event.clientY - currentY;
 
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", handlePointerUp);
+    
+    //backup
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
     
-    //Bring window to front when starting to drag
+    document.addEventListener("mouseleave", handleMouseUp);
+    document.addEventListener("pointercancel", handlePointerUp);
+    
     bringWindowToFront();
   }
 
+  function handlePointerMove(event: PointerEvent) {
+    if (!isDragging) return;
+    handleMove(event);
+  }
+  
   function handleMouseMove(event: MouseEvent) {
     if (!isDragging) return;
+    handleMove(event);
+  }
+  
+  function handleMove(event: MouseEvent | PointerEvent) {
+    //stop text selection and image dragging
+    event.preventDefault(); 
 
     currentX = event.clientX - startX;
-    currentY = event.clientY - startY;
+    
+    const calculatedY = event.clientY - startY;
+    
+    if (calculatedY >= currentTopBarHeight) {
+      currentY = calculatedY;
+    } else {
+      //above the top bar cap at top bar height
+      currentY = currentTopBarHeight;
+    }
 
     container.style.left = `${currentX}px`;
     container.style.top = `${currentY}px`;
   }
-
-  function handleMouseUp() {
+  
+  function handlePointerUp(event: PointerEvent) {
+    if (windowBar && event.pointerId) {
+      try {
+        windowBar.releasePointerCapture(event.pointerId);
+      } catch (e) {
+      }
+    }
+    handleEnd(event);
+  }
+  
+  function handleMouseUp(event?: MouseEvent) {
+    handleEnd(event);
+  }
+  
+  function handleEnd(event?: MouseEvent | PointerEvent) {
+    if (event) {
+      event.preventDefault();
+    }
+    
+    if (!isDragging) return;
+    
     document.body.style.userSelect = "";
+    if (container) {
+      container.style.userSelect = "";
+    }
+    
     isDragging = false;
+    
+    // Remove all event listeners we added
+    window.removeEventListener("pointermove", handlePointerMove);
+    window.removeEventListener("pointerup", handlePointerUp);
     window.removeEventListener("mousemove", handleMouseMove);
     window.removeEventListener("mouseup", handleMouseUp);
+    document.removeEventListener("mouseleave", handleMouseUp);
+    document.removeEventListener("pointercancel", handlePointerUp);
   }
   
   function bringWindowToFront() {
@@ -68,23 +141,48 @@
   //Initialize with a starting z-index and set up the window
   onMount(() => {
     bringWindowToFront();
+    
+    const safetyInterval = setInterval(() => {
+      if (isDragging) {
+        if (!window.navigator.userActivation?.hasBeenActive) {
+          handleEnd();
+        }
+      }
+    }, 500);
+    
+    return () => {
+      clearInterval(safetyInterval);
+      if (isDragging) {
+        handleEnd();
+      }
+    };
+  });
+  
+  onDestroy(() => {
+    unsubscribe();
+    if (isDragging) {
+      handleEnd();
+    }
   });
 </script>
 
 <div
   bind:this={container}
-  class="floating-container glass {windowClass}"
+  class="floating-container glass {windowClass} {isDragging ? 'no-select' : ''}"
   style="position: absolute; left: {initialX}px; top: {initialY}px;"
   role="dialog"
   aria-labelledby={windowTitle ? "window-title-" + windowTitle.replace(/\s+/g, '-').toLowerCase() : undefined}
 >
   <div
+    bind:this={windowBar}
     class="window-bar"
+    on:pointerdown={handleMouseDown}
     on:mousedown={handleMouseDown}
     on:keydown={(e) => e.key === 'Enter' && handleMouseDown(new MouseEvent('mousedown', { clientX: 0, clientY: 0 }))}
     role="button"
     tabindex="0"
     aria-label="Drag to move window"
+    style="touch-action: none;"
   >
     {#if windowTitle}
       <span class="window-title" id="window-title-{windowTitle.replace(/\s+/g, '-').toLowerCase()}">{windowTitle}</span>

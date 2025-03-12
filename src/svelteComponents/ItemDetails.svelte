@@ -19,6 +19,10 @@
   let parentChain: { _id: string; name: string }[] = [];
   let loading = !!itemId && !item;
 
+  let imageElement: HTMLImageElement;
+  //each image gets a random ID. trust the process
+  const instanceId = Math.random().toString(36).substring(2, 15);
+
   // Load item by ID if needed
   async function loadItemById(id: string) {
     loading = true;
@@ -92,11 +96,8 @@
           `/api/items/${item._id}/image`,
         );
         if (response.ok) {
-          const imgElement = document.querySelector(
-            ".item-image",
-          ) as HTMLImageElement;
-          if (imgElement) {
-            imgElement.src = `/api/items/${item._id}/image?t=${Date.now()}`;
+          if (imageElement) {
+            imageElement.src = `/api/items/${item._id}/image?t=${Date.now()}`;
           }
         }
       } catch (error) {
@@ -191,9 +192,11 @@
       aria-label="Toggle image size"
     >
       <img
-        src={`/api/items/${item._id}/image`}
+        bind:this={imageElement}
+        src={`/api/items/${item._id}/image?instance=${instanceId}`}
         alt={item.name}
         class="item-image"
+        id={`item-image-${instanceId}`}
       />
     </button>
   {/if}
