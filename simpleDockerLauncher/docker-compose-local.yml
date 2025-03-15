@@ -1,0 +1,32 @@
+name: assetatlas
+
+services:
+  assetatlas:
+    image: berklith/assetatlas:latest
+    environment:
+      NODE_ENV: production
+      MONGO_URI: mongodb://mongo:27017/assetatlas_db
+      IP: localhost:3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./.env:/usr/src/app/docker/.env
+    networks:
+      - default
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
+    name: assetatlas-simple-network
+
+volumes:
+  mongo-data:

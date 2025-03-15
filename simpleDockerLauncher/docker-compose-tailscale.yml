@@ -1,0 +1,49 @@
+name: assetatlas
+
+services:
+  assetatlas:
+    image: berklith/assetatlas:latest
+    environment:
+      NODE_ENV: production
+      MONGO_URI: mongodb://mongo:27017/assetatlas_db
+      IP: ${IP:-localhost:3000}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./.env:/usr/src/app/docker/.env
+    networks:
+      - default
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - default
+
+  tailscale:
+    image: tailscale/tailscale:stable
+    container_name: tailscale
+    hostname: assetAtlas-ts
+    environment:
+      - TS_AUTHKEY=${TS_AUTH_KEY}
+      - TS_USERSPACE=true
+    volumes:
+      - /dev/net/tun
+      - tailscale-state:/var/lib/tailscale
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    restart: unless-stopped
+    network_mode: host
+
+networks:
+  default:
+    driver: bridge
+    name: assetatlas-simple-network
+
+volumes:
+  mongo-data:
+  tailscale-state:
