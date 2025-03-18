@@ -27,6 +27,11 @@
   });
   
   function handleMouseDown(event: MouseEvent) {
+    //check if the click is on a control button
+    if ((event.target as HTMLElement).closest('.window-control-button')) {
+      return;
+    }
+    
     //prevent default browser drag behavior
     event.preventDefault();
 
@@ -193,6 +198,8 @@
         <button 
           class="window-control-button external-link-button" 
           on:click|stopPropagation={openInNewTab}
+          on:mousedown|stopPropagation
+          on:pointerdown|stopPropagation
           aria-label="Open in new tab"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -207,6 +214,8 @@
         <button 
           class="window-control-button x-button" 
           on:click|stopPropagation={closeWindow}
+          on:mousedown|stopPropagation
+          on:pointerdown|stopPropagation
           aria-label="Close window"
         >
           X
