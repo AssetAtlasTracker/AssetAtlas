@@ -283,8 +283,8 @@
       showMoveDialog = false;
     }}
   >
-    <div class="simple-dialog-spacing">
-      Move {item?.name} to:
+    <div class="important-text text-center">
+      Move "{item?.name}" to:
     </div>
     <MoveItem
       itemId={params.id}

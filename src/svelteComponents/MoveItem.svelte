@@ -72,7 +72,7 @@
       on:input={handleInput}
     />
     {#if suggestions.length > 0}
-      <ul class="suggestions">
+      <ul class="small-dialog-suggestions">
         {#each suggestions as item}
           <button class="suggestion-item" on:click={() => selectItem(item)}>
             {item.name}

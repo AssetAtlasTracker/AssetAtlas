@@ -583,6 +583,17 @@ e.g. buttons, lists, textareas, etc.
   margin-top: 2px; /* Small gap between input and suggestions */
 }
 
+.small-dialog-suggestions {
+  background: rgba(var(--color-primary-900));
+  color: rgb(var(--theme-font-color-base));
+  border: 1px solid rgba(var(--color-primary-100) /.8);
+  width: 100%;
+  border-radius: 10px;
+  max-height: 120px;
+  overflow-y: auto;
+  padding: 0.25px;
+}
+
 /* Webkit (Chrome, Safari, Edge) scrollbar styles */
 .suggestions::-webkit-scrollbar {
   width: 8px;
