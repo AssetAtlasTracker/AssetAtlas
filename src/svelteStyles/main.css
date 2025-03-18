@@ -13,9 +13,17 @@ e.g. containers, theming, etc.
   padding: 0 !important;
   position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   width: 100%;
   z-index: 10;
   height: auto; /* Allow height to adjust based on content */
+}
+
+.top-bar-wrapper {
+  width: 100%;
+  position: relative;
+  z-index: 9999; /*Top bar on top bruh. Don't generate more than 9998 windows */
 }
 
 .top-bar-flex{
@@ -72,7 +80,7 @@ e.g. containers, theming, etc.
 
 .slide-out-menu {
   position: fixed;
-  z-index: 5;
+  z-index: 10000; /* On top of topbar (to avoid topbar dropshadow)*/
   top: var(--top-bar-height, 64px); /* were using the CSS variable with a harcoded fallback for height*/
   left: -100%;
   height: calc(100vh - var(--top-bar-height, 64px));
@@ -525,7 +533,7 @@ e.g. buttons, lists, textareas, etc.
   background: rgba(var(--color-primary-900));
 }
 
-.x-button {
+.x-button { /* "X" button to close windows/dialogs */
   float: right;
   color: rgba(var(--color-warning-500));
   text-transform: uppercase;
@@ -538,7 +546,7 @@ e.g. buttons, lists, textareas, etc.
   background-color: rgba(var(--color-warning-900) /.2);
 }
 
-.warn-button{
+.warn-button { /* For delete, cancel, etc.*/
   border-radius: 10px;
   border: 1px solid rgba(var(--color-error-400) /.8);
   padding: 0.5rem 1rem;
@@ -546,11 +554,11 @@ e.g. buttons, lists, textareas, etc.
   color: rgb(var(--theme-font-color-base));
 }
 
-.warn-button:hover{
+.warn-button:hover {
   background: rgb(var(--color-warning-900));
 }
 
-.success-button{
+.success-button { /* For create, confirm, etc. */
   border-radius: 10px;
   border: 1px solid rgba(var(--color-success-400));
   padding: 0.5rem 1rem;
@@ -558,7 +566,7 @@ e.g. buttons, lists, textareas, etc.
   color: rgb(var(--theme-font-color-base));
 }
 
-.success-button:hover{
+.success-button:hover {
   background: rgb(var(--color-success-900));
 }
 
@@ -621,7 +629,7 @@ e.g. buttons, lists, textareas, etc.
   border-radius: 10px;
 }
 
-.suggestion-item{
+.suggestion-item {
   text-align: left;
   width:100%;
   padding: 0.5rem;
@@ -633,19 +641,19 @@ e.g. buttons, lists, textareas, etc.
   border-radius: 6px; /* Slight rounding on hover highlight */
 }
 
-.dark-textarea{
+.dark-textarea { /* Should be used on any/all text input boxes*/
   background: rgba(var(--color-primary-900)/.1);
   color: rgb(var(--theme-font-color-base));
   border: 1px solid rgba(var(--color-primary-100) /.8);
   border-radius: 10px;
 }
 
-.dark-area{
+.dark-area {
   background: rgba(var(--color-primary-900)/.1);
   color: rgb(var(--theme-font-color-base));
 }
 
-.searchbar{
+.searchbar {
   background: rgba(var(--color-primary-900)/.1);
   color: rgb(var(--theme-font-color-base));
   border: 1px solid rgba(var(--color-primary-100) /.8);
@@ -837,7 +845,7 @@ Text styles
   border-bottom: 1px solid rgba(var(--color-primary-100) /.8);
 }
 
-.important-text{
+.important-text{ 
   font-size: 1.5rem;
   font-weight: bold;
   letter-spacing: -0.05rem;
@@ -852,7 +860,7 @@ Text styles
   text-overflow: ellipsis;
 }
 
-.clickable-text{
+.clickable-text{ /* Links and such */
   color: rgb(var(--color-success-400));
   text-decoration: underline;
 }
@@ -875,10 +883,6 @@ Text styles
   white-space: nowrap;
 }
 
-.item-name {
-  font-size: 1.5rem;
-}
-
 .indented {
   padding-left: 2rem;
 }
@@ -887,10 +891,9 @@ Text styles
   text-transform: capitalize;
 }
 
-.position-relative {
-  position: relative;
-}
-
+/*
+Modifications of built-in tags
+*/
 div {
   color: rgb(var(--theme-font-color-base));
 }
@@ -925,24 +928,12 @@ select {
   width: 100%;
 }
 
-input[type="file"] {
+input[type="file"] { /* File input areas (universal) */
   background: rgba(var(--color-primary-900), 0.8); 
   color: rgb(var(--theme-font-color-base));
   padding: 1rem;
   width: 100%;
   text-align: center;
-}
-
-input[type="file"][accept*=".csv"]{
-  &:empty::before {
-    content: "Drop csv files here or ";
-  }
-}
-
-input[type="file"][accept*="image"]{
-  &:empty::before {
-    content: "Drop image file here or ";
-  }
 }
 
 input[type="file"]::file-selector-button {
@@ -955,6 +946,18 @@ input[type="file"]::file-selector-button {
   margin-right: 1rem;
 }
 
-::backdrop {
+input[type="file"][accept*=".csv"]{ /* File input areas (csv specific) */
+  &:empty::before {
+    content: "Drop csv files here or ";
+  }
+}
+
+input[type="file"][accept*="image"]{ /* File input areas (image specific) */
+  &:empty::before {
+    content: "Drop image file here or ";
+  }
+}
+
+::backdrop { /* Dialog background */
   background: rgba(var(--color-surface-900) / 0.7);
 }

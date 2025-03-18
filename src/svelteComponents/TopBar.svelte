@@ -59,19 +59,3 @@
     </div>
   </AppBar>
 </div>
-
-<style>
-  .top-bar-wrapper {
-    width: 100%;
-    position: relative;
-    z-index: 9999 !important; /*top bar on top bruh. dont generate more than 9998 windows */
-  }
-  
-  :global(.top-bar) {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-  }
-</style>

@@ -178,7 +178,7 @@
     {/if}
   </div>
 
-  <h1 id="underline-header" class="font-bold item-name">
+  <h1 id="underline-header" class="font-bold text-2xl">
     {item.name}
   </h1>
 
