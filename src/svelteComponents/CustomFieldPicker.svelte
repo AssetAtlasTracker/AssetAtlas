@@ -7,7 +7,7 @@
   export let showDeleteButton = true;
   export let onDelete: () => void;
   export let mode: "template" | "item" = "item";
-  
+
   const dataTypes = ["string", "number", "boolean", "date"];
 
   $: if (!field.dataType) {
@@ -28,35 +28,10 @@
   }
 </script>
 
-<style>
-  /* do not move this */
-  .field-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto;
-    gap: 0.1rem !important;
-    align-items: center;
-    padding: 0.25rem;
-    border-radius: 6px;
-  }
-  .name-section,
-  .type-section,
-  .value-section {
-    width: 100%;
-    margin: 0 !important;
-  }
-  .input-box,
-  .dropdown-box {
-    border-radius: 10px !important;
-    padding: 0.5rem 1rem !important;
-    height: 2.5rem !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-  }
-</style>
-
-<div class="field-container">
-  <!-- Field Name Section -->
-  <div class="name-section" style="position: relative;">
+<div class="add-field-container">
+  <div class="simple-flex justify-between">
+    <!-- Keep name and exit button on same row-->
+    <!-- Field Name Section -->
     <input
       type="text"
       placeholder="Field Name"
@@ -65,20 +40,30 @@
       on:focus={onFieldFocus}
       on:blur={onFieldBlur}
       disabled={field.fromTemplate}
-      class="input-box"
+      class="dark-textarea py-2 px-4"
     />
     {#if field.suggestions?.length > 0}
       <ul class="suggestions">
         <slot name="suggestions" />
       </ul>
     {/if}
+
+    <!-- Control Section -->
+    {#if field.fromTemplate}
+      <InfoToolTip
+        message="This field is required by the template and cannot be removed. Can be left blank if desired."
+      />
+    {:else if showDeleteButton}
+      <button type="button" class="x-button flex" on:click={onDelete}> X </button>
+    {/if}
   </div>
 
-  <!-- Data Type Section -->
-  <div class="type-section">
-    <div class="custom-dropdown">
-      <select 
-        disabled={field.fromTemplate || field.isExisting} 
+  <div class="simple-flex">
+    <!-- Keep dropdown and value on same row-->
+    <!-- Data Type Section -->
+    <div class="custom-dropdown basis-30">
+      <select
+        disabled={field.fromTemplate || field.isExisting}
         bind:value={field.dataType}
       >
         {#each dataTypes as dt}
@@ -86,34 +71,36 @@
         {/each}
       </select>
     </div>
-  </div>
 
-  <!-- Value Section (only in item mode) -->
-  {#if mode === "item"}
-    <div class="value-section">
+    <!-- Value Section (only in item mode) -->
+    {#if mode === "item"}
       {#if field.dataType === "boolean"}
-        <div class="custom-dropdown">
+        <div class="custom-dropdown flex-grow">
           <select bind:value={field.value} class="dropdown-box">
             <option value="true">Yes</option>
             <option value="false">No</option>
           </select>
         </div>
       {:else if field.dataType === "number"}
-        <input type="number" bind:value={field.value} on:input={validateNumberInput} class="input-box" />
+        <input
+          type="number"
+          bind:value={field.value}
+          on:input={validateNumberInput}
+          class="dark-textarea py-2 px-4 flex-grow"
+        />
       {:else if field.dataType === "date"}
-        <input type="date" bind:value={field.value} class="input-box" />
+        <input
+          type="date"
+          bind:value={field.value}
+          class="dark-textarea px-4 flex-grow"
+        />
       {:else}
-        <input type="text" bind:value={field.value} class="input-box" />
+        <input
+          type="text"
+          bind:value={field.value}
+          class="dark-textarea py-2 px-4 flex-grow"
+        />
       {/if}
-    </div>
-  {/if}
-
-  <!-- Control Section -->
-  <div class="control-section">
-    {#if field.fromTemplate}
-      <InfoToolTip message="This field is required by the template and cannot be removed. Can be left blank if desired." />
-    {:else if showDeleteButton}
-      <button type="button" class="x-button" on:click={onDelete}> X </button>
     {/if}
   </div>
 </div>

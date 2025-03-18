@@ -1,17 +1,17 @@
 <script lang="ts">
-  import { onMount, createEventDispatcher, onDestroy } from 'svelte';
-  import { bringToFront } from '../stores/zIndexStore.js';
-  import { topBarHeight } from '../stores/topBarStore.js';
-  
+  import { onMount, createEventDispatcher, onDestroy } from "svelte";
+  import { bringToFront } from "../stores/zIndexStore.js";
+  import { topBarHeight } from "../stores/topBarStore.js";
+
   export let initialX = 0;
   export let initialY = 0;
   export let windowTitle = "";
   export let windowClass = "";
   export let showClose = false;
   export let showOpenInNewTab = false;
-  
+
   const dispatch = createEventDispatcher();
-  
+
   let container: HTMLElement;
   let windowBar: HTMLElement;
   let startX = 0;
@@ -21,29 +21,29 @@
   let currentY = initialY;
   let zIndex = 1;
   let currentTopBarHeight: number;
-  
-  const unsubscribe = topBarHeight.subscribe(value => {
+
+  const unsubscribe = topBarHeight.subscribe((value) => {
     currentTopBarHeight = value;
   });
-  
+
   function handleMouseDown(event: MouseEvent) {
     //check if the click is on a control button
-    if ((event.target as HTMLElement).closest('.window-control-button')) {
+    if ((event.target as HTMLElement).closest(".window-control-button")) {
       return;
     }
-    
+
     //prevent default browser drag behavior
     event.preventDefault();
 
-    if (windowBar && 'pointerId' in event) {
+    if (windowBar && "pointerId" in event) {
       windowBar.setPointerCapture((event as PointerEvent).pointerId);
     }
-    
+
     document.body.style.userSelect = "none";
     if (container) {
       container.style.userSelect = "none";
     }
-    
+
     isDragging = true;
 
     startX = event.clientX - currentX;
@@ -51,14 +51,14 @@
 
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointerup", handlePointerUp);
-    
+
     //backup
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
-    
+
     document.addEventListener("mouseleave", handleMouseUp);
     document.addEventListener("pointercancel", handlePointerUp);
-    
+
     bringWindowToFront();
   }
 
@@ -66,20 +66,20 @@
     if (!isDragging) return;
     handleMove(event);
   }
-  
+
   function handleMouseMove(event: MouseEvent) {
     if (!isDragging) return;
     handleMove(event);
   }
-  
+
   function handleMove(event: MouseEvent | PointerEvent) {
     //stop text selection and image dragging
-    event.preventDefault(); 
+    event.preventDefault();
 
     currentX = event.clientX - startX;
-    
+
     const calculatedY = event.clientY - startY;
-    
+
     if (calculatedY >= currentTopBarHeight) {
       currentY = calculatedY;
     } else {
@@ -90,35 +90,34 @@
     container.style.left = `${currentX}px`;
     container.style.top = `${currentY}px`;
   }
-  
+
   function handlePointerUp(event: PointerEvent) {
     if (windowBar && event.pointerId) {
       try {
         windowBar.releasePointerCapture(event.pointerId);
-      } catch (e) {
-      }
+      } catch (e) {}
     }
     handleEnd(event);
   }
-  
+
   function handleMouseUp(event?: MouseEvent) {
     handleEnd(event);
   }
-  
+
   function handleEnd(event?: MouseEvent | PointerEvent) {
     if (event) {
       event.preventDefault();
     }
-    
+
     if (!isDragging) return;
-    
+
     document.body.style.userSelect = "";
     if (container) {
       container.style.userSelect = "";
     }
-    
+
     isDragging = false;
-    
+
     // Remove all event listeners we added
     window.removeEventListener("pointermove", handlePointerMove);
     window.removeEventListener("pointerup", handlePointerUp);
@@ -127,7 +126,7 @@
     document.removeEventListener("mouseleave", handleMouseUp);
     document.removeEventListener("pointercancel", handlePointerUp);
   }
-  
+
   function bringWindowToFront() {
     zIndex = bringToFront();
     if (container) {
@@ -136,17 +135,17 @@
   }
 
   function closeWindow() {
-    dispatch('close');
+    dispatch("close");
   }
-  
+
   function openInNewTab() {
-    dispatch('openNewTab');
+    dispatch("openNewTab");
   }
 
   //Initialize with a starting z-index and set up the window
   onMount(() => {
     bringWindowToFront();
-    
+
     const safetyInterval = setInterval(() => {
       if (isDragging) {
         if (!window.navigator.userActivation?.hasBeenActive) {
@@ -154,7 +153,7 @@
         }
       }
     }, 500);
-    
+
     return () => {
       clearInterval(safetyInterval);
       if (isDragging) {
@@ -162,7 +161,7 @@
       }
     };
   });
-  
+
   onDestroy(() => {
     unsubscribe();
     if (isDragging) {
@@ -176,43 +175,76 @@
   class="floating-container glass {windowClass} {isDragging ? 'no-select' : ''}"
   style="position: absolute; left: {initialX}px; top: {initialY}px;"
   role="dialog"
-  aria-labelledby={windowTitle ? "window-title-" + windowTitle.replace(/\s+/g, '-').toLowerCase() : undefined}
+  aria-labelledby={windowTitle
+    ? "window-title-" + windowTitle.replace(/\s+/g, "-").toLowerCase()
+    : undefined}
 >
+  <!-- TODO: Get rid of style= -->
   <div
     bind:this={windowBar}
     class="window-bar"
     on:pointerdown={handleMouseDown}
     on:mousedown={handleMouseDown}
-    on:keydown={(e) => e.key === 'Enter' && handleMouseDown(new MouseEvent('mousedown', { clientX: 0, clientY: 0 }))}
+    on:keydown={(e) =>
+      e.key === "Enter" &&
+      handleMouseDown(new MouseEvent("mousedown", { clientX: 0, clientY: 0 }))}
     role="button"
     tabindex="0"
     aria-label="Drag to move window"
     style="touch-action: none;"
   >
     {#if windowTitle}
-      <span class="window-title" id="window-title-{windowTitle.replace(/\s+/g, '-').toLowerCase()}">{windowTitle}</span>
+      <span
+        class="window-title"
+        id="window-title-{windowTitle.replace(/\s+/g, '-').toLowerCase()}"
+        >{windowTitle}</span
+      >
     {/if}
-    
+
     <div class="window-controls">
       {#if showOpenInNewTab}
-        <button 
-          class="window-control-button external-link-button" 
+        <button
+          class="window-control-button external-link-button"
           on:click|stopPropagation={openInNewTab}
           on:mousedown|stopPropagation
           on:pointerdown|stopPropagation
           aria-label="Open in new tab"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M15 3H21V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M10 14L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M15 3H21V9"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M10 14L21 3"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
         </button>
       {/if}
-      
+
       {#if showClose}
-        <button 
-          class="window-control-button x-button" 
+        <button
+          class="window-control-button x-button"
           on:click|stopPropagation={closeWindow}
           on:mousedown|stopPropagation
           on:pointerdown|stopPropagation

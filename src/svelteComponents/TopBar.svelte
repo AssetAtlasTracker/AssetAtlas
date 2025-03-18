@@ -44,10 +44,12 @@
   <AppBar class="top-bar border glass">
     <div class="top-bar-flex">
       <button class="nav-margin" on:click={handleClickMenu}>
+        <!-- TODO: Get rid of style= -->
         <div style="width: 24px; height: 24px">
           <MdMenu />
         </div>
       </button>
+      <!-- TODO: Get rid of style= -->
       <div class="flex-1" style="margin: 1rem;">
         <Link to={"/"}>
           <div id="title" class="nav-margin text-2xl font-bold">AssetAtlas</div>

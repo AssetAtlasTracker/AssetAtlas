@@ -273,13 +273,10 @@
       if (!templateName || templateName.trim() === "") {
         return;
       }
-      const response = await fetch(
-        `/api/templates/${templateId}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        },
-      );
+      const response = await fetch(`/api/templates/${templateId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
 
       if (!response.ok) {
         console.error(
@@ -604,7 +601,7 @@
           name="slide"
           bind:checked={sameLocations}
           active="toggle-background"
-          >Use same home and current location</SlideToggle
+          >Item is currently at its home location</SlideToggle
         >
         <div class="flex flex-wrap space-x-4">
           <!-- Parent Item -->
@@ -728,7 +725,16 @@
       <br />
 
       <!-- Custom Fields -->
-      <h2 class="font-bold text-lg mt-4">Custom Fields</h2>
+      <div class="simple-flex px-2">
+        <h2 class="font-bold text-lg">Custom Fields</h2>
+        <button
+          type="button"
+          class="border-button font-semibold shadow small-add-button"
+          on:click={addCustomFieldLine}
+        >
+          +
+        </button>
+      </div>
       {#each customFields as field, index}
         <CustomFieldPicker
           bind:field
@@ -755,15 +761,9 @@
         </CustomFieldPicker>
       {/each}
 
-      <button
-        type="button"
-        class="border-button font-semibold shadow mt-2"
-        on:click={addCustomFieldLine}
-      >
-        Add Custom Field
-      </button>
+      <br />
       <!-- Submit -->
-      <div class="flex-right">
+      <div class="flex justify-end">
         <button
           class="success-button font-semibold shadow mt-4 w-full block"
           type="submit"
