@@ -10,7 +10,7 @@
   export let items: IBasicItemPopulated[];
   let showCreateDialog = false;
   let createDialog: HTMLDialogElement;
-  let creator;
+  let creator: CreateItem;
 
   let selectedItem: IBasicItemPopulated | null = null;
 
@@ -27,10 +27,9 @@
 {#if items && items.length > 0}
   <div id="home-component" class="glass page-component">
     {#each items as item}
-    <div class="item-card">
-      <Link to={`/view/${item._id}`}>
+    <div class="simple-flex">
+      <Link to={`/view/${item._id}`} class="item-card">
         <!-- make this border transparent? -->
-        <div class="item-card">
           <div class="item-subcard">
             <div class="important-text">
               {item.name}
@@ -42,13 +41,14 @@
           <div class="sub-text item-subcard">
             Location: {item.parentItem?.name || "None"}
           </div>
-        </div>
       </Link>
-      <button on:click={()=> {creator.changeItem(item); createDialog.showModal()}}>
-        <div class="dropdown">
-          <MdArrowDropDown/>
-        </div>
-      </button>
+      <div>
+        <button on:click={()=> {creator.changeItem(item); createDialog.showModal()}}>
+          <div class="dropdown-arrow">
+            <MdArrowDropDown/>
+          </div>
+        </button>
+      </div>
     </div>
       <br />
     {/each}

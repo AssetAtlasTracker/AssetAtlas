@@ -815,6 +815,12 @@ select option:hover {
   flex-basis: 30%;
 }
 
+.dropdown-arrow {
+  height: 40px;
+  width: 40px;
+  
+}
+
 /* 
 Text styles 
 */
