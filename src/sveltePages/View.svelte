@@ -13,6 +13,7 @@
   import CreateItem from "../svelteComponents/CreateItem.svelte";
   import EditItem from "../svelteComponents/EditItem.svelte";
   import MoveItem from "../svelteComponents/MoveItem.svelte";
+  import Window from "../svelteComponents/Window.svelte";
   export let params: { id?: string };
 
   let showDeleteDialog = false;
@@ -33,9 +34,16 @@
     unique = {};
   }
 
-  //If item ID changes, fetch that item
+  let showItemTree = true;
+  
+  function handleTreeClose() {
+    console.log("Close tree window clicked");
+    showItemTree = false;
+  }
+  
   $: if (params.id) {
     fetchItem(params.id);
+    showItemTree = true;
   }
 
   $: if (showDeleteDialog && deleteDialog) {
@@ -80,45 +88,40 @@
 
   function onSearch(query: string) {}
 
-  let detailsContainer: HTMLElement;
-  let treeContainer: HTMLElement;
-  let activeContainer: HTMLElement | null = null;
-  let startX = 0;
-  let startY = 0;
-
-  function handleMouseDown(event: MouseEvent, container: HTMLElement) {
-    //Disable text-selection while dragging
-    document.body.style.userSelect = "none";
-    activeContainer = container;
-
-    const style = window.getComputedStyle(container);
-    const matrix = new DOMMatrixReadOnly(style.transform);
-
-    const currentX = matrix.m41;
-    const currentY = matrix.m42;
-
-    startX = event.clientX - currentX;
-    startY = event.clientY - currentY;
-
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
+  //Track additional item windows
+  interface ItemWindow {
+    id: string;
+    x: number;
+    y: number;
+  }
+  
+  let additionalWindows: ItemWindow[] = [];
+  
+  function handleOpenItem(event: CustomEvent) {
+    console.log("Opening item in new window:", event.detail);
+    const { id } = event.detail;
+    
+    //Check if the window for this item already exists
+    const existingWindow = additionalWindows.find(w => w.id === id);
+    if (existingWindow) {
+      return;
+    }
+    
+    const offsetX = 50 + (additionalWindows.length * 30);
+    const offsetY = 50 + (additionalWindows.length * 30);
+    
+    additionalWindows = [
+      ...additionalWindows, 
+      { id, x: offsetX, y: offsetY }
+    ];
+  }
+  
+  function handleCloseWindow(id: string) {
+    additionalWindows = additionalWindows.filter(w => w.id !== id);
   }
 
-  function handleMouseMove(event: MouseEvent) {
-    if (!activeContainer) return;
-
-    const newX = event.clientX - startX;
-    const newY = event.clientY - startY;
-
-    activeContainer.style.transform = `translate(${newX}px, ${newY}px)`;
-  }
-
-  function handleMouseUp() {
-    //Re-enable text selection
-    document.body.style.userSelect = "";
-    activeContainer = null;
-    window.removeEventListener("mousemove", handleMouseMove);
-    window.removeEventListener("mouseup", handleMouseUp);
+  function openInNewTab(itemId: string) {
+    window.open(`/view/${itemId}`, '_blank');
   }
 </script>
 
@@ -131,73 +134,93 @@
 
 {#if item}
   <div class="view-layout page-with-topbar">
-    <!-- Item Details Window -->
-    <div
-      bind:this={detailsContainer}
-      class="floating-container glass page-component"
-      style="transform: translate(2rem, 2rem);"
+    <Window 
+      initialX={32} 
+      initialY={32} 
+      windowTitle="Item Details" 
+      windowClass="page-component"
+      showClose={false}
+      showOpenInNewTab={false}
     >
-      <div
-        class="window-bar"
-        role="button"
-        tabindex="0"
-        on:mousedown={(e) => handleMouseDown(e, detailsContainer)}
-        aria-label="Drag to move item details"
-      ></div>
+      <ItemDetails {item} on:openItem={handleOpenItem} />
 
-      <div class="window-content">
-        <ItemDetails {item} />
-
-        <div class="button-row-flex">
+      <div class="button-row-flex">
+        <button
+          class="border-button font-semibold shadow"
+          on:click={() => (showMoveDialog = true)}
+        >
+          Move
+        </button>
+        <button
+          class="border-button font-semibold shadow"
+          on:click={() => (showReturnDialog = true)}
+        >
+          Return to Home Location
+        </button>
+        <button
+          class="border-button font-semibold shadow"
+          on:click={() => (showEditDialog = true)}
+        >
+          Edit
+        </button>
+        <button
+          class="warn-button font-semibold shadow"
+          on:click={() => (showDeleteDialog = true)}
+        >
+          Delete
+        </button>
+        
+        <!-- Add Show Item Tree button when tree is hidden -->
+        {#if !showItemTree}
           <button
-            class="border-button"
-            on:click={() => (showMoveDialog = true)}
+            class="border-button font-semibold shadow"
+            on:click={() => (showItemTree = true)}
           >
-            Move
+            Show Item Tree
           </button>
-          <button
-            class="border-button"
-            on:click={() => (showReturnDialog = true)}
-          >
-            Return to Home Location
-          </button>
-          <button
-            class="border-button"
-            on:click={() => (showEditDialog = true)}
-          >
-            Edit
-          </button>
-          <button
-            class="warn-button"
-            on:click={() => (showDeleteDialog = true)}
-          >
-            Delete
-          </button>
-        </div>
+        {/if}
       </div>
-    </div>
+    </Window>
 
-    <!-- Item Tree Window -->
-    <div
-      bind:this={treeContainer}
-      class="floating-container glass page-component"
-      style="transform: translate(calc(400px + 2rem), 1rem);"
-    >
-      <div
-        class="window-bar"
-        role="button"
-        tabindex="0"
-        on:mousedown={(e) => handleMouseDown(e, treeContainer)}
-        aria-label="Drag to move item tree"
-      ></div>
-
-      <div class="window-content">
+    <!-- Item Tree Window, has X button -->
+    {#if showItemTree && item}
+      <Window 
+        initialX={400 + 32} 
+        initialY={16} 
+        windowTitle="Item Tree" 
+        windowClass="page-component"
+        showClose={true}
+        showOpenInNewTab={false}
+        on:close={handleTreeClose}
+      >
         <ItemTree
           parentId={item._id.toString()}
           currentId={item._id.toString()}
+          useWindowView={true}
+          on:openItem={handleOpenItem}
         />
-      </div>
-    </div>
+      </Window>
+    {/if}
+    
+    <!-- Additional item windows, both buttons -->
+    {#each additionalWindows as window (window.id)}
+      <Window 
+        initialX={window.x} 
+        initialY={window.y} 
+        windowTitle={`Item View`}
+        windowClass="page-component"
+        showClose={true}
+        showOpenInNewTab={true}
+        on:close={() => handleCloseWindow(window.id)}
+        on:openNewTab={() => openInNewTab(window.id)}
+      >
+        <ItemDetails 
+          item={null} 
+          itemId={window.id}
+          on:openItem={handleOpenItem}
+        />
+      </Window>
+    {/each}
   </div>
 {:else}
   <p>Loading item data...</p>
@@ -260,8 +283,8 @@
       showMoveDialog = false;
     }}
   >
-    <div class="simple-dialog-spacing">
-      Move {item?.name} to:
+    <div class="important-text text-center">
+      Move "{item?.name}" to:
     </div>
     <MoveItem
       itemId={params.id}

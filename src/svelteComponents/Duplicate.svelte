@@ -5,6 +5,9 @@
   export let item: IBasicItemPopulated;
   export let onDuplicate = () => {};
 
+
+  //TODO
+  //AUTO CHANGE THE NAME TO *COPY OF _____*
   let name = item.name;
   let description = "";
   if (item.description) {

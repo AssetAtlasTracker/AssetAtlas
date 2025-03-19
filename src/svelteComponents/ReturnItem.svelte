@@ -26,4 +26,9 @@
   }
 </script>
 
-<button on:click={returnItem} class="success-button"> Submit </button>
+<button
+  on:click={returnItem}
+  class="success-button font-semibold shadow mt-4 w-full block"
+>
+  Submit
+</button>

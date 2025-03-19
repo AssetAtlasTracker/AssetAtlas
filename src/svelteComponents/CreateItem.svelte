@@ -1,7 +1,6 @@
 <script lang="ts">
   import Dialog from "../svelteComponents/Dialog.svelte";
   import InfoToolTip from "./InfoToolTip.svelte";
-  import { ip } from "../stores/ipStore.js";
   import CreateTemplate from "./CreateTemplate.svelte";
   import { actionStore } from "../stores/actionStore.js";
   import { SlideToggle } from "@skeletonlabs/skeleton";
@@ -165,7 +164,7 @@
         console.log(pair[0], pair[1]);
       }
 
-      const response = await fetch(`http://${$ip}/api/items`, {
+      const response = await fetch(`/api/items`, {
         method: "POST",
         body: formData,
       });
@@ -204,7 +203,7 @@
     fieldName: string,
     dataType: string,
   ): Promise<ICustomField> {
-    const response = await fetch(`http://${$ip}/api/customFields`, {
+    const response = await fetch(`/api/customFields`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fieldName, dataType }),
@@ -226,7 +225,7 @@
   async function searchParentItems(query: string) {
     try {
       const response = await fetch(
-        `http://${$ip}/api/items/search?name=${encodeURIComponent(query)}`,
+        `/api/items/search?name=${encodeURIComponent(query)}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -248,7 +247,7 @@
       });
       console.log("DEBUG - Request body:", body);
 
-      const response = await fetch(`http://${$ip}/api/recentItems/add`, {
+      const response = await fetch(`/api/recentItems/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: body,
@@ -299,17 +298,10 @@
       if (!templateName || templateName.trim() === "") {
         return;
       }
-
-      console.log(
-        `Fetching template details from: http://${$ip}/api/templates/${templateId}`,
-      );
-      const response = await fetch(
-        `http://${$ip}/api/templates/${templateId}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        },
-      );
+      const response = await fetch(`/api/templates/${templateId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
 
       if (!response.ok) {
         console.error(
@@ -335,7 +327,7 @@
       const templateFields = await Promise.all(
         data.fields.map(async (field: { _id: string }) => {
           const fieldId = field._id;
-          const fieldUrl = `http://${$ip}/api/customFields/${fieldId}`;
+          const fieldUrl = `/api/customFields/${fieldId}`;
           console.log(`Fetching field details from: ${fieldUrl}`);
 
           const fieldRes = await fetch(fieldUrl, {
@@ -406,7 +398,7 @@
 
       try {
         const response = await fetch(
-          `http://${$ip}/api/customFields/search?fieldName=${encodeURIComponent(query)}`,
+          `/api/customFields/search?fieldName=${encodeURIComponent(query)}`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },
@@ -467,7 +459,7 @@
 
   async function loadRecentItems(type: string) {
     try {
-      const response = await fetch(`http://${$ip}/api/recentItems/${type}`, {
+      const response = await fetch(`/api/recentItems/${type}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -533,7 +525,7 @@
   async function searchHomeItems(query: string) {
     try {
       const response = await fetch(
-        `http://${$ip}/api/items/search?name=${encodeURIComponent(query)}`,
+        `/api/items/search?name=${encodeURIComponent(query)}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -549,7 +541,7 @@
   async function searchTemplates(query: string) {
     try {
       const response = await fetch(
-        `http://${$ip}/api/templates/searchTemplates?name=${encodeURIComponent(query)}`,
+        `/api/templates/searchTemplates?name=${encodeURIComponent(query)}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -634,7 +626,7 @@
           name="slide"
           bind:checked={sameLocations}
           active="toggle-background"
-          >Use same home and current location</SlideToggle
+          >Item is currently at its home location</SlideToggle
         >
         <div class="flex flex-wrap space-x-4">
           <!-- Parent Item -->
@@ -758,7 +750,16 @@
       <br />
 
       <!-- Custom Fields -->
-      <h2 class="font-bold text-lg mt-4">Custom Fields</h2>
+      <div class="simple-flex px-2">
+        <h2 class="font-bold text-lg">Custom Fields</h2>
+        <button
+          type="button"
+          class="border-button font-semibold shadow small-add-button"
+          on:click={addCustomFieldLine}
+        >
+          +
+        </button>
+      </div>
       {#each customFields as field, index}
         <CustomFieldPicker
           bind:field
@@ -785,17 +786,11 @@
         </CustomFieldPicker>
       {/each}
 
-      <button
-        type="button"
-        class="border-button font-semibold shadow mt-2"
-        on:click={addCustomFieldLine}
-      >
-        Add Custom Field
-      </button>
+      <br />
       <!-- Submit -->
-      <div class="flex-right">
+      <div class="flex justify-end">
         <button
-          class="success-button font-semibold shadow mt-4 block"
+          class="success-button font-semibold shadow mt-4 w-full block"
           type="submit"
         >
           Create Item
