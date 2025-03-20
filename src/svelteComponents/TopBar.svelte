@@ -52,7 +52,7 @@
       <!-- TODO: Get rid of style= -->
       <div class="flex-1" style="margin: 1rem;">
         <Link to={"/"}>
-          <div id="title" class="nav-margin text-2xl font-bold">AssetAtlas Checking if this works 2.0</div>
+          <div id="title" class="nav-margin text-2xl font-bold">AssetAtlas Checking if this works 3.0</div>
         </Link>
         <div class="nav-margin">
           <SearchBar {searchQuery} {onSearch} />
