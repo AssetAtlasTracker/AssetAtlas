@@ -1,0 +1,48 @@
+name: assetatlas-ghcr
+
+services:
+  assetatlas:
+    image: ${DOCKER_IMAGE}
+    volumes:
+      - assetatlas-config:/usr/src/app/config
+      - assetatlas-tsbuild-cache:/usr/src/app/.tsbuildcache
+    environment:
+      NODE_ENV: production
+      MONGO_URI: mongodb://mongo:27017/assetatlas_db
+      IP: ${IP:-localhost:3000}
+    ports:
+      - "${HOST_PORT:-3000}:3000"
+    networks:
+      - assetatlas-network
+    depends_on:
+      - mongo
+    restart: unless-stopped
+    user: root
+    entrypoint: >
+      /bin/bash -c "
+      mkdir -p /usr/src/app/docker &&
+      echo \"IP=${IP:-localhost:3000}\" > /usr/src/app/docker/.env &&
+      chown -R node:node /usr/src/app &&
+      echo 'Starting AssetAtlas...' &&
+      su -c 'node dist/index.js' node
+      "
+
+  mongo:
+    image: mongo:latest
+    volumes:
+      - assetatlas-mongo-data:/data/db
+    networks:
+      - assetatlas-network
+
+networks:
+  assetatlas-network:
+    driver: bridge
+    name: assetatlas-network
+
+volumes:
+  assetatlas-mongo-data:
+    name: assetatlas-mongo-data
+  assetatlas-tsbuild-cache:
+    name: assetatlas-tsbuild-cache
+  assetatlas-config:
+    name: assetatlas-config
