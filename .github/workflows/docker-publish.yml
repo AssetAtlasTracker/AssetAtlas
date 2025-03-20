@@ -1,11 +1,22 @@
 name: Build and Publish Docker Images
 
 on:
+  # Separate from test.yml by using a different trigger combination
   push:
     branches: [ "main" ]
+    # run docker builds when docker-related files or source code changes
+    paths:
+      - 'docker/**'
+      - 'Dockerfile*'
+      - '.github/workflows/docker-publish.yml'
+      - 'package*.json'
+      - 'src/**'
+  push:
     tags: [ 'v*.*.*' ]
   pull_request:
     branches: [ "main" ]
+  # manual trigger to force a build
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
