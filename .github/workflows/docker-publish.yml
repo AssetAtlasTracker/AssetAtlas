@@ -31,6 +31,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Create package if it doesn't exist
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "Ensuring package exists..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/orgs/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')/packages/container/$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]'))
+          
+          if [ "$STATUS" = "404" ]; then
+            echo "Creating package..."
+            curl -X PUT \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/orgs/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')/packages/container/$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')/visibility \
+              -d '{"visibility":"public"}'
+          else
+            echo "Package already exists"
+          fi
+
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v4
