@@ -40,30 +40,14 @@ if [ -z "$GITHUB_TOKEN" ]; then
   fi
 fi
 
-# Set image names - for org repos, format is ghcr.io/org-name/repo-name
+# Set image name, for org repo, format is ghcr.io/org-name/repo-name
 STANDARD_IMAGE="ghcr.io/$GITHUB_ORG/$REPOSITORY_NAME:$VERSION"
-TAILSCALE_IMAGE="ghcr.io/$GITHUB_ORG/$REPOSITORY_NAME-tailscale:$VERSION"
 
 echo "Building standard image: $STANDARD_IMAGE"
-docker build -t "$STANDARD_IMAGE" -f docker/Dockerfile .
-
-echo "Building Tailscale image: $TAILSCALE_IMAGE"
-docker build -t "$TAILSCALE_IMAGE" -f docker/Dockerfile-tailscale .
+docker build -t "$STANDARD_IMAGE" -f docker/Dockerfile-ghcr .
 
 echo "Pushing standard image to GHCR..."
 docker push "$STANDARD_IMAGE"
 
-echo "Pushing Tailscale image to GHCR..."
-docker push "$TAILSCALE_IMAGE"
-
-echo "Images successfully built and pushed to GHCR!"
-echo "Standard image: $STANDARD_IMAGE"
-echo "Tailscale image: $TAILSCALE_IMAGE"
-echo ""
-echo "You can now use these images with the run scripts:"
-echo "  ./docker/run-ghcr.sh"
-echo "  ./docker/run-ghcr-tailscale.sh"
-echo ""
-echo "Make sure your run scripts reference these image names:"
-echo "  export DOCKER_IMAGE=$STANDARD_IMAGE  # For standard"
-echo "  export DOCKER_IMAGE=$TAILSCALE_IMAGE # For Tailscale"
+echo "Image successfully built and pushed to GHCR!"
+echo "Image: $STANDARD_IMAGE"

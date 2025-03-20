@@ -19,14 +19,6 @@ services:
       - mongo
     restart: unless-stopped
     user: root
-    entrypoint: >
-      /bin/bash -c "
-      mkdir -p /usr/src/app/docker &&
-      echo \"IP=${IP:-localhost:3000}\" > /usr/src/app/docker/.env &&
-      chown -R node:node /usr/src/app &&
-      echo 'Starting AssetAtlas...' &&
-      su -c 'node dist/index.js' node
-      "
 
   mongo:
     image: mongo:latest

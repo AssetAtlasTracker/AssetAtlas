@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-echo Running GHCR build and push script...
+echo Running build and push script...
 
 :: Check if parameters are provided
 if "%~1"=="" (
@@ -14,7 +14,7 @@ if "%~1"=="" (
 
 :: Determine the current directory and script location
 set "SCRIPT_DIR=%~dp0"
-set "SCRIPT_NAME=build-and-push-ghcr.sh"
+set "SCRIPT_NAME=build-and-push.sh"
 set "FULL_SCRIPT_PATH=%SCRIPT_DIR%%SCRIPT_NAME%"
 set "PROJECT_ROOT=%SCRIPT_DIR%.."
 cd /d "%PROJECT_ROOT%"

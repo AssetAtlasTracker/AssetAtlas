@@ -1,41 +1,41 @@
-Run the following commands in the same directory where the docker-compose.yml files are located.
-
-### localhost
+### Localhost
 
 ```bash
-# Windows
+# Windows (PowerShell)
 $env:DOCKER_IMAGE="ghcr.io/assetatlastracker/assetatlas:latest"; docker-compose -f docker-compose-ghcr.yml up -d
 
 # Linux/macOS
 DOCKER_IMAGE=ghcr.io/assetatlastracker/assetatlas:latest docker-compose -f docker-compose-ghcr.yml up -d
 ```
 
-Then access database in browser at localhost:3000.
-
-### tailscale
+### Tailscale
 
 ```bash
-# Windows
-$env:DOCKER_IMAGE="ghcr.io/assetatlastracker/assetatlas-tailscale:latest"; $env:TS_AUTH_KEY="your-tailscale-auth-key"; docker-compose -f docker-compose-ghcr-tailscale.yml up -d
+# Windows (PowerShell)
+$env:DOCKER_IMAGE="ghcr.io/assetatlastracker/assetatlas:latest"; $env:TS_AUTH_KEY="your-tailscale-auth-key"; docker-compose -f docker-compose-ghcr-tailscale.yml up -d
 
 # Linux/macOS
-DOCKER_IMAGE=ghcr.io/assetatlastracker/assetatlas-tailscale:latest TS_AUTH_KEY=your-tailscale-auth-key docker-compose -f docker-compose-ghcr-tailscale.yml up -d
+DOCKER_IMAGE=ghcr.io/assetatlastracker/assetatlas:latest TS_AUTH_KEY=your-tailscale-auth-key docker-compose -f docker-compose-ghcr-tailscale.yml up -d
 ```
 
-Replace `your-tailscale-auth-key` with your actual Tailscale auth key. You should only need to set this once, after that you can leave out the line
-```
-$env:TS_AUTH_KEY="your-tailscale-auth-key";
-```
-Will need to reset it though after your key expires.
+Replace `your-tailscale-auth-key` with your actual Tailscale auth key
 
-### Getting Tailscale IP Address
-
-For now just go to https://login.tailscale.com/admin/machines and find the IP associated with assetatlas-ts. Then in browser it will be [that ip]:3000 to access the database. Might make better later.
-
-### Manual container build and push (developer stuff)
+## Stopping the Containers
 
 ```bash
-.\build-and-push-ghcr.bat AssetAtlasTracker AssetAtlas
+# Localhost
+docker-compose -f docker-compose-ghcr.yml down
+
+# Tailscale
+docker-compose -f docker-compose-ghcr-tailscale.yml down
 ```
 
-And then provide a personal access token with package permissions.
+### Building and Pushing to GHCR (Development)
+
+To manually build and push the container image to GitHub Container Registry:
+
+```bash
+.\docker\build-and-push.bat AssetAtlasTracker AssetAtlas
+```
+
+Enter your GitHub Personal Access Token with package write permissions.
