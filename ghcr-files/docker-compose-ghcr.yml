@@ -3,6 +3,7 @@ name: assetatlas-ghcr
 services:
   assetatlas:
     image: ${DOCKER_IMAGE}
+    pull_policy: always
     volumes:
       - assetatlas-config:/usr/src/app/config
       - assetatlas-tsbuild-cache:/usr/src/app/.tsbuildcache
