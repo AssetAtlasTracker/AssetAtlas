@@ -3,16 +3,9 @@ name: Build and Publish Docker Images
 on:
   push:
     branches: [ "main" ]
-    paths:
-      - 'docker/**'
-      - 'Dockerfile*'
-      - '.github/workflows/docker-publish.yml'
-      - 'package*.json'
-      - 'src/**'
-    tags: [ 'v*.*.*' ]  # Tags trigger regardless of paths
+    tags: [ 'v*.*.*' ]
   pull_request:
     branches: [ "main" ]
-  # Manual trigger to force a build
   workflow_dispatch:
 
 env:
