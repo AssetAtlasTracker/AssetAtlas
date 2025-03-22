@@ -5,14 +5,17 @@ import type { ITemplatePopulated } from "../../models/template.js";
 export class CSVFormatterPopulated {
     itemMap : Map<Types.ObjectId, IBasicItemPopulated>;
     templateMap : Map<Types.ObjectId, ITemplatePopulated>;
+    imageMap : Map<Types.ObjectId, string>;
     itemTree : IBasicItemPopulated[];
     templates : ITemplatePopulated[];
 
-    constructor(items: IBasicItemPopulated[], templates: ITemplatePopulated[], itemTree: IBasicItemPopulated[]) {
+    constructor(items: IBasicItemPopulated[], templates: ITemplatePopulated[], itemTree: IBasicItemPopulated[], images: {_id: Types.ObjectId, filename: string}[]) {
         this.itemMap = new Map<Types.ObjectId, IBasicItemPopulated>();
         items.forEach(item => this.itemMap.set(item._id, item));
         this.templateMap = new Map<Types.ObjectId, ITemplatePopulated>();
         templates.forEach(template => this.templateMap.set(template.id, template));
+        this.imageMap = new Map<Types.ObjectId, string>();
+        images.map(image => this.imageMap.set(image._id, image.filename));
         this.itemTree = itemTree;
         this.templates = templates;
     }
@@ -48,7 +51,7 @@ export class CSVFormatterPopulated {
     }
     
     formatItems(): string {
-        let columns = ["item name", "template", "description"];
+        let columns = ["item name", "template", "description", "image"];
         columns = this.formatItemsHelper(this.itemTree, this.itemMap, columns);
         let csv = columns.pop();
         let line = columns.join(",");
@@ -99,7 +102,8 @@ export class CSVFormatterPopulated {
         if (item.template) {
             templateName = item.template.name;
         }
-        let line = item.name + "," + templateName + "," + item.description + ",";
+        let imageFile = item.image ? item.image!.filename : "";
+        let line = item.name + "," + templateName + "," + item.description + "," + imageFile + "," ;
         if (item.customFields) {
             const custom = this.getColumns(item);
             for (var i = 3; i < columns.length; i++) {

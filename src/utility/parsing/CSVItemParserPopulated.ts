@@ -158,7 +158,7 @@ export class CSVItemParserPopulated implements Parser {
                 if (this.columns[i] == "image") {
                     const imageId = this.imageNameIdMap.get(line[i]);
                     if (imageId) {
-                        item.image = imageId;
+                        item.image = imageId.toHexString() as unknown as Types.ObjectId;
                     } else {
                         throw new Error("Error: Unable to find uploaded image " + line[i]);
                     }
@@ -175,6 +175,7 @@ export class CSVItemParserPopulated implements Parser {
                 }
             }
         }
+        console.log(item.image);
         this.itemMap.set(item.id, item); // TODO: see if this works
         return item;
     }

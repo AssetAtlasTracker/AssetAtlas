@@ -6,7 +6,7 @@ import Fuse from 'fuse.js';
 import type { ITemplate } from '../models/template.js';
 
 //interface for GridFS file
-interface GridFSFile extends Express.Multer.File {
+export interface GridFSFile extends Express.Multer.File {
   id?: string;
   _id?: string;
   filename: string;
@@ -141,7 +141,11 @@ export const searchItems = async (req: Request, res: Response) => {
       .populate('homeItem')
       .populate('containedItems')
       .populate('customFields.field')
-      .populate('itemHistory.location')
+      .populate('itemHistory.location') 
+      .populate({
+        path: 'image',
+        model: 'uploads.files'
+      })
       .lean<IBasicItemPopulated[]>()
       .exec();
 

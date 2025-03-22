@@ -5,9 +5,8 @@ const router = express.Router();
 
 router.post('/import', (req, res, next) => {
      try {
-        console.log(req.body)
         const upload = getUpload();
-        upload.array('images')(req,res,next);
+        upload.any()(req,res,next);
     } catch (err) {
         console.error(err);
         next(err);

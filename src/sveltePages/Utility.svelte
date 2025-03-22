@@ -6,7 +6,7 @@
     import { CSVFormatterPopulated } from '../utility/formating/CSVFormatterPopulated.js';
     import type { ITemplatePopulated } from '../models/template.js';
     import Dialog from '../svelteComponents/Dialog.svelte';
-    import { downloadFile } from '../utility/file/FileDownloader.js';
+    import { downloadFile, downloadDataFile } from '../utility/file/FileDownloader.js';
     import JSZip from "jszip";
     import TopBar from "../svelteComponents/TopBar.svelte";
     import Menu from "../svelteComponents/Menu.svelte";
@@ -74,34 +74,18 @@
 
   async function handleCallImport() {
     try {
-      // let formdata = new FormData();
-      // console.log(images);
-      // formdata.append('images', JSON.stringify(images));
-      // console.log(formdata);
-
-      // const responseImg = await fetch(`http://${$ip}/api/images/`, {
-      //   method: 'PUT',
-      //   body: formdata,
-      // });
-      // if(responseImg.status == 404) {
-      //   console.log("FUCK");
-      // }
-      // if (!responseImg.ok) throw new Error('Error Uploading Images for Import');
-      // let ids : string[] = await responseImg.json() as string[];
-      // const names = images.map(image => {return image.name});
-      console.log(images);
-      console.log(JSON.stringify(images));
-
-      let formdata = new FormData();
+      let formdata = new FormData()
       for (var i = 0; i < images.length; i++) {
         formdata.append('images', images[i]);
+        formdata.append('names', images[i].name);
       }
-      for (var data in csvData) {
-        formdata.append('data', data);
+      formdata.append('data', "");
+      for (var j = 0; j < csvData.length; j++) {
+        formdata.append('data', csvData[j]);
       }
-
       const response = await fetch(`http://${$ip}/api/csv/import`, {
         method: 'POST',
+        headers: {'enctype': 'multipart/form-data'},
         body: formdata,
       });
       if (!response.ok) throw new Error('Error Importing from Files.');
@@ -124,7 +108,6 @@
         let templates : ITemplatePopulated[] = [];
         const dataT = await responseT.json();
         templates = dataT as ITemplatePopulated[];
-
         const responseI = await fetch(`http://${$ip}/api/items/search?name=${encodeURIComponent("")}`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -133,12 +116,25 @@
         let items = [];
         const dataI = await responseI.json();
         items = dataI as IBasicItemPopulated[];
-        console.log("Fetched Items for Export:", items);
+        const images = items.map(item => {return item.image}).filter(res => {return res !== undefined});
+        const imageData = images.map(image => {return {_id: image._id, filename: image.filename}});
         const itemRoot = items.filter(item => {return item.parentItem == null});
-
-        const formatter = new CSVFormatterPopulated(items, templates, itemRoot);//>templateMap);
+        const formatter = new CSVFormatterPopulated(items, templates, itemRoot, imageData);//>templateMap);
         const templateContent = formatter.formatTemplates();
         const itemContent = formatter.formatItems();
+
+        let urls : string[] = [];
+        let names: string[] = [];
+        for (var i = 0; i < items.length; i++) {
+          const item = items[i];
+          if (item.image) {
+            const responseImg = await fetch(`http://${$ip}/api/items/${item._id}/image`);
+            if (responseImg.ok) {
+              urls.push(`http://${$ip}/api/items/${item._id}/image`);
+              names.push(item.image!.filename);
+            }
+          }
+        }
 
         if (!itemInput) {
           itemInput = "items";
@@ -147,8 +143,11 @@
           templateInput = "templates";
         }
 
-        downloadFile(itemInput, itemContent);
-        downloadFile(templateInput, templateContent);
+        downloadDataFile(itemInput, itemContent);
+        downloadDataFile(templateInput, templateContent);
+        for (var i = 0; i < urls.length; i++) {
+          downloadFile(urls[i], names[i]);
+        }
 
         itemInput = "";
         templateInput = "";

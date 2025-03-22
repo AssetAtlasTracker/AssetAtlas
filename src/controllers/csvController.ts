@@ -1,25 +1,31 @@
 import type { Request, Response } from 'express';
 import { FileExporter } from '../utility/file/FileExporter.js';
 import { ParserManager } from '../utility/parsing/ParserManager.js';
-import type { GridFSFile } from 'mongodb';
+import type { GridFSFile } from '../controllers/itemController.js';
 
 export const importFromFile = async (req: Request, res: Response) => {
     try {
-      const data = req.body.data;
-      console.log(req.body);
-      console.log(data);
+      const data = req.body.data as string[]; // note : first entry will be ""
       const files = req.files as unknown as GridFSFile[];
-      console.log(req.files);
-      console.log(files);
-      const ids = files.map(file => {return (file._id || file.filename).toString()});
-      const names = files.map(file => {return file.filename});
+      const ids = files.map(file => {return file.id});
+      if (ids.includes(undefined)) {
+        throw new Error("Error failed to get id of uploaded image.");
+      }
+      const knownIds = ids.filter(ele => {return ele != undefined});
 
-      if (!data || data.length > 2 || data.length < 1) {
+      if (!data || data.length-1 > 2 || data.length-1 < 1) {
         res.status(400).json({message : 'File path(s) are required and at most two can be specified.'});
         return;
       }
-      const parser = new ParserManager();//templates); // TODO: fix
-      await parser.parseFromFiles(data, names, ids);
+
+      let names : string[] = [];
+      if (files.length > 1) {
+        names = (req.body.names as string[]).map(name => {return name.toLowerCase()});
+      } else if (files.length == 1) {
+        names = [req.body.names.toLowerCase()];
+      }
+      const parser = new ParserManager();
+      await parser.parseFromFiles(data.slice(1), names, knownIds);
       res.status(201).json({message: 'Successfully imported from file path(s).'});
     } catch (err) {
       console.error('Error importing from file(s):', err);
@@ -43,11 +49,6 @@ export const exportToFolder = async (req: Request, res: Response) => {
             res.status(400).json({message : 'Item data is required to export when given a item file path.'});
             return;
         }
-
-        // if ((!templateData || templateData.length == 0) && filePaths.length == 2 && filePaths[2] !== "") {
-        //     res.status(400).json({message : 'Template data is required to export when given a template file path.'});
-        //     return;
-        // }
 
         if (!folder || folder.length == 0) {
             // use a default folder
