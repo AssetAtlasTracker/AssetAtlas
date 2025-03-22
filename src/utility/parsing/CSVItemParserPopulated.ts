@@ -20,8 +20,10 @@ export class CSVItemParserPopulated implements Parser {
         for (var i = 0; i < templates.length; i++) {
             this.templates.set(templates[i].name, templates[i]);
         }
-        for (var j = 0; j < ids.length; j++) {
-            this.imageNameIdMap.set(names[j], ids[j] as unknown as Types.ObjectId)
+        if (ids) {
+            for (var j = 0; j < ids.length; j++) {
+                this.imageNameIdMap.set(names[j], ids[j] as unknown as Types.ObjectId)
+            }
         }
     }
 

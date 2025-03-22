@@ -15,7 +15,9 @@ export class CSVFormatterPopulated {
         this.templateMap = new Map<Types.ObjectId, ITemplatePopulated>();
         templates.forEach(template => this.templateMap.set(template.id, template));
         this.imageMap = new Map<Types.ObjectId, string>();
-        images.map(image => this.imageMap.set(image._id, image.filename));
+        if (images) {
+            images.map(image => this.imageMap.set(image._id, image.filename));
+        }
         this.itemTree = itemTree;
         this.templates = templates;
     }
@@ -51,7 +53,10 @@ export class CSVFormatterPopulated {
     }
     
     formatItems(): string {
-        let columns = ["item name", "template", "description", "image"];
+        let columns = ["item name", "template", "description"];
+        if (this.imageMap.size > 0) {
+            columns.push('image');
+        }
         columns = this.formatItemsHelper(this.itemTree, this.itemMap, columns);
         let csv = columns.pop();
         let line = columns.join(",");
@@ -103,7 +108,10 @@ export class CSVFormatterPopulated {
             templateName = item.template.name;
         }
         let imageFile = item.image ? item.image!.filename : "";
-        let line = item.name + "," + templateName + "," + item.description + "," + imageFile + "," ;
+        let line = item.name + "," + templateName + "," + item.description + ",";
+        if (this.imageMap.size > 0) {
+            line += imageFile + ",";
+        }
         if (item.customFields) {
             const custom = this.getColumns(item);
             for (var i = 3; i < columns.length; i++) {
