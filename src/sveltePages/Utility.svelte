@@ -224,7 +224,7 @@
       <label for="many">Select CSV Files:</label>
       <input
         class="dark-textarea"
-        accept=".csv,.zip"
+        accept=".csv,.zip,.png,.jpg"
         bind:files
         id="many"
         multiple
