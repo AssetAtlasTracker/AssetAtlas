@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { ip } from '../stores/ipStore.js';
   import { createEventDispatcher, onMount } from 'svelte';
 
   export let itemId: string | undefined = undefined;
@@ -21,9 +20,9 @@
     if (!itemId) return;
     
     try {
-      const response = await fetch(`http://${$ip}/api/items/${itemId}/image`);
+      const response = await fetch(`/api/items/${itemId}/image`);
       if (response.ok) {
-        imagePreview = `http://${$ip}/api/items/${itemId}/image?t=${Date.now()}`;
+        imagePreview = `/api/items/${itemId}/image?t=${Date.now()}`;
         removeExistingImage = false;
         dispatch('imageChange', { 
           selectedImage: null,

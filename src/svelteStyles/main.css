@@ -13,9 +13,17 @@ e.g. containers, theming, etc.
   padding: 0 !important;
   position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   width: 100%;
   z-index: 10;
   height: auto; /* Allow height to adjust based on content */
+}
+
+.top-bar-wrapper {
+  width: 100%;
+  position: relative;
+  z-index: 9999; /*Top bar on top bruh. Don't generate more than 9998 windows */
 }
 
 .top-bar-flex{
@@ -72,7 +80,7 @@ e.g. containers, theming, etc.
 
 .slide-out-menu {
   position: fixed;
-  z-index: 5;
+  z-index: 10000; /* On top of topbar (to avoid topbar dropshadow)*/
   top: var(--top-bar-height, 64px); /* were using the CSS variable with a harcoded fallback for height*/
   left: -100%;
   height: calc(100vh - var(--top-bar-height, 64px));
@@ -87,25 +95,14 @@ e.g. containers, theming, etc.
   overscroll-behavior: contain; /* Prevent scroll chaining */
 }
 
-.utility-body {
+.util-flex{
   display: flex;
-  flex-direction: column;
-  width: fit-content;
+  flex-direction: row;
+  justify-content: center;
 }
 
-.utility-body > * {
-  margin: 3em;
-}
-
-.utility-col {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  justify-items: left;
-}
-
-.utility-col > * + * {
-  margin: 0.3em 0pt
+.util-component {
+  width: 50%;
 }
 
 .open{
@@ -294,7 +291,15 @@ e.g. containers, theming, etc.
   display: none;
 }
 
-.sort-flex{
+.button-row-flex { /* Standard flex setup for a row of buttons */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  width: max-content;
+}
+
+.sort-flex { 
   display:flex;
   justify-content: flex-start;
   align-items: center;
@@ -302,46 +307,28 @@ e.g. containers, theming, etc.
   padding: 0 3vw;  /* Remove the top padding since we're using page-with-topbar */
 }
 
-.button-row-flex{
+.button-row-flex {
   display:flex;
   justify-content: flex-start;
   align-items: center;
   gap: 1rem;
 }
 
+.simple-flex {
+  display: flex;
+  gap: 0.5rem;
+}
+
 /* Update grid container to use equal gaps and adjust padding */
-.field-container {
-  display: grid;
-  grid-template-columns: minmax(200px, 2fr) minmax(200px, 1fr) minmax(200px, 2fr) auto;
-  gap: 0.25rem; /* equal gap between all columns */
-  align-items: center;
-  width: 100%;
-  min-height: 3.65rem;
-  max-height: 3.65rem;
-  background-color: rgb(var(--color-primary-900) / 0.6);
-  border: none; /* simplified border */
+.add-field-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: rgba(var(--color-primary-900)/.9);
+  border: none;
   border-radius: 10px;
-  padding: 0.25rem;
-}
-
-/* Ensure type-section and value-section have same min-width */
-.name-section,
-.type-section,
-.value-section {
-  min-width: 200px;
-  max-width: 100%;
-}
-
-/* Ensure all inputs/selects use consistent dimensions */
-.name-section input,
-.type-section input,
-.type-section select,
-.value-section input,
-.value-section select {
-  width: 100%;
-  height: 2.5rem;
-  min-height: 2.5rem;
-  max-height: 2.5rem;
+  padding: 0.5rem;
+  margin: 0.5rem 0 0 0;
 }
 
 .view-layout {
@@ -353,35 +340,123 @@ e.g. containers, theming, etc.
 /* Draggable window containers */
 .floating-container {
   position: absolute;
-  width: fit-content;    /* Let the container size to its content */
-  min-width: 300px;      /* Minimum width to prevent too narrow containers */
-  max-width: 800px;      /* Maximum width to prevent excessive stretching */
-  z-index: 1;
-  overflow: visible;     /* Allow content to determine size */
-  border-radius: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+  will-change: transform, left, top;
+  transform: translateZ(0); /* hardware acceleration */
 }
 
 .window-bar {
-  margin: -1rem -2vw 0;
-  height: 2rem;
-  background-color: rgb(var(--color-primary-900) / .8);
+  width: 100%;
+  height: 30px;
+  background: rgba(0, 0, 0, 0.1);
   cursor: move;
-  border-radius: 10px 10px 0 0;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0 8px;
+  box-sizing: border-box;
+  margin: 0;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  justify-content: space-between;
+  user-select: none;
+  touch-action: none;
+  -webkit-user-drag: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.window-bar:hover {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.window-bar:active {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.window-title {
+  font-size: 14px;
+  font-weight: bold;
+  margin-left: 8px;
+  pointer-events: none; /* Prevents text selection when dragging */
 }
 
 .window-content {
-  padding: 1rem;
-  width: max-content;
-  min-width: 100%;
-  user-select: text; 
+  padding: 16px;
+  overflow-y: auto;
+  flex-grow: 1;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: default;
 }
 
-.button-row-flex {
+.window-controls {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  width: max-content;
+  align-items: center;
+  margin-left: auto;
+}
+
+.window-control-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  margin-left: 4px;
+  padding: 0;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.window-control-button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.floating-container.no-select,
+.floating-container.no-select * {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+.floating-container.no-select .window-content ::selection {
+  background: transparent;
+}
+
+/* New utility classes for input and dropdown coloring (from CreateItem.svelte styles) */
+.input-box,
+.dropdown-box {
+  background: rgba(var(--color-primary-900)/.1);
+  color: rgb(var(--theme-font-color-base));
+  border: 1px solid rgba(var(--color-primary-100)/.8);
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  box-sizing: border-box;
+}
+
+/* New utility class to force suggestion boxes below input fields */
+.suggestion-box {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: calc(100% - 2px); /* match input width accounting for border */
+  border-radius: 4px;
+  z-index: 10;
+}
+
+.page-with-topbar {
+  margin-top: calc(var(--top-bar-height, 64px) + 1rem);
+  width: 100%;
 }
 
 .simple-dialog-spacing{
@@ -395,15 +470,6 @@ e.g. containers, theming, etc.
 .scrollable-content {
   overflow-y: auto;
 }
-
-.flex-right{
-  display:flex;
-  justify-content:flex-end;
-}
-
-/*
-Keyframe Animations 
-*/
 
 /* 
 Small component styles 
@@ -422,7 +488,7 @@ e.g. buttons, lists, textareas, etc.
   border-radius: 10px;
 }
 
-.border-button{
+.border-button { /* Standard button style*/
   border-radius: 10px;
   border: 1px solid rgba(var(--color-primary-100) /.8);
   padding: 0.5rem 1rem;
@@ -434,19 +500,21 @@ e.g. buttons, lists, textareas, etc.
   background: rgba(var(--color-primary-900));
 }
 
-.x-button {
+.x-button { /* "X" button to close windows/dialogs */
   float: right;
   color: rgba(var(--color-warning-500));
   text-transform: uppercase;
   font-weight: 800;
   line-height: 0.75rem;
+  height: 0.75rem;
 }
 
 .x-button:hover {
   color: rgba(var(--color-warning-900));
+  background-color: rgba(var(--color-warning-900) /.2);
 }
 
-.warn-button{
+.warn-button { /* For delete, cancel, etc.*/
   border-radius: 10px;
   border: 1px solid rgba(var(--color-error-400) /.8);
   padding: 0.5rem 1rem;
@@ -454,11 +522,11 @@ e.g. buttons, lists, textareas, etc.
   color: rgb(var(--theme-font-color-base));
 }
 
-.warn-button:hover{
+.warn-button:hover {
   background: rgb(var(--color-warning-900));
 }
 
-.success-button{
+.success-button { /* For create, confirm, etc. */
   border-radius: 10px;
   border: 1px solid rgba(var(--color-success-400));
   padding: 0.5rem 1rem;
@@ -466,12 +534,8 @@ e.g. buttons, lists, textareas, etc.
   color: rgb(var(--theme-font-color-base));
 }
 
-.success-button:hover{
+.success-button:hover {
   background: rgb(var(--color-success-900));
-}
-
-.utility-col > input {
-  color: black;
 }
 
 .add-button {
@@ -489,6 +553,10 @@ e.g. buttons, lists, textareas, etc.
 
 .add-button:hover{
   background: rgb(var(--color-primary-900));
+}
+
+.small-add-button {
+  padding: 0 0.45rem 0.1rem; /* Ugly set of values that keeps button squared*/
 }
 
 .home-view-buttons{
@@ -515,6 +583,17 @@ e.g. buttons, lists, textareas, etc.
   margin-top: 2px; /* Small gap between input and suggestions */
 }
 
+.small-dialog-suggestions {
+  background: rgba(var(--color-primary-900));
+  color: rgb(var(--theme-font-color-base));
+  border: 1px solid rgba(var(--color-primary-100) /.8);
+  width: 100%;
+  border-radius: 10px;
+  max-height: 120px;
+  overflow-y: auto;
+  padding: 0.25px;
+}
+
 /* Webkit (Chrome, Safari, Edge) scrollbar styles */
 .suggestions::-webkit-scrollbar {
   width: 8px;
@@ -533,7 +612,7 @@ e.g. buttons, lists, textareas, etc.
   border-radius: 10px;
 }
 
-.suggestion-item{
+.suggestion-item {
   text-align: left;
   width:100%;
   padding: 0.5rem;
@@ -545,19 +624,19 @@ e.g. buttons, lists, textareas, etc.
   border-radius: 6px; /* Slight rounding on hover highlight */
 }
 
-.dark-textarea{
+.dark-textarea { /* Should be used on any/all text input boxes*/
   background: rgba(var(--color-primary-900)/.1);
   color: rgb(var(--theme-font-color-base));
   border: 1px solid rgba(var(--color-primary-100) /.8);
   border-radius: 10px;
 }
 
-.dark-area{
+.dark-area {
   background: rgba(var(--color-primary-900)/.1);
   color: rgb(var(--theme-font-color-base));
 }
 
-.searchbar{
+.searchbar {
   background: rgba(var(--color-primary-900)/.1);
   color: rgb(var(--theme-font-color-base));
   border: 1px solid rgba(var(--color-primary-100) /.8);
@@ -728,8 +807,18 @@ select option:hover {
   padding-left: 0;
 }
 
-.item-subcard{
+.item-subcard {
   max-width:45%;
+}
+
+.basis-30 {
+  flex-basis: 30%;
+}
+
+.dropdown-arrow {
+  height: 40px;
+  width: 40px;
+  
 }
 
 /* 
@@ -749,7 +838,7 @@ Text styles
   border-bottom: 1px solid rgba(var(--color-primary-100) /.8);
 }
 
-.important-text{
+.important-text{ 
   font-size: 1.5rem;
   font-weight: bold;
   letter-spacing: -0.05rem;
@@ -764,7 +853,7 @@ Text styles
   text-overflow: ellipsis;
 }
 
-.clickable-text{
+.clickable-text{ /* Links and such */
   color: rgb(var(--color-success-400));
   text-decoration: underline;
 }
@@ -787,10 +876,6 @@ Text styles
   white-space: nowrap;
 }
 
-.item-name {
-  font-size: 1.5rem;
-}
-
 .indented {
   padding-left: 2rem;
 }
@@ -799,6 +884,9 @@ Text styles
   text-transform: capitalize;
 }
 
+/*
+Modifications of built-in tags
+*/
 div {
   color: rgb(var(--theme-font-color-base));
 }
@@ -833,15 +921,12 @@ select {
   width: 100%;
 }
 
-input[type="file"] {
+input[type="file"] { /* File input areas (universal) */
   background: rgba(var(--color-primary-900), 0.8); 
   color: rgb(var(--theme-font-color-base));
   padding: 1rem;
   width: 100%;
   text-align: center;
-  &:empty::before {
-    content: "Drop image file here or ";
-  }
 }
 
 input[type="file"]::file-selector-button {
@@ -854,47 +939,18 @@ input[type="file"]::file-selector-button {
   margin-right: 1rem;
 }
 
-::backdrop {
+input[type="file"][accept*=".csv"]{ /* File input areas (csv specific) */
+  &:empty::before {
+    content: "Drop csv files here or ";
+  }
+}
+
+input[type="file"][accept*="image"]{ /* File input areas (image specific) */
+  &:empty::before {
+    content: "Drop image file here or ";
+  }
+}
+
+::backdrop { /* Dialog background */
   background: rgba(var(--color-surface-900) / 0.7);
 }
-
-.page-with-topbar {
-  margin-top: calc(var(--top-bar-height, 64px) + 1rem);
-  width: 100%;
-}
-
-.position-relative {
-  position: relative;
-}
-
-/* New utility classes for input and dropdown coloring (from CreateItem.svelte styles) */
-.input-box {
-  background: rgba(var(--color-primary-900)/.1);
-  color: rgb(var(--theme-font-color-base));
-  border: 1px solid rgba(var(--color-primary-100)/.8);
-  border-radius: 10px;
-  padding: 0.5rem 1rem;
-  height: 2.5rem;
-  box-sizing: border-box;
-}
-
-.dropdown-box {
-  background: rgba(var(--color-primary-900)/.1);
-  color: rgb(var(--theme-font-color-base));
-  border: 1px solid rgba(var(--color-primary-100)/.8);
-  border-radius: 10px;
-  padding: 0.5rem 1rem;
-  height: 2.5rem;
-  box-sizing: border-box;
-}
-
-/* New utility class to force suggestion boxes below input fields */
-.suggestion-box {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: calc(100% - 2px); /* match input width accounting for border */
-  border-radius: 4px;
-  z-index: 10;
-}
-

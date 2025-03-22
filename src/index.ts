@@ -22,30 +22,37 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 function getEnvVariables(envPath: string) {
-  const envData = fs.readFileSync(envPath, 'utf-8');
-  const envVars: { [key: string]: string } = {};
-  envData.split('\n').forEach(line => {
-    const [key, value] = line.split('=');
-    if (key && value) {
-      envVars[key.trim()] = value.trim().replace(/\r$/, '');
-    }
-  });
-  return envVars;
+  try {
+    const envData = fs.readFileSync(envPath, 'utf-8');
+    const envVars: { [key: string]: string } = {};
+    envData.split('\n').forEach(line => {
+      const [key, value] = line.split('=');
+      if (key && value) {
+        envVars[key.trim()] = value.trim().replace(/\r$/, '');
+      }
+    });
+    return envVars;
+  } catch (error) {
+    console.error('Error reading .env file:', error);
+    return {};
+  }
 }
 
 //Cache IP at startup, this makes it work better
 const envPath = path.join(__dirname, '../docker', '.env');
-let cachedIp: string;
+let cachedIp: string = 'localhost:3000'; //fallback
+
 try {
   const envVars = getEnvVariables(envPath);
-  if (!envVars['IP']) {
-    throw new Error("IP not defined in .env");
+  if (envVars['IP']) {
+    cachedIp = envVars['IP'];
+    console.log('Cached IP at startup:', cachedIp);
+  } else {
+    console.warn('IP not defined in .env, using default:', cachedIp);
   }
-  cachedIp = envVars['IP'];
-  console.log('Cached IP at startup:', cachedIp);
 } catch (error) {
-  console.error('Error reading .env file during startup:', error);
-  process.exit(1);
+  console.error('Error processing IP from .env:', error);
+  console.warn('Using default IP:', cachedIp);
 }
 
 console.log('connectDB() about to call mongoose.connect...');
@@ -64,11 +71,26 @@ const allowedOrigins = [
   `http://${cachedIp}`, //Allow the IP from .env or dynamically
 ];
 
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,  //Allow credentials if needed
-}));
+//dynamic detection of client origin for better CORS handling
+app.use((req, res, next) => {
+  const origin = req.headers.origin as string;
+  if (origin && !allowedOrigins.includes(origin)) {
+    console.log(`Adding new origin to CORS whitelist: ${origin}`);
+    allowedOrigins.push(origin);
+  }
+  next();
+});
 
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
 
 app.use(express.json({limit: '100mb'}));
 

@@ -1,0 +1,59 @@
+name: assetatlas-ghcr
+
+services:
+  assetatlas:
+    image: ${DOCKER_IMAGE:-ghcr.io/assetatlastracker/assetatlas:latest}
+    pull_policy: always
+    volumes:
+      - assetatlas-config:/usr/src/app/config
+      - assetatlas-tsbuild-cache:/usr/src/app/.tsbuildcache
+    environment:
+      NODE_ENV: production
+      MONGO_URI: mongodb://mongo:27017/assetatlas_db
+      IP: ${IP:-localhost:3000}
+    ports:
+      - "3000:3000"
+    networks:
+      - assetatlas-network
+    depends_on:
+      - mongo
+    restart: unless-stopped
+    user: root
+
+  mongo:
+    image: mongo:latest
+    volumes:
+      - assetatlas-mongo-data:/data/db
+    networks:
+      - assetatlas-network
+
+  tailscale:
+    image: tailscale/tailscale:stable
+    container_name: assetatlas-ts
+    hostname: assetatlas-ts
+    environment:
+      - TS_AUTHKEY=${TS_AUTH_KEY}
+      - TS_USERSPACE=true
+    volumes:
+      - /dev/net/tun
+      - assetatlas-tailscale-state:/var/lib/tailscale
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    restart: unless-stopped
+    network_mode: host
+
+networks:
+  assetatlas-network:
+    driver: bridge
+    name: assetatlas-network
+
+volumes:
+  assetatlas-mongo-data:
+    name: assetatlas-mongo-data
+  assetatlas-tsbuild-cache:
+    name: assetatlas-tsbuild-cache
+  assetatlas-config:
+    name: assetatlas-config
+  assetatlas-tailscale-state:
+    name: assetatlas-tailscale-state

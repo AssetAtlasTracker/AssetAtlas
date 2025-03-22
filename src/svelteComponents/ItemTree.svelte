@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { ip } from "../stores/ipStore.js";
+  import { onMount, createEventDispatcher } from "svelte";
+  import ItemLink from "../svelteComponents/ItemLink.svelte";
   import { Link } from "svelte-routing";
 
   interface TreeItem {
@@ -11,6 +11,9 @@
     hasChildren: boolean;
   }
 
+  const dispatch = createEventDispatcher();
+
+  export let useWindowView = false;
   export let parentId: string | null = null;
   export let indentLevel: number = 0;
   export let rootData: TreeItem[] | null = null;
@@ -23,8 +26,8 @@
   async function fetchTree(id?: string) {
     try {
       const url = id
-        ? `http://${$ip}/api/items/tree/${id}`
-        : `http://${$ip}/api/items/tree`;
+        ? `/api/items/tree/${id}`
+        : `/api/items/tree`;
       const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch tree data");
       const data = await res.json();
@@ -61,6 +64,11 @@
     }
   }
 
+  function ensureString(id: any): string {
+    if (!id) return "";
+    return typeof id === 'string' ? id : id.toString();
+  }
+
   onMount(() => {
     loadTree();
   });
@@ -85,14 +93,31 @@
             <span class="expand-button placeholder-icon"></span>
           {/if}
           
-          <Link to={`/view/${item._id}`} style="text-decoration: none;">
-            <button 
-              class="tree-item-button {item._id === currentId ? 'current' : ''}" 
-              aria-current={item._id === currentId}
+          {#if useWindowView}
+            <!-- Use ItemLink for in-window navigation -->
+            <ItemLink 
+              itemId={ensureString(item._id)} 
+              itemName={item.name}
+              on:openItem
             >
-              {item.name}
-            </button>
-          </Link>
+              <button 
+                class="tree-item-button {item._id === currentId ? 'current' : ''}" 
+                aria-current={item._id === currentId}
+              >
+                {item.name}
+              </button>
+            </ItemLink>
+          {:else}
+            <!-- Use regular Link for full page navigation -->
+            <Link to={`/view/${ensureString(item._id)}`} style="text-decoration: none;">
+              <button 
+                class="tree-item-button {item._id === currentId ? 'current' : ''}" 
+                aria-current={item._id === currentId}
+              >
+                {item.name}
+              </button>
+            </Link>
+          {/if}
         </div>
 
         {#if expanded[item._id] && item.children}
@@ -100,6 +125,8 @@
             rootData={item.children}
             indentLevel={indentLevel + 1}
             {currentId}
+            {useWindowView}
+            on:openItem
           />
         {/if}
       </div>
