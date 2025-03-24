@@ -101,6 +101,12 @@
     console.log("Opening item in new window:", event.detail);
     const { id } = event.detail;
     
+    //Dont open a new window if the item is already the main item
+    if (id === params.id) {
+      console.log("Item is already displayed as main view, not opening new window");
+      return;
+    }
+    
     //Check if the window for this item already exists
     const existingWindow = additionalWindows.find(w => w.id === id);
     if (existingWindow) {
