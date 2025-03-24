@@ -38,8 +38,6 @@
   export function changeItem(newItem: IBasicItemPopulated){
     console.log("item changed");
     item = newItem;
-    homeItemName = item.name;
-    homeItemId = item._id.toString();
     if (duplicate) {
       name = item.name;
       if (item.description) {

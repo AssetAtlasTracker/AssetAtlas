@@ -6,11 +6,13 @@
     import EditItem from "./EditItem.svelte";
     import CreateItem from "./CreateItem.svelte";
     import { waitForDebugger } from "inspector";
+    import Duplicate from "./Duplicate.svelte";
 
   export let items: IBasicItemPopulated[];
-  let showCreateDialog = false;
   let createDialog: HTMLDialogElement;
+  let duplicateDialog: HTMLDialogElement;
   let creator: CreateItem;
+  let duplicator: Duplicate;
 
   let selectedItem: IBasicItemPopulated | null = null;
 
@@ -19,9 +21,13 @@
 
 
   let unique = {};
-  function restart() {
-    unique = {};
+
+  let isDropdownOpen = false;
+
+  const handleDropdownClick = () => {
+    isDropdownOpen = !isDropdownOpen;
   }
+  let i = 0;
 </script>
 
 {#if items && items.length > 0}
@@ -42,12 +48,16 @@
             Location: {item.parentItem?.name || "None"}
           </div>
       </Link>
-      <div>
-        <button on:click={()=> {creator.changeItem(item); createDialog.showModal()}}>
+      <div class="flex-1 min-w-[200px] relative">
+        <button on:click={() => {handleDropdownClick()}}>
           <div class="dropdown-arrow">
             <MdArrowDropDown/>
           </div>
         </button>
+        <ul class="suggestions suggestion-box" style:visibility={isDropdownOpen ? 'visible' : 'hidden'}>
+          <button class="suggestion-item" type="button" on:click={() => {duplicator.changeItem(item); duplicateDialog.showModal()}}>Duplicate</button>
+          <button class="suggestion-item" type="button" on:click={() => {creator.changeItem(item); createDialog.showModal()}}>Duplicate and Edit</button>
+        </ul>
       </div>
     </div>
       <br />
@@ -64,5 +74,14 @@
     item={selectedItem}
     duplicate={true}
     on:close={() => createDialog?.close()}
+  />
+{/key}
+
+{#key unique}
+  <Duplicate
+    bind:dialog={duplicateDialog}
+    bind:this={duplicator}
+    item={items[0]}
+    on:close={() => duplicateDialog?.close()}
   />
 {/key}
