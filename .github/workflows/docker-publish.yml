@@ -34,21 +34,18 @@ jobs:
       - name: Create package if it doesn't exist
         if: github.event_name != 'pull_request'
         run: |
-          echo "Ensuring package exists..."
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+          curl -X PUT \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/orgs/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')/packages/container/$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]'))
+            https://api.github.com/user/packages/container/${{ github.event.repository.name }}/visibility \
+            -d '{"visibility":"public"}'
           
-          if [ "$STATUS" = "404" ]; then
-            echo "Creating package..."
+          if [[ "${{ github.repository_owner }}" != "${{ github.actor }}" ]]; then
             curl -X PUT \
               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               -H "Accept: application/vnd.github.v3+json" \
-              https://api.github.com/orgs/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')/packages/container/$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')/visibility \
+              https://api.github.com/orgs/${{ github.repository_owner }}/packages/container/${{ github.event.repository.name }}/visibility \
               -d '{"visibility":"public"}'
-          else
-            echo "Package already exists"
           fi
 
       - name: Extract Docker metadata
