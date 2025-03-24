@@ -8,9 +8,11 @@ export default defineConfig({
   root: 'src',
   plugins: [
     svelte({
-      preprocess: sveltePreprocess(),
-      compilerOptions: { dev: !production }
-    })
+        preprocess: sveltePreprocess(),
+        compilerOptions: { 
+          dev: !production 
+        }
+      })
   ],
   build: {
     outDir: '../dist', //Outputs files one level up at project root dist folder

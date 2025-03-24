@@ -170,6 +170,7 @@
   });
 </script>
 
+<!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
 <div
   bind:this={container}
   class="floating-container glass {windowClass} {isDragging ? 'no-select' : ''}"
@@ -178,6 +179,7 @@
   aria-labelledby={windowTitle
     ? "window-title-" + windowTitle.replace(/\s+/g, "-").toLowerCase()
     : undefined}
+  on:mousedown={() => bringWindowToFront()}
 >
   <!-- TODO: Get rid of style= -->
   <div
