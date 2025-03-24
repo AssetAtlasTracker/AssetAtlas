@@ -73,19 +73,12 @@
   }
 
   function handleMove(event: MouseEvent | PointerEvent) {
-    //stop text selection and image dragging
     event.preventDefault();
-
     currentX = event.clientX - startX;
 
+    const minY = currentTopBarHeight || 0;
     const calculatedY = event.clientY - startY;
-
-    if (calculatedY >= currentTopBarHeight) {
-      currentY = calculatedY;
-    } else {
-      //above the top bar cap at top bar height
-      currentY = currentTopBarHeight;
-    }
+    currentY = calculatedY >= minY ? calculatedY : minY;
 
     container.style.left = `${currentX}px`;
     container.style.top = `${currentY}px`;
@@ -145,6 +138,13 @@
   //Initialize with a starting z-index and set up the window
   onMount(() => {
     bringWindowToFront();
+
+    if (currentTopBarHeight && initialY < currentTopBarHeight) {
+      currentY = currentTopBarHeight;
+      if (container) {
+        container.style.top = `${currentY}px`;
+      }
+    }
 
     const safetyInterval = setInterval(() => {
       if (isDragging) {

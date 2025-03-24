@@ -4,7 +4,10 @@
   import ItemTree from "../svelteComponents/ItemTree.svelte";
   import type { IBasicItemPopulated } from "../models/basicItem.js";
   import TopBar from "../svelteComponents/TopBar.svelte";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
+  import Window from "../svelteComponents/Window.svelte";
+  import ItemDetails from "../svelteComponents/ItemDetails.svelte";
+  import { topBarHeight } from "../stores/topBarStore.js";
 
   import "../svelteStyles/main.css";
 
@@ -56,12 +59,72 @@
 
   function toggleView(mode: "list" | "tree") {
     viewMode = mode;
+    
+    //show the tree window when switching to tree view
+    if (mode === "tree") {
+      showItemTree = true;
+    }
   }
+  
+  // Track additional item windows
+  interface ItemWindow {
+    id: string;
+    x: number;
+    y: number;
+  }
+  
+  let additionalWindows: ItemWindow[] = [];
+  
+  function handleOpenItem(event: CustomEvent) {
+    console.log("Opening item in new window:", event.detail);
+    const { id } = event.detail;
+    
+    // Check if the window for this item already exists
+    const existingWindow = additionalWindows.find(w => w.id === id);
+    if (existingWindow) {
+      return;
+    }
+    
+    const offsetX = 50 + (additionalWindows.length * 30);
+    const offsetY = 50 + (additionalWindows.length * 30);
+    
+    additionalWindows = [
+      ...additionalWindows, 
+      { id, x: offsetX, y: offsetY }
+    ];
+  }
+  
+  function handleCloseWindow(id: string) {
+    additionalWindows = additionalWindows.filter(w => w.id !== id);
+  }
+
+  function openInNewTab(itemId: string) {
+    window.open(`/view/${itemId}`, '_blank');
+  }
+
+  // Keep a reference to currentTopBarHeight
+  let currentTopBarHeight: number = 0;
+  
+  let unsubscribe: () => void = () => {};
 
   onMount(() => {
     console.log("Home: Component mounted");
     handleSearch("");
+    unsubscribe = topBarHeight.subscribe((value) => {
+      currentTopBarHeight = value;
+    });
   });
+
+  onDestroy(() => {
+    unsubscribe();
+  });
+
+  let showItemTree = true;
+  
+  function handleTreeClose() {
+    console.log("Close tree window clicked");
+    showItemTree = false;
+  }
 </script>
 
 {#if topLevel}
@@ -70,7 +133,7 @@
 
 <TopBar {searchQuery} onSearch={handleSearch} {menu}></TopBar>
 
-<div class="body page-with-topbar">
+<div class="view-layout page-with-topbar">
   <!-- Menu for navigation - Slides out -->
   <Menu bind:menu />
   <div class="sort-flex">
@@ -108,6 +171,7 @@
         on:click={() => toggleView("tree")}>Tree View</button
       >
     </div>
+    
   </div>
 
   {#if viewMode === "list"}
@@ -144,10 +208,41 @@
       </div>
     {/if}
   {:else}
-    <div id="home-component" class="glass page-component">
-      <ItemTree />
-    </div>
+    
+    {#if showItemTree}
+      <Window 
+        initialX={32} 
+        initialY={64} 
+        windowTitle="Item Tree" 
+        windowClass="page-component"
+        showClose={true}
+        showOpenInNewTab={false}
+        on:close={handleTreeClose}
+      >
+        <ItemTree useWindowView={true} on:openItem={handleOpenItem} />
+      </Window>
+    {/if}
   {/if}
+  
+  <!-- Additional item windows -->
+  {#each additionalWindows as window (window.id)}
+    <Window 
+      initialX={window.x} 
+      initialY={window.y} 
+      windowTitle={`Item View`}
+      windowClass="page-component"
+      showClose={true}
+      showOpenInNewTab={true}
+      on:close={() => handleCloseWindow(window.id)}
+      on:openNewTab={() => openInNewTab(window.id)}
+    >
+      <ItemDetails 
+        item={null} 
+        itemId={window.id}
+        on:openItem={handleOpenItem}
+      />
+    </Window>
+  {/each}
 
   <button
     class="add-button text-icon font-bold shadow"
