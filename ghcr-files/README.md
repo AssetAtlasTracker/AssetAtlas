@@ -1,3 +1,5 @@
+Make sure to run these in the ghcr-files folder
+
 ### Localhost
 
 ```bash
