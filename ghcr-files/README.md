@@ -3,10 +3,7 @@ Make sure to run these in the ghcr-files folder, and that docker is running
 ### Localhost
 
 ```bash
-# Windows (PowerShell)
-docker-compose -f docker-compose-ghcr.yml up -d
-
-# Linux/macOS
+# Windows (PowerShell and bash) and Linux/macOS
 docker-compose -f docker-compose-ghcr.yml up -d
 ```
 
@@ -16,7 +13,7 @@ docker-compose -f docker-compose-ghcr.yml up -d
 # Windows (PowerShell)
 $env:TS_AUTH_KEY="your-tailscale-auth-key"; docker-compose -f docker-compose-ghcr-tailscale.yml up -d
 
-# Linux/macOS
+# Linux/macOS or Windows (bash)
 TS_AUTH_KEY="your-tailscale-auth-key" docker-compose -f docker-compose-ghcr-tailscale.yml up -d
 ```
 

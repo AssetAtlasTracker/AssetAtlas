@@ -43,11 +43,26 @@ fi
 # Set image name, for org repo, format is ghcr.io/org-name/repo-name
 STANDARD_IMAGE="ghcr.io/$GITHUB_ORG/$REPOSITORY_NAME:$VERSION"
 
-echo "Building standard image: $STANDARD_IMAGE"
-docker build -t "$STANDARD_IMAGE" -f docker/Dockerfile-ghcr .
-
-echo "Pushing standard image to GHCR..."
-docker push "$STANDARD_IMAGE"
+# Check if buildx is installed
+if ! docker buildx version > /dev/null 2>&1; then
+  echo "Docker Buildx not available. Building only for current architecture."
+  echo "Building standard image: $STANDARD_IMAGE"
+  docker build -t "$STANDARD_IMAGE" -f docker/Dockerfile-ghcr .
+  
+  echo "Pushing standard image to GHCR..."
+  docker push "$STANDARD_IMAGE"
+else
+  echo "Using Docker Buildx for multi-architecture build"
+  
+  docker buildx create --name multiarch-builder --use || docker buildx use multiarch-builder
+  docker buildx inspect --bootstrap
+  
+  echo "Building and pushing multi-architecture image: $STANDARD_IMAGE"
+  docker buildx build --platform linux/amd64,linux/arm64 \
+    -t "$STANDARD_IMAGE" \
+    -f docker/Dockerfile-ghcr \
+    --push .
+fi
 
 echo "Image successfully built and pushed to GHCR!"
 echo "Image: $STANDARD_IMAGE"
