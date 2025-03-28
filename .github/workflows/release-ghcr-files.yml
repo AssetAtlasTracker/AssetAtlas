@@ -1,0 +1,57 @@
+name: Create Release with Docker Files
+
+on:
+  push:
+    branches: 
+      - production
+    paths:
+      - '.github/assetatlas/**'
+      - '.github/workflows/release-ghcr-files.yml'
+  workflow_dispatch:
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Set up directory structure
+        run: |
+          mkdir -p release-files
+          cp .github/assetatlas/README.md release-files/
+          cp .github/assetatlas/docker-compose-ghcr.yml release-files/
+          cp .github/assetatlas/docker-compose-ghcr-tailscale.yml release-files/
+          
+      - name: Create ZIP archive
+        run: |
+          cd release-files
+          zip -r ../assetatlas-ghcr-files.zip .
+          cd ..
+      
+      - name: Create/Update Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: AssetAtlas GHCR Files
+          tag_name: ghcr-files-latest
+          files: |
+            assetatlas-ghcr-files.zip
+            release-files/README.md
+            release-files/docker-compose-ghcr.yml
+            release-files/docker-compose-ghcr-tailscale.yml
+          draft: false
+          prerelease: false
+          body: |
+            # AssetAtlas GHCR Files
+            
+            This release contains the necessary files to run AssetAtlas using Docker:
+            
+            - README.md - Instructions for running the containers
+            - docker-compose-ghcr.yml - For runing locally
+            - docker-compose-ghcr-tailscale.yml - For running with Tailscale networking
+            
+            You can download either the individual files or the complete ZIP archive.
