@@ -28,10 +28,10 @@ if [ -z "$GITHUB_TOKEN" ]; then
   echo "  1. Please enter your GitHub Personal Access Token with package write perms."
   echo "  2. Also make sure docker is running."
   echo -n "Github PAT: "
-  read GITHUB_TOKEN
+  read -r GITHUB_TOKEN
   
   echo -n "Enter your GitHub username (not the organization name): "
-  read GITHUB_USERNAME
+  read -r GITHUB_USERNAME
   
   echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_USERNAME" --password-stdin
   if [ $? -ne 0 ]; then
