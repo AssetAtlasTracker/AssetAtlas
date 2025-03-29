@@ -1,0 +1,22 @@
+{
+    // cspell configuration file
+    "version": "0.2",
+    "language": "en",
+    "dictionaries": [
+        "typescript",
+        "node",
+        "softwareTerms",
+        "powershell",
+        "bash",
+        "npm"
+    ],
+    "ignorePaths": [
+        "node_modules/**"
+    ],
+    "words": [
+        "iputils"
+    ],
+    "ignoreWords": [
+        // Add words to ignore here
+    ]
+}
