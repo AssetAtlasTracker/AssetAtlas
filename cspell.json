@@ -14,7 +14,10 @@
         "node_modules/**"
     ],
     "words": [
-        "iputils"
+        "Buildx",
+        "iputils",
+        "padx",
+        "pady"
     ],
     "ignoreWords": [
         // Add words to ignore here

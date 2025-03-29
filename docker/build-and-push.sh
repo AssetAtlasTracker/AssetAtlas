@@ -47,7 +47,7 @@ STANDARD_IMAGE="ghcr.io/$GITHUB_ORG/$REPOSITORY_NAME:$VERSION"
 if ! docker buildx version > /dev/null 2>&1; then
   echo "Docker Buildx not available. Building only for current architecture."
   echo "Building standard image: $STANDARD_IMAGE"
-  docker build -t "$STANDARD_IMAGE" -f docker/Dockerfile-ghcr .
+  docker build -t "$STANDARD_IMAGE" -f docker/Dockerfile.ghcr .
   
   echo "Pushing standard image to GHCR..."
   docker push "$STANDARD_IMAGE"
@@ -60,7 +60,7 @@ else
   echo "Building and pushing multi-architecture image: $STANDARD_IMAGE"
   docker buildx build --platform linux/amd64,linux/arm64 \
     -t "$STANDARD_IMAGE" \
-    -f docker/Dockerfile-ghcr \
+    -f docker/Dockerfile.ghcr \
     --push .
 fi
 
