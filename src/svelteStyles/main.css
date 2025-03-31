@@ -169,8 +169,8 @@ e.g. containers, theming, etc.
 }
 
 .tree-container {
-  padding: 0.25rem;
   position: relative;
+  min-width: 18rem;
 }
 
 .tree-branch {
@@ -188,6 +188,20 @@ e.g. containers, theming, etc.
   position: relative;
   margin: 0;
   height: 1.5rem;
+}
+
+.tree-item-card {
+    white-space: nowrap;
+    margin: 0 0 0.5rem 0;
+    padding: 12px;
+    background-color: rgba(var(--color-primary-800) / .8);
+    box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) .4);
+    border: 1px solid rgba(var(--color-primary-100) / .8);
+    border-radius: 10px;
+    transition: .4s ease;
+    display: flex;
+    min-width: 100%;
+    max-width: 24rem;
 }
 
 .tree-item-button {
@@ -232,9 +246,8 @@ e.g. containers, theming, etc.
 
 .tree-icon {
   display: inline-block;
-  width: 1rem;
-  height: 1rem;
-  line-height: 1rem;
+  height: 0rem;
+  font-size: xx-large;
   text-align: center;
 }
 
