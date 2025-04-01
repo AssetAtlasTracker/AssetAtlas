@@ -7,12 +7,15 @@
     import CreateItem from "./CreateItem.svelte";
     import { waitForDebugger } from "inspector";
     import Duplicate from "./Duplicate.svelte";
+    import Dropdown from "./Dropdown.svelte";
 
   export let items: IBasicItemPopulated[];
   let createDialog: HTMLDialogElement;
   let duplicateDialog: HTMLDialogElement;
+  let dropdownDialog: HTMLDialogElement;
   let creator: CreateItem;
   let duplicator: Duplicate;
+  let dropdown: Dropdown;
 
   let selectedItem: IBasicItemPopulated | null = null;
 
@@ -24,9 +27,13 @@
 
   let isDropdownOpen = false;
 
-  const handleDropdownClick = () => {
-    isDropdownOpen = !isDropdownOpen;
-  }
+ function setFunctions (item: IBasicItemPopulated) {
+  dropdown.setDuplicateFunction(() => {duplicator.changeItem(item); dropdownDialog.close(); duplicateDialog.showModal();});
+  dropdown.setDuplicateEditFunction(() => {creator.changeItem(item); dropdownDialog.close(); createDialog.showModal()});
+ }
+
+ 
+
   let i = 0;
 </script>
 
@@ -49,15 +56,11 @@
           </div>
       </Link>
       <div class="flex-1 min-w-[200px] relative">
-        <button on:click={() => {handleDropdownClick()}}>
+        <button on:click={() => {dropdownDialog.showModal(); setFunctions(item)}}>
           <div class="dropdown-arrow">
             <MdArrowDropDown/>
           </div>
         </button>
-        <ul class="suggestions suggestion-box" style:visibility={isDropdownOpen ? 'visible' : 'hidden'}>
-          <button class="suggestion-item" type="button" on:click={() => {duplicator.changeItem(item); duplicateDialog.showModal()}}>Duplicate</button>
-          <button class="suggestion-item" type="button" on:click={() => {creator.changeItem(item); createDialog.showModal()}}>Duplicate and Edit</button>
-        </ul>
       </div>
     </div>
       <br />
@@ -85,3 +88,13 @@
     on:close={() => duplicateDialog?.close()}
   />
 {/key}
+
+{#key unique}
+  <Dropdown
+    bind:dialog={dropdownDialog}
+    bind:this={dropdown}
+    item={items[0]}
+    on:close={() => dropdownDialog?.close()}
+  />
+{/key}
+
