@@ -16,10 +16,6 @@
   import Window from "../svelteComponents/Window.svelte";
   export let params: { id?: string };
 
-  let showDeleteDialog = false;
-  let showReturnDialog = false;
-  let showEditDialog = false;
-  let showMoveDialog = false;
   let editDialog: HTMLDialogElement | undefined;
   let deleteDialog: HTMLDialogElement | undefined;
   let createDialog: HTMLDialogElement;
@@ -46,19 +42,6 @@
     showItemTree = true;
   }
 
-  $: if (showDeleteDialog && deleteDialog) {
-    deleteDialog.showModal();
-  }
-  $: if (showReturnDialog && returnDialog) {
-    returnDialog.showModal();
-  }
-  $: if (showEditDialog && editDialog) {
-    editDialog.showModal();
-  }
-  $: if (showMoveDialog && moveDialog) {
-    moveDialog.showModal();
-  }
-
   async function fetchItem(id: string) {
     try {
       console.log("Fetching item from:", `/api/items/${id}`);
@@ -80,7 +63,7 @@
   }
 
   function handleDelete() {
-    showDeleteDialog = false;
+    deleteDialog?.close();
     console.log(`Item ${params.id} deleted.`);
     // go to the home page after successful deletion
     navigate("/");
@@ -153,25 +136,25 @@
       <div class="button-row-flex">
         <button
           class="border-button font-semibold shadow"
-          on:click={() => (showMoveDialog = true)}
+          on:click={() => (moveDialog?.showModal())}
         >
           Move
         </button>
         <button
           class="border-button font-semibold shadow"
-          on:click={() => (showReturnDialog = true)}
+          on:click={() => (returnDialog?.showModal())}
         >
           Return to Home Location
         </button>
         <button
           class="border-button font-semibold shadow"
-          on:click={() => (showEditDialog = true)}
+          on:click={() => (editDialog?.showModal())}
         >
           Edit
         </button>
         <button
           class="warn-button font-semibold shadow"
-          on:click={() => (showDeleteDialog = true)}
+          on:click={() => (deleteDialog?.showModal())}
         >
           Delete
         </button>
@@ -233,74 +216,70 @@
 {/if}
 
 <!-- Create Delete Dialog -->
-{#if showDeleteDialog}
-  <Dialog
-    bind:dialog={deleteDialog}
-    on:close={() => {
-      showDeleteDialog = false;
-    }}
-  >
-    <div class="simple-dialog-spacing">
-      Are you sure you want to delete {item?.name}?
-    </div>
-    <DeleteItem itemId={params.id} onDelete={handleDelete}>Delete</DeleteItem>
-  </Dialog>
-{/if}
+<Dialog
+  bind:dialog={deleteDialog}
+  on:close={() => {
+    deleteDialog?.close()
+  }}
+>
+  <div class="simple-dialog-spacing">
+    Are you sure you want to delete {item?.name}?
+  </div>
+  <DeleteItem itemId={params.id} onDelete={handleDelete}>Delete</DeleteItem>
+</Dialog>
 
 <!-- Create Return Dialog -->
-{#if showReturnDialog}
-  <Dialog
-    bind:dialog={returnDialog}
-    on:close={() => {
-      showReturnDialog = false;
-    }}
-  >
-    <div class="simple-dialog-spacing">
-      Are you sure you want to return {item?.name} to its home location?
-    </div>
-    <ReturnItem itemId={params.id} parentId={item?.homeItem?._id}>
-      Return to home
-    </ReturnItem>
-  </Dialog>
-{/if}
+<Dialog
+  bind:dialog={returnDialog}
+  on:close={() => {
+    returnDialog?.close();
+  }}
+>
+  <div class="simple-dialog-spacing">
+    Are you sure you want to return {item?.name} to its home location?
+  </div>
+  <ReturnItem itemId={params.id} parentId={item?.homeItem?._id}>
+    Return to home
+  </ReturnItem>
+</Dialog>
+
 
 <!-- Edit Dialog -->
-{#if showEditDialog && item}
+{#if item}
   <Dialog
     bind:dialog={editDialog}
     on:close={() => {
-      showEditDialog = false;
+      editDialog?.close()
     }}
   >
     <EditItem
       {item}
       on:close={() => {
-        showEditDialog = false;
+        editDialog?.close();
         location.reload();
       }}
     />
   </Dialog>
 {/if}
 
-{#if showMoveDialog}
-  <Dialog
-    bind:dialog={moveDialog}
+
+<Dialog
+  bind:dialog={moveDialog}
+  on:close={() => {
+    moveDialog?.close();
+  }}
+>
+  <div class="important-text text-center">
+    Move "{item?.name}" to:
+  </div>
+  <MoveItem
+    itemId={params.id}
     on:close={() => {
-      showMoveDialog = false;
+      moveDialog?.close();
+      location.reload();
     }}
-  >
-    <div class="important-text text-center">
-      Move "{item?.name}" to:
-    </div>
-    <MoveItem
-      itemId={params.id}
-      on:close={() => {
-        showMoveDialog = false;
-        location.reload();
-      }}
-    />
-  </Dialog>
-{/if}
+  />
+</Dialog>
 
 <!-- Create Item Dialog -->
 <button
