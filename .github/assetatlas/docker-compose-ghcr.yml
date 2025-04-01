@@ -2,7 +2,7 @@ name: assetatlas-ghcr
 
 services:
   assetatlas:
-    image: ${DOCKER_IMAGE}
+    image: ${DOCKER_IMAGE:-ghcr.io/assetatlastracker/assetatlas:latest}
     pull_policy: always
     volumes:
       - assetatlas-config:/usr/src/app/config
