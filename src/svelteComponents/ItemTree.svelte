@@ -13,6 +13,19 @@
 
   const dispatch = createEventDispatcher();
 
+
+  let draggingItem : TreeItem | null = null;
+  export let draggingItemId : string | undefined = undefined;
+  export let draggingItemName : string | undefined = undefined;
+  export let hoveredItemId : string | undefined = undefined; 
+  export let hoveredItemName : string | undefined = undefined;
+  export let showMoveDialog : boolean = false;
+
+  export function closeMoveDialog() {
+    showMoveDialog = false;
+
+  }
+
   export let useWindowView = false;
   export let parentId: string | null = null;
   export let indentLevel: number = 0;
@@ -76,15 +89,68 @@
   $: if (parentId) {
     loadTree();
   }
+
+  function checkIfSwap() {
+    console.log("C1");
+    console.log(hoveredItemId);
+    console.log(draggingItem);
+    if (hoveredItemId && draggingItem) {
+      showMoveDialog = true;
+      console.log("C2");
+    }
+  }
+
+  function doDrop(e : Event) {
+    e.preventDefault();
+    console.log(e.target);
+    //console.log(e.target!.getAttribute("data-item"));
+    let element : HTMLElement | null = e.target! as unknown as HTMLElement;
+    console.log(element);
+    let count = 0;
+    while (element && element.className != "tree-item" && count < 10) {
+      element = element.parentElement;
+    }
+    console.log(element);
+    let itemId = element?.getAttribute("data-item-id") as string | undefined;
+    hoveredItemName = element?.getAttribute("data-item-name") as string | undefined;
+    console.log("S1");
+    console.log(itemId);
+    hoveredItemId = itemId;
+    if (hoveredItemId) {
+      checkIfSwap();
+    }
+  }
+
+  function resetItems() {
+    draggingItem = null;
+    hoveredItemId = undefined;
+  }
+
 </script>
 
 <div class="tree-container">
   {#if loading}
     <p>Loading tree...</p>
   {:else}
-    {#each treeData as item (item._id)}
+    {#each treeData as item, index (item._id)}
       <div class="tree-branch" style="padding-left: {indentLevel * 0.75}rem;">
-        <div class="tree-item">
+        <div class="tree-item" role = "navigation" draggable="true" data-item-id={item._id} data-item-name={item.name}
+          on:dragstart={(e) => {
+            draggingItem = item;
+            draggingItemId = item._id
+            draggingItemName = item.name;
+            console.log("Started Drag");
+          }}
+          on:dragover={(e) => {
+            e.preventDefault();
+            console.log(`Dragged over ${index}.`);
+          }}
+          on:dragend={(e) => {
+            e.preventDefault();
+            console.log("End Drag");
+            
+          }}
+          on:drop={doDrop}>
           {#if item.hasChildren}
             <button class="expand-button" on:click={() => toggleExpand(item._id)} aria-label={expanded[item._id] ? "Collapse" : "Expand"}>
               <span class="tree-icon">{expanded[item._id] ? "▾" : "▸"}</span>
@@ -95,6 +161,7 @@
           
           {#if useWindowView}
             <!-- Use ItemLink for in-window navigation -->
+
             <ItemLink 
               itemId={ensureString(item._id)} 
               itemName={item.name}
@@ -122,6 +189,11 @@
 
         {#if expanded[item._id] && item.children}
           <svelte:self
+            bind:draggingItemId
+            bind:draggingItemName
+            bind:hoveredItemId
+            bind:hoveredItemName
+            bind:showMoveDialog
             rootData={item.children}
             indentLevel={indentLevel + 1}
             {currentId}
@@ -133,3 +205,4 @@
     {/each}
   {/if}
 </div>
+

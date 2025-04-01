@@ -8,6 +8,10 @@
   import Window from "../svelteComponents/Window.svelte";
   import ItemDetails from "../svelteComponents/ItemDetails.svelte";
   import { topBarHeight } from "../stores/topBarStore.js";
+  import Menu from "../svelteComponents/Menu.svelte";
+  import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
+  import Dialog from "../svelteComponents/Dialog.svelte";
+  import MoveItem from "../svelteComponents/MoveItem.svelte";
 
   import "../svelteStyles/main.css";
 
@@ -21,14 +25,26 @@
   let topLevel = true;
   let itemCount = -1;
 
+  export let moveDialog : HTMLDialogElement | undefined;
+  let draggingItemId : string | undefined;
+  let draggingItemName : string | undefined;
+  let hoveredItemId : string | undefined;
+  let hoveredItemName : string | undefined;
+  let showMoveDialog : boolean;
+
+  $: if (showMoveDialog && moveDialog) {
+    moveDialog.showModal();
+  } else if (showMoveDialog && moveDialog === undefined) {
+    showMoveDialog = true;
+  }
+
   async function handleSortChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     sortOption = target.value;
     await handleSearch(searchQuery);
   }
 
-  import Menu from "../svelteComponents/Menu.svelte";
-  import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
+
   export let menu: HTMLDialogElement;
 
   async function handleSearch(query: string) {
@@ -122,6 +138,8 @@
   let showItemTree = true;
   
   function handleTreeClose() {
+    console.log("H1");
+    console.log(showMoveDialog);
     console.log("Close tree window clicked");
     showItemTree = false;
   }
@@ -219,7 +237,7 @@
         showOpenInNewTab={false}
         on:close={handleTreeClose}
       >
-        <ItemTree useWindowView={true} on:openItem={handleOpenItem} />
+        <ItemTree bind:draggingItemId bind:draggingItemName bind:hoveredItemId bind:showMoveDialog bind:hoveredItemName useWindowView={true} on:openItem={handleOpenItem} />
       </Window>
     {/if}
   {/if}
@@ -261,3 +279,24 @@
     on:close={()=>{topLevel = true}}
   />
 </div>
+
+{#if showMoveDialog}
+  <Dialog
+    bind:dialog={moveDialog}
+    on:close={() => {
+      showMoveDialog = false;
+    }}
+  >
+    <div class="important-text text-center">
+      Move "{draggingItemName}" to:
+    </div>
+    <MoveItem
+      itemId={draggingItemId}
+      parentItemId={hoveredItemId}
+      parentItemName={hoveredItemName}
+      on:close={() => {
+        showMoveDialog = false;
+      }}
+    />
+  </Dialog>
+{/if}

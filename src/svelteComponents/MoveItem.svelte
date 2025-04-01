@@ -3,8 +3,8 @@
   import { actionStore } from "../stores/actionStore.js";
 
   export let itemId: string | undefined;
-  let parentItemName = "";
-  let parentItemId: string | null = null;
+  export let parentItemName = "";
+  export let parentItemId: string | null = null;
   let suggestions: any[] = [];
 
   const dispatch = createEventDispatcher();
