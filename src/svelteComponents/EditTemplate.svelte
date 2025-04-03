@@ -69,6 +69,7 @@
 
       const data = await response.json();
       console.log("Template edited:", data);
+      location.reload();
 
       onClose();
     } catch (err) {
