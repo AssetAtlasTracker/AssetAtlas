@@ -154,7 +154,12 @@ e.g. containers, theming, etc.
 }
 
 .item-card:hover{
-  transform:scale(1.05);
+  transform:scale(1.02);
+}
+
+.item-card-flex{
+  display: flex;
+  gap: 2rem;
 }
 
 .template-card {
