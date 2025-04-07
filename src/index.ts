@@ -12,6 +12,7 @@ import itemRoutes from './routes/itemRoutes.js';
 import recentItemsRoutes from './routes/recentItemsRoutes.js';
 import csvRoutes from "./routes/csvRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
+import authRoutes from './routes/authRoutes.js';
 
 const app = express();
 //const PORT = process.env.PORT || 3000;
@@ -112,7 +113,8 @@ app.use('/api/templates', templateRoutes);
 app.use('/api/customFields', customFieldRoutes);
 app.use('/api/csv', csvRoutes);
 app.use('/api/recentItems', recentItemsRoutes);
-app.use('./api/images', imageRoutes);
+app.use('/api/images', imageRoutes);
+app.use('/api/auth', authRoutes);
 
 //Serve static assets from the dist folder
 app.use(express.static(path.join(__dirname, '../dist')));
