@@ -28,7 +28,6 @@
     }
 </script>
 
-<!-- TODO: Should probably rename file and references to something more fitting-->
 <div class="simple-flex">
     <!--Replace text with icons-->
     <button class="border-button" type="button" on:click={() => duplicateFunction(item)}
