@@ -32,14 +32,6 @@ e.g. containers, theming, etc.
   padding: 0 1rem; /* Add padding for spacing */
 }
 
-/* 
-.flex-1 {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin: 0.5rem;
-} */
-
 .glass{
   background: rgba(var(--color-primary-800) / 0.8) !important;
   box-shadow: 0 8px 16px 0 rgb(var(--color-primary-900));
@@ -201,17 +193,17 @@ e.g. containers, theming, etc.
 }
 
 .tree-item-card {
-    white-space: nowrap;
-    margin: 0 0 0.5rem 0;
-    padding: 12px;
-    background-color: rgba(var(--color-primary-800) / .8);
-    box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) .4);
-    border: 1px solid rgba(var(--color-primary-100) / .8);
-    border-radius: 10px;
-    transition: .4s ease;
-    display: flex;
-    min-width: 100%;
-    max-width: 24rem;
+  white-space: nowrap;
+  margin: 0 0 0.5rem 0;
+  padding: 12px;
+  background-color: rgba(var(--color-primary-800) / .8);
+  box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) .4);
+  border: 1px solid rgba(var(--color-primary-100) / .8);
+  border-radius: 10px;
+  transition: .4s ease;
+  display: flex;
+  min-width: 100%;
+  max-width: 24rem;
 }
 
 .tree-item-button {
@@ -314,14 +306,15 @@ e.g. containers, theming, etc.
   display: none;
 }
 
-.button-row-flex { /* Standard flex setup for a row of buttons */
+/* Standard flex setup for a row of buttons */
+.button-row-flex { 
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 1rem;
-  width: max-content;
 }
 
+/* Flex for the sort row of buttons on the home page*/
 .sort-flex { 
   display:flex;
   justify-content: flex-start;
@@ -330,14 +323,8 @@ e.g. containers, theming, etc.
   padding: 0 3vw;  /* Remove the top padding since we're using page-with-topbar */
 }
 
-.button-row-flex {
-  display:flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 1rem;
-}
-
-.simple-flex {
+/* General purpose flex with standard gap size*/
+.simple-flex { 
   display: flex;
   gap: 0.5rem;
 }
@@ -488,6 +475,10 @@ e.g. containers, theming, etc.
 
 .self-center{
   justify-self: center;
+}
+
+.center-button-icons{
+  justify-items: center;
 }
 
 .scrollable-content {
@@ -791,7 +782,6 @@ select option:hover {
   gap: 0.5rem;
 }
 
-
 .expand-button {
   margin-right: 0.5rem;
   cursor: pointer;
@@ -834,7 +824,6 @@ select option:hover {
 .dropdown-arrow {
   height: 40px;
   width: 40px;
-  
 }
 
 /* 
@@ -879,6 +868,41 @@ Text styles
 .clickable-text:hover{
   color: rgb(var(--color-success-500));
   text-decoration: underline;
+}
+
+.hoverable {
+  position: relative;
+  display: inline-block;
+}
+
+.hoverable .hovertiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 110%;
+  left: 50%;
+  margin-left: -60px;
+}
+
+.hoverable .hovertiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
+
+.hoverable:hover .hovertiptext {
+  visibility: visible;
 }
 
 .text-icon {
