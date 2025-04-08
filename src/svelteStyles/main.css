@@ -312,6 +312,7 @@ e.g. containers, theming, etc.
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 1rem;
+  overflow: hidden;
 }
 
 /* Flex for the sort row of buttons on the home page*/
