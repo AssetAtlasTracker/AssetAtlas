@@ -2,11 +2,20 @@
 	import "../svelteStyles/main.css";
 	import { Link } from "svelte-routing";
 	import { onMount } from "svelte";
+	import UserAuth from "./UserAuth.svelte";
+	import { user } from "../stores/userStore.js";
+	import type { UserState } from "../stores/userStore.js";
+	
 	var open = false;
 	export let menu;
+	let authDialog: HTMLDialogElement;
 
 	function handleClicked() {
 		open = !open;
+	}
+	
+	function openAuthDialog() {
+		authDialog.showModal();
 	}
 
 	onMount(() => {
@@ -18,6 +27,11 @@
 				`${height}px`,
 			);
 		}
+	});
+	
+	let currentUser: UserState | undefined;
+	user.subscribe(value => {
+		currentUser = value;
 	});
 </script>
 
@@ -34,5 +48,16 @@
 		<nav class="pl-12 pr-12 pt-4 pb-4 text-xl">
 			<Link to={`/viewTemplates`}>Templates</Link>
 		</nav>
+		<nav class="pl-12 pr-12 pt-4 pb-4 text-xl">
+			<button on:click={openAuthDialog} class="text-left">
+				{#if currentUser?.isLoggedIn}
+					User: {currentUser.username}
+				{:else}
+					User Login
+				{/if}
+			</button>
+		</nav>
 	</div>
 </button>
+
+<UserAuth bind:dialog={authDialog} />

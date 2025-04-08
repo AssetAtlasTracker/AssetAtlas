@@ -10,6 +10,7 @@
   
         if (response.ok) {
           onDelete(templateId);
+          location.reload();
         } else {
           console.error("Failed to delete template:", await response.text());
         }

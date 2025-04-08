@@ -607,9 +607,9 @@
 <div class="page-component">
   <form on:submit|preventDefault={handleEditItem}>
     <div class="flex flex-col space-y-4">
-      <div class="flex flex-wrap space-x-4">
+      <div class="flex space-x-4">
         <!-- Name -->
-        <label class="flex-1 min-w-[200px]">
+        <label class="flex-column flex-grow">
           Name (required):
           <input
             class="dark-textarea py-2 px-4 w-full"
@@ -620,7 +620,7 @@
         </label>
 
         <!-- Tags -->
-        <label class="flex-1 min-w-[200px]">
+        <label class="flex-column flex-grow">
           Tags:
           <textarea class="dark-textarea py-2 px-4 w-full" bind:value={tags} />
         </label>
@@ -648,10 +648,10 @@
         bind:checked={sameLocations}
         active="bg-green-700">Use same home and current location</SlideToggle
       >
-      <div class="flex flex-wrap space-x-4">
+      <div class="flex space-x-4">
         <!-- Parent Item -->
         {#if !sameLocations}
-          <label class="flex-1 min-w-[200px] relative">
+          <label class="flex-column flex-grow relative">
             <div class="flex items-center gap-2">
               <span>Current Location:</span>
               <InfoToolTip
@@ -686,7 +686,7 @@
         {/if}
 
         <!-- Home Item -->
-        <label class="flex-1 min-w-[200px] relative">
+        <label class="flex-column flex-grow relative">
           <div class="flex items-center gap-2">
             <span>Home Location:</span>
             <InfoToolTip
@@ -721,8 +721,8 @@
       </div>
 
       <!-- Template Field and Create Template Button -->
-      <div class="flex flex-wrap space-x-4 items-center">
-        <label class="flex-1 min-w-[200px] relative">
+      <div class="flex space-x-4 items-center">
+        <label class="flex-column flex-grow relative">
           <div class="flex items-center gap-2">
             <span>Template:</span>
             <InfoToolTip

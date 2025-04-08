@@ -3,6 +3,7 @@
   
   export let itemId: string;
   export let itemName: string = "";
+  export let className: string;
   
   const dispatch = createEventDispatcher();
   
@@ -13,7 +14,7 @@
   }
 </script>
 
-<button class="clickable-text" on:click={handleClick}>
+<button class={className} on:click={handleClick}>
   <slot>{itemName}</slot>
 </button>
 
