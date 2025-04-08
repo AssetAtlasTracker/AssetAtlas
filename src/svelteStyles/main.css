@@ -318,10 +318,11 @@ e.g. containers, theming, etc.
 /* Flex for the sort row of buttons on the home page*/
 .sort-flex { 
   display:flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   gap: 1rem;
   padding: 0 3vw;  /* Remove the top padding since we're using page-with-topbar */
+  height: 3rem; /* Keeps height consistant when swapping view styles*/
 }
 
 /* General purpose flex with standard gap size*/
@@ -726,7 +727,7 @@ select option:hover {
 .custom-dropdown::after {
   content: '▼';
   position: absolute;
-  top: 60%;
+  top: 50%;
   right: 1rem;
   transform: translateY(-50%);
   pointer-events: none;

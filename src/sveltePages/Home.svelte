@@ -8,6 +8,7 @@
   import Window from "../svelteComponents/Window.svelte";
   import ItemDetails from "../svelteComponents/ItemDetails.svelte";
   import { topBarHeight } from "../stores/topBarStore.js";
+  import { SlideToggle } from "@skeletonlabs/skeleton";
 
   import "../svelteStyles/main.css";
 
@@ -16,6 +17,7 @@
   export let dialog: HTMLDialogElement;
   let sortOption: string = "alphabetical";
   let exactSearch = false;
+  let treeView: boolean = false;
   let viewMode: "list" | "tree" = "list";
 
   let topLevel = true;
@@ -57,54 +59,55 @@
     }
   }
 
-  function toggleView(mode: "list" | "tree") {
-    viewMode = mode;
-    
+  function toggleView() {
+    treeView = !treeView;
+
     //show the tree window when switching to tree view
-    if (mode === "tree") {
+    if (treeView) {
+      viewMode = "tree";
       showItemTree = true;
+    } else {
+      viewMode = "list";
+      showItemTree = false;
     }
   }
-  
+
   // Track additional item windows
   interface ItemWindow {
     id: string;
     x: number;
     y: number;
   }
-  
+
   let additionalWindows: ItemWindow[] = [];
-  
+
   function handleOpenItem(event: CustomEvent) {
     console.log("Opening item in new window:", event.detail);
     const { id } = event.detail;
-    
+
     // Check if the window for this item already exists
-    const existingWindow = additionalWindows.find(w => w.id === id);
+    const existingWindow = additionalWindows.find((w) => w.id === id);
     if (existingWindow) {
       return;
     }
-    
-    const offsetX = 50 + (additionalWindows.length * 30);
-    const offsetY = 50 + (additionalWindows.length * 30);
-    
-    additionalWindows = [
-      ...additionalWindows, 
-      { id, x: offsetX, y: offsetY }
-    ];
+
+    const offsetX = 50 + additionalWindows.length * 30;
+    const offsetY = 50 + additionalWindows.length * 30;
+
+    additionalWindows = [...additionalWindows, { id, x: offsetX, y: offsetY }];
   }
-  
+
   function handleCloseWindow(id: string) {
-    additionalWindows = additionalWindows.filter(w => w.id !== id);
+    additionalWindows = additionalWindows.filter((w) => w.id !== id);
   }
 
   function openInNewTab(itemId: string) {
-    window.open(`/view/${itemId}`, '_blank');
+    window.open(`/view/${itemId}`, "_blank");
   }
 
   // Keep a reference to currentTopBarHeight
   let currentTopBarHeight: number = 0;
-  
+
   let unsubscribe: () => void = () => {};
 
   onMount(() => {
@@ -120,7 +123,7 @@
   });
 
   let showItemTree = true;
-  
+
   function handleTreeClose() {
     console.log("Close tree window clicked");
     showItemTree = false;
@@ -134,44 +137,35 @@
 <TopBar {searchQuery} onSearch={handleSearch} {menu}></TopBar>
 
 <div class="view-layout page-with-topbar">
-  <!-- Menu for navigation - Slides out -->
+  <!-- Slide out menu (contains import/export, etc.) -->
   <Menu bind:menu />
+
   <div class="sort-flex">
-    <div class="search-controls">
+    <SlideToggle
+      name="exactToggle"
+      active="toggle-background"
+      bind:checked={exactSearch}
+      on:change={() => handleSearch(searchQuery)}>Exact Search</SlideToggle
+    >
+
+    <div class="simple-flex items-center">
+      {#if viewMode === "list"}
       <div class="sort-container custom-dropdown">
-        <label for="sort">Sort By:</label>
+        <label for="sort"></label>
         <select id="sort" bind:value={sortOption} on:change={handleSortChange}>
           <option value="alphabetical">A-Z</option>
           <option value="lastAdded">Newest</option>
           <option value="firstAdded">Oldest</option>
         </select>
       </div>
-      <!-- This should be next to the search bar-->
-      <label class="exact-search">
-        <input
-          type="checkbox"
-          bind:checked={exactSearch}
-          on:change={() => handleSearch(searchQuery)}
-        />
-        Exact Search
-      </label>
-    </div>
+      {/if}
 
-    <!--This should probably be an actual toggle switch-->
-    <div class="home-view-buttons">
-      <button
-        class="border-button font-semibold shadow mt-4 block"
-        on:click={() => toggleView("list")}>List View</button
+      <SlideToggle
+        name="treeToggle"
+        active="toggle-background"
+        on:change={() => toggleView()}>Tree View</SlideToggle
       >
     </div>
-
-    <div class="home-view-buttons">
-      <button
-        class="border-button font-semibold shadow mt-4 block"
-        on:click={() => toggleView("tree")}>Tree View</button
-      >
-    </div>
-    
   </div>
 
   {#if viewMode === "list"}
@@ -202,33 +196,30 @@
         <br />
 
         <p class="text-center sub-text">
-          If loading takes longer than expected, you may need to refresh
-          the page.
+          If loading takes longer than expected, you may need to refresh the
+          page.
         </p>
       </div>
     {/if}
-  {:else}
-    
-    {#if showItemTree}
-      <Window 
-        initialX={32} 
-        initialY={64} 
-        windowTitle="Item Tree" 
-        windowClass="page-component"
-        showClose={true}
-        showOpenInNewTab={false}
-        on:close={handleTreeClose}
-      >
-        <ItemTree useWindowView={true} on:openItem={handleOpenItem} />
-      </Window>
-    {/if}
+  {:else if showItemTree}
+    <Window
+      initialX={32}
+      initialY={64}
+      windowTitle="Item Tree"
+      windowClass="page-component"
+      showClose={true}
+      showOpenInNewTab={false}
+      on:close={handleTreeClose}
+    >
+      <ItemTree useWindowView={true} on:openItem={handleOpenItem} />
+    </Window>
   {/if}
-  
+
   <!-- Additional item windows -->
   {#each additionalWindows as window (window.id)}
-    <Window 
-      initialX={window.x} 
-      initialY={window.y} 
+    <Window
+      initialX={window.x}
+      initialY={window.y}
       windowTitle={`Item View`}
       windowClass="page-component"
       showClose={true}
@@ -236,8 +227,8 @@
       on:close={() => handleCloseWindow(window.id)}
       on:openNewTab={() => openInNewTab(window.id)}
     >
-      <ItemDetails 
-        item={null} 
+      <ItemDetails
+        item={null}
         itemId={window.id}
         on:openItem={handleOpenItem}
       />
@@ -253,11 +244,15 @@
   >
     +
   </button>
-  <CreateItem 
-    bind:dialog 
-    item={null} 
+  <CreateItem
+    bind:dialog
+    item={null}
     duplicate={false}
-    on:open={() => {topLevel = false}} 
-    on:close={()=>{topLevel = true}}
+    on:open={() => {
+      topLevel = false;
+    }}
+    on:close={() => {
+      topLevel = true;
+    }}
   />
 </div>
