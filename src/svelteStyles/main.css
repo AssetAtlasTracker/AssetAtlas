@@ -32,12 +32,13 @@ e.g. containers, theming, etc.
   padding: 0 1rem; /* Add padding for spacing */
 }
 
+/* 
 .flex-1 {
   display: flex;
   flex-direction: column;
   justify-content: center;
   margin: 0.5rem;
-}
+} */
 
 .glass{
   background: rgba(var(--color-primary-800) / 0.8) !important;
@@ -66,6 +67,10 @@ e.g. containers, theming, etc.
   padding: 1rem;
   background: rgb(var(--color-primary-100));
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
+}
+
+.small-dialog-padding{
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
 }
 
 .large-dialog-noscroll{ /* Keeps add/edit dialog from scrolling */
@@ -786,13 +791,6 @@ select option:hover {
   gap: 0.5rem;
 }
 
-.view-toggle {
-  margin: 1rem;
-}
-
-.nav-margin {
-  margin: 0rem 1rem;
-}
 
 .expand-button {
   margin-right: 0.5rem;
@@ -863,6 +861,7 @@ Text styles
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: normal;
+  white-space: nowrap;
 }
 
 .sub-text{
@@ -884,6 +883,11 @@ Text styles
 
 .text-icon {
   font-size: 2.25rem;
+}
+
+.icon-small{
+  width: 24px;
+  height: 24px;
 }
 
 .text-3xl {

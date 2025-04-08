@@ -13,26 +13,26 @@
 
 {#if items && items.length > 0}
   <div id="home-component" class="glass page-component">
-    {#each items as item}
+    {#each items as i}
       <div class="item-card-flex">
-        <Link to={`/view/${item._id}`} class="item-card">
+        <Link to={`/view/${i._id}`} class="item-card">
           <!-- make this border transparent? -->
           <div class="item-subcard">
             <div class="important-text">
-              {item.name}
+              {i.name}
             </div>
             <div class="sub-text">
-              {item.description || "No Description"}
+              {i.description || "No Description"}
             </div>
           </div>
           <div class="sub-text item-subcard">
-            Location: {item.parentItem?.name || "None"}
+            Location: {i.parentItem?.name || "None"}
           </div>
         </Link>
         <ItemCardOptions
           bind:this={itemCardOptions}
           on:mouseenter={() => console.log("mouse entered")}
-          item={items[0]}
+          item={i}
         />
       </div>
       <br />
