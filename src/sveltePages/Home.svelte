@@ -21,6 +21,19 @@
   let topLevel = true;
   let itemCount = -1;
 
+  let draggingItem : IBasicItemPopulated;
+  let targetItemId : string | undefined;
+  let targetItemName : string | undefined;
+  let showMoveDialog : boolean = false;
+  let moveDialog : HTMLDialogElement;
+
+  $: if (showMoveDialog) {
+    if (moveDialog) {
+      moveDialog.showModal();
+    }
+  }
+
+
   async function handleSortChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     sortOption = target.value;
@@ -29,6 +42,8 @@
 
   import Menu from "../svelteComponents/Menu.svelte";
   import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
+    import Dialog from "../svelteComponents/Dialog.svelte";
+    import MoveItem from "../svelteComponents/MoveItem.svelte";
   export let menu: HTMLDialogElement;
 
   async function handleSearch(query: string) {
@@ -176,7 +191,7 @@
 
   {#if viewMode === "list"}
     {#if itemCount > 0}
-      <ItemContainer items={searchResults} />
+      <ItemContainer items={searchResults} bind:showMoveDialog={showMoveDialog} bind:draggingItem={draggingItem} bind:targetItemId={targetItemId} bind:targetItemName={targetItemName}/>
     {:else if itemCount == 0}
       <div id="home-component" class="page-component glass">
         <p class="text-center important-text">No Items Found</p>
@@ -261,3 +276,28 @@
     on:close={()=>{topLevel = true}}
   />
 </div>
+
+{#if showMoveDialog}
+<Dialog
+  bind:dialog={moveDialog}
+  on:create={() => {
+    console.log("Created Modal");
+    moveDialog.showModal();
+  }}
+  on:close={() => {
+    showMoveDialog = false;
+  }}
+>
+  <div class="important-text text-center">
+    Move "{draggingItem.name}" to:
+  </div>
+  <MoveItem
+    itemId={draggingItem._id.toString()}
+    parentItemName={targetItemName}
+    parentItemId={targetItemId}
+    on:close={() => {
+      showMoveDialog = false;
+   }}
+  />
+</Dialog>
+{/if}

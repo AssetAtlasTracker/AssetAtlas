@@ -2,10 +2,7 @@
   import { Link } from "svelte-routing";
   import type { IBasicItemPopulated } from "../models/basicItem.js";
   import MdArrowDropDown from 'svelte-icons/md/MdArrowDropDown.svelte'
-    import Dialog from "./Dialog.svelte";
-    import EditItem from "./EditItem.svelte";
     import CreateItem from "./CreateItem.svelte";
-    import { waitForDebugger } from "inspector";
     import Duplicate from "./Duplicate.svelte";
     import Dropdown from "./Dropdown.svelte";
 
@@ -16,6 +13,11 @@
   let creator: CreateItem;
   let duplicator: Duplicate;
   let dropdown: Dropdown;
+
+  export let draggingItem: IBasicItemPopulated | null = null;
+  export let targetItemId: string | null = null;
+  export let targetItemName: string | null = null;
+  export let showMoveDialog : boolean;
 
   let selectedItem: IBasicItemPopulated | null = null;
 
@@ -32,15 +34,56 @@
   dropdown.setDuplicateEditFunction(() => {creator.changeItem(item); dropdownDialog.close(); createDialog.showModal()});
  }
 
- 
 
-  let i = 0;
+    function handleDragDrop(event: DragEvent & { currentTarget: EventTarget & HTMLDivElement; }) {
+      let foundDataContainingElement = false;
+      let currentTarget : HTMLElement | null = event.currentTarget as HTMLElement | null;
+      let maxOut = 10;
+      while (!foundDataContainingElement) {
+        if (currentTarget) {
+          if (currentTarget.draggable) {
+            foundDataContainingElement = true;
+          } else if (maxOut <= 0) {
+            return;
+          } else {
+            currentTarget = currentTarget.parentElement;
+            if (currentTarget === null) {
+              return;
+            }
+            maxOut--;
+          }
+        } else {
+          return;
+        }
+      }
+      targetItemId = currentTarget!.getAttribute("data-item-id");
+      targetItemName = currentTarget!.getAttribute("data-item-name");
+      if (targetItemId && targetItemName && draggingItem) {
+        showMoveDialog = true;
+        console.log("Successful Drop");
+      }
+    }
+
+    function handleDragStart(event: DragEvent, item: IBasicItemPopulated) {
+      console.log("Drag started");
+      draggingItem = item;
+    }
 </script>
 
 {#if items && items.length > 0}
   <div id="home-component" class="glass page-component">
     {#each items as item}
-    <div class="simple-flex">
+    <div class="simple-flex" role="navigation" draggable="true"
+      on:dragstart={(e) => {handleDragStart(e, item)}}
+      on:dragover={(e) => {e.preventDefault()}}
+      on:dragend={(e) => {
+        e.preventDefault();
+        console.log("End Drag");
+      }}
+      on:drop={handleDragDrop}
+      data-item-id={item._id}
+      data-item-name={item.name}
+    >
       <Link to={`/view/${item._id}`} class="item-card">
         <!-- make this border transparent? -->
           <div class="item-subcard">
