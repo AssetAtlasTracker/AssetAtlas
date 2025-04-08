@@ -8,11 +8,11 @@
   import Window from "../svelteComponents/Window.svelte";
   import ItemDetails from "../svelteComponents/ItemDetails.svelte";
   import { topBarHeight } from "../stores/topBarStore.js";
+  import { SlideToggle } from "@skeletonlabs/skeleton";
   import Menu from "../svelteComponents/Menu.svelte";
   import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
   import Dialog from "../svelteComponents/Dialog.svelte";
   import MoveItem from "../svelteComponents/MoveItem.svelte";
-  import { SlideToggle } from "@skeletonlabs/skeleton";
 
   import "../svelteStyles/main.css";
 
@@ -39,17 +39,13 @@
     }
   }
 
-
   async function handleSortChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     sortOption = target.value;
     await handleSearch(searchQuery);
   }
 
-  import Menu from "../svelteComponents/Menu.svelte";
-  import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
-    import Dialog from "../svelteComponents/Dialog.svelte";
-    import MoveItem from "../svelteComponents/MoveItem.svelte";
+
   export let menu: HTMLDialogElement;
 
   async function handleSearch(query: string) {
@@ -232,7 +228,7 @@
       showOpenInNewTab={false}
       on:close={handleTreeClose}
     >
-      <ItemTree bind:draggingItemId bind:draggingItemName bind:hoveredItemId bind:showMoveDialog bind:hoveredItemName useWindowView={true} on:openItem={handleOpenItem} />
+      <ItemTree bind:draggingItem={draggingItem} bind:targetItemId={targetItemId} bind:targetItemName={targetItemName} bind:showMoveDialog useWindowView={true} on:openItem={handleOpenItem} />
     </Window>
   {/if}
 

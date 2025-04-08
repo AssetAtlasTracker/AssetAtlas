@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from "svelte";
   import ItemLink from "../svelteComponents/ItemLink.svelte";
-  import { Link } from "svelte-routing";
+  import type { IBasicItemPopulated } from "../models/basicItem.js";
 
   interface TreeItem {
     _id: string;
@@ -14,12 +14,12 @@
   const dispatch = createEventDispatcher();
 
 
-  let draggingItem : TreeItem | null = null;
+  export let draggingItem : IBasicItemPopulated | null = null;
   export let draggingItemId : string | undefined = undefined;
   export let draggingItemName : string | undefined = undefined;
-  export let hoveredItemId : string | undefined = undefined; 
-  export let hoveredItemName : string | undefined = undefined;
-  export let showMoveDialog : boolean = false;
+  export let targetItemId : string | undefined = undefined; 
+  export let targetItemName : string | undefined = undefined;
+  export let showMoveDialog : boolean;
 
   export function closeMoveDialog() {
     showMoveDialog = false;
@@ -90,9 +90,9 @@
 
   function checkIfSwap() {
     console.log("C1");
-    console.log(hoveredItemId);
+    console.log(targetItemId);
     console.log(draggingItem);
-    if (hoveredItemId && draggingItem) {
+    if (targetItemId && draggingItem) {
       showMoveDialog = true;
       console.log("C2");
     }
@@ -110,18 +110,18 @@
     }
     console.log(element);
     let itemId = element?.getAttribute("data-item-id") as string | undefined;
-    hoveredItemName = element?.getAttribute("data-item-name") as string | undefined;
+    targetItemName = element?.getAttribute("data-item-name") as string | undefined;
     console.log("S1");
     console.log(itemId);
-    hoveredItemId = itemId;
-    if (hoveredItemId) {
+    targetItemId = itemId;
+    if (targetItemId) {
       checkIfSwap();
     }
   }
 
   function resetItems() {
     draggingItem = null;
-    hoveredItemId = undefined;
+    targetItemId = undefined;
   }
 
 </script>
@@ -134,7 +134,7 @@
       <div class="tree-branch" style="padding-left: {indentLevel * 0.75}rem;">
         <div class=flex role = "navigation" draggable="true" data-item-id={item._id} data-item-name={item.name}
           on:dragstart={(e) => {
-            draggingItem = item;
+            //draggingItem = item;
             draggingItemId = item._id
             draggingItemName = item.name;
             console.log("Started Drag");
