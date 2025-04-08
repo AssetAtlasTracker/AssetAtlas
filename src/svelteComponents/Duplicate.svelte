@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { IBasicItemPopulated } from '../models/basicItem.js';
+  import type { IBasicItemPopulated } from "../models/basicItem.js";
   import { ip } from "../stores/ipStore.js";
   import Dialog from "../svelteComponents/Dialog.svelte";
   import { actionStore } from "../stores/actionStore.js";
@@ -7,41 +7,40 @@
   export let item: IBasicItemPopulated;
   export let onDuplicate = () => {};
 
+  let name = "Copy of " + item.name;
+  let description = "";
+  if (item.description) {
+    description = item.description;
+  }
+  let tags = item.tags.toString();
+  let parentItemName = "";
+  if (item.parentItem?.name != null) {
+    parentItemName = item.parentItem?.name;
+  }
+  let parentItemId: string | null = null;
+  if (item.parentItem) {
+    parentItemId = item.parentItem._id.toString();
+  }
+  let parentItemSuggestions: any[] = [];
+  let homeItemName = "";
+  if (item.homeItem?.name != null) {
+    homeItemName = item.homeItem?.name;
+  }
+  let homeItemId: string | null = null;
+  if (item.homeItem) {
+    homeItemId = item.homeItem._id.toString();
+  }
+  let homeItemSuggestions: any[] = [];
+  let templateName = "";
+  let templateId: string | null = null;
+  if (item.template) {
+    templateName = item.template?.name;
+    templateId = item.template?._id.toString();
+  }
+  let templateSuggestions: any[] = [];
+  let selectedImage: File | null = null;
 
-    let name = "Copy of " + item.name;
-    let description = "";
-    if (item.description) {
-      description = item.description;
-    }
-    let tags = item.tags.toString();
-    let parentItemName = "";
-    if (item.parentItem?.name != null) {
-      parentItemName = item.parentItem?.name;
-    }
-    let parentItemId: string | null = null;
-    if (item.parentItem) {
-      parentItemId = item.parentItem._id.toString();
-    }
-    let parentItemSuggestions: any[] = [];
-    let homeItemName = "";
-    if (item.homeItem?.name != null) {
-      homeItemName = item.homeItem?.name;
-    }
-    let homeItemId: string | null = null;
-    if (item.homeItem) {
-      homeItemId = item.homeItem._id.toString();
-    }
-    let homeItemSuggestions: any[] = [];
-    let templateName = "";
-    let templateId: string | null = null;
-    if (item.template) {
-      templateName = item.template?.name;
-      templateId = item.template?._id.toString();
-    }
-    let templateSuggestions: any[] = [];
-    let selectedImage: File | null = null;
-
-  export function changeItem(newItem: IBasicItemPopulated){
+  export function changeItem(newItem: IBasicItemPopulated) {
     console.log("item changed");
     item = newItem;
     name = "Copy of " + item.name;
@@ -50,7 +49,7 @@
     }
     tags = item.tags.toString();
     if (item.parentItem?.name != null) {
-    parentItemName = item.parentItem?.name;
+      parentItemName = item.parentItem?.name;
     }
     if (item.parentItem) {
       parentItemId = item.parentItem._id.toString();
@@ -157,7 +156,7 @@
 
   async function duplicateItem() {
     try {
-        const formattedCustomFields = await Promise.all(
+      const formattedCustomFields = await Promise.all(
         customFields.map(async (field) => {
           if (!field.isNew && field.fieldId) {
             return { field: field.fieldId, value: field.value };
@@ -218,7 +217,15 @@
 </script>
 
 <Dialog bind:dialog>
-  <button on:click={duplicateItem} class="border-button">
-    <slot>Duplicate this item?</slot>
-  </button>
+  <div class="small-dialog-padding">
+    Are you sure you want to duplicate "{item.name}"?
+    <div class="simple-flex pt-4">
+      <button on:click={() => dialog.close()} class="border-button flex-grow">
+        Cancel
+      </button>
+      <button on:click={duplicateItem} class="success-button flex-grow">
+        Duplicate
+      </button>
+    </div>
+  </div>
 </Dialog>
