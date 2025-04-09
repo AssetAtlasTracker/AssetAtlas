@@ -13,14 +13,17 @@ AssetAtlas is a self hosted database with an object-oriented approach to keeping
 1. Clone the repository
    - If you dont know how to clone a repository, you can download a .zip of the repository from the "code" button near the top of the page linked below
    - <https://github.com/AssetAtlasTracker/AssetAtlas>   
-1. Run the file named "start.py" in the folder that downloaded from this github page on the previous step. You can right click on it and "Open with > python".
+1. Run the file named "start.py" in the folder that downloaded from this github page on the previous step.
+   - You may need to right click on the file and "Open with > python".
 1. In the start.py launcher:
    - If you are only following the main setup: leave local host selected
    - If you are using the multi-device remote functionality and have followed the optional setup steps: select Tailscale mode
-1. Click "Run Docker Compose" (This may take 5 or so minutes the first time, but will be faster on subsequent composes)
+1. Click "Run Docker Compose"
+   - This may take five or so minutes the first time, but will be faster on subsequent composes
    - If the compose action fails right away, docker may not be open/running. Make sure the "docker desktop" application you downloaded earlier is running.
    - Once it finishes, a window will pop up "Service is running" with the IP
-1. Go to the localhost URL or the Tailscale URL depending on the mode you chose (Tailsale must be running on the device trying to access for tailscale to work)
+1. In your web browser, go to the localhost or Tailscale URL depending on the mode you chose
+   - For tailscale to work, Tailscale must be currently running on the device trying to access AssetAtlas
 
 ### (Optional) Multi device remote access additional setup
 
@@ -36,7 +39,7 @@ AssetAtlas is a self hosted database with an object-oriented approach to keeping
 1. When using the "start.py" launcher, paste your key in the auth key box and click save. You'll only need to do this once.
    - Note: this is an authentication key that is stored in plain text on your host machine. If you already use Tailscale/a Tailnet for other things, they could be accessed by someone who has this key. If you are only using Tailscale for AssetAtlas this doesn't really matter as someone who can see this key already has access to your host computer and could see your database anyway.
 
-## Developer Setup
+## Developer Setup (WIP)
 
 - Use node 22, it might also work with other node versions but we are developing with node 22
 
