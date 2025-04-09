@@ -2,6 +2,7 @@
   import { onMount, createEventDispatcher } from "svelte";
   import ItemLink from "../svelteComponents/ItemLink.svelte";
   import type { IBasicItemPopulated } from "../models/basicItem.js";
+  import BasicItemPopulated from "../models/basicItem.js";
 
   interface TreeItem {
     _id: string;
@@ -15,8 +16,6 @@
 
 
   export let draggingItem : IBasicItemPopulated | null = null;
-  export let draggingItemId : string | undefined = undefined;
-  export let draggingItemName : string | undefined = undefined;
   export let targetItemId : string | undefined = undefined; 
   export let targetItemName : string | undefined = undefined;
   export let showMoveDialog : boolean;
@@ -119,6 +118,11 @@
     }
   }
 
+  function handleDragStart(e: Event, item: TreeItem) {
+    draggingItem = item as unknown as IBasicItemPopulated;
+    console.log("Started Drag");
+  }
+
   function resetItems() {
     draggingItem = null;
     targetItemId = undefined;
@@ -134,10 +138,7 @@
       <div class="tree-branch" style="padding-left: {indentLevel * 0.75}rem;">
         <div class=flex role = "navigation" draggable="true" data-item-id={item._id} data-item-name={item.name}
           on:dragstart={(e) => {
-            //draggingItem = item;
-            draggingItemId = item._id
-            draggingItemName = item.name;
-            console.log("Started Drag");
+            handleDragStart(e,item);
           }}
           on:dragover={(e) => {
             e.preventDefault();
@@ -194,10 +195,9 @@
 
         {#if expanded[item._id] && item.children}
           <svelte:self
-            bind:draggingItemId
-            bind:draggingItemName
-            bind:hoveredItemId
-            bind:hoveredItemName
+            bind:draggingItem
+            bind:targetItemId
+            bind:targetItemName
             bind:showMoveDialog
             rootData={item.children}
             indentLevel={indentLevel + 1}

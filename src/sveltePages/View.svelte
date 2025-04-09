@@ -234,6 +234,7 @@
         <ItemTree
           parentId={item._id.toString()}
           currentId={item._id.toString()}
+          showMoveDialog={false}
           useWindowView={true}
           on:openItem={handleOpenItem}
         />
