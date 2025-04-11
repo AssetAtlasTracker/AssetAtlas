@@ -5,6 +5,7 @@
   import Home from "./sveltePages/Home.svelte";
   import View from "./sveltePages/View.svelte";
   import ViewTemplates from "./sveltePages/ViewTemplates.svelte";
+  import Users from "./sveltePages/Users.svelte";
   import { fetchIp } from "./stores/ipStore.js";
   import Utility from "./sveltePages/Utility.svelte";
 
@@ -21,6 +22,7 @@
       <View {params} />
     </Route>
     <Route path="/viewTemplates" component={ViewTemplates} />
+    <Route path="/users" component={Users} />
   </main>
   <Route path="/utility" component={Utility} />
 </Router>
