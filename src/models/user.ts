@@ -6,6 +6,8 @@ export interface IUser extends Document {
   username: string;
   passwordHash: string; //we dont store actual password
   permissionLevel: number;
+  createdAt: Date;
+  updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 

@@ -567,6 +567,14 @@ e.g. buttons, lists, textareas, etc.
   right: 1rem;
 }
 
+.inactive-button {
+  border-radius: 10px;
+  border: 1px solid rgba(var(--color-primary-400) /.8);
+  padding: .5rem 1rem;
+  background: rgba(var(--color-primary-900)/.6);
+  color: rgb(var(--theme-font-color-base) /.5);
+}
+
 .add-button:hover{
   background: rgb(var(--color-primary-900));
 }
@@ -577,6 +585,12 @@ e.g. buttons, lists, textareas, etc.
 
 .home-view-buttons{
   margin: 0.5rem 0 0 0;
+}
+
+.menu-button:hover{
+  background: rgb(var(--color-primary-900) /.25);
+  border-radius: 10px;
+  color: rgb(var(--color-success-400));
 }
 
 .toggle-background{

@@ -3,7 +3,8 @@ import {
   register, 
   login, 
   getProfile,
-  updateUserPermission 
+  updateUserPermission,
+  getUsers
 } from '../controllers/authController.js';
 import { authenticate, requirePermission } from '../middleware/authMiddleware.js';
 
@@ -17,6 +18,7 @@ router.post('/login', login);
 router.get('/profile', authenticate, getProfile);
 
 // Admin-only routes
-router.put('/permissions', authenticate, requirePermission(10), updateUserPermission);
+router.put('/permissions', authenticate, requirePermission(9), updateUserPermission);
+router.get('/users', authenticate, requirePermission(9), getUsers);
 
 export default router;

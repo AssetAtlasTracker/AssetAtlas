@@ -131,7 +131,7 @@ export const getProfile = async (req: Request, res: Response) => {
   }
 };
 
-// Update another user's permission level (requirs perm lvl 10)
+// Update another user's permission level (requirs perm lvl 9)
 export const updateUserPermission = async (req: Request, res: Response) => {
   try {
     const { userId, permissionLevel } = req.body;
@@ -147,17 +147,34 @@ export const updateUserPermission = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Permission level must be between 1 and 10' });
     }
     
+    // Get the current user's permission level
+    const authReq = req as AuthRequest;
+    const currentUserPermissionLevel = authReq.user?.permissionLevel || 0;
+    
     // Find the target user
     const targetUser = await User.findById(userId);
     if (!targetUser) {
       return res.status(404).json({ message: 'User not found' });
     }
     
-    // Don't allow modifying own permissions (we may change later)
-    const authReq = req as AuthRequest;
+    // Don't allow modifying own permissions
     if (targetUser._id.toString() === authReq.user?.id) {
       return res.status(400).json({ 
         message: 'Cannot modify your own permission level' 
+      });
+    }
+    
+    // Level 9 users cannot modify level 9 or 10 users
+    if (currentUserPermissionLevel === 9 && targetUser.permissionLevel >= 9) {
+      return res.status(403).json({ 
+        message: 'Level 9 cannot modify 9 or 10 users' 
+      });
+    }
+    
+    // Level 9 users cannot set permissions to 9 or higher
+    if (currentUserPermissionLevel === 9 && newPermissionLevel >= 9) {
+      return res.status(403).json({ 
+        message: 'Level 9 users can only set permission levels 1-8' 
       });
     }
     
@@ -176,6 +193,29 @@ export const updateUserPermission = async (req: Request, res: Response) => {
     console.error('Error updating user permission:', err);
     res.status(500).json({ 
       message: 'Error updating user permission', 
+      error: err instanceof Error ? err.message : String(err)
+    });
+  }
+};
+
+// Get all users (perm 9+ currently)
+export const getUsers = async (req: Request, res: Response) => {
+  try {
+    const users = await User.find().select('-passwordHash');
+    
+    res.status(200).json(
+      users.map(user => ({
+        id: user._id,
+        username: user.username,
+        permissionLevel: user.permissionLevel,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      }))
+    );
+  } catch (err) {
+    console.error('Error retrieving users:', err);
+    res.status(500).json({ 
+      message: 'Error retrieving users', 
       error: err instanceof Error ? err.message : String(err)
     });
   }

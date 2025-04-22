@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
   import { user, type UserState } from "../stores/userStore.js";
+  import { SHA256 } from 'crypto-js';
   
   const dispatch = createEventDispatcher();
   
@@ -31,12 +32,19 @@
     
     try {
       const endpoint = isRegistering ? '/api/auth/register' : '/api/auth/login';
+      
+      // Hash the password before sending to server, if user is re-using password at least that will not leak
+      const hashedPassword = SHA256(password).toString();
+      
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ 
+          username, 
+          password: hashedPassword
+        }),
       });
       
       const data = await response.json();
@@ -130,18 +138,18 @@
     {:else}
       <div>
         <h2 class="important-text text-center mb-4">
-          {isRegistering ? 'Create Account' : 'Sign In'}
+          {isRegistering ? 'Create Account' : 'Log In'}
         </h2>
         
         <div class="flex w-full mb-4 gap-2">
           <button 
-            class={!isRegistering ? "success-button w-full" : "border-button w-full"}
+            class={!isRegistering ? "inactive-button w-full" : "border-button w-full"}
             on:click={() => setMode(false)}
           >
-            Login
+            Log In
           </button>
           <button 
-            class={isRegistering ? "success-button w-full" : "border-button w-full"}
+            class={isRegistering ? "inactive-button w-full" : "border-button w-full"}
             on:click={() => setMode(true)}
           >
             Register
