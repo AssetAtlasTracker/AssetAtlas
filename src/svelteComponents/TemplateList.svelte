@@ -61,8 +61,21 @@
     </div>
     <br />
   {/each}
-{:else}
-  <p>No templates found.</p>
+{:else if templates.length == 0}
+  <div id="home-component" class="page-component glass">
+    <p class="text-center important-text">No Templates Found</p>
+    <br />
+    <p class="text-center">
+      Add new templates using the + button in the bottom right.
+    </p>
+    <p class="text-center">
+      Or import bulk templates using the menu in the top left.
+    </p>
+    <br />
+    <p class="text-center">
+      If you are expecting templates to be here, you may need to refresh the page.
+    </p>
+  </div>
 {/if}
 
 <Dialog bind:dialog={editDialog} on:close={closeEdit}>
