@@ -138,18 +138,18 @@
     {:else}
       <div>
         <h2 class="important-text text-center mb-4">
-          {isRegistering ? 'Create Account' : 'Sign In'}
+          {isRegistering ? 'Create Account' : 'Log In'}
         </h2>
         
         <div class="flex w-full mb-4 gap-2">
           <button 
-            class={!isRegistering ? "success-button w-full" : "border-button w-full"}
+            class={!isRegistering ? "inactive-button w-full" : "border-button w-full"}
             on:click={() => setMode(false)}
           >
-            Login
+            Log In
           </button>
           <button 
-            class={isRegistering ? "success-button w-full" : "border-button w-full"}
+            class={isRegistering ? "inactive-button w-full" : "border-button w-full"}
             on:click={() => setMode(true)}
           >
             Register
