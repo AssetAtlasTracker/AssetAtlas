@@ -3,6 +3,11 @@
   export let itemId;
   export let onDelete = () => {};
 
+  export function deleteExternalItem(newItem) {
+    itemId = newItem;
+    deleteItem();
+  }
+
   async function deleteItem() {
     try {
       const response = await fetch(`/api/items/${itemId}`, {
