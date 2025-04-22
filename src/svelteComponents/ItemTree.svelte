@@ -15,9 +15,9 @@
   const dispatch = createEventDispatcher();
 
 
-  export let draggingItem : IBasicItemPopulated | null = null;
-  export let targetItemId : string | undefined = undefined; 
-  export let targetItemName : string | undefined = undefined;
+  export let draggingItem : IBasicItemPopulated | null | undefined;
+  export let targetItemId : string | undefined; 
+  export let targetItemName : string | undefined;
   export let showMoveDialog : boolean;
 
   export function closeMoveDialog() {

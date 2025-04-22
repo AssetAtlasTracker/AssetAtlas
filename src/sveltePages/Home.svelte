@@ -27,9 +27,9 @@
   let topLevel = true;
   let itemCount = -1;
 
-  let draggingItem : IBasicItemPopulated;
-  let targetItemId : string | undefined;
-  let targetItemName : string | undefined;
+  let draggingItem : IBasicItemPopulated | undefined = undefined;
+  let targetItemId : string | undefined = undefined;
+  let targetItemName : string | undefined = undefined;
   let showMoveDialog : boolean = false;
   let moveDialog : HTMLDialogElement;
 
@@ -274,7 +274,7 @@
   />
 </div>
 
-{#if showMoveDialog}
+{#if showMoveDialog && draggingItem}
 <Dialog
   bind:dialog={moveDialog}
   on:create={() => {
