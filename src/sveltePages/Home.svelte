@@ -33,9 +33,18 @@
   let showMoveDialog : boolean = false;
   let moveDialog : HTMLDialogElement;
 
-  $: if (showMoveDialog) {
-    if (moveDialog) {
+  $: {
+    if (showMoveDialog) {
+      console.log("Opening");
       moveDialog.showModal();
+    }
+  }
+
+  $ : {
+    if (moveDialog) {
+      moveDialog.onclose = () => {
+        showMoveDialog = false;
+      }
     }
   }
 
@@ -274,7 +283,7 @@
   />
 </div>
 
-{#if showMoveDialog && draggingItem}
+{#if draggingItem}
 <Dialog
   bind:dialog={moveDialog}
   on:create={() => {
@@ -282,6 +291,7 @@
     moveDialog.showModal();
   }}
   on:close={() => {
+    console.log("H1");
     showMoveDialog = false;
   }}
 >
@@ -293,6 +303,7 @@
     parentItemName={targetItemName}
     parentItemId={targetItemId}
     on:close={() => {
+      console.log("H2");
       showMoveDialog = false;
    }}
   />

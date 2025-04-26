@@ -91,7 +91,7 @@
     console.log("C1");
     console.log(targetItemId);
     console.log(draggingItem);
-    if (targetItemId && draggingItem) {
+    if (targetItemId && draggingItem && (targetItemId != (draggingItem._id as unknown as string))) {
       showMoveDialog = true;
       console.log("C2");
     }
@@ -104,7 +104,11 @@
     let element : HTMLElement | null = e.target! as unknown as HTMLElement;
     console.log(element);
     let count = 0;
-    while (element && element.className != "tree-item" && count < 10) {
+    console.log(!!element);
+    console.log(element.getAttribute("data-item-id"));
+    console.log(count);
+    console.log(element.parentElement);
+    while (element && element.getAttribute("data-item-id") == null && count < 10 && element.parentElement != null) {
       element = element.parentElement;
     }
     console.log(element);
