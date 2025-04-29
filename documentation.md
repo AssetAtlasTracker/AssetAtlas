@@ -17,9 +17,18 @@ A lot of problems we have had have been with Docker not building correctly. Some
 We are currently using Svelte 4. That's just how we started, and when we tried to switch to Svelte 5, the code broke. I don't know how easy it would be to update/fix at some point if you find some reason to use Svelte 5. The thing that broke had to do with reactive statements (I read online this should be backwards compatible but it was not) and it seems the solution may involve something called runes, which I don't know much about but is part of Svelte 5.
 
 We are using base svelte instead of sveltekit. To make routing work, we are using a library called svelte-routing. This works fine for everything we are doing now, but sveltekit is more powerful. Converting the project to sveltekit would be possible, but it is a decent bit of work as you would have to restructure the entire project, so I wouldn't recommend it unless absolutely necessary.
+
 # Vite
 
 # Tailwind
+
+Tailwind is a library of small css classes that help with style brevity and consistency. We lightly use Tailwind throughout the project mostly as a supplementary resource so we don't have too many small classes in our main.css file. Examples of situations where we've been using Tailwind instead of custom styles includes adding a not-too-specific padding or margin to an element (e.g. class="mx-4 p-2"), quickly adding flex display to groups of elements like buttons (class="flex flex-col"), and other one-or-two line non-specific styles. A list of all available built-in Tailwind styles and thier effects can be found in the output.css file.
+
+# CSS
+
+Generally, all css styles should go into the main.css file. You should avoid doing inline styles (style="trait: value") and internal styles (<style> tag at the bottom of the file containing extra style declarations). These rules are put into place for consistency, to follow standards and maintain a clean codebase. If you happen to find an internal or inline style, you should migrate the style over to main.css to avoid potential confusion down the line as these styles may shadow others or overwrite certain style components.
+
+The main.css file is grouped by how large the component is and within those size groupings related styles tend to be grouped together as well (i.e. all of the button styles are grouped together in the medium sized, single component section). Variables should be used for colors to maintain consistency, you can find examples of how to use the color variables within the main.css file and you can find the declarations of the variables in the customTheme.ts file.
 
 # Github container registry
 
@@ -34,5 +43,6 @@ We currently use tailscale for multi device/hosting support. Tailscale itself is
 We assume people will likely have widely varying needs and desires for a personal database solution. We thought that the best way to meet their needs would be making our system as open ended as possible, but still providing a basic structure that should apply or at least not get in the way for most use cases. This came in the form mainly of container nesting, custom fields, and item templates. With these tools we think most users can selectively keep track of only the things they care about while also having some useful QOL features that can enable more customized and detailed tracking without being too cumbersome to set up and re-use.
 
 # Known issues
+Mobile UI is currently very messy as we have been mostly focusing on making it work on computers first.
 
 # Possible future directions
