@@ -16,6 +16,7 @@ A lot of problems we have had have been with Docker not building correctly. Some
 
 We are currently using Svelte 4. That's just how we started, and when we tried to switch to Svelte 5, the code broke. I don't know how easy it would be to update/fix at some point if you find some reason to use Svelte 5. The thing that broke had to do with reactive statements (I read online this should be backwards compatible but it was not) and it seems the solution may involve something called runes, which I don't know much about but is part of Svelte 5.
 
+We are using base svelte instead of sveltekit. To make routing work, we are using a library called svelte-routing. This works fine for everything we are doing now, but sveltekit is more powerful. Converting the project to sveltekit would be possible, but it is a decent bit of work as you would have to restructure the entire project, so I wouldn't recommend it unless absolutely necessary.
 # Vite
 
 # Tailwind
