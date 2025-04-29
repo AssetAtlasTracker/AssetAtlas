@@ -32,6 +32,17 @@ The main.css file is grouped by how large the component is and within those size
 
 # Github container registry
 
+We currently have two ways for users to get/run out software, one of which is the github container registry. The related files/scripts are in .github/assetatlas. It includes two additional docker-compose files that are different from the other ones used by the python launcher. There is probably a way to merge these or use inheritance to simplfy them in some way. The readme in that directory contains info about how to run the github containers. Users still need to download docker and the compose files currently.
+
+Build is handled automatically when pushing to production branch (with the idea being you develop on main branch, make sure stuff works, eventually push to prod as a release). To manually build and push the container image to GitHub Container Registry:
+
+```bash
+.\docker\build-and-push.bat AssetAtlasTracker AssetAtlas
+```
+
+Enter your GitHub Personal Access Token with package write permissions.
+This should be run in projects top level (the provided command includes the pathing to the docker subdirectory).
+
 # MongoDB
 
 # Tailscale
@@ -45,4 +56,10 @@ We assume people will likely have widely varying needs and desires for a persona
 # Known issues
 Mobile UI is currently very messy as we have been mostly focusing on making it work on computers first.
 
+We have a search bar in the topbar, but searching only works on the home page. We want/wanted to make a little popup box thing with the top 5 matches or so show up on any page whenever the search bar gets typed in, but we didn't get around to it.
+
+Passwords are not really secure as is, due to us using HTTP instead of HTTPS. They are hashed locally with SHA256 before getting sent to backend and hashed again. This means a man in the middle attack at least would not leak a users plaintext password, protecting them if they are using a re-used password for AssetAtlas.
+
 # Possible future directions
+
+Multiple templates per item. Would probably be a hard fork.
