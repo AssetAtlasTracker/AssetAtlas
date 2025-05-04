@@ -6,9 +6,9 @@
   import { SlideToggle } from "@skeletonlabs/skeleton";
   import CustomFieldPicker from "./CustomFieldPicker.svelte";
   import ImageSelector from "./ImageSelector.svelte";
+  import { createEventDispatcher } from 'svelte';
 
   import "../svelteStyles/main.css";
-  import ActionDisplay from "./ActionDisplay.svelte";
   import type { IBasicItemPopulated } from "../models/basicItem.js";
 
   export let dialog: HTMLDialogElement;
@@ -34,6 +34,8 @@
   let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
   let selectedImage: File | null = null;
   let removeExistingImage = false;
+
+  const dispatch = createEventDispatcher();
 
   export function changeItem(newItem: IBasicItemPopulated){
     console.log("item changed");
@@ -217,7 +219,7 @@
       console.log("Item created:", data);
       actionStore.addMessage("Item created successfully!");
       dialog.close();
-      location.reload();
+      dispatch('itemCreated'); //triggers action display stuff
 
       //Reset the form after successful creation
       resetForm();
@@ -597,10 +599,6 @@
     }
   }
 </script>
-
-{#if !showCreateTemplateDialog}
-  <ActionDisplay />
-{/if}
 
 <Dialog isLarge={true} bind:dialog on:close={resetForm}>
   <h1 id="underline-header" class="font-bold text-center">Create New Item</h1>

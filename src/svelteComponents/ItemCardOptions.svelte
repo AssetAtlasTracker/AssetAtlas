@@ -6,11 +6,13 @@
 
 <script lang="ts">
     import type { IBasicItemPopulated } from "../models/basicItem.js";
+    import { createEventDispatcher } from "svelte";
     import CreateItem from "./CreateItem.svelte";
     import Duplicate from "./Duplicate.svelte";
 
     export let item: IBasicItemPopulated;
 
+    const dispatch = createEventDispatcher();
     let createDialog: HTMLDialogElement;
     let duplicateDialog: HTMLDialogElement;
     let creator: CreateItem;
@@ -27,6 +29,10 @@
     function duplicateEditFunction(item: IBasicItemPopulated) {
         creator.changeItem(item);
         createDialog.showModal();
+    }
+
+    function onCreated() {
+        dispatch("itemCreated");
     }
 
     export function setItem(newItem: IBasicItemPopulated) {
@@ -77,6 +83,7 @@
         bind:this={creator}
         item={selectedItem}
         duplicate={true}
+        on:itemCreated={onCreated}
         on:close={() => createDialog?.close()}
     />
 {/key}
@@ -86,6 +93,7 @@
         bind:dialog={duplicateDialog}
         bind:this={duplicator}
         {item}
+        on:itemCreated={onCreated}
         on:close={() => duplicateDialog?.close()}
     />
 {/key}

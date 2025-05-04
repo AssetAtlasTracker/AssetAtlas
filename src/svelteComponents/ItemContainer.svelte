@@ -2,10 +2,17 @@
   import { Link } from "svelte-routing";
   import type { IBasicItemPopulated } from "../models/basicItem.js";
   import ItemCardOptions from "./ItemCardOptions.svelte";
+  import { createEventDispatcher } from "svelte";
 
   export let items: IBasicItemPopulated[];
 
   let itemCardOptions: ItemCardOptions;
+
+  const dispatch = createEventDispatcher();
+
+  function onCreated() {
+    dispatch("itemCreated");
+  }
 
   // Log items to verify data in the frontend
   console.log("Items in frontend:", items);
@@ -13,7 +20,7 @@
 
 {#if items && items.length > 0}
   <div id="home-component" class="glass page-component">
-    {#each items as i}
+    {#each items as i (i._id)}
       <div class="item-card-flex">
         <Link to={`/view/${i._id}`} class="item-card">
           <!-- make this border transparent? -->
@@ -33,6 +40,7 @@
           bind:this={itemCardOptions}
           on:mouseenter={() => console.log("mouse entered")}
           item={i}
+          on:itemCreated={onCreated}
         />
       </div>
       <br />
