@@ -18,6 +18,7 @@ We are currently using Svelte 4. That's just how we started, and when we tried 
 
 We are using base svelte instead of sveltekit. To make routing work, we are using a library called svelte-routing. This works fine for everything we are doing now, but sveltekit is more powerful. Converting the project to sveltekit would be possible, but it is a decent bit of work as you would have to restructure the entire project, so I wouldn't recommend it unless absolutely necessary.
 
+One thing we ran into is that svelte only uses one instance of a component, so when trying to use the same component for multiple pages you will be using the same component and can't actually reinitialize it. The workaround to this was to use a svelte feature called keys. They are explained well in the svelte docs, but basically it destroys and reinitializes the contents of the key block whenever the value of the key changes. You will probably need to use keys whenever you need to use a component multiple times in the app, particularly if it is a displayed component, like a dialog box.
 # Vite
 
 # Tailwind
