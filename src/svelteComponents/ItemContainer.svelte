@@ -58,7 +58,14 @@
   }
 
   function handleMoveAll(){
+    multiActions.setAction("move");
+    multiActions.setItems(selectedItems);
+    dialog.showModal();
+  }
 
+  function handleClose() {
+    dialog.close();
+    location.reload();
   }
 
   // Log items to verify data in the frontend
@@ -67,7 +74,7 @@
 
 {#if items && items.length > 0}
   {#if numSelected > 0}
-  <Dialog bind:dialog={dialog}><MultiActions bind:this={multiActions}/></Dialog>
+  <Dialog bind:dialog={dialog} on:close={handleClose}><MultiActions on:close={handleClose} bind:this={multiActions}/></Dialog>
   <div class="sort-flex">
     <button class="success-button font-semibold shadow mt-4 w-full block" on:click={selectAll}>Select All</button>
     <button class="success-button font-semibold shadow mt-4 w-full block" on:click={deselectAll}>Deselect All</button>
