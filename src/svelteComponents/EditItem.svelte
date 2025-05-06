@@ -596,7 +596,7 @@
       // Notify parent and close dialog
       dispatch("close");
       actionStore.addMessage("Item updated successfully");
-      location.reload();
+      dispatch('itemUpdated');
     } catch (err) {
       console.error("Error updating item:", err);
       actionStore.addMessage("Error updating item");

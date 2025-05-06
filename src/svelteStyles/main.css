@@ -567,6 +567,14 @@ e.g. buttons, lists, textareas, etc.
   right: 1rem;
 }
 
+.inactive-button {
+  border-radius: 10px;
+  border: 1px solid rgba(var(--color-primary-400) /.8);
+  padding: .5rem 1rem;
+  background: rgba(var(--color-primary-900)/.6);
+  color: rgb(var(--theme-font-color-base) /.5);
+}
+
 .add-button:hover{
   background: rgb(var(--color-primary-900));
 }
@@ -577,6 +585,12 @@ e.g. buttons, lists, textareas, etc.
 
 .home-view-buttons{
   margin: 0.5rem 0 0 0;
+}
+
+.menu-button:hover{
+  background: rgb(var(--color-primary-900) /.25);
+  border-radius: 10px;
+  color: rgb(var(--color-success-400));
 }
 
 .toggle-background{
@@ -742,29 +756,25 @@ select option:hover {
 
 .action-container {
   position: fixed;
-  bottom: 2rem;
+  bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  z-index: 1000;
+  z-index: 10000; /* hope we dont make 10001 of something */
+  width: auto;
+  max-width: 400px;
 }
 
 .action-message {
   background-color: rgba(var(--color-success-600) / 0.9);
   color: rgb(var(--theme-font-color-base));
-  padding: 1rem 2rem;
-  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  text-align: center;
-}
-
-.error-message {
-  background-color: rgba(var(--color-error-500) / 0.9);
-  color: rgb(var(--theme-font-color-base));
-  padding: 1rem 2rem;
-  border-radius: 10px;
+  text-align: left;
+  width: 100%;
 }
 
 .search-controls {
@@ -1002,4 +1012,5 @@ input[type="file"][accept*="image"]{ /* File input areas (image specific) */
 
 ::backdrop { /* Dialog background */
   background: rgba(var(--color-surface-900) / 0.7);
+  z-index: 9998;
 }

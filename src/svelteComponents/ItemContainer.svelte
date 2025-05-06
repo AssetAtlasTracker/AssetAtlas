@@ -5,6 +5,7 @@
     import { setDefaultAutoSelectFamilyAttemptTimeout } from "net";
     import MultiActions from "./MultiActions.svelte";
     import Dialog from "./Dialog.svelte";
+  import { createEventDispatcher } from "svelte";
 
   export let items: IBasicItemPopulated[];
 
@@ -68,6 +69,12 @@
     location.reload();
   }
 
+  const dispatch = createEventDispatcher();
+
+  function onCreated() {
+    dispatch("itemCreated");
+  }
+
   // Log items to verify data in the frontend
   console.log("Items in frontend:", items);
 </script>
@@ -83,7 +90,7 @@
   </div>
   {/if}
   <div id="home-component" class="glass page-component">
-    {#each items as i}
+    {#each items as i (i._id)}
       <div class="item-card-flex">
         <input type="checkbox" on:click={() => {handleSelect(i)}}>
         <Link to={`/view/${i._id}`} class="item-card">
@@ -104,6 +111,7 @@
           bind:this={itemCardOptions}
           on:mouseenter={() => console.log("mouse entered")}
           item={i}
+          on:itemCreated={onCreated}
         />
       </div>
       <br />

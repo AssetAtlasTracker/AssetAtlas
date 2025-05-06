@@ -5,7 +5,7 @@
 	import UserAuth from "./UserAuth.svelte";
 	import { user } from "../stores/userStore.js";
 	import type { UserState } from "../stores/userStore.js";
-	
+
 	var open = false;
 	export let menu;
 	let authDialog: HTMLDialogElement;
@@ -13,7 +13,7 @@
 	function handleClicked() {
 		open = !open;
 	}
-	
+
 	function openAuthDialog() {
 		authDialog.showModal();
 	}
@@ -28,9 +28,9 @@
 			);
 		}
 	});
-	
+
 	let currentUser: UserState | undefined;
-	user.subscribe(value => {
+	user.subscribe((value) => {
 		currentUser = value;
 	});
 
@@ -45,14 +45,10 @@
 	on:click={handleClicked}
 >
 	<div class="block">
-		<nav class="pl-12 pr-12 pt-4 pb-4 text-xl">
-			<Link to={`/utility`}>Import/Export</Link>
+		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
+			<Link to={`/`}>Home</Link>
 		</nav>
-		<nav class="pl-12 pr-12 pt-4 pb-4 text-xl">
-			<Link to={`/viewTemplates`}>Templates</Link>
-		</nav>
-		
-		<nav class="pl-12 pr-12 pt-4 pb-4 text-xl">
+		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
 			<button on:click={openAuthDialog} class="text-left">
 				{#if currentUser?.isLoggedIn}
 					User: {currentUser.username}
@@ -61,13 +57,18 @@
 				{/if}
 			</button>
 		</nav>
+		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
+			<Link to={`/utility`}>Import/Export</Link>
+		</nav>
+		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
+			<Link to={`/viewTemplates`}>Templates</Link>
+		</nav>
 
 		{#if permissionLevel >= 9}
-			<nav class="pl-12 pr-12 pt-4 pb-4 text-xl">
+			<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
 				<Link to={`/users`}>User List</Link>
 			</nav>
 		{/if}
-
 	</div>
 </button>
 

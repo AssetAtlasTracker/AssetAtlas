@@ -30,7 +30,6 @@
   }
 
   import Menu from "../svelteComponents/Menu.svelte";
-  import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
   export let menu: HTMLDialogElement;
 
   async function handleSearch(query: string) {
@@ -130,10 +129,6 @@
   }
 </script>
 
-{#if topLevel}
-  <ActionDisplay />
-{/if}
-
 <TopBar {searchQuery} onSearch={handleSearch} {menu}></TopBar>
 
 <div class="view-layout page-with-topbar">
@@ -170,7 +165,10 @@
 
   {#if viewMode === "list"}
     {#if itemCount > 0}
-      <ItemContainer items={searchResults} />
+      <ItemContainer
+        items={searchResults}
+        on:itemCreated={() => handleSearch(searchQuery)}
+      />
     {:else if itemCount == 0}
       <div id="home-component" class="page-component glass">
         <p class="text-center important-text">No Items Found</p>
@@ -254,5 +252,6 @@
     on:close={() => {
       topLevel = true;
     }}
+    on:itemCreated={() => handleSearch(searchQuery)}
   />
 </div>
