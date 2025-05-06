@@ -39,13 +39,20 @@
   }
 
   function selectAll(){
+    let checkboxes = document.getElementsByTagName("input");
+    for (let i = 0; i < checkboxes.length; i ++){
+      checkboxes[i].checked = true;
+    }
     selectedItems = items;
     numSelected = items.length;
-    //selected = [...items];
     console.log(selectedItems);
   }
 
   function deselectAll() {
+    let checkboxes = document.getElementsByTagName("input");
+    for (let i = 0; i < checkboxes.length; i ++){
+      checkboxes[i].checked = false;
+    }
     selectedItems = [];
     numSelected = 0;
     //selected = [];
