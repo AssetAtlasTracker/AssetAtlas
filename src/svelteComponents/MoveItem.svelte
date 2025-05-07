@@ -4,8 +4,8 @@
     import type { IBasicItemPopulated } from "../models/basicItem.js";
 
   export let itemId: string | undefined;
-  let parentItemName = "";
-  let parentItemId: string | null = null;
+  export let parentItemName = "";
+  export let parentItemId: string | null = null;
   let suggestions: any[] = [];
 
   export let items: IBasicItemPopulated[] | undefined;

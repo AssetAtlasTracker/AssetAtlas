@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from "svelte";
   import ItemLink from "../svelteComponents/ItemLink.svelte";
-  import { Link } from "svelte-routing";
+  import type { IBasicItemPopulated } from "../models/basicItem.js";
+  import BasicItemPopulated from "../models/basicItem.js";
 
   interface TreeItem {
     _id: string;
@@ -12,6 +13,17 @@
   }
 
   const dispatch = createEventDispatcher();
+
+
+  export let draggingItem : IBasicItemPopulated | null | undefined;
+  export let targetItemId : string | undefined; 
+  export let targetItemName : string | undefined;
+  export let showMoveDialog : boolean;
+
+  export function closeMoveDialog() {
+    showMoveDialog = false;
+
+  }
 
   export let useWindowView = false;
   export let parentId: string | null = null;
@@ -74,15 +86,58 @@
   $: if (parentId) {
     loadTree();
   }
+
+  function checkIfSwap() {
+    if (targetItemId && draggingItem && (targetItemId != (draggingItem._id as unknown as string))) {
+      showMoveDialog = true;
+    }
+  }
+
+  function doDrop(e : Event) {
+    e.preventDefault();
+    let element : HTMLElement | null = e.target! as unknown as HTMLElement;
+    let count = 0;
+    while (element && element.getAttribute("data-item-id") == null && count < 10 && element.parentElement != null) {
+      element = element.parentElement;
+    }
+    let itemId = element?.getAttribute("data-item-id") as string | undefined;
+    targetItemName = element?.getAttribute("data-item-name") as string | undefined;
+    targetItemId = itemId;
+    if (targetItemId) {
+      checkIfSwap();
+    }
+  }
+
+  function handleDragStart(e: Event, item: TreeItem) {
+    draggingItem = item as unknown as IBasicItemPopulated;
+  }
+
+  function resetItems() {
+    draggingItem = null;
+    targetItemId = undefined;
+  }
+
 </script>
 
 <div class="tree-container">
   {#if loading}
     <p>Loading tree...</p>
   {:else}
-    {#each treeData as item (item._id)}
+    {#each treeData as item, index (item._id)}
       <div class="tree-branch" style="padding-left: {indentLevel * 0.75}rem;">
-        <div class=flex>
+        <div class=flex role = "navigation" draggable="true" data-item-id={item._id} data-item-name={item.name}
+          on:dragstart={(e) => {
+            handleDragStart(e,item);
+          }}
+          on:dragover={(e) => {
+            e.preventDefault();
+            console.log(`Dragged over ${index}.`);
+          }}
+          on:dragend={(e) => {
+            e.preventDefault();
+            console.log("End Drag")
+          }}
+          on:drop={doDrop}>
           {#if item.hasChildren}
             <button
               class="expand-button"
@@ -128,6 +183,10 @@
 
         {#if expanded[item._id] && item.children}
           <svelte:self
+            bind:draggingItem
+            bind:targetItemId
+            bind:targetItemName
+            bind:showMoveDialog
             rootData={item.children}
             indentLevel={indentLevel + 1}
             {currentId}
@@ -139,3 +198,4 @@
     {/each}
   {/if}
 </div>
+

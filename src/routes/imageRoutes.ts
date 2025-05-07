@@ -5,7 +5,6 @@ import { getUpload } from '../config/gridfs.js';
 const router = express.Router();
 
 router.all('/', (req, res, next) => {
-    console.log("H2");
     try {
         console.log('Uploading: ', req.body.images);
         const upload = getUpload();
