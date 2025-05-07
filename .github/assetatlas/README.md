@@ -68,17 +68,3 @@ docker compose -f docker-compose-ghcr.yml down
 # Tailscale
 docker compose -f docker-compose-ghcr-tailscale.yml down
 ```
-
-### Building and Pushing to GHCR (Development)
-
-TODO move these directions somewhere else as users don't care about them.
-
-Build is handled automatically when pushing to production branch. To manually build and push the container image to GitHub Container Registry:
-
-```bash
-.\docker\build-and-push.bat AssetAtlasTracker AssetAtlas
-```
-
-Enter your GitHub Personal Access Token with package write permissions.
-
-This should be run in projects top level (the provided command includes the pathing to the docker subdirectory).

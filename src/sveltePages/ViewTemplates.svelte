@@ -3,6 +3,8 @@
   import TopBar from "../svelteComponents/TopBar.svelte";
   import Menu from "../svelteComponents/Menu.svelte";
   import type { ITemplatePopulated } from "../models/template.js";
+  import DeleteTemplate from "../svelteComponents/DeleteTemplate.svelte";
+  import { onMount } from "svelte";
 
   import "../svelteStyles/main.css";
   import CreateTemplate from "../svelteComponents/CreateTemplate.svelte";
@@ -35,15 +37,31 @@
 
   let showCreateTemplateDialog = false;
 
-  $: if (showCreateTemplateDialog) {
-    if (templateDialog) {
-      templateDialog.showModal();
-    }
+  $: if (showCreateTemplateDialog && templateDialog) {
+    templateDialog.showModal();
+  }
+
+  function closeCreateDialog() {
+    showCreateTemplateDialog = false;
+    templateDialog?.close();
+  }
+
+  function handleTemplateCreated() {
+    closeCreateDialog();
+    fetchTemplates();
   }
 
   fetchTemplates();
 
   function onSearch(query: string) {}
+
+  function handleTemplateDeleted() {
+    fetchTemplates();
+  }
+
+  onMount(() => {
+    fetchTemplates();
+  });
 </script>
 
 <TopBar searchQuery={""} {onSearch} {menu}></TopBar>
@@ -63,15 +81,11 @@
   {#if showCreateTemplateDialog}
     <Dialog
       bind:dialog={templateDialog}
-      on:close={() => {
-        showCreateTemplateDialog = false;
-        location.reload();
-      }}
+      on:close={closeCreateDialog}
     >
       <CreateTemplate
-        on:close={() => {
-          showCreateTemplateDialog = false;
-        }}
+        on:templateCreated={handleTemplateCreated}
+        on:close={closeCreateDialog}
       />
     </Dialog>
   {/if}

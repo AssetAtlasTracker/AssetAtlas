@@ -3,9 +3,12 @@
   import { ip } from "../stores/ipStore.js";
   import Dialog from "../svelteComponents/Dialog.svelte";
   import { actionStore } from "../stores/actionStore.js";
+  import { createEventDispatcher } from "svelte";
   export let dialog: HTMLDialogElement;
   export let item: IBasicItemPopulated;
   export let onDuplicate = () => {};
+
+  const dispatch = createEventDispatcher();
 
   let name = "Copy of " + item.name;
   let description = "";
@@ -208,7 +211,8 @@
       }
       console.log("Item created:", data);
       actionStore.addMessage("Item created successfully!");
-      location.reload();
+      dispatch("itemCreated");
+      dialog.close();
     } catch (err) {
       console.error("Error creating item:", err);
       actionStore.addMessage("Error creating item");

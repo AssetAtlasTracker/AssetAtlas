@@ -15,7 +15,6 @@
   import type { IBasicItemPopulated } from "../models/basicItem.js";
   import "../svelteStyles/main.css";
   import ReturnItem from "../svelteComponents/ReturnItem.svelte";
-  import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
   import CreateItem from "../svelteComponents/CreateItem.svelte";
   import EditItem from "../svelteComponents/EditItem.svelte";
   import MoveItem from "../svelteComponents/MoveItem.svelte";
@@ -118,10 +117,6 @@
     window.open(`/view/${itemId}`, "_blank");
   }
 </script>
-
-
-<!-- Action display above everything -->
-<ActionDisplay />
 
 <!-- Top bar and menu -->
 <TopBar searchQuery={""} {onSearch} {menu} />
@@ -305,7 +300,11 @@
       {item}
       on:close={() => {
         editDialog?.close();
-        location.reload();
+      }}
+      on:itemUpdated={() => {
+        if (params.id) {
+          fetchItem(params.id);
+        }
       }}
     />
   </Dialog>
@@ -343,5 +342,6 @@
     {item}
     duplicate={false}
     on:close={() => createDialog?.close()}
+    on:itemCreated={() => params.id && fetchItem(params.id)}
   />
 {/key}
