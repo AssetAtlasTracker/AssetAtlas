@@ -2,11 +2,79 @@
   import { Link } from "svelte-routing";
   import type { IBasicItemPopulated } from "../models/basicItem.js";
   import ItemCardOptions from "./ItemCardOptions.svelte";
+    import { setDefaultAutoSelectFamilyAttemptTimeout } from "net";
+    import MultiActions from "./MultiActions.svelte";
+    import Dialog from "./Dialog.svelte";
   import { createEventDispatcher } from "svelte";
 
   export let items: IBasicItemPopulated[];
 
+  let selectedItems: IBasicItemPopulated[] = [];
+  let selected = [];
+
+  let dialog: HTMLDialogElement;
+  
+  let multiActions: MultiActions;
   let itemCardOptions: ItemCardOptions;
+  let numSelected = 0;
+
+  function handleSelect(item: IBasicItemPopulated) {
+    if (selectedItems.includes(item)){
+      deselectItem(item);
+    }
+    else {
+      selectItem(item);
+    }
+  }
+
+  function selectItem(item: IBasicItemPopulated){
+    selectedItems.push(item);
+    numSelected ++;
+  }
+
+  function deselectItem(item: IBasicItemPopulated){
+    let index = selectedItems.indexOf(item);
+    selectedItems.splice(index, 1);
+    numSelected --;
+  }
+
+  function selectAll(){
+    let checkboxes = document.getElementsByTagName("input");
+    for (let i = 0; i < checkboxes.length; i ++){
+      checkboxes[i].checked = true;
+    }
+    selectedItems = items;
+    numSelected = items.length;
+    console.log(selectedItems);
+  }
+
+  function deselectAll() {
+    let checkboxes = document.getElementsByTagName("input");
+    for (let i = 0; i < checkboxes.length; i ++){
+      checkboxes[i].checked = false;
+    }
+    selectedItems = [];
+    numSelected = 0;
+    //selected = [];
+    console.log(selectedItems);
+  }
+
+  function handleDeleteAll(){
+    multiActions.setAction("delete");
+    multiActions.setItems(selectedItems);
+    dialog.showModal();
+  }
+
+  function handleMoveAll(){
+    multiActions.setAction("move");
+    multiActions.setItems(selectedItems);
+    dialog.showModal();
+  }
+
+  function handleClose() {
+    dialog.close();
+    location.reload();
+  }
 
   const dispatch = createEventDispatcher();
 
@@ -19,9 +87,19 @@
 </script>
 
 {#if items && items.length > 0}
+  {#if numSelected > 0}
+  <Dialog bind:dialog={dialog} on:close={handleClose}><MultiActions on:close={handleClose} bind:this={multiActions}/></Dialog>
+  <div class="sort-flex">
+    <button class="success-button font-semibold shadow mt-4 w-full block" on:click={selectAll}>Select All</button>
+    <button class="success-button font-semibold shadow mt-4 w-full block" on:click={deselectAll}>Deselect All</button>
+    <button class="success-button font-semibold shadow mt-4 w-full block"on:click={handleMoveAll}>Move Selected</button>
+    <button class="warn-button font-semibold shadow mt-4 w-full block"on:click={handleDeleteAll}>Delete Selected</button>
+  </div>
+  {/if}
   <div id="home-component" class="glass page-component">
     {#each items as i (i._id)}
       <div class="item-card-flex">
+        <input type="checkbox" style="width: 20px; height: 20px; align-self: center; margin: auto 0;" on:click={() => {handleSelect(i)}}>
         <Link to={`/view/${i._id}`} class="item-card">
           <!-- make this border transparent? -->
           <div class="item-subcard">
