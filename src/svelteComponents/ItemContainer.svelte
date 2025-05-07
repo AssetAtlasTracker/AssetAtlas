@@ -99,7 +99,7 @@
   <div id="home-component" class="glass page-component">
     {#each items as i (i._id)}
       <div class="item-card-flex">
-        <input type="checkbox" on:click={() => {handleSelect(i)}}>
+        <input type="checkbox" style="width: 20px; height: 20px; align-self: center; margin: auto 0;" on:click={() => {handleSelect(i)}}>
         <Link to={`/view/${i._id}`} class="item-card">
           <!-- make this border transparent? -->
           <div class="item-subcard">
