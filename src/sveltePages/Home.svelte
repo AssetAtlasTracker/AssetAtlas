@@ -9,7 +9,6 @@
   import ItemDetails from "../svelteComponents/ItemDetails.svelte";
   import { topBarHeight } from "../stores/topBarStore.js";
   import { SlideToggle } from "@skeletonlabs/skeleton";
-  import Menu from "../svelteComponents/Menu.svelte";
   import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
   import Dialog from "../svelteComponents/Dialog.svelte";
   import MoveItem from "../svelteComponents/MoveItem.svelte";
