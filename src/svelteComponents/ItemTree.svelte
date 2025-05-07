@@ -88,34 +88,20 @@
   }
 
   function checkIfSwap() {
-    console.log("C1");
-    console.log(targetItemId);
-    console.log(draggingItem);
     if (targetItemId && draggingItem && (targetItemId != (draggingItem._id as unknown as string))) {
       showMoveDialog = true;
-      console.log("C2");
     }
   }
 
   function doDrop(e : Event) {
     e.preventDefault();
-    console.log(e.target);
-    //console.log(e.target!.getAttribute("data-item"));
     let element : HTMLElement | null = e.target! as unknown as HTMLElement;
-    console.log(element);
     let count = 0;
-    console.log(!!element);
-    console.log(element.getAttribute("data-item-id"));
-    console.log(count);
-    console.log(element.parentElement);
     while (element && element.getAttribute("data-item-id") == null && count < 10 && element.parentElement != null) {
       element = element.parentElement;
     }
-    console.log(element);
     let itemId = element?.getAttribute("data-item-id") as string | undefined;
     targetItemName = element?.getAttribute("data-item-name") as string | undefined;
-    console.log("S1");
-    console.log(itemId);
     targetItemId = itemId;
     if (targetItemId) {
       checkIfSwap();
@@ -124,7 +110,6 @@
 
   function handleDragStart(e: Event, item: TreeItem) {
     draggingItem = item as unknown as IBasicItemPopulated;
-    console.log("Started Drag");
   }
 
   function resetItems() {
@@ -150,8 +135,7 @@
           }}
           on:dragend={(e) => {
             e.preventDefault();
-            console.log("End Drag");
-            
+            console.log("End Drag")
           }}
           on:drop={doDrop}>
           {#if item.hasChildren}

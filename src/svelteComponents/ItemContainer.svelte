@@ -121,7 +121,6 @@
     }
 
     function handleDragStart(event: DragEvent, item: IBasicItemPopulated) {
-      console.log("Drag started");
       draggingItem = item;
     }
 </script>
@@ -143,7 +142,6 @@
       on:dragover={(e) => {e.preventDefault()}}
       on:dragend={(e) => {
         e.preventDefault();
-        console.log("End Drag");
       }}
       on:drop={handleDragDrop}
       data-item-id={i._id}
