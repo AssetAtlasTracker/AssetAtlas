@@ -12,6 +12,8 @@ A lot of problems we have had have been with Docker not building correctly. Some
 
 # Github Actions
 
+We currently run tests automatically on push. We also lint on push. It doesn't block pushes if they fail any of that though. Check .github/workflows for where the scripts are. Pushing to production will auto rebuild the GHCR hosted containers. This does not happen when pushing to main.
+
 # Svelte
 
 We are currently using Svelte 4. That's just how we started, and when we tried to switch to Svelte 5, the code broke. I don't know how easy it would be to update/fix at some point if you find some reason to use Svelte 5. The thing that broke had to do with reactive statements (I read online this should be backwards compatible but it was not) and it seems the solution may involve something called runes, which I don't know much about but is part of Svelte 5.
@@ -19,6 +21,7 @@ We are currently using Svelte 4. That's just how we started, and when we tried 
 We are using base svelte instead of sveltekit. To make routing work, we are using a library called svelte-routing. This works fine for everything we are doing now, but sveltekit is more powerful. Converting the project to sveltekit would be possible, but it is a decent bit of work as you would have to restructure the entire project, so I wouldn't recommend it unless absolutely necessary.
 
 One thing we ran into is that svelte only uses one instance of a component, so when trying to use the same component for multiple pages you will be using the same component and can't actually reinitialize it. The workaround to this was to use a svelte feature called keys. They are explained well in the svelte docs, but basically it destroys and reinitializes the contents of the key block whenever the value of the key changes. You will probably need to use keys whenever you need to use a component multiple times in the app, particularly if it is a displayed component, like a dialog box.
+
 # Vite
 
 # Tailwind
@@ -46,6 +49,8 @@ This should be run in projects top level (the provided command includes the path
 
 # MongoDB
 
+We are using MongoDB as our database. It works well for what we do, and you should be able to get the gist of what fields currently exist and how they work from looking at the files in the models subdirectory. I will explain though that we use a schema (e.g. BasicItemSchema) and an interface (e.g. IBasicItem) which are different things. The schema is for MongoDB itself (actually mongoose but dont worry about it). The interface is for setting thing's types for TypeScript. Also for many of our database items we have a normal version and a populated version of the interface. The populated version is for when we like, fully load an item and want say its image and children items to actually be loaded, instead of just being an item ID like they are stored in the actual database. Different API calls will sometimes populate or not populate items/fields that get returned from queries. We do this to avoid sending unnecessary data around.
+
 # Tailscale
 
 We currently use tailscale for multi device/hosting support. Tailscale itself is a flawed solution to what we want to do. Ideally users could just self host from their own machine, but because we lack access to port forwarding at rose this was the best option we could find. Tailscale is a wire gaurd vpn protocol, where devices communicate via p2p whenever possible. But sometiems (I dont know what the conditions around this are), the devices communicate via tailscales servers. But the data is encrypted in that case. I'll also add that I read at some point that it was possible to self host an actual server, that anyone could access without having tailscale installed on their device, but that this would require getting HTTPS to work when hosting. It may have also cost some money or had some other limitations? Anyway the HTTPS problem is another thing, AssetAtlas right now only runs on HTTP for another reason I dont fully remember. You could try to fix this, it's probably possible we didnt spend too much time trying to switch it over as we got the tailscale hosting stuff out of the way pretty early in development and had bigger fish to fry once it was working at all.
@@ -59,8 +64,10 @@ Mobile UI is currently very messy as we have been mostly focusing on making it w
 
 We have a search bar in the topbar, but searching only works on the home page. We want/wanted to make a little popup box thing with the top 5 matches or so show up on any page whenever the search bar gets typed in, but we didn't get around to it.
 
-Passwords are not really secure as is, due to us using HTTP instead of HTTPS. They are hashed locally with SHA256 before getting sent to backend and hashed again. This means a man in the middle attack at least would not leak a users plaintext password, protecting them if they are using a re-used password for AssetAtlas.
+Passwords are not really secure as is, due to us using HTTP instead of HTTPS. They are hashed locally with SHA256 before getting sent to backend and hashed again (and salted). This means a man in the middle attack at least would not leak a user's plaintext password, protecting them if they are using a re-used password for AssetAtlas.
 
 # Possible future directions
 
 Multiple templates per item. Would probably be a hard fork.
+
+File datatype as a custom field. so like you could upload a pdf to a "warranty" field or something.
