@@ -84,6 +84,45 @@
 
   // Log items to verify data in the frontend
   console.log("Items in frontend:", items);
+
+  export let draggingItem: IBasicItemPopulated | null = null;
+  export let targetItemId: string | null = null;
+  export let targetItemName: string | null = null;
+  export let showMoveDialog : boolean;
+
+
+    function handleDragDrop(event: DragEvent & { currentTarget: EventTarget & HTMLDivElement; }) {
+      let foundDataContainingElement = false;
+      let currentTarget : HTMLElement | null = event.currentTarget as HTMLElement | null;
+      let maxOut = 10;
+      while (!foundDataContainingElement) {
+        if (currentTarget) {
+          if (currentTarget.draggable) {
+            foundDataContainingElement = true;
+          } else if (maxOut <= 0) {
+            return;
+          } else {
+            currentTarget = currentTarget.parentElement;
+            if (currentTarget === null) {
+              return;
+            }
+            maxOut--;
+          }
+        } else {
+          return;
+        }
+      }
+      targetItemId = currentTarget!.getAttribute("data-item-id");
+      targetItemName = currentTarget!.getAttribute("data-item-name");
+      if (targetItemId && targetItemName && draggingItem) {
+        showMoveDialog = true;
+        console.log("Successful Drop");
+      }
+    }
+
+    function handleDragStart(event: DragEvent, item: IBasicItemPopulated) {
+      draggingItem = item;
+    }
 </script>
 
 {#if items && items.length > 0}
@@ -98,7 +137,16 @@
   {/if}
   <div id="home-component" class="glass page-component">
     {#each items as i (i._id)}
-      <div class="item-card-flex">
+      <div class="item-card-flex" role="navigation" draggable="true"
+      on:dragstart={(e) => {handleDragStart(e, i)}}
+      on:dragover={(e) => {e.preventDefault()}}
+      on:dragend={(e) => {
+        e.preventDefault();
+      }}
+      on:drop={handleDragDrop}
+      data-item-id={i._id}
+      data-item-name={i.name}
+    >
         <input type="checkbox" style="width: 20px; height: 20px; align-self: center; margin: auto 0;" on:click={() => {handleSelect(i)}}>
         <Link to={`/view/${i._id}`} class="item-card">
           <!-- make this border transparent? -->

@@ -9,6 +9,9 @@
   import ItemDetails from "../svelteComponents/ItemDetails.svelte";
   import { topBarHeight } from "../stores/topBarStore.js";
   import { SlideToggle } from "@skeletonlabs/skeleton";
+  import ActionDisplay from "../svelteComponents/ActionDisplay.svelte";
+  import Dialog from "../svelteComponents/Dialog.svelte";
+  import MoveItem from "../svelteComponents/MoveItem.svelte";
 
   import "../svelteStyles/main.css";
 
@@ -22,6 +25,27 @@
 
   let topLevel = true;
   let itemCount = -1;
+
+  let draggingItem : IBasicItemPopulated | undefined = undefined;
+  let targetItemId : string | undefined = undefined;
+  let targetItemName : string | undefined = undefined;
+  let showMoveDialog : boolean = false;
+  let moveDialog : HTMLDialogElement;
+
+  $: {
+    if (showMoveDialog) {
+      console.log("Opening");
+      moveDialog.showModal();
+    }
+  }
+
+  $ : {
+    if (moveDialog) {
+      moveDialog.onclose = () => {
+        showMoveDialog = false;
+      }
+    }
+  }
 
   async function handleSortChange(event: Event) {
     const target = event.target as HTMLSelectElement;
@@ -124,6 +148,8 @@
   let showItemTree = true;
 
   function handleTreeClose() {
+    console.log("H1");
+    console.log(showMoveDialog);
     console.log("Close tree window clicked");
     showItemTree = false;
   }
@@ -168,7 +194,7 @@
       <ItemContainer
         items={searchResults}
         on:itemCreated={() => handleSearch(searchQuery)}
-      />
+      bind:showMoveDialog={showMoveDialog} bind:draggingItem={draggingItem} bind:targetItemId={targetItemId} bind:targetItemName={targetItemName}/>
     {:else if itemCount == 0}
       <div id="home-component" class="page-component glass">
         <p class="text-center important-text">No Items Found</p>
@@ -209,7 +235,7 @@
       showOpenInNewTab={false}
       on:close={handleTreeClose}
     >
-      <ItemTree useWindowView={true} on:openItem={handleOpenItem} />
+      <ItemTree bind:draggingItem={draggingItem} bind:targetItemId={targetItemId} bind:targetItemName={targetItemName} bind:showMoveDialog useWindowView={true} on:openItem={handleOpenItem} />
     </Window>
   {/if}
 
@@ -255,3 +281,30 @@
     on:itemCreated={() => handleSearch(searchQuery)}
   />
 </div>
+
+{#if draggingItem}
+<Dialog
+  bind:dialog={moveDialog}
+  on:create={() => {
+    console.log("Created Modal");
+    moveDialog.showModal();
+  }}
+  on:close={() => {
+    console.log("H1");
+    showMoveDialog = false;
+  }}
+>
+  <div class="important-text text-center">
+    Move "{draggingItem.name}" to:
+  </div>
+  <MoveItem
+    itemId={draggingItem._id.toString()}
+    parentItemName={targetItemName}
+    parentItemId={targetItemId}
+    on:close={() => {
+      console.log("H2");
+      showMoveDialog = false;
+   }}
+  />
+</Dialog>
+{/if}
