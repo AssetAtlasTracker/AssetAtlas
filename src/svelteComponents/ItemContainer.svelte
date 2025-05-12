@@ -43,9 +43,9 @@
     numSelected--;
   }
 
-  function selectAll(){
+  function selectAll() {
     let checkboxes = document.getElementsByTagName("input");
-    for (let i = 0; i < checkboxes.length; i ++){
+    for (let i = 0; i < checkboxes.length; i++) {
       checkboxes[i].checked = true;
     }
     selectedItems = items;
@@ -55,7 +55,7 @@
 
   function deselectAll() {
     let checkboxes = document.getElementsByTagName("input");
-    for (let i = 0; i < checkboxes.length; i ++){
+    for (let i = 0; i < checkboxes.length; i++) {
       checkboxes[i].checked = false;
     }
     selectedItems = [];
@@ -93,41 +93,43 @@
   export let draggingItem: IBasicItemPopulated | null = null;
   export let targetItemId: string | null = null;
   export let targetItemName: string | null = null;
-  export let showMoveDialog : boolean;
+  export let showMoveDialog: boolean;
 
-
-    function handleDragDrop(event: DragEvent & { currentTarget: EventTarget & HTMLDivElement; }) {
-      let foundDataContainingElement = false;
-      let currentTarget : HTMLElement | null = event.currentTarget as HTMLElement | null;
-      let maxOut = 10;
-      while (!foundDataContainingElement) {
-        if (currentTarget) {
-          if (currentTarget.draggable) {
-            foundDataContainingElement = true;
-          } else if (maxOut <= 0) {
-            return;
-          } else {
-            currentTarget = currentTarget.parentElement;
-            if (currentTarget === null) {
-              return;
-            }
-            maxOut--;
-          }
-        } else {
+  function handleDragDrop(
+    event: DragEvent & { currentTarget: EventTarget & HTMLDivElement },
+  ) {
+    let foundDataContainingElement = false;
+    let currentTarget: HTMLElement | null =
+      event.currentTarget as HTMLElement | null;
+    let maxOut = 10;
+    while (!foundDataContainingElement) {
+      if (currentTarget) {
+        if (currentTarget.draggable) {
+          foundDataContainingElement = true;
+        } else if (maxOut <= 0) {
           return;
+        } else {
+          currentTarget = currentTarget.parentElement;
+          if (currentTarget === null) {
+            return;
+          }
+          maxOut--;
         }
-      }
-      targetItemId = currentTarget!.getAttribute("data-item-id");
-      targetItemName = currentTarget!.getAttribute("data-item-name");
-      if (targetItemId && targetItemName && draggingItem) {
-        showMoveDialog = true;
-        console.log("Successful Drop");
+      } else {
+        return;
       }
     }
+    targetItemId = currentTarget!.getAttribute("data-item-id");
+    targetItemName = currentTarget!.getAttribute("data-item-name");
+    if (targetItemId && targetItemName && draggingItem) {
+      showMoveDialog = true;
+      console.log("Successful Drop");
+    }
+  }
 
-    function handleDragStart(event: DragEvent, item: IBasicItemPopulated) {
-      draggingItem = item;
-    }
+  function handleDragStart(event: DragEvent, item: IBasicItemPopulated) {
+    draggingItem = item;
+  }
 </script>
 
 {#if items && items.length > 0}
@@ -156,41 +158,42 @@
   {/if}
   <div id="home-component" class="glass page-component">
     {#each items as i (i._id)}
-      <div class="item-card-flex" role="navigation" draggable="true"
-      on:dragstart={(e) => {handleDragStart(e, i)}}
-      on:dragover={(e) => {e.preventDefault()}}
-      on:dragend={(e) => {
-        e.preventDefault();
-      }}
-      on:drop={handleDragDrop}
-      data-item-id={i._id}
-      data-item-name={i.name}
-    >
-        <input type="checkbox" style="width: 20px; height: 20px; align-self: center; margin: auto 0;" on:click={() => {handleSelect(i)}}>
+      <div
+        class="item-card-flex"
+        role="navigation"
+        draggable="true"
+        on:dragstart={(e) => {
+          handleDragStart(e, i);
+        }}
+        on:dragover={(e) => {
+          e.preventDefault();
+        }}
+        on:dragend={(e) => {
+          e.preventDefault();
+        }}
+        on:drop={handleDragDrop}
+        data-item-id={i._id}
+        data-item-name={i.name}
+      >
+        <input
+          type="checkbox"
+          style="width: 20px; height: 20px; align-self: center; margin: auto 0;"
+          on:click={() => {
+            handleSelect(i);
+          }}
+        />
         <Link to={`/view/${i._id}`} class="item-card">
           <div class="item-subcard flex">
-            <!-- Double verticle dots makeshift "draggable" svg-->
+            <!-- Custom "draggable" icon svg-->
             <div class="draggable-dot-icon">
-              <svg
-                class="icon-small"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 128 512"
-              >
-                <path
-                  fill="#ffffff"
-                  d="M64 360a56 56 0 1 0 0 112 56 56 0 1 0 0-112zm0-160a56 56 0 1 0 0 112 56 56 0 1 0 0-112zM120 96A56 56 0 1 0 8 96a56 56 0 1 0 112 0z"
-                /></svg
-              >
-              <svg
-                class="icon-small vertical-dot-col"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 128 512"
-              >
-                <path
-                  fill="#ffffff"
-                  d="M64 360a56 56 0 1 0 0 112 56 56 0 1 0 0-112zm0-160a56 56 0 1 0 0 112 56 56 0 1 0 0-112zM120 96A56 56 0 1 0 8 96a56 56 0 1 0 112 0z"
-                /></svg
-              >
+              <svg viewBox="0 0 200 300" role="img">
+                <circle cx="50" cy="50" r="25" style="fill: #ffffff" />
+                <circle cx="50" cy="140" r="25" style="fill: #ffffff" />
+                <circle cx="50" cy="230" r="25" style="fill: #ffffff" />
+                <circle cx="140" cy="50" r="25" style="fill: #ffffff" />
+                <circle cx="140" cy="140" r="25" style="fill: #ffffff" />
+                <circle cx="140" cy="230" r="25" style="fill: #ffffff" />
+              </svg>
             </div>
             <div>
               <div class="important-text">
