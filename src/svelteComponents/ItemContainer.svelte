@@ -1,10 +1,16 @@
+<!-- Icons from: 
+ Font Awesome Free 6.7.2 by @fontawesome 
+ - https://fontawesome.com License 
+ - https://fontawesome.com/license/free 
+ Copyright 2025 Fonticons, Inc.-->
+
 <script lang="ts">
   import { Link } from "svelte-routing";
   import type { IBasicItemPopulated } from "../models/basicItem.js";
   import ItemCardOptions from "./ItemCardOptions.svelte";
-    import { setDefaultAutoSelectFamilyAttemptTimeout } from "net";
-    import MultiActions from "./MultiActions.svelte";
-    import Dialog from "./Dialog.svelte";
+  import { setDefaultAutoSelectFamilyAttemptTimeout } from "net";
+  import MultiActions from "./MultiActions.svelte";
+  import Dialog from "./Dialog.svelte";
   import { createEventDispatcher } from "svelte";
 
   export let items: IBasicItemPopulated[];
@@ -13,29 +19,28 @@
   let selected = [];
 
   let dialog: HTMLDialogElement;
-  
+
   let multiActions: MultiActions;
   let itemCardOptions: ItemCardOptions;
   let numSelected = 0;
 
   function handleSelect(item: IBasicItemPopulated) {
-    if (selectedItems.includes(item)){
+    if (selectedItems.includes(item)) {
       deselectItem(item);
-    }
-    else {
+    } else {
       selectItem(item);
     }
   }
 
-  function selectItem(item: IBasicItemPopulated){
+  function selectItem(item: IBasicItemPopulated) {
     selectedItems.push(item);
-    numSelected ++;
+    numSelected++;
   }
 
-  function deselectItem(item: IBasicItemPopulated){
+  function deselectItem(item: IBasicItemPopulated) {
     let index = selectedItems.indexOf(item);
     selectedItems.splice(index, 1);
-    numSelected --;
+    numSelected--;
   }
 
   function selectAll(){
@@ -59,13 +64,13 @@
     console.log(selectedItems);
   }
 
-  function handleDeleteAll(){
+  function handleDeleteAll() {
     multiActions.setAction("delete");
     multiActions.setItems(selectedItems);
     dialog.showModal();
   }
 
-  function handleMoveAll(){
+  function handleMoveAll() {
     multiActions.setAction("move");
     multiActions.setItems(selectedItems);
     dialog.showModal();
@@ -127,13 +132,27 @@
 
 {#if items && items.length > 0}
   {#if numSelected > 0}
-  <Dialog bind:dialog={dialog} on:close={handleClose}><MultiActions on:close={handleClose} bind:this={multiActions}/></Dialog>
-  <div class="sort-flex">
-    <button class="success-button font-semibold shadow mt-4 w-full block" on:click={selectAll}>Select All</button>
-    <button class="success-button font-semibold shadow mt-4 w-full block" on:click={deselectAll}>Deselect All</button>
-    <button class="success-button font-semibold shadow mt-4 w-full block"on:click={handleMoveAll}>Move Selected</button>
-    <button class="warn-button font-semibold shadow mt-4 w-full block"on:click={handleDeleteAll}>Delete Selected</button>
-  </div>
+    <Dialog bind:dialog on:close={handleClose}
+      ><MultiActions on:close={handleClose} bind:this={multiActions} /></Dialog
+    >
+    <div class="sort-flex">
+      <button
+        class="success-button font-semibold shadow mt-4 w-full block"
+        on:click={selectAll}>Select All</button
+      >
+      <button
+        class="success-button font-semibold shadow mt-4 w-full block"
+        on:click={deselectAll}>Deselect All</button
+      >
+      <button
+        class="success-button font-semibold shadow mt-4 w-full block"
+        on:click={handleMoveAll}>Move Selected</button
+      >
+      <button
+        class="warn-button font-semibold shadow mt-4 w-full block"
+        on:click={handleDeleteAll}>Delete Selected</button
+      >
+    </div>
   {/if}
   <div id="home-component" class="glass page-component">
     {#each items as i (i._id)}
@@ -149,13 +168,37 @@
     >
         <input type="checkbox" style="width: 20px; height: 20px; align-self: center; margin: auto 0;" on:click={() => {handleSelect(i)}}>
         <Link to={`/view/${i._id}`} class="item-card">
-          <!-- make this border transparent? -->
-          <div class="item-subcard">
-            <div class="important-text">
-              {i.name}
+          <div class="item-subcard flex">
+            <!-- Double verticle dots makeshift "draggable" svg-->
+            <div class="draggable-dot-icon">
+              <svg
+                class="icon-small"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 128 512"
+              >
+                <path
+                  fill="#ffffff"
+                  d="M64 360a56 56 0 1 0 0 112 56 56 0 1 0 0-112zm0-160a56 56 0 1 0 0 112 56 56 0 1 0 0-112zM120 96A56 56 0 1 0 8 96a56 56 0 1 0 112 0z"
+                /></svg
+              >
+              <svg
+                class="icon-small vertical-dot-col"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 128 512"
+              >
+                <path
+                  fill="#ffffff"
+                  d="M64 360a56 56 0 1 0 0 112 56 56 0 1 0 0-112zm0-160a56 56 0 1 0 0 112 56 56 0 1 0 0-112zM120 96A56 56 0 1 0 8 96a56 56 0 1 0 112 0z"
+                /></svg
+              >
             </div>
-            <div class="sub-text">
-              {i.description || "No Description"}
+            <div>
+              <div class="important-text">
+                {i.name}
+              </div>
+              <div class="sub-text">
+                {i.description || "No Description"}
+              </div>
             </div>
           </div>
           <div class="sub-text item-subcard">
