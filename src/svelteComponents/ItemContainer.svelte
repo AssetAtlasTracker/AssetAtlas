@@ -185,7 +185,7 @@
         <Link to={`/view/${i._id}`} class="item-card">
           <div class="item-subcard flex">
             <!-- Custom "draggable" icon svg-->
-            <div class="draggable-dot-icon">
+            <div class="draggable-list-dot-icon">
               <svg viewBox="0 0 200 300" role="img">
                 <circle cx="50" cy="50" r="25" style="fill: #ffffff" />
                 <circle cx="50" cy="140" r="25" style="fill: #ffffff" />
