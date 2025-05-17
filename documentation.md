@@ -52,11 +52,32 @@ We currently use tailscale for multi device/hosting support. Tailscale itself is
 
 # CSV Import/Export
 
-All classes made for the CSV Import and Export feature are in the utility package. This feature has two main parts. First there are the parsers and formatters. These take csv data and create items and templates according to a format and vice versa. There are two types of csv files, ones formatted for items and ones formatted for templates. The specifications of these formats can be found at TODO. Support for new formats can be added through implementations of the Parser and Formatter interfaces. Supporting multiple formats at the same time would require changes to the ParserManager.
+All classes made for the CSV Import and Export feature are in the utility package. This feature has two main parts. First there are the parsers and formatters. These take csv data and create items and templates according to a format and vice versa. There are two types of csv files, ones formatted for items and ones formatted for templates. The specifications of these formats can be found detailed below. Support for new formats can be added through implementations of the Parser and Formatter interfaces. Supporting multiple formats at the same time would require changes to the ParserManager.
 
 Beyond the parsers and formatters, this feature needs to import or read in data and export or write out data. Within the importing, JSZip is used to unzip folders which are recursively searched for csv files and images. While exporting, the built-in dowloadable attribute of HTML links is used, which takes the content given and downloads it to the dowaloads folder of the user.
 
 A problem encountered while adding items is that our internal API calls made to wrap api calls directly to the database cannot be called within the domain level code.
+
+## Current CSV Formatting
+
+### Items
+
+1. The first line names the properties of the items
+   1. The first three properties must be "name", "template", and "description" in that order
+2. Each line is an item except for
+   1. The first line
+   2. Lines used to indicate nesting
+3. Each grid entry on an item line details the value of the column's named property for that item
+   1. Unless that entry is blank and the property is not required by the item's template.
+4. ">" in the first column indicates the start of a nesting or subinventory, "<" the end.
+
+### Templates
+
+1. The first line has "template name" as the first entry
+2. Each template is two rows
+   1. The first line has the template name as the first entry
+   2. The rest of the first line lists the names of the templates required properties
+   3. The second line lists the types of the templates required properties under their respective names.
 
 # General design philosophy
 
