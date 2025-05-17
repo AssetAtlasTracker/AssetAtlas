@@ -39,7 +39,7 @@
 </script>
 
 <button
-	class="glass h-full slide-out-menu"
+	class="glass slide-out-menu"
 	bind:this={menu}
 	class:open
 	on:click={handleClicked}

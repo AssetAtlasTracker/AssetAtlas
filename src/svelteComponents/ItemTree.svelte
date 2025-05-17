@@ -14,15 +14,13 @@
 
   const dispatch = createEventDispatcher();
 
-
-  export let draggingItem : IBasicItemPopulated | null | undefined;
-  export let targetItemId : string | undefined; 
-  export let targetItemName : string | undefined;
-  export let showMoveDialog : boolean;
+  export let draggingItem: IBasicItemPopulated | null | undefined;
+  export let targetItemId: string | undefined;
+  export let targetItemName: string | undefined;
+  export let showMoveDialog: boolean;
 
   export function closeMoveDialog() {
     showMoveDialog = false;
-
   }
 
   export let useWindowView = false;
@@ -88,20 +86,31 @@
   }
 
   function checkIfSwap() {
-    if (targetItemId && draggingItem && (targetItemId != (draggingItem._id as unknown as string))) {
+    if (
+      targetItemId &&
+      draggingItem &&
+      targetItemId != (draggingItem._id as unknown as string)
+    ) {
       showMoveDialog = true;
     }
   }
 
-  function doDrop(e : Event) {
+  function doDrop(e: Event) {
     e.preventDefault();
-    let element : HTMLElement | null = e.target! as unknown as HTMLElement;
+    let element: HTMLElement | null = e.target! as unknown as HTMLElement;
     let count = 0;
-    while (element && element.getAttribute("data-item-id") == null && count < 10 && element.parentElement != null) {
+    while (
+      element &&
+      element.getAttribute("data-item-id") == null &&
+      count < 10 &&
+      element.parentElement != null
+    ) {
       element = element.parentElement;
     }
     let itemId = element?.getAttribute("data-item-id") as string | undefined;
-    targetItemName = element?.getAttribute("data-item-name") as string | undefined;
+    targetItemName = element?.getAttribute("data-item-name") as
+      | string
+      | undefined;
     targetItemId = itemId;
     if (targetItemId) {
       checkIfSwap();
@@ -116,7 +125,6 @@
     draggingItem = null;
     targetItemId = undefined;
   }
-
 </script>
 
 <div class="tree-container">
@@ -125,9 +133,14 @@
   {:else}
     {#each treeData as item, index (item._id)}
       <div class="tree-branch" style="padding-left: {indentLevel * 0.75}rem;">
-        <div class=flex role = "navigation" draggable="true" data-item-id={item._id} data-item-name={item.name}
+        <div
+          class="flex"
+          role="navigation"
+          draggable="true"
+          data-item-id={item._id}
+          data-item-name={item.name}
           on:dragstart={(e) => {
-            handleDragStart(e,item);
+            handleDragStart(e, item);
           }}
           on:dragover={(e) => {
             e.preventDefault();
@@ -135,9 +148,10 @@
           }}
           on:dragend={(e) => {
             e.preventDefault();
-            console.log("End Drag")
+            console.log("End Drag");
           }}
-          on:drop={doDrop}>
+          on:drop={doDrop}
+        >
           {#if item.hasChildren}
             <button
               class="expand-button"
@@ -158,26 +172,27 @@
               itemName={item.name}
               on:openItem
             >
-              <button
-                class="tree-item-card important-text {item._id === currentId
-                  ? 'current'
-                  : ''}"
-                aria-current={item._id === currentId}
-              >
-                {item.name}
-              </button>
+                <button
+                  class="tree-item-card important-text {item._id === currentId
+                    ? 'current'
+                    : ''}"
+                  aria-current={item._id === currentId}
+                >
+                <div class="flex">
+                  <div class="draggable-tree-dot-icon">
+                    <svg viewBox="0 0 200 300" role="img">
+                      <circle cx="50" cy="50" r="25" style="fill: #ffffff" />
+                      <circle cx="50" cy="140" r="25" style="fill: #ffffff" />
+                      <circle cx="50" cy="230" r="25" style="fill: #ffffff" />
+                      <circle cx="140" cy="50" r="25" style="fill: #ffffff" />
+                      <circle cx="140" cy="140" r="25" style="fill: #ffffff" />
+                      <circle cx="140" cy="230" r="25" style="fill: #ffffff" />
+                    </svg>
+                  </div>
+                    {item.name}
+                  </div>
+                </button>
             </ItemLink>
-            <!-- We dont use full page nav for trees anymore
-          {:else} 
-            <Link to={`/view/${ensureString(item._id)}`} style="text-decoration: none;">
-              <button 
-                class="tree-item-card important-text {item._id === currentId ? 'current' : ''}" 
-                aria-current={item._id === currentId}
-              >
-                {item.name}
-              </button>
-            </Link>
-          -->
           {/if}
         </div>
 
@@ -198,4 +213,3 @@
     {/each}
   {/if}
 </div>
-
