@@ -2,6 +2,7 @@
   export let itemId;
   export let parentId;
   import { navigate } from "svelte-routing";
+  
 
   async function returnItem() {
     try {
@@ -16,7 +17,7 @@
 
       if (response.ok) {
         console.log("Item returned to home");
-        navigate(`/view/${itemId}`);
+        location.reload();
       } else {
         console.error("Failed to move item:", await response.text());
       }

@@ -2,7 +2,9 @@
   import { actionStore } from "../stores/actionStore.js";
   import CustomFieldPicker from "./CustomFieldPicker.svelte";
   import "../svelteStyles/main.css";
-  import ActionDisplay from "./ActionDisplay.svelte";
+  import { createEventDispatcher } from 'svelte';
+
+  const dispatch = createEventDispatcher();
 
   let name = "";
   let customFields: ICustomFieldEntry[] = [];
@@ -76,6 +78,9 @@
       customFields = [];
 
       actionStore.addMessage("Template created successfully!");
+
+      dispatch('templateCreated');
+      dispatch('close');
     } catch (err) {
       console.error("Error creating template:", err);
       actionStore.addMessage("Error creating template.");
@@ -243,8 +248,6 @@
     }
   }
 </script>
-
-<ActionDisplay/>
 
 <div class="template-container">
   <h1 id="underline-header" class="font-bold text-center">Create New Template</h1>

@@ -1,14 +1,16 @@
 <script lang="ts">
-  import type { IBasicItemPopulated } from '../models/basicItem.js';
+  import type { IBasicItemPopulated } from "../models/basicItem.js";
   import { ip } from "../stores/ipStore.js";
+  import Dialog from "../svelteComponents/Dialog.svelte";
   import { actionStore } from "../stores/actionStore.js";
+  import { createEventDispatcher } from "svelte";
+  export let dialog: HTMLDialogElement;
   export let item: IBasicItemPopulated;
   export let onDuplicate = () => {};
 
+  const dispatch = createEventDispatcher();
 
-  //TODO
-  //AUTO CHANGE THE NAME TO *COPY OF _____*
-  let name = item.name;
+  let name = "Copy of " + item.name;
   let description = "";
   if (item.description) {
     description = item.description;
@@ -40,6 +42,32 @@
   }
   let templateSuggestions: any[] = [];
   let selectedImage: File | null = null;
+
+  export function changeItem(newItem: IBasicItemPopulated) {
+    console.log("item changed");
+    item = newItem;
+    name = "Copy of " + item.name;
+    if (item.description) {
+      description = item.description;
+    }
+    tags = item.tags.toString();
+    if (item.parentItem?.name != null) {
+      parentItemName = item.parentItem?.name;
+    }
+    if (item.parentItem) {
+      parentItemId = item.parentItem._id.toString();
+    }
+    if (item.homeItem?.name != null) {
+      homeItemName = item.homeItem?.name;
+    }
+    if (item.homeItem) {
+      homeItemId = item.homeItem._id.toString();
+    }
+    if (item.template) {
+      templateName = item.template?.name;
+      templateId = item.template?._id.toString();
+    }
+  }
 
   interface ICustomField {
     _id: string;
@@ -131,7 +159,7 @@
 
   async function duplicateItem() {
     try {
-        const formattedCustomFields = await Promise.all(
+      const formattedCustomFields = await Promise.all(
         customFields.map(async (field) => {
           if (!field.isNew && field.fieldId) {
             return { field: field.fieldId, value: field.value };
@@ -183,7 +211,8 @@
       }
       console.log("Item created:", data);
       actionStore.addMessage("Item created successfully!");
-      location.reload();
+      dispatch("itemCreated");
+      dialog.close();
     } catch (err) {
       console.error("Error creating item:", err);
       actionStore.addMessage("Error creating item");
@@ -191,6 +220,16 @@
   }
 </script>
 
-<button on:click={duplicateItem} class="border-button">
-  <slot></slot>
-</button>
+<Dialog bind:dialog>
+  <div class="small-dialog-padding">
+    Are you sure you want to duplicate "{item.name}"?
+    <div class="simple-flex pt-4">
+      <button on:click={() => dialog.close()} class="border-button flex-grow">
+        Cancel
+      </button>
+      <button on:click={duplicateItem} class="success-button flex-grow">
+        Duplicate
+      </button>
+    </div>
+  </div>
+</Dialog>

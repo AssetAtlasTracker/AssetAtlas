@@ -4929,6 +4929,15 @@ a.\!chip:hover,
   z-index: 999;
 }
 
+.m-4 {
+  margin: 1rem;
+}
+
+.mx-4 {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+
 .my-4 {
   margin-top: 1rem;
   margin-bottom: 1rem;
@@ -5146,10 +5155,6 @@ a.\!chip:hover,
 
 .min-w-\[150px\] {
   min-width: 150px;
-}
-
-.min-w-\[200px\] {
-  min-width: 200px;
 }
 
 .min-w-\[400px\] {
@@ -5604,6 +5609,10 @@ a.\!chip:hover,
 
 .pt-4 {
   padding-top: 1rem;
+}
+
+.text-left {
+  text-align: left;
 }
 
 .text-center {

@@ -1,15 +1,66 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { actionStore } from "../stores/actionStore.js";
+    import type { IBasicItemPopulated } from "../models/basicItem.js";
 
   export let itemId: string | undefined;
-  let parentItemName = "";
-  let parentItemId: string | null = null;
+  export let parentItemName = "";
+  export let parentItemId: string | null = null;
   let suggestions: any[] = [];
+
+  export let items: IBasicItemPopulated[] | undefined;
 
   const dispatch = createEventDispatcher();
 
-  async function handleMove() {
+
+  export function setItems(newItems: IBasicItemPopulated[]){
+    items = newItems;
+  }
+
+  export function setParent(newParentId: string) {
+    parentItemId = newParentId;
+  }
+
+  export async function handleMove() {
+    if (items && items.length > 0) {
+      moveItems();
+    }
+    else {
+      moveItem();
+    }
+  }
+
+
+  async function moveItems(){
+    console.log("trying to log items");
+    for (let i = 0; i < items?.length; i ++){
+      itemId = items[i]._id.toString();
+      if (!parentItemId || !itemId) return;
+      try {
+        const response = await fetch(`/api/items/move`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            itemId: itemId,
+            newParentId: parentItemId,
+          }),
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to move item");
+        }
+        actionStore.addMessage("Item moved successfully");
+      } catch (err) {
+        console.error("Error moving item:", err);
+        actionStore.addMessage("Error moving item");
+      }
+    }
+    dispatch("close");
+    location.reload();
+  }
+
+  async function moveItem() {
+    console.log("trying to log item");
     if (!parentItemId || !itemId) return;
 
     try {

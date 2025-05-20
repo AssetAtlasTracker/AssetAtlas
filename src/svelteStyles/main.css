@@ -32,13 +32,6 @@ e.g. containers, theming, etc.
   padding: 0 1rem; /* Add padding for spacing */
 }
 
-.flex-1 {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin: 0.5rem;
-}
-
 .glass{
   background: rgba(var(--color-primary-800) / 0.8) !important;
   box-shadow: 0 8px 16px 0 rgb(var(--color-primary-900));
@@ -68,6 +61,10 @@ e.g. containers, theming, etc.
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
 }
 
+.small-dialog-padding{
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+}
+
 .large-dialog-noscroll{ /* Keeps add/edit dialog from scrolling */
   height: calc(100% - 1rem);
   overflow: hidden;
@@ -83,10 +80,11 @@ e.g. containers, theming, etc.
   z-index: 10000; /* On top of topbar (to avoid topbar dropshadow)*/
   top: var(--top-bar-height, 64px); /* were using the CSS variable with a harcoded fallback for height*/
   left: -100%;
-  height: calc(100vh - var(--top-bar-height, 64px));
+  height: calc(100% - var(--top-bar-height, 64px));
   transition: left 0.3s ease-in-out;
   background: rgb(var(--color-primary-100));
   border: 1px solid rgba(var(--color-primary-100) / 0.8);
+  border-radius: 10px 10px 10px 0;
   margin: 0;
   padding: 1rem;
   display: flex;
@@ -154,7 +152,12 @@ e.g. containers, theming, etc.
 }
 
 .item-card:hover{
-  transform:scale(1.05);
+  transform:scale(1.02);
+}
+
+.item-card-flex{
+  display: flex;
+  gap: 2rem;
 }
 
 .template-card {
@@ -169,8 +172,8 @@ e.g. containers, theming, etc.
 }
 
 .tree-container {
-  padding: 0.25rem;
   position: relative;
+  min-width: 18rem;
 }
 
 .tree-branch {
@@ -188,6 +191,20 @@ e.g. containers, theming, etc.
   position: relative;
   margin: 0;
   height: 1.5rem;
+}
+
+.tree-item-card {
+  white-space: nowrap;
+  margin: 0 0 0.5rem 0;
+  padding: 12px;
+  background-color: rgba(var(--color-primary-800) / .8);
+  box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) .4);
+  border: 1px solid rgba(var(--color-primary-100) / .8);
+  border-radius: 10px;
+  transition: .4s ease;
+  display: flex;
+  min-width: 100%;
+  max-width: 24rem;
 }
 
 .tree-item-button {
@@ -232,9 +249,8 @@ e.g. containers, theming, etc.
 
 .tree-icon {
   display: inline-block;
-  width: 1rem;
-  height: 1rem;
-  line-height: 1rem;
+  height: 0rem;
+  font-size: xx-large;
   text-align: center;
 }
 
@@ -291,30 +307,27 @@ e.g. containers, theming, etc.
   display: none;
 }
 
-.button-row-flex { /* Standard flex setup for a row of buttons */
+/* Standard flex setup for a row of buttons */
+.button-row-flex { 
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 1rem;
-  width: max-content;
+  overflow: hidden;
 }
 
+/* Flex for the sort row of buttons on the home page*/
 .sort-flex { 
   display:flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   gap: 1rem;
   padding: 0 3vw;  /* Remove the top padding since we're using page-with-topbar */
+  height: 3rem; /* Keeps height consistant when swapping view styles*/
 }
 
-.button-row-flex {
-  display:flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 1rem;
-}
-
-.simple-flex {
+/* General purpose flex with standard gap size*/
+.simple-flex { 
   display: flex;
   gap: 0.5rem;
 }
@@ -459,12 +472,32 @@ e.g. containers, theming, etc.
   width: 100%;
 }
 
+.draggable-list-dot-icon {
+  display: flex;
+  align-items: center;
+  margin: 0 1rem 0 -0.8rem;
+  width: 1rem;
+  height: 100%;
+}
+
+.draggable-tree-dot-icon {
+  display: flex;
+  align-items: center;
+  margin: 0 1rem 0 -0.4rem;
+  width: 1rem;
+  height: 100%;
+}
+
 .simple-dialog-spacing{
   padding: 3rem 3rem 1rem;
 }
 
 .self-center{
   justify-self: center;
+}
+
+.center-button-icons{
+  justify-items: center;
 }
 
 .scrollable-content {
@@ -551,6 +584,14 @@ e.g. buttons, lists, textareas, etc.
   right: 1rem;
 }
 
+.inactive-button {
+  border-radius: 10px;
+  border: 1px solid rgba(var(--color-primary-400) /.8);
+  padding: .5rem 1rem;
+  background: rgba(var(--color-primary-900)/.6);
+  color: rgb(var(--theme-font-color-base) /.5);
+}
+
 .add-button:hover{
   background: rgb(var(--color-primary-900));
 }
@@ -561,6 +602,12 @@ e.g. buttons, lists, textareas, etc.
 
 .home-view-buttons{
   margin: 0.5rem 0 0 0;
+}
+
+.menu-button:hover{
+  background: rgb(var(--color-primary-900) /.25);
+  border-radius: 10px;
+  color: rgb(var(--color-success-400));
 }
 
 .toggle-background{
@@ -711,7 +758,7 @@ select option:hover {
 .custom-dropdown::after {
   content: '▼';
   position: absolute;
-  top: 60%;
+  top: 50%;
   right: 1rem;
   transform: translateY(-50%);
   pointer-events: none;
@@ -726,29 +773,25 @@ select option:hover {
 
 .action-container {
   position: fixed;
-  bottom: 2rem;
+  bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  z-index: 1000;
+  z-index: 10000; /* hope we dont make 10001 of something */
+  width: auto;
+  max-width: 400px;
 }
 
 .action-message {
   background-color: rgba(var(--color-success-600) / 0.9);
   color: rgb(var(--theme-font-color-base));
-  padding: 1rem 2rem;
-  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  text-align: center;
-}
-
-.error-message {
-  background-color: rgba(var(--color-error-500) / 0.9);
-  color: rgb(var(--theme-font-color-base));
-  padding: 1rem 2rem;
-  border-radius: 10px;
+  text-align: left;
+  width: 100%;
 }
 
 .search-controls {
@@ -768,17 +811,14 @@ select option:hover {
   gap: 0.5rem;
 }
 
-.view-toggle {
-  margin: 1rem;
-}
-
-.nav-margin {
-  margin: 0rem 1rem;
-}
-
 .expand-button {
   margin-right: 0.5rem;
   cursor: pointer;
+}
+
+.item-card-checkbox{
+  height: 1.25rem;
+  width: 1.25rem;
 }
 
 .tree-item-name {
@@ -818,7 +858,11 @@ select option:hover {
 .dropdown-arrow {
   height: 40px;
   width: 40px;
-  
+}
+
+.vertical-dot-col { 
+  /* Only for use on the rightmost column of dots to make the "draggable" icon */
+  margin: 0 0 0 -1rem;
 }
 
 /* 
@@ -844,6 +888,8 @@ Text styles
   letter-spacing: -0.05rem;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: normal;
+  white-space: nowrap;
 }
 
 .sub-text{
@@ -863,8 +909,48 @@ Text styles
   text-decoration: underline;
 }
 
+.hoverable {
+  position: relative;
+  display: inline-block;
+}
+
+.hoverable .hovertiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 110%;
+  left: 50%;
+  margin-left: -60px;
+}
+
+.hoverable .hovertiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
+
+.hoverable:hover .hovertiptext {
+  visibility: visible;
+}
+
 .text-icon {
   font-size: 2.25rem;
+}
+
+.icon-small{
+  width: 24px;
+  height: 24px;
 }
 
 .text-3xl {
@@ -953,4 +1039,5 @@ input[type="file"][accept*="image"]{ /* File input areas (image specific) */
 
 ::backdrop { /* Dialog background */
   background: rgba(var(--color-surface-900) / 0.7);
+  z-index: 9998;
 }
