@@ -30,7 +30,7 @@ Tailwind is a library of small css classes that help with style brevity and cons
 
 # CSS
 
-Generally, all css styles should go into the main.css file. You should avoid doing inline styles (style="trait: value") and internal styles (<style> tag at the bottom of the file containing extra style declarations). These rules are put into place for consistency, to follow standards and maintain a clean codebase. If you happen to find an internal or inline style, you should migrate the style over to main.css to avoid potential confusion down the line as these styles may shadow others or overwrite certain style components.
+Generally, all css styles should go into the main.css file. You should avoid doing inline styles (style="trait: value") and internal styles tag at the bottom of the file containing extra style declarations). These rules are put into place for consistency, to follow standards and maintain a clean codebase. If you happen to find an internal or inline style, you should migrate the style over to main.css to avoid potential confusion down the line as these styles may shadow others or overwrite certain style components.
 
 The main.css file is grouped by how large the component is and within those size groupings related styles tend to be grouped together as well (i.e. all of the button styles are grouped together in the medium sized, single component section). Variables should be used for colors to maintain consistency, you can find examples of how to use the color variables within the main.css file and you can find the declarations of the variables in the customTheme.ts file.
 
