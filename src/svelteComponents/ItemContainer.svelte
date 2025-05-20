@@ -1,10 +1,16 @@
+<!-- Icons from: 
+ Font Awesome Free 6.7.2 by @fontawesome 
+ - https://fontawesome.com License 
+ - https://fontawesome.com/license/free 
+ Copyright 2025 Fonticons, Inc.-->
+
 <script lang="ts">
   import { Link } from "svelte-routing";
   import type { IBasicItemPopulated } from "../models/basicItem.js";
   import ItemCardOptions from "./ItemCardOptions.svelte";
-    import { setDefaultAutoSelectFamilyAttemptTimeout } from "net";
-    import MultiActions from "./MultiActions.svelte";
-    import Dialog from "./Dialog.svelte";
+  import { setDefaultAutoSelectFamilyAttemptTimeout } from "net";
+  import MultiActions from "./MultiActions.svelte";
+  import Dialog from "./Dialog.svelte";
   import { createEventDispatcher } from "svelte";
 
   export let items: IBasicItemPopulated[];
@@ -13,34 +19,33 @@
   let selected = [];
 
   let dialog: HTMLDialogElement;
-  
+
   let multiActions: MultiActions;
   let itemCardOptions: ItemCardOptions;
   let numSelected = 0;
 
   function handleSelect(item: IBasicItemPopulated) {
-    if (selectedItems.includes(item)){
+    if (selectedItems.includes(item)) {
       deselectItem(item);
-    }
-    else {
+    } else {
       selectItem(item);
     }
   }
 
-  function selectItem(item: IBasicItemPopulated){
+  function selectItem(item: IBasicItemPopulated) {
     selectedItems.push(item);
-    numSelected ++;
+    numSelected++;
   }
 
-  function deselectItem(item: IBasicItemPopulated){
+  function deselectItem(item: IBasicItemPopulated) {
     let index = selectedItems.indexOf(item);
     selectedItems.splice(index, 1);
-    numSelected --;
+    numSelected--;
   }
 
-  function selectAll(){
+  function selectAll() {
     let checkboxes = document.getElementsByTagName("input");
-    for (let i = 0; i < checkboxes.length; i ++){
+    for (let i = 0; i < checkboxes.length; i++) {
       checkboxes[i].checked = true;
     }
     selectedItems = items;
@@ -50,7 +55,7 @@
 
   function deselectAll() {
     let checkboxes = document.getElementsByTagName("input");
-    for (let i = 0; i < checkboxes.length; i ++){
+    for (let i = 0; i < checkboxes.length; i++) {
       checkboxes[i].checked = false;
     }
     selectedItems = [];
@@ -59,13 +64,13 @@
     console.log(selectedItems);
   }
 
-  function handleDeleteAll(){
+  function handleDeleteAll() {
     multiActions.setAction("delete");
     multiActions.setItems(selectedItems);
     dialog.showModal();
   }
 
-  function handleMoveAll(){
+  function handleMoveAll() {
     multiActions.setAction("move");
     multiActions.setItems(selectedItems);
     dialog.showModal();
@@ -88,74 +93,115 @@
   export let draggingItem: IBasicItemPopulated | null = null;
   export let targetItemId: string | null = null;
   export let targetItemName: string | null = null;
-  export let showMoveDialog : boolean;
+  export let showMoveDialog: boolean;
 
-
-    function handleDragDrop(event: DragEvent & { currentTarget: EventTarget & HTMLDivElement; }) {
-      let foundDataContainingElement = false;
-      let currentTarget : HTMLElement | null = event.currentTarget as HTMLElement | null;
-      let maxOut = 10;
-      while (!foundDataContainingElement) {
-        if (currentTarget) {
-          if (currentTarget.draggable) {
-            foundDataContainingElement = true;
-          } else if (maxOut <= 0) {
-            return;
-          } else {
-            currentTarget = currentTarget.parentElement;
-            if (currentTarget === null) {
-              return;
-            }
-            maxOut--;
-          }
-        } else {
+  function handleDragDrop(
+    event: DragEvent & { currentTarget: EventTarget & HTMLDivElement },
+  ) {
+    let foundDataContainingElement = false;
+    let currentTarget: HTMLElement | null =
+      event.currentTarget as HTMLElement | null;
+    let maxOut = 10;
+    while (!foundDataContainingElement) {
+      if (currentTarget) {
+        if (currentTarget.draggable) {
+          foundDataContainingElement = true;
+        } else if (maxOut <= 0) {
           return;
+        } else {
+          currentTarget = currentTarget.parentElement;
+          if (currentTarget === null) {
+            return;
+          }
+          maxOut--;
         }
-      }
-      targetItemId = currentTarget!.getAttribute("data-item-id");
-      targetItemName = currentTarget!.getAttribute("data-item-name");
-      if (targetItemId && targetItemName && draggingItem) {
-        showMoveDialog = true;
-        console.log("Successful Drop");
+      } else {
+        return;
       }
     }
+    targetItemId = currentTarget!.getAttribute("data-item-id");
+    targetItemName = currentTarget!.getAttribute("data-item-name");
+    if (targetItemId && targetItemName && draggingItem) {
+      showMoveDialog = true;
+      console.log("Successful Drop");
+    }
+  }
 
-    function handleDragStart(event: DragEvent, item: IBasicItemPopulated) {
-      draggingItem = item;
-    }
+  function handleDragStart(event: DragEvent, item: IBasicItemPopulated) {
+    draggingItem = item;
+  }
 </script>
 
 {#if items && items.length > 0}
   {#if numSelected > 0}
-  <Dialog bind:dialog={dialog} on:close={handleClose}><MultiActions on:close={handleClose} bind:this={multiActions}/></Dialog>
-  <div class="sort-flex">
-    <button class="success-button font-semibold shadow mt-4 w-full block" on:click={selectAll}>Select All</button>
-    <button class="success-button font-semibold shadow mt-4 w-full block" on:click={deselectAll}>Deselect All</button>
-    <button class="success-button font-semibold shadow mt-4 w-full block"on:click={handleMoveAll}>Move Selected</button>
-    <button class="warn-button font-semibold shadow mt-4 w-full block"on:click={handleDeleteAll}>Delete Selected</button>
-  </div>
+    <Dialog bind:dialog on:close={handleClose}
+      ><MultiActions on:close={handleClose} bind:this={multiActions} /></Dialog
+    >
+    <div class="sort-flex">
+      <button
+        class="success-button font-semibold shadow mt-4 w-full block"
+        on:click={selectAll}>Select All</button
+      >
+      <button
+        class="success-button font-semibold shadow mt-4 w-full block"
+        on:click={deselectAll}>Deselect All</button
+      >
+      <button
+        class="success-button font-semibold shadow mt-4 w-full block"
+        on:click={handleMoveAll}>Move Selected</button
+      >
+      <button
+        class="warn-button font-semibold shadow mt-4 w-full block"
+        on:click={handleDeleteAll}>Delete Selected</button
+      >
+    </div>
   {/if}
   <div id="home-component" class="glass page-component">
     {#each items as i (i._id)}
-      <div class="item-card-flex" role="navigation" draggable="true"
-      on:dragstart={(e) => {handleDragStart(e, i)}}
-      on:dragover={(e) => {e.preventDefault()}}
-      on:dragend={(e) => {
-        e.preventDefault();
-      }}
-      on:drop={handleDragDrop}
-      data-item-id={i._id}
-      data-item-name={i.name}
-    >
-        <input type="checkbox" style="width: 20px; height: 20px; align-self: center; margin: auto 0;" on:click={() => {handleSelect(i)}}>
+      <div
+        class="item-card-flex"
+        role="navigation"
+        draggable="true"
+        on:dragstart={(e) => {
+          handleDragStart(e, i);
+        }}
+        on:dragover={(e) => {
+          e.preventDefault();
+        }}
+        on:dragend={(e) => {
+          e.preventDefault();
+        }}
+        on:drop={handleDragDrop}
+        data-item-id={i._id}
+        data-item-name={i.name}
+      >
+        <input
+          type="checkbox"
+          style="width: 20px; height: 20px; align-self: center; margin: auto 0;"
+          on:click={() => {
+            handleSelect(i);
+          }}
+        />
         <Link to={`/view/${i._id}`} class="item-card">
-          <!-- make this border transparent? -->
-          <div class="item-subcard">
-            <div class="important-text">
-              {i.name}
+          <div class="item-subcard flex">
+            <!-- Custom "draggable" icon svg-->
+            <div class="draggable-list-dot-icon">
+              <svg viewBox="0 0 200 300" role="img">
+                <circle cx="50" cy="50" r="25" style="fill: #ffffff" />
+                <circle cx="50" cy="140" r="25" style="fill: #ffffff" />
+                <circle cx="50" cy="230" r="25" style="fill: #ffffff" />
+                <circle cx="140" cy="50" r="25" style="fill: #ffffff" />
+                <circle cx="140" cy="140" r="25" style="fill: #ffffff" />
+                <circle cx="140" cy="230" r="25" style="fill: #ffffff" />
+              </svg>
             </div>
-            <div class="sub-text">
-              {i.description || "No Description"}
+            <div>
+              <div class="important-text">
+                {i.name}
+              </div>
+              <div class="sub-text">
+                {i.description || "No Description"}
+              </div>
             </div>
           </div>
           <div class="sub-text item-subcard">
