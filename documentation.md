@@ -100,3 +100,6 @@ Passwords are not really secure as is, due to us using HTTP instead of HTTPS. Th
 Multiple templates per item. Would probably be a hard fork.
 
 File datatype as a custom field. so like you could upload a pdf to a "warranty" field or something.
+
+Image of architecture:
+https://imgur.com/a/ll84JCy
