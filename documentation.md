@@ -95,6 +95,8 @@ We have a search bar in the topbar, but searching only works on the home page. W
 
 Passwords are not really secure as is, due to us using HTTP instead of HTTPS. They are hashed locally with SHA256 before getting sent to backend and hashed again (and salted). This means a man in the middle attack at least would not leak a user's plaintext password, protecting them if they are using a re-used password for AssetAtlas.
 
+There is a bug when deleting multiple items through the multi-select functions. It doesn't always happen, but sometimes some of the deletes fail. We think it is being caused by issues relating to a container being deleted before the items in it, since this causes the items inside the deleted container to be edited, but didn't have time to get around to fixing it.
+
 # Possible future directions
 
 Multiple templates per item. Would probably be a hard fork.
