@@ -1,6 +1,6 @@
 # AssetAtlas
 
-AssetAtlas is a self hosted database with an object-oriented approach to keeping track of your stuff. In early development.
+AssetAtlas is a self hosted database with an object-oriented approach to keeping track of your stuff. Currently in early development.
 
 ## Asset Atlas User Setup
 
