@@ -38,3 +38,4 @@ AssetAtlas is a self hosted database with an object-oriented approach to keeping
 1. Set your key to **reusable** and **ephemeral**
 1. When using the "start.py" launcher, paste your key in the auth key box and click save. You'll only need to do this once.
    - Note: this is an authentication key that is stored in plain text on your host machine. If you already use Tailscale/a Tailnet for other things, they could be accessed by someone who has this key. If you are only using Tailscale for AssetAtlas this doesn't really matter as someone who can see this key already has access to your host computer and could see your database anyway.
+
