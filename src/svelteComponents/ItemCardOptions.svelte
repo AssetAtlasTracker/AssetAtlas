@@ -67,7 +67,7 @@
     >
         <span class="hovertiptext">Duplicate and edit</span>
         <!-- Example usage inside ItemCardOptions.svelte -->
-        <img src="/assets/icons/DupAndEdit.png" alt="Duplicate and Edit" width="40" />
+        <img src="/assets/icons/DupAndEdit.svg" alt="Duplicate and Edit" width="40" />
         </button>
 </div>
 
