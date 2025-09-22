@@ -191,4 +191,3 @@ label_status = tk.Label(root, text="")
 label_status.grid(row=7, columnspan=2, padx=10, pady=20)
 
 root.mainloop()
-
