@@ -131,7 +131,6 @@
     window.open(`/view/${itemId}`, "_blank");
   }
 
-  // Keep a reference to currentTopBarHeight
   let currentTopBarHeight: number = 0;
 
   let unsubscribe: () => void = () => {};
@@ -157,34 +156,24 @@
   }
 </script>
 
-<TopBar {searchQuery} onSearch={handleSearch} {menu}></TopBar>
+<TopBar {searchQuery} onSearch={handleSearch} {menu} bind:exactSearch on:change={() => handleSearch(searchQuery)}></TopBar>
+<!--on:change={() => handleSearch(searchQuery)}-->
 
 <div class="view-layout page-with-topbar">
   <!-- Slide out menu (contains import/export, etc.) -->
   <Menu bind:menu />
 
   <div class="sort-flex">
-    <SlideToggle
-      name="exactToggle"
-      active="toggle-background"
-      bind:checked={exactSearch}
-      on:change={() => handleSearch(searchQuery)}>Exact Search</SlideToggle
-    >
-
     <div class="simple-flex items-center">
       {#if viewMode === "list"}
-        <div class="sort-container custom-dropdown">
-          <label for="sort"></label>
-          <select
-            id="sort"
-            bind:value={sortOption}
-            on:change={handleSortChange}
-          >
-            <option value="alphabetical">A-Z</option>
-            <option value="lastAdded">Newest</option>
-            <option value="firstAdded">Oldest</option>
-          </select>
-        </div>
+      <div class="sort-container custom-dropdown">
+        <label for="sort"></label>
+        <select id="sort" bind:value={sortOption} on:change={handleSortChange}>
+          <option value="alphabetical">A-Z</option>
+          <option value="lastAdded">Newest</option>
+          <option value="firstAdded">Oldest</option>
+        </select>
+      </div>
       {/if}
 
       <SlideToggle
@@ -301,28 +290,28 @@
 </div>
 
 {#if draggingItem}
-  <Dialog
-    bind:dialog={moveDialog}
-    on:create={() => {
-      console.log("Created Modal");
-      moveDialog.showModal();
-    }}
+<Dialog
+  bind:dialog={moveDialog}
+  on:create={() => {
+    console.log("Created Modal");
+    moveDialog.showModal();
+  }}
+  on:close={() => {
+    console.log("H1");
+    showMoveDialog = false;
+  }}
+>
+  <div class="important-text text-center">
+    Move "{draggingItem.name}" to:
+  </div>
+  <MoveItem
+    itemId={draggingItem._id.toString()}
+    parentItemName={targetItemName}
+    parentItemId={targetItemId}
     on:close={() => {
-      console.log("H1");
+      console.log("H2");
       showMoveDialog = false;
-    }}
-  >
-    <div class="important-text text-center">
-      Move "{draggingItem.name}" to:
-    </div>
-    <MoveItem
-      itemId={draggingItem._id.toString()}
-      parentItemName={targetItemName}
-      parentItemId={targetItemId}
-      on:close={() => {
-        console.log("H2");
-        showMoveDialog = false;
-      }}
-    />
-  </Dialog>
+   }}
+  />
+</Dialog>
 {/if}
