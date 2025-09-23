@@ -20,17 +20,17 @@
   export let dialog: HTMLDialogElement;
   let sortOption: string = "alphabetical";
   let exactSearch = false;
-  let treeView: boolean = false;
   let viewMode: "list" | "tree" = "list";
+  $: showItemTree = viewMode === "tree";
 
   let topLevel = true;
   let itemCount = -1;
 
-  let draggingItem : IBasicItemPopulated | undefined = undefined;
-  let targetItemId : string | undefined = undefined;
-  let targetItemName : string | undefined = undefined;
-  let showMoveDialog : boolean = false;
-  let moveDialog : HTMLDialogElement;
+  let draggingItem: IBasicItemPopulated | undefined = undefined;
+  let targetItemId: string | undefined = undefined;
+  let targetItemName: string | undefined = undefined;
+  let showMoveDialog: boolean = false;
+  let moveDialog: HTMLDialogElement;
 
   $: {
     if (showMoveDialog) {
@@ -39,11 +39,11 @@
     }
   }
 
-  $ : {
+  $: {
     if (moveDialog) {
       moveDialog.onclose = () => {
         showMoveDialog = false;
-      }
+      };
     }
   }
 
@@ -83,15 +83,18 @@
   }
 
   function toggleView() {
-    treeView = !treeView;
-
-    //show the tree window when switching to tree view
-    if (treeView) {
+    if (viewMode === "list") {
       viewMode = "tree";
-      showItemTree = true;
     } else {
       viewMode = "list";
-      showItemTree = false;
+    }
+    window.localStorage.setItem("viewMode", viewMode);
+  }
+
+  function restoreViewMode() {
+    const savedViewMode = window.localStorage.getItem("viewMode");
+    if (savedViewMode != null) {
+      viewMode = savedViewMode === "tree" ? "tree" : "list";
     }
   }
 
@@ -136,6 +139,7 @@
   onMount(() => {
     console.log("Home: Component mounted");
     handleSearch("");
+    restoreViewMode();
     unsubscribe = topBarHeight.subscribe((value) => {
       currentTopBarHeight = value;
     });
@@ -145,13 +149,11 @@
     unsubscribe();
   });
 
-  let showItemTree = true;
-
   function handleTreeClose() {
     console.log("H1");
     console.log(showMoveDialog);
     console.log("Close tree window clicked");
-    showItemTree = false;
+    toggleView();
   }
 </script>
 
@@ -171,19 +173,24 @@
 
     <div class="simple-flex items-center">
       {#if viewMode === "list"}
-      <div class="sort-container custom-dropdown">
-        <label for="sort"></label>
-        <select id="sort" bind:value={sortOption} on:change={handleSortChange}>
-          <option value="alphabetical">A-Z</option>
-          <option value="lastAdded">Newest</option>
-          <option value="firstAdded">Oldest</option>
-        </select>
-      </div>
+        <div class="sort-container custom-dropdown">
+          <label for="sort"></label>
+          <select
+            id="sort"
+            bind:value={sortOption}
+            on:change={handleSortChange}
+          >
+            <option value="alphabetical">A-Z</option>
+            <option value="lastAdded">Newest</option>
+            <option value="firstAdded">Oldest</option>
+          </select>
+        </div>
       {/if}
 
       <SlideToggle
         name="treeToggle"
         active="toggle-background"
+        bind:checked={showItemTree}
         on:change={() => toggleView()}>Tree View</SlideToggle
       >
     </div>
@@ -194,7 +201,11 @@
       <ItemContainer
         items={searchResults}
         on:itemCreated={() => handleSearch(searchQuery)}
-      bind:showMoveDialog={showMoveDialog} bind:draggingItem={draggingItem} bind:targetItemId={targetItemId} bind:targetItemName={targetItemName}/>
+        bind:showMoveDialog
+        bind:draggingItem
+        bind:targetItemId
+        bind:targetItemName
+      />
     {:else if itemCount == 0}
       <div id="home-component" class="page-component glass">
         <p class="text-center important-text">No Items Found</p>
@@ -235,7 +246,14 @@
       showOpenInNewTab={false}
       on:close={handleTreeClose}
     >
-      <ItemTree bind:draggingItem={draggingItem} bind:targetItemId={targetItemId} bind:targetItemName={targetItemName} bind:showMoveDialog useWindowView={true} on:openItem={handleOpenItem} />
+      <ItemTree
+        bind:draggingItem
+        bind:targetItemId
+        bind:targetItemName
+        bind:showMoveDialog
+        useWindowView={true}
+        on:openItem={handleOpenItem}
+      />
     </Window>
   {/if}
 
@@ -283,28 +301,28 @@
 </div>
 
 {#if draggingItem}
-<Dialog
-  bind:dialog={moveDialog}
-  on:create={() => {
-    console.log("Created Modal");
-    moveDialog.showModal();
-  }}
-  on:close={() => {
-    console.log("H1");
-    showMoveDialog = false;
-  }}
->
-  <div class="important-text text-center">
-    Move "{draggingItem.name}" to:
-  </div>
-  <MoveItem
-    itemId={draggingItem._id.toString()}
-    parentItemName={targetItemName}
-    parentItemId={targetItemId}
+  <Dialog
+    bind:dialog={moveDialog}
+    on:create={() => {
+      console.log("Created Modal");
+      moveDialog.showModal();
+    }}
     on:close={() => {
-      console.log("H2");
+      console.log("H1");
       showMoveDialog = false;
-   }}
-  />
-</Dialog>
+    }}
+  >
+    <div class="important-text text-center">
+      Move "{draggingItem.name}" to:
+    </div>
+    <MoveItem
+      itemId={draggingItem._id.toString()}
+      parentItemName={targetItemName}
+      parentItemId={targetItemId}
+      on:close={() => {
+        console.log("H2");
+        showMoveDialog = false;
+      }}
+    />
+  </Dialog>
 {/if}
