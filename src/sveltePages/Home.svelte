@@ -131,7 +131,6 @@
     window.open(`/view/${itemId}`, "_blank");
   }
 
-  // Keep a reference to currentTopBarHeight
   let currentTopBarHeight: number = 0;
 
   let unsubscribe: () => void = () => {};
