@@ -2,6 +2,7 @@
   import type { ITemplatePopulated } from "../models/template.js";
   import type { ICustomField } from "../models/customField.js";
   import CustomFieldPicker from "./CustomFieldPicker.svelte";
+    import type { Mongoose } from "mongoose";
 
   export let template: ITemplatePopulated;
   export let onClose: () => void;
@@ -43,7 +44,7 @@
           const createdField = await createCustomField(
             field.fieldName,
             field.dataType,
-            template._id
+            template._id.toString()
           );
           return createdField._id;
         }
