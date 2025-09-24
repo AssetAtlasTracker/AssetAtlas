@@ -4,6 +4,14 @@
         "davidanson.vscode-markdownlint",
         "bierner.markdown-preview-github-styles",
         "yzhang.markdown-all-in-one",
-        "timonwong.shellcheck"
+        "timonwong.shellcheck",
+        "eamodio.gitlens",
+        "dbaeumer.vscode-eslint",
+        "github.vscode-github-actions",
+        "herrmannplatz.npm-dependency-links",
+        "christian-kohler.npm-intellisense",
+        "mechatroner.rainbow-csv",
+        "medo64.render-crlf",
+        "jock.svg"
     ]
 }
