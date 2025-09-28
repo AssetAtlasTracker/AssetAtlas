@@ -3,12 +3,12 @@
 The information here is almost identical to the user setup found in the repo's README. Look there for more information on various startup options.
 
 1. Get node 22
-    a. It might also work with other node versions but we are developing with node 22
-    b. Consider using [nvm-windows](https://github.com/coreybutler/nvm-windows) to manage node installs
+    1. It might also work with other node versions but we are developing with node 22
+    2. Consider using [nvm-windows](https://github.com/coreybutler/nvm-windows) to manage node installs
 2. Get Docker
 
 3. Clone the repo
-   a. If developing in VSCode, you may get prompted to install recommended extensions. Click "Install" to automatically install those extensions.
+   1. If developing in VSCode, you may get prompted to install recommended extensions. Click "Install" to automatically install those extensions.
 
 4. Start [Docker Desktop](https://www.docker.com/)
 
