@@ -8,7 +8,7 @@ export interface ICustomField extends Document {
 }
 
 const CustomFieldSchema = new Schema<ICustomField>({
-  fieldName: { type: String, unique: true, required: true },
+  fieldName: { type: String, required: true },
   dataType: { 
     type: String, 
     required: true,
