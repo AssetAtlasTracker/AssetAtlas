@@ -3,9 +3,6 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose, { Types } from 'mongoose';
 import request from 'supertest';
 import BasicItem, { IBasicItemPopulated } from '../src/models/basicItem.js';
-import CustomField from '../src/models/customField.js';
-import { RecentItems } from '../src/models/recentItems.js';
-import Template from '../src/models/template.js';
 import customFieldRouter from '../src/routes/customFieldRoutes.js';
 import itemRouter from '../src/routes/itemRoutes.js';
 import TemplateRouter from '../src/routes/templateRoutes.js';
@@ -34,18 +31,6 @@ afterAll(async () => {
   await mongoose.connection.dropDatabase();
   await mongoose.connection.close();
   await mongoServer.stop();
-});
-
-beforeEach(async () => {
-  await BasicItem.deleteMany({});
-  await CustomField.deleteMany({});
-  await Template.deleteMany({});
-  await RecentItems.deleteMany({});
-  await Promise.all([
-    RecentItems.create({ type: 'item', recentIds: [], maxItems: 5 }),
-    RecentItems.create({ type: 'template', recentIds: [], maxItems: 5 }),
-    RecentItems.create({ type: 'customField', recentIds: [], maxItems: 5 })
-  ]);
 });
 
 type testItem = { name: string; description: string; tags?: string[] }
@@ -129,5 +114,38 @@ describe('Creating, exporting, and importing many items', () => {
       expect(importedItem.description).toBe(createdItem.description);
       expect(importedItem.tags).toEqual(createdItem.tags);
     }
+  }, timeout);
+
+  it("should search and find one result among " + itemCount + " items", async () => {
+    const searchString = "test item " + (itemCount - 1);
+    const searchURL = `/api/items/search?` +
+      `name=${encodeURIComponent(searchString)}&` +
+      `sort=${encodeURIComponent("alphabetical")}&` +
+      `exact=${encodeURIComponent("true")}`
+
+    const searchResponse = await request(app).get(searchURL).set('Content-Type', 'application/json');
+
+    expect(searchResponse.status).toBe(200);
+
+    const searchResults = await searchResponse.body as IBasicItemPopulated[];
+
+    expect(searchResults.length).toBe(1);
+    expect(searchResults[0].name).toBe(searchString);
+  }, timeout);
+
+  it("should search and find all " + itemCount + " items", async () => {
+    const searchString = "item";
+    const searchURL = `/api/items/search?` +
+      `name=${encodeURIComponent(searchString)}&` +
+      `sort=${encodeURIComponent("alphabetical")}&` +
+      `exact=${encodeURIComponent("false")}`
+
+    const searchResponse = await request(app).get(searchURL).set('Content-Type', 'application/json');
+
+    expect(searchResponse.status).toBe(200);
+
+    const searchResults = await searchResponse.body as IBasicItemPopulated[];
+
+    expect(searchResults.length).toBe(itemCount);
   }, timeout);
 });
