@@ -5,6 +5,8 @@
   import MdMenu from "svelte-icons/md/MdMenu.svelte";
   import { onMount } from 'svelte';
   import { setTopBarHeight } from '../stores/topBarStore.js';
+  import { SlideToggle } from "@skeletonlabs/skeleton";
+  import { createEventDispatcher } from 'svelte';
 
   export let searchQuery: string = "";
   export let onSearch: (query: string) => void;
@@ -38,6 +40,18 @@
       }
     };
   });
+
+  export let exactSearch: boolean;
+
+
+  interface ChangeEventDetail {
+    value: string; 
+  }
+
+  const dispatch = createEventDispatcher<{ change: ChangeEventDetail }>();
+  function handleChange(event: Event) {
+    dispatch('change', { value: "change" });
+  }
 </script>
 
 <div bind:this={topBarElement} class="top-bar-wrapper">
@@ -56,6 +70,14 @@
           <SearchBar {searchQuery} {onSearch} />
         </div>
       </div>
+       <div class="sort-flex">
+    <SlideToggle
+      name="exactToggle"
+      active="toggle-background"
+      bind:checked={exactSearch}
+      on:change={handleChange}
+      >Exact Search</SlideToggle
+    >
     </div>
   </AppBar>
 </div>
