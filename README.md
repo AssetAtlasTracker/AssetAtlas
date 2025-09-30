@@ -1,6 +1,6 @@
 # AssetAtlas
 
-AssetAtlas is a self hosted database with an object-oriented approach to keeping track of your stuff. In early development.
+AssetAtlas is a self hosted database with an object-oriented approach to keeping track of your stuff. Currently in early development.
 
 ## Asset Atlas User Setup
 
@@ -39,19 +39,3 @@ AssetAtlas is a self hosted database with an object-oriented approach to keeping
 1. When using the "start.py" launcher, paste your key in the auth key box and click save. You'll only need to do this once.
    - Note: this is an authentication key that is stored in plain text on your host machine. If you already use Tailscale/a Tailnet for other things, they could be accessed by someone who has this key. If you are only using Tailscale for AssetAtlas this doesn't really matter as someone who can see this key already has access to your host computer and could see your database anyway.
 
-## Developer Setup (WIP)
-
-- Use node 22, it might also work with other node versions but we are developing with node 22
-
-- Separate setup directions for developers/users (probably in different files)
-  - Example: End users do not need node deps installed in their host machine
-- Suggest using [nvm-windows](https://github.com/coreybutler/nvm-windows) to manage node installs
-
-### To run linter
-
-`npm run lint`
-
-### To run tests
-
-`npm run test`
-- These tests are only do backend databse stuff and API calls, so they don't check for docker, tailscale, or frontend functionality
