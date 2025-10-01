@@ -14,6 +14,7 @@
         "medo64.render-crlf",
         "jock.svg",
         "ardenivanov.svelte-intellisense",
-        "svelte.svelte-vscode"
+        "svelte.svelte-vscode",
+        "sagittarian.workspacetheme"
     ]
 }
