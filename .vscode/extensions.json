@@ -12,6 +12,8 @@
         "christian-kohler.npm-intellisense",
         "mechatroner.rainbow-csv",
         "medo64.render-crlf",
-        "jock.svg"
+        "jock.svg",
+        "ardenivanov.svelte-intellisense",
+        "svelte.svelte-vscode"
     ]
 }
