@@ -38,7 +38,6 @@
   let showItemTree = true;
 
   function handleTreeClose() {
-    console.log("Close tree window clicked");
     showItemTree = false;
   }
 
@@ -47,9 +46,12 @@
     showItemTree = true;
   }
 
+  $: {
+    document.title = item?.name + " - AssetAtlas";
+  }
+
   async function fetchItem(id: string) {
     try {
-      console.log("Fetching item from:", `/api/items/${id}`);
       const response = await fetch(`/api/items/${id}`);
 
       if (!response.ok) {
@@ -59,18 +61,14 @@
       }
       const data: IBasicItemPopulated = await response.json();
       item = data;
-      console.log("Fetched item data:", item);
       restart();
     } catch (err) {
-      console.error("Error fetching item:", err);
       item = null;
     }
   }
 
   function handleDelete() {
     deleteDialog?.close();
-    console.log(`Item ${params.id} deleted.`);
-    // go to the home page after successful deletion
     navigate("/");
   }
 
@@ -86,14 +84,10 @@
   let additionalWindows: ItemWindow[] = [];
 
   function handleOpenItem(event: CustomEvent) {
-    console.log("Opening item in new window:", event.detail);
     const { id } = event.detail;
 
     //Dont open a new window if the item is already the main item
     if (id === params.id) {
-      console.log(
-        "Item is already displayed as main view, not opening new window",
-      );
       return;
     }
 

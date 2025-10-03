@@ -10,6 +10,7 @@
     import JSZip from "jszip";
     import TopBar from "../svelteComponents/TopBar.svelte";
     import Menu from "../svelteComponents/Menu.svelte";
+    import { onMount } from 'svelte';
 
   let files: FileList;
   let dialog: HTMLDialogElement;
@@ -56,7 +57,6 @@
   async function handleSelected() {
     try {
       if (!files) {
-        console.error("handle called when nothing selected.");
         return;
       }
       if (files.length >= 1) {
@@ -210,6 +210,10 @@
   }
 
   function onSearch(query: string) {}
+
+  onMount(() => {
+    document.title = "Import/Export - AssetAtlas";
+  });
 </script>
 
 <TopBar searchQuery={""} {onSearch} {menu} />

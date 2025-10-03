@@ -27,6 +27,6 @@
     </Route>
     <Route path="/viewTemplates" component={ViewTemplates} />
     <Route path="/users" component={Users} />
+    <Route path="/utility" component={Utility} />
   </main>
-  <Route path="/utility" component={Utility} />
 </Router>

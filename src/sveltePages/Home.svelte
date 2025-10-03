@@ -34,7 +34,6 @@
 
   $: {
     if (showMoveDialog) {
-      console.log("Opening");
       moveDialog.showModal();
     }
   }
@@ -57,7 +56,6 @@
   export let menu: HTMLDialogElement;
 
   async function handleSearch(query: string) {
-    console.log("Home: Starting search operation");
     searchQuery = query;
     try {
       const response = await fetch(
@@ -74,7 +72,6 @@
       if (!response.ok) throw new Error("Failed to fetch items");
 
       const data = await response.json();
-      console.log("Home: Search completed, updating results");
       searchResults = data as IBasicItemPopulated[];
       itemCount = searchResults.length;
     } catch (err) {
@@ -108,7 +105,6 @@
   let additionalWindows: ItemWindow[] = [];
 
   function handleOpenItem(event: CustomEvent) {
-    console.log("Opening item in new window:", event.detail);
     const { id } = event.detail;
 
     // Check if the window for this item already exists
@@ -136,7 +132,7 @@
   let unsubscribe: () => void = () => {};
 
   onMount(() => {
-    console.log("Home: Component mounted");
+    document.title = "Home - AssetAtlas"
     handleSearch("");
     restoreViewMode();
     unsubscribe = topBarHeight.subscribe((value) => {
@@ -149,9 +145,6 @@
   });
 
   function handleTreeClose() {
-    console.log("H1");
-    console.log(showMoveDialog);
-    console.log("Close tree window clicked");
     toggleView();
   }
 </script>
@@ -290,28 +283,25 @@
 </div>
 
 {#if draggingItem}
-<Dialog
-  bind:dialog={moveDialog}
-  on:create={() => {
-    console.log("Created Modal");
-    moveDialog.showModal();
-  }}
-  on:close={() => {
-    console.log("H1");
-    showMoveDialog = false;
-  }}
->
-  <div class="important-text text-center">
-    Move "{draggingItem.name}" to:
-  </div>
-  <MoveItem
-    itemId={draggingItem._id.toString()}
-    parentItemName={targetItemName}
-    parentItemId={targetItemId}
+  <Dialog
+    bind:dialog={moveDialog}
+    on:create={() => {
+      moveDialog.showModal();
+    }}
     on:close={() => {
-      console.log("H2");
       showMoveDialog = false;
-   }}
-  />
-</Dialog>
+    }}
+  >
+    <div class="important-text text-center">
+      Move "{draggingItem.name}" to:
+    </div>
+    <MoveItem
+      itemId={draggingItem._id.toString()}
+      parentItemName={targetItemName}
+      parentItemId={targetItemId}
+      on:close={() => {
+        showMoveDialog = false;
+      }}
+    />
+  </Dialog>
 {/if}

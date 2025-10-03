@@ -16,8 +16,6 @@
 
   async function fetchTemplates() {
     try {
-      console.log("Fetching templates from:", `/api/templates/getTemplates`);
-
       const response = await fetch(`/api/templates/getTemplates`);
 
       if (!response.ok) {
@@ -28,7 +26,6 @@
 
       const data: ITemplatePopulated[] = await response.json();
       templates = data;
-      console.log("Fetched templates data:", templates);
     } catch (err) {
       console.error("Error fetching templates:", err);
       templates = [];
@@ -60,6 +57,7 @@
   }
 
   onMount(() => {
+    document.title = "Templates - AssetAtlas";
     fetchTemplates();
   });
 </script>
