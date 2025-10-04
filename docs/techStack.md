@@ -49,6 +49,13 @@ MongoDB was chosen since its more flexible structure (things can be stored as mr
 
 ---
 
+## [Migrate Mongo](https://www.npmjs.com/package/migrate-mongo)
+
+Migrate Mongo is a npm package that allows us to perform migrations for MongoDB. I'll be looking into making migrations happen automatically, but for now there are some commands defined in package.json to use it. Using "npm run migrate_create <migration_name>" will create a template in the migrations folder. Any changes
+you want to apply should be put into the "up" method. In case of destructive changes, there should be corresponding code in the "down" method to roll the changes back. Apply migrations is done with "npm run migrate_up", which applies all migrations in the migrations folder, and rolling them back is done with "npm run migrate_down", which rolls back one migration at a time. The status of applied migrations can be checked using "npm run migrate_status".
+
+---
+
 ## [Tailscale](https://tailscale.com/)
 
 If you've ever tried to host a video game server for your friends you may be familiar with port-forwarding. Port-forwarding is sort of like leaving a door open for people to come in through. However, Rose doesn't let us students do any port-forwarding on our laptops (probably for security reasons?), so Tailscale is our workaround.

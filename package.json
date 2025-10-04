@@ -11,7 +11,11 @@
     "test": "vitest --reporter verbose --silent",
     "lint": "eslint \"src/**/*.{js,ts}\"",
     "lint:fix": "eslint \"src/**/*.{js,ts}\" --fix",
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "migrate_down": "migrate-mongo down -f migrate-mongo-config.cjs",
+    "migrate_up": "migrate-mongo up -f migrate-mongo-config.cjs",
+    "migrate_status": "migrate-mongo status -f migrate-mongo-config.cjs",
+    "migrate_create": "migrate-mongo create -f migrate-mongo-config.cjs"
   },
   "type": "module",
   "keywords": [],
