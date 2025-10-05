@@ -15,6 +15,7 @@
         "jock.svg",
         "ardenivanov.svelte-intellisense",
         "svelte.svelte-vscode",
-        "sagittarian.workspacetheme"
+        "sagittarian.workspacetheme",
+        "mongodb.mongodb-vscode"
     ]
 }
