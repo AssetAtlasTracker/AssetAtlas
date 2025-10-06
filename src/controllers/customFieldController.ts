@@ -1,11 +1,13 @@
 import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import CustomField from '../models/customField.js';
+import type { ICustomField } from '../models/customField.js';
+import Template from '../models/template.js';
 import Fuse from 'fuse.js';
 
 export const addCustomField = async (req: Request, res: Response) => {
     try {
-      const { fieldName, dataType } = req.body;
+      const { fieldName, dataType, templateId } = req.body;
   
       if (!fieldName || !dataType) {
         return res.status(400).json({ message: 'Field name and data type are required.' });
@@ -14,16 +16,21 @@ export const addCustomField = async (req: Request, res: Response) => {
       // Validate data type
       const validTypes = ['string', 'number', 'boolean', 'date'];
       if (!validTypes.includes(dataType)) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: `Invalid data type. Must be one of: ${validTypes.join(', ')}`
         });
       }
   
       // Check if the field already exists
-      const existingField = await CustomField.findOne({ fieldName }).exec();
-      if (existingField) {
-        return res.status(409).json({ message: 'Custom field with this name already exists.' });
+      const templateFields = await Template.findById(templateId).populate<{ fields: ICustomField[] }>('fields').exec();
+      console.log(templateFields);
+      if(templateFields?.fields.some((field) => field.fieldName === fieldName)) {
+        return res.status(409).json({ message: 'Field with this name already exists in the template.' });
       }
+      // const existingField = await CustomField.findOne({ fieldName }).exec();
+      // if (existingField) {
+      //   return res.status(409).json({ message: 'Custom field with this name already exists.' });
+      // }
 
       const newField = new CustomField({
         fieldName,

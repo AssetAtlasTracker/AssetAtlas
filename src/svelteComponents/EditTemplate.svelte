@@ -2,6 +2,7 @@
   import type { ITemplatePopulated } from "../models/template.js";
   import type { ICustomField } from "../models/customField.js";
   import CustomFieldPicker from "./CustomFieldPicker.svelte";
+    import type { Mongoose } from "mongoose";
 
   export let template: ITemplatePopulated;
   export let onClose: () => void;
@@ -43,6 +44,7 @@
           const createdField = await createCustomField(
             field.fieldName,
             field.dataType,
+            template._id.toString()
           );
           return createdField._id;
         }
@@ -80,11 +82,12 @@
   async function createCustomField(
     fieldName: string,
     dataType: string,
+    templateId: string
   ): Promise<ICustomField> {
     const response = await fetch(`/api/customFields`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fieldName, dataType }),
+      body: JSON.stringify({ fieldName, dataType, templateId}),
     });
     return await response.json();
   }
