@@ -59,7 +59,7 @@
 
         <br />
         <div class="flex flex-col space-y-2">
-          <ImageSelector on:imageChange={handleImageChange} />
+          <ImageSelector on:imageChange={createItemStore.handleImageChange} />
         </div>
         <br />
 
@@ -83,7 +83,7 @@
                 type="text"
                 class="dark-textarea py-2 px-4 w-full"
                 bind:value={$createItemStore.parentItemName}
-                on:input={handleParentItemInput}
+                on:input={createItemStore.handleParentItemInput}
                 on:focus={handleParentItemFocus}
                 on:blur={() => ($createItemStore.parentItemSuggestions = [])}
               />

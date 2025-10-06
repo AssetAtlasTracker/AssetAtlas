@@ -80,33 +80,6 @@
     }
   }
 
-  //Parent item search handlers
-  function handleParentItemInput(event: Event) {
-    const target = event.target as HTMLInputElement;
-    $createItemStore.parentItemName = target.value;
-    $createItemStore.parentItemId = null;
-    if ($createItemStore.debounceTimeout) clearTimeout($createItemStore.debounceTimeout);
-    $createItemStore.debounceTimeout = setTimeout(() => {
-      searchParentItems($createItemStore.parentItemName);
-    }, 300);
-  }
-
-  async function searchParentItems(query: string) {
-    try {
-      const response = await fetch(
-        `/api/items/search?name=${encodeURIComponent(query)}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-      const data = await response.json();
-      $createItemStore.parentItemSuggestions = data;
-    } catch (err) {
-      console.error("Error searching parent items:", err);
-    }
-  }
-
   async function addToRecents(type: string, item: any) {
     console.log("DEBUG - addToRecents called with:", { type, item });
     try {
@@ -317,26 +290,6 @@
     // Only allow removing if not from template
     if ($createItemStore.customFields[index].fromTemplate) return;
     $createItemStore.customFields = $createItemStore.customFields.filter((_, i) => i !== index);
-  }
-
-  async function loadRecentItems(type: string) {
-    try {
-      const response = await fetch(`/api/recentItems/${type}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-      const data = await response.json();
-      return data;
-    } catch (err) {
-      console.error("Error loading recent items:", err);
-      return [];
-    }
-  }
-
-  async function handleParentItemFocus() {
-    if (!$createItemStore.parentItemName) {
-      $createItemStore.parentItemSuggestions = await loadRecentItems("items");
-    }
   }
 
   async function handleHomeItemFocus() {

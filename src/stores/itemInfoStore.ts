@@ -74,6 +74,8 @@ function createStore() {
     set,
     update,
     handleCreateItem,
+    handleImageChange,
+    handleParentItemInput,
     resetForm,
   };
 }
@@ -94,14 +96,17 @@ async function handleCreateItem() {
       const tagsArray = itemStore.tags.split(",").map((tag) => tag.trim());
 
       if (itemStore.sameLocations) {
-        itemStore.parentItemId = itemStore.homeItemId;
-        itemStore.parentItemName = itemStore.homeItemName;
+        createItemStore.update((current) => ({
+          ...current,
+          parentItemId: itemStore.homeItemId,
+          parentItemName: itemStore.homeItemName,
+        }));
       }
 
       //Filter out empty fields not from the template
       itemStore.customFields = itemStore.customFields.filter((field) => {
         if (field.fromTemplate) return true; //Always keep template fields that were loaded
-        return field.fieldName.trim() !== "" && field.dataType.trim() !== "";
+          return field.fieldName.trim() !== "" && field.dataType.trim() !== "";
       });
 
       const formattedCustomFields = await Promise.all(
@@ -169,11 +174,70 @@ async function handleCreateItem() {
   }
 
 function handleImageChange(event: CustomEvent) {
-  const itemStore = get(createItemStore);
   const { selectedImage: newImage, removeExistingImage: remove } =
     event.detail;
-  itemStore.selectedImage = newImage;
-  itemStore.removeExistingImage = remove;
+
+  createItemStore.update((current) => ({
+    ...current,
+    selectedImage: newImage,
+    removeExistingImage: remove
+  }));
+}
+
+function handleParentItemInput(event: Event) {
+  const target = event.target as HTMLInputElement;
+  createItemStore.update((current) => {
+    current.parentItemName = target.value;
+    current.parentItemId = null;
+    if (current.debounceTimeout) clearTimeout(current.debounceTimeout);
+    current.debounceTimeout = setTimeout(() => {
+      searchParentItems(current.parentItemName);
+    }, 300);
+    return current;
+  });
+}
+
+async function searchParentItems(query: string) {
+  const itemStore = get(createItemStore);
+  try {
+    const response = await fetch(
+      `/api/items/search?name=${encodeURIComponent(query)}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      },
+    );
+    const data = await response.json();
+    itemStore.parentItemSuggestions = data;
+  } catch (err) {
+    console.error("Error searching parent items:", err);
+  }
+}
+
+async function handleParentItemFocus() {
+  const itemStore = get(createItemStore);
+  let recentItems: any[];
+  if (!itemStore.parentItemName) {
+    recentItems = await loadRecentItems("items");
+    createItemStore.update((current) => {
+      current.parentItemSuggestions = recentItems;
+      return current;
+    });
+  }
+}
+
+async function loadRecentItems(type: string) {
+  try {
+    const response = await fetch(`/api/recentItems/${type}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error("Error loading recent items:", err);
+    return [];
+  }
 }
 
 async function createCustomField(
