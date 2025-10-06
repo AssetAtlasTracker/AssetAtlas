@@ -10,6 +10,8 @@
 
   import "../svelteStyles/main.css";
   import type { IBasicItemPopulated } from "../models/basicItem.js";
+  import { createItemStore } from "../stores/itemInfoStore.js";
+  import type { ICustomField } from "../stores/itemInfoStore.js";
 
   export let dialog: HTMLDialogElement;
 
@@ -18,103 +20,61 @@
   export let item: IBasicItemPopulated | null;
   export let duplicate = false;
 
-  let name = "";
-  let description = "";
-  let tags = "";
-  let parentItemName = "";
-  let parentItemId: string | null = null;
-  let sameLocations: boolean = true;
-  let parentItemSuggestions: any[] = [];
-  let homeItemName = "";
-  let homeItemId: string | null = null;
-  let homeItemSuggestions: any[] = [];
-  let templateName = "";
-  let templateId: string | null = null;
-  let templateSuggestions: any[] = [];
-  let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
-  let selectedImage: File | null = null;
-  let removeExistingImage = false;
-
   const dispatch = createEventDispatcher();
 
   export function changeItem(newItem: IBasicItemPopulated){
-    console.log("item changed");
-    item = newItem;
     if (duplicate) {
-      name = item.name;
-      if (item.description) {
-        description = item.description;
+      $createItemStore.name = newItem.name;
+      if (newItem.description) {
+        $createItemStore.description = newItem.description;
       }
-      tags = item.tags.toString();
-      if (item.parentItem?.name != null) {
-      parentItemName = item.parentItem?.name;
+      $createItemStore.tags = newItem.tags.toString();
+      if (newItem.parentItem?.name != null) {
+      $createItemStore.parentItemName = newItem.parentItem?.name;
       }
-      if (item.parentItem) {
-        parentItemId = item.parentItem._id.toString();
+      if (newItem.parentItem) {
+        $createItemStore.parentItemId = newItem.parentItem._id.toString();
       }
-      if (item.homeItem?.name != null) {
-        homeItemName = item.homeItem?.name;
+      if (newItem.homeItem?.name != null) {
+        $createItemStore.homeItemName = newItem.homeItem?.name;
       }
-      if (item.homeItem) {
-        homeItemId = item.homeItem._id.toString();
+      if (newItem.homeItem) {
+        $createItemStore.homeItemId = newItem.homeItem._id.toString();
       }
-      if (item.template) {
-        templateName = item.template?.name;
-        templateId = item.template?._id.toString();
+      if (newItem.template) {
+        $createItemStore.templateName = newItem.template?.name;
+        $createItemStore.templateId = newItem.template?._id.toString();
       }
     }
   }
 
   if (item != null) {
-    homeItemName = item.name;
-    homeItemId = item._id.toString();
+    $createItemStore.homeItemName = item.name;
+    $createItemStore.homeItemId = item._id.toString();
     if (duplicate) {
-      name = item.name;
+      $createItemStore.name = item.name;
       if (item.description) {
-        description = item.description;
+        $createItemStore.description = item.description;
       }
-      tags = item.tags.toString();
+      $createItemStore.tags = item.tags.toString();
       if (item.parentItem?.name != null) {
-      parentItemName = item.parentItem?.name;
+      $createItemStore.parentItemName = item.parentItem?.name;
       }
       if (item.parentItem) {
-        parentItemId = item.parentItem._id.toString();
+        $createItemStore.parentItemId = item.parentItem._id.toString();
       }
       if (item.homeItem?.name != null) {
-        homeItemName = item.homeItem?.name;
+        $createItemStore.homeItemName = item.homeItem?.name;
       }
       if (item.homeItem) {
-        homeItemId = item.homeItem._id.toString();
+        $createItemStore.homeItemId = item.homeItem._id.toString();
       }
       if (item.template) {
-        templateName = item.template?.name;
-        templateId = item.template?._id.toString();
+        $createItemStore.templateName = item.template?.name;
+        $createItemStore.templateId = item.template?._id.toString();
       }
     }
   }
-
-  interface ICustomField {
-    _id: string;
-    fieldName: string;
-    dataType: string;
-    createdAt: string;
-  }
-
-  interface ICustomFieldEntry {
-    fieldName: string;
-    fieldId?: string;
-    dataType: string;
-    value: string;
-    suggestions: ICustomField[];
-    isNew: boolean;
-    isSearching: boolean;
-    isExisting: boolean;
-    fromTemplate: boolean;
-    searchTimeout?: ReturnType<typeof setTimeout>;
-  }
-
-  //Start with an empty array by default so no field loads initially
-  let customFields: ICustomFieldEntry[] = [];
 
   let showCreateTemplateDialog = false;
 
@@ -125,48 +85,48 @@
   }
 
   function resetForm() {
-    name = "";
-    description = "";
-    tags = "";
-    parentItemName = "";
-    parentItemId = null;
-    homeItemName = "";
-    homeItemId = null;
-    templateName = "";
-    templateId = null;
-    customFields = [];
-    parentItemSuggestions = [];
-    homeItemSuggestions = [];
-    templateSuggestions = [];
-    selectedImage = null;
-    removeExistingImage = false;
+    $createItemStore.name = "";
+    $createItemStore.description = "";
+    $createItemStore.tags = "";
+    $createItemStore.parentItemName = "";
+    $createItemStore.parentItemId = null;
+    $createItemStore.homeItemName = "";
+    $createItemStore.homeItemId = null;
+    $createItemStore.templateName = "";
+    $createItemStore.templateId = null;
+    $createItemStore.customFields = [];
+    $createItemStore.parentItemSuggestions = [];
+    $createItemStore.homeItemSuggestions = [];
+    $createItemStore.templateSuggestions = [];
+    $createItemStore.selectedImage = null;
+    $createItemStore.removeExistingImage = false;
   }
 
   async function handleCreateItem() {
     try {
       //If a template name is typed but not an exact match (no templateId set), block creation
-      if (templateName.trim() && !templateId) {
+      if ($createItemStore.templateName.trim() && !$createItemStore.templateId) {
         alert(
           "Please select a valid template from the list or clear the field.",
         );
         return;
       }
 
-      const tagsArray = tags.split(",").map((tag) => tag.trim());
+      const tagsArray = $createItemStore.tags.split(",").map((tag) => tag.trim());
 
-      if (sameLocations) {
-        parentItemId = homeItemId;
-        parentItemName = homeItemName;
+      if ($createItemStore.sameLocations) {
+        $createItemStore.parentItemId = $createItemStore.homeItemId;
+        $createItemStore.parentItemName = $createItemStore.homeItemName;
       }
 
       //Filter out empty fields not from the template
-      customFields = customFields.filter((field) => {
+      $createItemStore.customFields = $createItemStore.customFields.filter((field) => {
         if (field.fromTemplate) return true; //Always keep template fields that were loaded
         return field.fieldName.trim() !== "" && field.dataType.trim() !== "";
       });
 
       const formattedCustomFields = await Promise.all(
-        customFields.map(async (field) => {
+        $createItemStore.customFields.map(async (field) => {
           if (!field.isNew && field.fieldId) {
             return { field: field.fieldId, value: field.value };
           } else {
@@ -180,14 +140,14 @@
       );
 
       const formData = new FormData();
-      formData.append("name", name);
-      formData.append("description", description);
+      formData.append("name", $createItemStore.name);
+      formData.append("description", $createItemStore.description);
       formData.append("tags", JSON.stringify(tagsArray));
-      if (parentItemId) formData.append("parentItem", parentItemId);
-      if (homeItemId) formData.append("homeItem", homeItemId);
-      if (templateId) formData.append("template", templateId);
+      if ($createItemStore.parentItemId) formData.append("parentItem", $createItemStore.parentItemId);
+      if ($createItemStore.homeItemId) formData.append("homeItem", $createItemStore.homeItemId);
+      if ($createItemStore.templateId) formData.append("template", $createItemStore.templateId);
       formData.append("customFields", JSON.stringify(formattedCustomFields));
-      if (selectedImage) formData.append("image", selectedImage);
+      if ($createItemStore.selectedImage) formData.append("image", $createItemStore.selectedImage);
 
       console.log("Sending request with formData:");
       for (const pair of (formData as any).entries()) {
@@ -244,11 +204,11 @@
   //Parent item search handlers
   function handleParentItemInput(event: Event) {
     const target = event.target as HTMLInputElement;
-    parentItemName = target.value;
-    parentItemId = null;
-    if (debounceTimeout) clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(() => {
-      searchParentItems(parentItemName);
+    $createItemStore.parentItemName = target.value;
+    $createItemStore.parentItemId = null;
+    if ($createItemStore.debounceTimeout) clearTimeout($createItemStore.debounceTimeout);
+    $createItemStore.debounceTimeout = setTimeout(() => {
+      searchParentItems($createItemStore.parentItemName);
     }, 300);
   }
 
@@ -262,7 +222,7 @@
         },
       );
       const data = await response.json();
-      parentItemSuggestions = data;
+      $createItemStore.parentItemSuggestions = data;
     } catch (err) {
       console.error("Error searching parent items:", err);
     }
@@ -294,28 +254,28 @@
   }
 
   function selectParentItem(item: { name: string; _id: string | null }) {
-    parentItemName = item.name;
-    parentItemId = item._id;
-    parentItemSuggestions = [];
+    $createItemStore.parentItemName = item.name;
+    $createItemStore.parentItemId = item._id;
+    $createItemStore.parentItemSuggestions = [];
     if (item && item._id) {
       addToRecents("items", item);
     }
   }
 
   function selectHomeItem(item: { name: string; _id: string | null }) {
-    homeItemName = item.name;
-    homeItemId = item._id;
-    homeItemSuggestions = [];
+    $createItemStore.homeItemName = item.name;
+    $createItemStore.homeItemId = item._id;
+    $createItemStore.homeItemSuggestions = [];
     if (item && item._id) {
       addToRecents("items", item);
     }
   }
 
   function selectTemplate(item: { name: string; _id: string }) {
-    templateName = item.name;
-    templateId = item._id;
-    templateSuggestions = [];
-    loadTemplateFields(templateId);
+    $createItemStore.templateName = item.name;
+    $createItemStore.templateId = item._id;
+    $createItemStore.templateSuggestions = [];
+    loadTemplateFields($createItemStore.templateId);
     if (item && item._id) {
       addToRecents("templates", item);
     }
@@ -325,7 +285,7 @@
     if (!templateId) return;
 
     try {
-      if (!templateName || templateName.trim() === "") {
+      if (!$createItemStore.templateName || $createItemStore.templateName.trim() === "") {
         return;
       }
       const response = await fetch(`/api/templates/${templateId}`, {
@@ -393,8 +353,8 @@
       console.log("Loaded template fields:", templateFields);
 
       //display template fields before any user-defined fields
-      customFields = [...templateFields, ...customFields];
-      console.log("Updated customFields:", customFields);
+      $createItemStore.customFields = [...templateFields, ...$createItemStore.customFields];
+      console.log("Updated customFields:", $createItemStore.customFields);
     } catch (err) {
       console.error("Error loading template fields:", err);
     }
@@ -402,27 +362,27 @@
 
   //Removes all fields that came from a template
   function removeTemplateFields() {
-    customFields = customFields.filter((f) => !f.fromTemplate);
+    $createItemStore.customFields = $createItemStore.customFields.filter((f) => !f.fromTemplate);
   }
 
   //Custom fields handlers
   function onCustomFieldNameInput(index: number, event: Event) {
     const target = event.target as HTMLInputElement;
-    customFields[index].fieldName = target.value;
-    customFields[index].fieldId = undefined;
-    customFields[index].isNew = true;
-    customFields[index].isExisting = false;
+    $createItemStore.customFields[index].fieldName = target.value;
+    $createItemStore.customFields[index].fieldId = undefined;
+    $createItemStore.customFields[index].isNew = true;
+    $createItemStore.customFields[index].isExisting = false;
     searchForCustomFields(index);
   }
 
   function searchForCustomFields(index: number) {
-    if (customFields[index].searchTimeout)
-      clearTimeout(customFields[index].searchTimeout);
+    if ($createItemStore.customFields[index].searchTimeout)
+      clearTimeout($createItemStore.customFields[index].searchTimeout);
 
-    customFields[index].searchTimeout = setTimeout(async () => {
-      const query = customFields[index].fieldName.trim();
+    $createItemStore.customFields[index].searchTimeout = setTimeout(async () => {
+      const query = $createItemStore.customFields[index].fieldName.trim();
       if (query.length === 0) {
-        customFields[index].suggestions = [];
+        $createItemStore.customFields[index].suggestions = [];
         return;
       }
 
@@ -435,7 +395,7 @@
           },
         );
         const data: ICustomField[] = await response.json();
-        customFields[index].suggestions = data;
+        $createItemStore.customFields[index].suggestions = data;
       } catch (error) {
         console.error("Error searching custom fields:", error);
       }
@@ -446,20 +406,20 @@
     index: number,
     suggestion: ICustomField,
   ) {
-    customFields[index].fieldName = suggestion.fieldName;
-    customFields[index].fieldId = suggestion._id;
-    customFields[index].dataType = suggestion.dataType;
-    customFields[index].isNew = false;
-    customFields[index].isExisting = true;
-    customFields[index].suggestions = [];
+    $createItemStore.customFields[index].fieldName = suggestion.fieldName;
+    $createItemStore.customFields[index].fieldId = suggestion._id;
+    $createItemStore.customFields[index].dataType = suggestion.dataType;
+    $createItemStore.customFields[index].isNew = false;
+    $createItemStore.customFields[index].isExisting = true;
+    $createItemStore.customFields[index].suggestions = [];
     if (suggestion && suggestion._id) {
       addToRecents("customFields", suggestion);
     }
   }
 
   function addCustomFieldLine() {
-    customFields = [
-      ...customFields,
+    $createItemStore.customFields = [
+      ...$createItemStore.customFields,
       {
         fieldName: "",
         fieldId: undefined,
@@ -476,15 +436,15 @@
 
   function removeCustomField(index: number) {
     // Only allow removing if not from template
-    if (customFields[index].fromTemplate) return;
-    customFields = customFields.filter((_, i) => i !== index);
+    if ($createItemStore.customFields[index].fromTemplate) return;
+    $createItemStore.customFields = $createItemStore.customFields.filter((_, i) => i !== index);
   }
 
   function handleImageChange(event: CustomEvent) {
     const { selectedImage: newImage, removeExistingImage: remove } =
       event.detail;
-    selectedImage = newImage;
-    removeExistingImage = remove;
+    $createItemStore.selectedImage = newImage;
+    $createItemStore.removeExistingImage = remove;
   }
 
   async function loadRecentItems(type: string) {
@@ -502,53 +462,53 @@
   }
 
   async function handleParentItemFocus() {
-    if (!parentItemName) {
-      parentItemSuggestions = await loadRecentItems("items");
+    if (!$createItemStore.parentItemName) {
+      $createItemStore.parentItemSuggestions = await loadRecentItems("items");
     }
   }
 
   async function handleHomeItemFocus() {
-    if (!homeItemName) {
-      homeItemSuggestions = await loadRecentItems("items");
+    if (!$createItemStore.homeItemName) {
+      $createItemStore.homeItemSuggestions = await loadRecentItems("items");
     }
   }
 
   async function handleTemplateFocus() {
-    if (!templateName) {
-      templateSuggestions = await loadRecentItems("templates");
+    if (!$createItemStore.templateName) {
+      $createItemStore.templateSuggestions = await loadRecentItems("templates");
     }
   }
 
   async function handleCustomFieldFocus(index: number) {
-    if (!customFields[index].fieldName) {
-      customFields[index].suggestions = await loadRecentItems("customFields");
+    if (!$createItemStore.customFields[index].fieldName) {
+      $createItemStore.customFields[index].suggestions = await loadRecentItems("customFields");
     }
   }
 
   async function handleCustomFieldClick(index: number) {
-    if (!customFields[index].fieldName) {
-      customFields[index].suggestions = await loadRecentItems("customFields");
+    if (!$createItemStore.customFields[index].fieldName) {
+      $createItemStore.customFields[index].suggestions = await loadRecentItems("customFields");
     }
   }
 
   //Home item search handlers
   function handleHomeItemInput(event: Event) {
     const target = event.target as HTMLInputElement;
-    homeItemName = target.value;
-    homeItemId = null;
-    if (debounceTimeout) clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(() => {
-      searchHomeItems(homeItemName);
+    $createItemStore.homeItemName = target.value;
+    $createItemStore.homeItemId = null;
+    if ($createItemStore.debounceTimeout) clearTimeout($createItemStore.debounceTimeout);
+    $createItemStore.debounceTimeout = setTimeout(() => {
+      searchHomeItems($createItemStore.homeItemName);
     }, 300);
   }
 
   function handleTemplateInput(event: Event) {
     const target = event.target as HTMLInputElement;
-    templateName = target.value;
-    templateId = null;
-    if (debounceTimeout) clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(() => {
-      searchTemplates(templateName);
+    $createItemStore.templateName = target.value;
+    $createItemStore.templateId = null;
+    if ($createItemStore.debounceTimeout) clearTimeout($createItemStore.debounceTimeout);
+    $createItemStore.debounceTimeout = setTimeout(() => {
+      searchTemplates($createItemStore.templateName);
     }, 300);
   }
 
@@ -562,7 +522,7 @@
         },
       );
       const data = await response.json();
-      homeItemSuggestions = data;
+      $createItemStore.homeItemSuggestions = data;
     } catch (err) {
       console.error("Error searching home items:", err);
     }
@@ -578,20 +538,20 @@
         },
       );
       const data = await response.json();
-      templateSuggestions = data;
+      $createItemStore.templateSuggestions = data;
 
       //Check for an exact match
       const exactMatch = data.find(
-        (template: { name: string }) => template.name === templateName,
+        (template: { name: string }) => template.name === $createItemStore.templateName,
       );
 
       if (exactMatch) {
-        if (templateId !== exactMatch._id) {
-          templateId = exactMatch._id;
-          await loadTemplateFields(templateId);
+        if ($createItemStore.templateId !== exactMatch._id) {
+          $createItemStore.templateId = exactMatch._id;
+          await loadTemplateFields($createItemStore.templateId);
         }
       } else {
-        templateId = null;
+        $createItemStore.templateId = null;
         removeTemplateFields();
       }
     } catch (err) {
@@ -613,7 +573,7 @@
               class="dark-textarea py-2 px-4 w-full"
               type="text"
               placeholder="Toolbox"
-              bind:value={name}
+              bind:value={$createItemStore.name}
               required
             />
           </label>
@@ -625,7 +585,7 @@
               rows="1"
               id="resize-none-textarea"
               class="dark-textarea py-2 px-4 w-full"
-              bind:value={tags}
+              bind:value={$createItemStore.tags}
             />
           </label>
         </div>
@@ -638,7 +598,7 @@
             id="resize-none-textarea"
             class="dark-textarea py-2 px-4 w-full"
             placeholder="My medium-sized, red toolbox"
-            bind:value={description}
+            bind:value={$createItemStore.description}
           />
         </label>
 
@@ -650,13 +610,13 @@
 
         <SlideToggle
           name="slide"
-          bind:checked={sameLocations}
+          bind:checked={$createItemStore.sameLocations}
           active="toggle-background"
           >Item is currently at its home location</SlideToggle
         >
         <div class="flex space-x-4">
           <!-- Parent Item -->
-          {#if !sameLocations}
+          {#if !$createItemStore.sameLocations}
             <label class="flex-column flex-grow relative">
               <div class="flex items-center gap-2">
                 <span>Current Location:</span>
@@ -667,14 +627,14 @@
               <input
                 type="text"
                 class="dark-textarea py-2 px-4 w-full"
-                bind:value={parentItemName}
+                bind:value={$createItemStore.parentItemName}
                 on:input={handleParentItemInput}
                 on:focus={handleParentItemFocus}
-                on:blur={() => (parentItemSuggestions = [])}
+                on:blur={() => ($createItemStore.parentItemSuggestions = [])}
               />
-              {#if parentItemSuggestions.length > 0}
+              {#if $createItemStore.parentItemSuggestions.length > 0}
                 <ul class="suggestions suggestion-box">
-                  {#each parentItemSuggestions as item}
+                  {#each $createItemStore.parentItemSuggestions as item}
                     <button
                       class="suggestion-item"
                       type="button"
@@ -702,14 +662,14 @@
             <input
               type="text"
               class="dark-textarea py-2 px-4 w-full"
-              bind:value={homeItemName}
+              bind:value={$createItemStore.homeItemName}
               on:input={handleHomeItemInput}
               on:focus={handleHomeItemFocus}
-              on:blur={() => (homeItemSuggestions = [])}
+              on:blur={() => ($createItemStore.homeItemSuggestions = [])}
             />
-            {#if homeItemSuggestions.length > 0}
+            {#if $createItemStore.homeItemSuggestions.length > 0}
               <ul class="suggestions suggestion-box">
-                {#each homeItemSuggestions as item}
+                {#each $createItemStore.homeItemSuggestions as item}
                   <button
                     class="suggestion-item"
                     type="button"
@@ -739,14 +699,14 @@
             <input
               type="text"
               class="dark-textarea py-2 px-4 w-full"
-              bind:value={templateName}
+              bind:value={$createItemStore.templateName}
               on:input={handleTemplateInput}
               on:focus={handleTemplateFocus}
-              on:blur={() => (templateSuggestions = [])}
+              on:blur={() => ($createItemStore.templateSuggestions = [])}
             />
-            {#if templateSuggestions.length > 0}
+            {#if $createItemStore.templateSuggestions.length > 0}
               <ul class="suggestions suggestion-box">
-                {#each templateSuggestions as t}
+                {#each $createItemStore.templateSuggestions as t}
                   <button
                     class="suggestion-item"
                     type="button"
@@ -786,12 +746,12 @@
           +
         </button>
       </div>
-      {#each customFields as field, index}
+      {#each $createItemStore.customFields as field, index}
         <CustomFieldPicker
           bind:field
           onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
           onFieldFocus={() => handleCustomFieldFocus(index)}
-          onFieldBlur={() => (customFields[index].suggestions = [])}
+          onFieldBlur={() => ($createItemStore.customFields[index].suggestions = [])}
           showDeleteButton={!field.fromTemplate}
           onDelete={() => removeCustomField(index)}
         >
