@@ -1,4 +1,6 @@
-import { writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
+import { actionStore } from "../stores/actionStore.js";
+import { createEventDispatcher } from 'svelte';
 
 export interface ICustomField {
   _id: string;
@@ -38,24 +40,171 @@ export interface ItemInfoStore {
   selectedImage: File | null;
   removeExistingImage: boolean;
   customFields: ICustomFieldEntry[];
+  dialog: HTMLDialogElement | null;
 }
 
-export const createItemStore = writable<ItemInfoStore>({
-  name: "",
-  description: "",
-  tags: "",
-  parentItemName: "",
-  parentItemId: null,
-  sameLocations: true,
-  parentItemSuggestions: [],
-  homeItemName: "",
-  homeItemId: null,
-  homeItemSuggestions: [],
-  templateName: "",
-  templateId: null,
-  templateSuggestions: [],
-  debounceTimeout: undefined,
-  selectedImage: null,
-  removeExistingImage: false,
-  customFields: []
-});
+export const createItemStore = createStore();
+
+function createStore() {
+  const initialState: ItemInfoStore = {
+    name: "",
+    description: "",
+    tags: "",
+    parentItemName: "",
+    parentItemId: null,
+    sameLocations: true,
+    parentItemSuggestions: [],
+    homeItemName: "",
+    homeItemId: null,
+    homeItemSuggestions: [],
+    templateName: "",
+    templateId: null,
+    templateSuggestions: [],
+    debounceTimeout: undefined,
+    selectedImage: null,
+    removeExistingImage: false,
+    customFields: [],
+    dialog: null
+  };
+
+  const { subscribe, set, update } = writable<ItemInfoStore>(initialState);
+
+  return {
+    subscribe,
+    set,
+    update,
+    handleCreateItem,
+    resetForm,
+  };
+}
+
+async function handleCreateItem() {
+  const itemStore = get(createItemStore);
+  const dispatch = createEventDispatcher();
+
+    try {
+      //If a template name is typed but not an exact match (no templateId set), block creation
+      if (itemStore.templateName.trim() && !itemStore.templateId) {
+        alert(
+          "Please select a valid template from the list or clear the field.",
+        );
+        return;
+      }
+
+      const tagsArray = itemStore.tags.split(",").map((tag) => tag.trim());
+
+      if (itemStore.sameLocations) {
+        itemStore.parentItemId = itemStore.homeItemId;
+        itemStore.parentItemName = itemStore.homeItemName;
+      }
+
+      //Filter out empty fields not from the template
+      itemStore.customFields = itemStore.customFields.filter((field) => {
+        if (field.fromTemplate) return true; //Always keep template fields that were loaded
+        return field.fieldName.trim() !== "" && field.dataType.trim() !== "";
+      });
+
+      const formattedCustomFields = await Promise.all(
+        itemStore.customFields.map(async (field) => {
+          if (!field.isNew && field.fieldId) {
+            return { field: field.fieldId, value: field.value };
+          } else {
+            const createdField = await createCustomField(
+              field.fieldName,
+              field.dataType,
+            );
+            return { field: createdField._id, value: field.value };
+          }
+        }),
+      );
+
+      const formData = new FormData();
+      formData.append("name", itemStore.name);
+      formData.append("description", itemStore.description);
+      formData.append("tags", JSON.stringify(tagsArray));
+      if (itemStore.parentItemId) formData.append("parentItem", itemStore.parentItemId);
+      if (itemStore.homeItemId) formData.append("homeItem", itemStore.homeItemId);
+      if (itemStore.templateId) formData.append("template", itemStore.templateId);
+      formData.append("customFields", JSON.stringify(formattedCustomFields));
+      if (itemStore.selectedImage) formData.append("image", itemStore.selectedImage);
+
+      console.log("Sending request with formData:");
+      for (const pair of (formData as any).entries()) {
+        console.log(pair[0], pair[1]);
+      }
+
+      const response = await fetch(`/api/items`, {
+        method: "POST",
+        body: formData,
+      });
+
+      console.log("Response status:", response.status);
+      console.log("Response headers:");
+      response.headers.forEach((value, key) => {
+        console.log(key, value);
+      });
+
+      // Try to get the raw text first
+      const rawText = await response.text();
+      console.log("Raw response:", rawText);
+
+      // Then parse it as JSON
+      const data = JSON.parse(rawText);
+
+      if (!response.ok) {
+        actionStore.addMessage("Error creating item");
+        throw new Error(data.message || "Error creating item");
+      }
+      console.log("Item created:", data);
+      actionStore.addMessage("Item created successfully!");
+      itemStore.dialog?.close();
+      dispatch('itemCreated'); //triggers action display stuff
+
+      //Reset the form after successful creation
+      resetForm();
+    } catch (err) {
+      console.error("Error creating item:", err);
+      actionStore.addMessage("Error creating item");
+    }
+  }
+
+function handleImageChange(event: CustomEvent) {
+  const itemStore = get(createItemStore);
+  const { selectedImage: newImage, removeExistingImage: remove } =
+    event.detail;
+  itemStore.selectedImage = newImage;
+  itemStore.removeExistingImage = remove;
+}
+
+async function createCustomField(
+  fieldName: string,
+  dataType: string,
+): Promise<ICustomField> {
+  const response = await fetch(`/api/customFields`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ fieldName, dataType }),
+  });
+  return await response.json();
+}
+
+function resetForm() {
+  createItemStore.update(current => ({
+    ...current,
+    name: "",
+    description: "",
+    tags: "",
+    parentItemName: "",
+    parentItemId: null,
+    parentItemSuggestions: [],
+    homeItemName: "",
+    homeItemId: null,
+    homeItemSuggestions: [],
+    templateName: "",
+    templateID: null,
+    templateSuggestions: [],
+    customFields: [],
+    selectedImage: null,
+    removeExistingImage: false
+  }));
+}
