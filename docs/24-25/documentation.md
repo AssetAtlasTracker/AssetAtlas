@@ -10,6 +10,8 @@ A lot of problems we have had have been with Docker not building correctly. Some
 
 # Node.js
 
+We are using Node.js as our runtime environment. This is what runs Vite and our other build tools.
+
 # Github Actions
 
 We currently run tests automatically on push. We also lint on push. It doesn't block pushes if they fail any of that though. Check .github/workflows for where the scripts are. Pushing to production will auto rebuild the GHCR hosted containers. This does not happen when pushing to main.
@@ -23,6 +25,8 @@ We are using base svelte instead of sveltekit. To make routing work, we are usin
 One thing we ran into is that svelte only uses one instance of a component, so when trying to use the same component for multiple pages you will be using the same component and can't actually reinitialize it. The workaround to this was to use a svelte feature called keys. They are explained well in the svelte docs, but basically it destroys and reinitializes the contents of the key block whenever the value of the key changes. You will probably need to use keys whenever you need to use a component multiple times in the app, particularly if it is a displayed component, like a dialog box.
 
 # Vite
+
+We are currently using Vite sa our build/dev tool of choice. Bundles and serves the front end code, transforming the TypeScript and Svelte components into JavaScript. It is also currently being used in conjunction with vitest for our testing suite.
 
 # Tailwind
 
