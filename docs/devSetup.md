@@ -25,6 +25,27 @@ The information here is almost identical to the user setup found in the repo's R
 - `npm run lint` and `npm run test` respectively
 - Name PR's according to [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specifications
 
+## Extensions
+
+The repository comes with a number of recommended extensions. They're listed below along with a brief description.
+
+- Code Spell Checker: Identifies misspelled words in your code
+- markdownlint: Linter for markdown files, like the one you're reading right now!
+- Markdown Preview Github Styling: Changes the defalt markdown preview to match GitHub's style
+- Markdown All in One: A collection of tools to make writing markdown files easier
+- ShellCheck: Linter for shell scripts
+- GitLens: A collection of Git related tools that includes Git blame annotations and various comparison commands
+- ESLint: Linter for javascript
+- GitHub Actions: Allows GitHub Actions to be accessible within VSCode
+- npm Dependency Links: Links dependencies to their npm webpage in your package.json file
+- npm Intellisense: Autocompletes npm modules in import statements
+- Rainbow CSV: Highlight CSV and TSV files to make them easier to read
+- Render Line Endings: Allows you to toggle on/off line ending rendering
+- SVG: Language support for SVG coding
+- Svelte Intellisense and Svelte for VS Code: Provides language support and intellisense for Svelte
+- Workspace Theme: Set the theme of your editor per-workspace
+- MongoDB for VS Code: Access and explore the MongoDB database directly from VS Code
+
 ## Project Structure
 
 - `/src` - Main project files. Most of your work will be here
