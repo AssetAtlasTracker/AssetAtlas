@@ -29,14 +29,16 @@ The information here is almost identical to the user setup found in the repo's R
 
 - `/src` - Main project files. Most of your work will be here
   - `../controllers` - Contains code that will be executed when a route is accessed. Must be linked to a route through a routing file in the `../routes` directory
-    - `../models` - Contains information on the code representation of database objects
-    - `../routes` - Contains code related to routing. Essentially, code that says "when I go to 'example.com' this code should run"
-    - `../stores` - Contains information on Stores, a feature from Svelte
-    - `../svelteComponents` - Reusable components that can be included in other components or in pages
-    - `../sveletePages` - Actual pages a user can access
-    - `../svelteStyles` - CSS styling files for the pages and components
+  - `../models` - Contains information on the code representation of database objects
+  - `../routes` - Contains code related to routing. Essentially, code that says "when I go to 'example.com' this code should run"
+  - `../stores` - Contains information on Stores, a feature from Svelte
+  - `../svelteComponents` - Reusable components that can be included in other components or in pages
+  - `../sveletePages` - Actual pages a user can access
+  - `../svelteStyles` - CSS styling files for the pages and components
 - `/tests` - Folder containing tests
+  - `../resource` - Contains resource files used in testing.
 - `/docs` - Folder containing documentation related to the project. No code should be here unless it's for the sake of documentation
+  - `24-25` - Folder containing documentation from the 2024-2025 team of Asset Atlas
 
 ## Troubleshooting
 
