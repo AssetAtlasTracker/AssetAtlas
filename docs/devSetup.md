@@ -35,8 +35,10 @@ The information here is almost identical to the user setup found in the repo's R
   - `../svelteComponents` - Reusable components that can be included in other components or in pages
   - `../sveletePages` - Actual pages a user can access
   - `../svelteStyles` - CSS styling files for the pages and components
-  - `/tests` - Folder containing tests
-  - `/docs` - Folder containing documentation related to the project. No code should be here unless it's for the sake of documentation
+- `/tests` - Folder containing tests
+  - `../resource` - Contains resource files used in testing.
+- `/docs` - Folder containing documentation related to the project. No code should be here unless it's for the sake of documentation
+  - `24-25` - Folder containing documentation from the 2024-2025 team of Asset Atlas
 
 ## Troubleshooting
 
