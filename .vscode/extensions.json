@@ -1,21 +1,38 @@
 {
     "recommendations": [
+        // Code Spell Checker: Identifies misspelled words in your code
         "streetsidesoftware.code-spell-checker",
+        // markdownlint: Linter for markdown files
         "davidanson.vscode-markdownlint",
+        // Markdown Preview Github Styling: Changes the defalt markdown preview to match GitHub's style
         "bierner.markdown-preview-github-styles",
+        // Markdown All in One: A collection of tools to make writing markdown files easier
         "yzhang.markdown-all-in-one",
+        // ShellCheck: Linter for shell scripts
         "timonwong.shellcheck",
+        // GitLens: A collection of Git related tools that includes Git blame annotations and various comparison commands
         "eamodio.gitlens",
+        // ESLint: Linter for javascript
         "dbaeumer.vscode-eslint",
+        // GitHub Actions: Allows GitHub Actions to be accessible within VSCode
         "github.vscode-github-actions",
+        // npm Dependency Links: Links dependencies to their npm webpage in your package.json file
         "herrmannplatz.npm-dependency-links",
+        // npm Intellisense: Autocompletes npm modules in import statements
         "christian-kohler.npm-intellisense",
+        // Rainbow CSV: Highlight CSV and TSV files to make them easier to read
         "mechatroner.rainbow-csv",
+        // Render Line Endings: Allows you to toggle on/off line ending rendering
         "medo64.render-crlf",
+        // SVG: Language support for SVG coding
         "jock.svg",
+        // Svelte Intellisense: Provides intellisense for Svelte
         "ardenivanov.svelte-intellisense",
+        // Svelte for VS Code: Provides language support for Svelte
         "svelte.svelte-vscode",
+        // Workspace Theme: Set the theme of your editor per-workspace
         "sagittarian.workspacetheme",
+        // MongoDB for VS Code: Access and explore the MongoDB database directly from VS Code
         "mongodb.mongodb-vscode"
     ]
 }
