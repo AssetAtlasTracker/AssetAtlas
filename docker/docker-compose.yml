@@ -33,6 +33,11 @@ services:
       - mongo-data:/data/db
     networks:
       - default
+    healthcheck: 
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/tcp
+      interval: 2s
+      timeout: 5s
+      retries: 3
 
 networks:
   default:

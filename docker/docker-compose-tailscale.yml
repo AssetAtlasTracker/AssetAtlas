@@ -30,8 +30,15 @@ services:
     image: mongo:latest
     volumes:
       - mongo-data:/data/db
+    ports:
+      - "27017:27017"
     networks:
       - default
+    healthcheck: 
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/tcp
+      interval: 2s
+      timeout: 5s
+      retries: 3
 
   tailscale:
     image: tailscale/tailscale:stable
