@@ -29,6 +29,7 @@ coverage/
 # Temporary files
 tmp/
 temp/
+tests/resource/test-csv-item-perf.csv
 
 
 ########################### Begin https://github.com/github/gitignore/blob/main/Node.gitignore ###########################

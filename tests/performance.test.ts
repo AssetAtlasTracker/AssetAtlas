@@ -68,6 +68,7 @@ describe('Creating, exporting, and importing many items', () => {
       const response = await request(app).post('/api/items').send(itemData);
       expect(response.status).toBe(201);
     }
+    expect(allCreatedItems.length).toBe(itemCount);
   }, timeout);
 
   it("should export " + itemCount + " items", async () => {
