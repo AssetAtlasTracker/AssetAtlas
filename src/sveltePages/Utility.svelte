@@ -53,6 +53,8 @@
   }
 
   async function handleSelected() {
+    console.log("import functionality is temporarily disabled");
+    return;
     try {
       if (!files) {
         return;
@@ -103,6 +105,8 @@
   }
 
   async function handleExport() {
+    console.log("export functionality is temporarily disabled");
+    return; // Temporarily disabled
     try {
       const responseT = await fetch(`/api/templates/getTemplates`, {
         method: "GET",
@@ -237,6 +241,15 @@
 <Menu bind:menu />
 
 <div class="page-with-topbar">
+  <div
+    class="glass page-component util-component"
+    style="background:rgba(200, 60, 70, 0.4) !important; width:95%;">
+    <p class="important-text">
+      Notice: Import and Export features are under construction and functionality is
+      currently disabled.
+    </p>
+  </div>
+
   <div class="util-flex">
     <div class="glass page-component util-component">
       <p class="important-text">Import</p>
@@ -248,8 +261,7 @@
         bind:files
         id="many"
         multiple
-        type="file"
-      />
+        type="file" />
       <button class="border-button w-full my-4" on:click={handleSelected}>
         Import From CSV
       </button>
@@ -265,16 +277,14 @@
         type="text"
         placeholder="assetatlas-inventory"
         id="itemCSVName"
-        bind:value={itemInput}
-      />
+        bind:value={itemInput} />
       <label for="templateCSVName">Name for exported template .csv file:</label>
       <input
         class="dark-textarea py-2 px-4 my-4"
         type="text"
         placeholder="assetatlas-templates"
         id="templateCSVName"
-        bind:value={templateInput}
-      />
+        bind:value={templateInput} />
       <br />
       <button class="border-button w-full my-4" on:click={handleExport}>
         Export To CSV
