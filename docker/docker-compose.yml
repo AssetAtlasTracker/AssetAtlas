@@ -39,6 +39,33 @@ services:
       timeout: 5s
       retries: 3
 
+      # build context ./db
+      # app install with npm
+      # debian frontend non-interactive for no login prompt
+  
+  auto-migration:
+    build:
+      context: .
+      dockerfile: migrate.Dockerfile
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGO_URI: mongodb://mongo:27017/assetatlas_db
+    networks:
+      - default
+
+
+  # migrations:
+  #   build: .
+  #   depends_on:
+  #     mongo:
+  #       condition: service_healthy
+  #   command: npm run migrate_up
+  #   volumes:
+  #     - ./migrations:/migrations # Mount your migration files
+  #     - ./migrate-mongo-config.js:/migrate-mongo-config.cjs # Mount your config
+
 networks:
   default:
     driver: bridge
