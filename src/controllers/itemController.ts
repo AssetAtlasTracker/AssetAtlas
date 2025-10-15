@@ -1,9 +1,11 @@
-import type { Request, Response, Express } from 'express';
-import mongoose from 'mongoose';
-import BasicItem from '../models/basicItem.js';
-import type { IBasicItemPopulated } from '../models/basicItem.js';
+import type { Express, Request, Response } from 'express';
 import Fuse from 'fuse.js';
+import mongoose from 'mongoose';
+import type { IBasicItemPopulated } from '../models/basicItem.js';
+import BasicItem from '../models/basicItem.js';
 import type { ITemplate } from '../models/template.js';
+
+import '../config/gridfs.js';
 
 //interface for GridFS file
 export interface GridFSFile extends Express.Multer.File {
@@ -15,13 +17,6 @@ export interface GridFSFile extends Express.Multer.File {
     mimetype: string;
   };
 }
-
-interface CustomFieldUpdate {
-  field: string | mongoose.Types.ObjectId;
-  value: unknown;
-}
-
-import '../config/gridfs.js';
 
 export const createItem = async (req: Request, res: Response) => {
   try {
@@ -45,7 +40,7 @@ export const createItem = async (req: Request, res: Response) => {
         id: gridFSFile.id,
         _id: gridFSFile._id
       });
-      
+
       // Use ID from either property, fallback to filename
       itemData.image = gridFSFile.id || gridFSFile._id || gridFSFile.filename;
     }
@@ -53,12 +48,12 @@ export const createItem = async (req: Request, res: Response) => {
     console.log('Creating item with data:', itemData);
     const newItem = new BasicItem(itemData);
     const savedItem = await newItem.save();
-    
+
     res.status(201).json(savedItem);
   } catch (err) {
     console.error('Error creating item:', err);
-    res.status(500).json({ 
-      message: 'Error creating item', 
+    res.status(500).json({
+      message: 'Error creating item',
       error: err instanceof Error ? err.message : String(err)
     });
   }
@@ -84,7 +79,7 @@ export const getItemById = async (req: Request, res: Response) => {
         model: 'uploads.files'
       })
       .exec();
-    
+
     console.log('Found item:', JSON.stringify(item, null, 2));
     if (item) {
       res.status(200).json(item);
@@ -141,7 +136,7 @@ export const searchItems = async (req: Request, res: Response) => {
       .populate('homeItem')
       .populate('containedItems')
       .populate('customFields.field')
-      .populate('itemHistory.location') 
+      .populate('itemHistory.location')
       .populate({
         path: 'image',
         model: 'uploads.files'
@@ -168,7 +163,7 @@ export const searchItems = async (req: Request, res: Response) => {
 
     if (resultItems.length === 0) {
       // Fallback to all if no match
-      resultItems = items; 
+      resultItems = items;
     }
 
     const sortedItems = sortItems(resultItems, sort as string);
@@ -236,7 +231,7 @@ export const moveItem = async (req: Request, res: Response) => {
 
 export const updateItem = async (req: Request, res: Response) => {
   const { id } = req.params;
-  
+
   try {
     if (typeof req.body.tags === 'string') {
       req.body.tags = JSON.parse(req.body.tags);
@@ -249,7 +244,7 @@ export const updateItem = async (req: Request, res: Response) => {
     const item = await BasicItem.findById(id)
       .populate<{ template: ITemplate }>('template')
       .exec();
-      
+
     if (!item) {
       return res.status(404).json({ message: 'Item not found' });
     }
@@ -270,7 +265,7 @@ export const updateItem = async (req: Request, res: Response) => {
     //Update other fields
     Object.assign(item, req.body);
     const savedItem = await item.save();
-    
+
     res.status(200).json(savedItem);
   } catch (err) {
     console.error('Error updating item:', err);
