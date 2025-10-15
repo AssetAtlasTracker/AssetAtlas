@@ -161,11 +161,6 @@ export const searchItems = async (req: Request, res: Response) => {
     const fuzzyResults = fuse.search(name);
     let resultItems = fuzzyResults.map(r => r.item);
 
-    if (resultItems.length === 0) {
-      // Fallback to all if no match
-      resultItems = items;
-    }
-
     const sortedItems = sortItems(resultItems, sort as string);
     res.status(200).json(sortedItems);
   } catch (error) {
