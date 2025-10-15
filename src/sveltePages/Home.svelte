@@ -132,7 +132,6 @@
 
   onMount(() => {
     document.title = "Home - AssetAtlas";
-    handleSearch("");
     restoreViewMode();
     unsubscribe = topBarHeight.subscribe((value) => {
       currentTopBarHeight = value;
