@@ -22,8 +22,10 @@ The information here is almost identical to the user setup found in the repo's R
 
 - Commit ealy and often!
 - Run the linter and tests frequently
-- `npm run lint` and `npm run test` respectively
-- Name PR's according to [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specifications
+  - `npm run lint` and `npm run test` respectively
+- Run code coverage as needed
+  - `npm run coverage`
+- Name PRs according to [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specifications
 
 ## Project Structure
 
