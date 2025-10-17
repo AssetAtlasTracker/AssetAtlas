@@ -40,6 +40,18 @@ services:
       timeout: 5s
       retries: 3
 
+  auto-migration:
+    build:
+      context: .
+      dockerfile: migrate.Dockerfile
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGO_URI: mongodb://mongo:27017/assetatlas_db
+    networks:
+      - default
+
   tailscale:
     image: tailscale/tailscale:stable
     container_name: tailscale
