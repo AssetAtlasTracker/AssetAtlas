@@ -1,4 +1,4 @@
-name: Run Tests and Lint
+name: Run Tests, Coverage, and Lint
 
 on:
   push:
@@ -26,6 +26,9 @@ jobs:
 
       - name: Run tests
         run: npm run test
+
+      - name: Run coverage
+        run: npm run coverage
 
       - name: Run lint
         run: npm run lint
