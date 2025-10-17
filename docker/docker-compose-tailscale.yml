@@ -30,6 +30,25 @@ services:
     image: mongo:latest
     volumes:
       - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - default
+    healthcheck: 
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/tcp
+      interval: 2s
+      timeout: 5s
+      retries: 3
+
+  auto-migration:
+    build:
+      context: .
+      dockerfile: migrate.Dockerfile
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGO_URI: mongodb://mongo:27017/assetatlas_db
     networks:
       - default
 
