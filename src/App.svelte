@@ -9,6 +9,7 @@
   import { fetchIp } from "./stores/ipStore.js";
   import Utility from "./sveltePages/Utility.svelte";
   import ActionDisplay from "./svelteComponents/ActionDisplay.svelte";
+  import About from "./sveltePages/About.svelte";
 
   onMount(async () => {
     localStorage.removeItem('ip'); //clear the old IP, if any
@@ -28,5 +29,6 @@
     <Route path="/viewTemplates" component={ViewTemplates} />
     <Route path="/users" component={Users} />
     <Route path="/utility" component={Utility} />
+    <Route path="/about" component={About} />
   </main>
 </Router>
