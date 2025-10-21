@@ -40,14 +40,12 @@ services:
       retries: 3
 
   auto-migration:
-    build:
-      context: .
-      dockerfile: migrate.Dockerfile
+    extends:
+      file: ./common-services.yml
+      service: auto-migration
     depends_on:
       mongo:
         condition: service_healthy
-    environment:
-      MONGO_URI: mongodb://mongo:27017/assetatlas_db
     networks:
       - default
 
