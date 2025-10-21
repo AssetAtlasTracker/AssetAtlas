@@ -2,7 +2,7 @@ import express from 'express';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose, { Types } from 'mongoose';
 import request from 'supertest';
-import BasicItem, { IBasicItemPopulated } from '../src/models/basicItem.js';
+import BasicItem, { type IBasicItemPopulated } from '../src/models/basicItem.js';
 import customFieldRouter from '../src/routes/customFieldRoutes.js';
 import itemRouter from '../src/routes/itemRoutes.js';
 import TemplateRouter from '../src/routes/templateRoutes.js';

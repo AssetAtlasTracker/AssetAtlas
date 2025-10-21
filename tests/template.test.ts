@@ -1,11 +1,11 @@
-import request from 'supertest';
 import express from 'express';
-import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import templateRouter from '../src/routes/templateRoutes.js';
-import Template from '../src/models/template.js';
-import CustomField, { ICustomField as CustomFieldType } from '../src/models/customField.js';
+import mongoose from 'mongoose';
+import request from 'supertest';
+import CustomField, { type ICustomField as CustomFieldType } from '../src/models/customField.js';
 import { RecentItems } from '../src/models/recentItems.js';
+import Template from '../src/models/template.js';
+import templateRouter from '../src/routes/templateRoutes.js';
 
 let app: express.Application;
 let mongoServer: MongoMemoryServer;
@@ -135,7 +135,7 @@ describe('Template API', () => {
     const response = await request(app).delete(`/api/templates/${template._id}`);
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('Template deleted successfully');
-    
+
     const deletedTemplate = await Template.findById(template._id).exec();
     expect(deletedTemplate).toBeNull();
   });

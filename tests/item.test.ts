@@ -1,15 +1,15 @@
-import request from 'supertest';
 import express from 'express';
-import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import itemRouter from '../src/routes/itemRoutes.js';
+import mongoose from 'mongoose';
+import request from 'supertest';
 import BasicItem from '../src/models/basicItem.js';
-import customFieldRouter from '../src/routes/customFieldRoutes.js';
-import CustomField from '../src/models/customField.js';
-import TemplateRouter from '../src/routes/templateRoutes.js';
-import Template from '../src/models/template.js';
-import { RecentItems } from '../src/models/recentItems.js';
 import type { ICustomField } from '../src/models/customField.js';
+import CustomField from '../src/models/customField.js';
+import { RecentItems } from '../src/models/recentItems.js';
+import Template from '../src/models/template.js';
+import customFieldRouter from '../src/routes/customFieldRoutes.js';
+import itemRouter from '../src/routes/itemRoutes.js';
+import TemplateRouter from '../src/routes/templateRoutes.js';
 
 let app: express.Application;
 let mongoServer: MongoMemoryServer;
@@ -158,7 +158,7 @@ describe('Item API', () => {
     await request(app).get(`/api/items/${childItem._id}`);
   });
 
-it('should get all contained items by parent ID', async () => {
+  it('should get all contained items by parent ID', async () => {
     //Create the parent item
     const parentItemData = {
       name: 'Parent Item',
@@ -168,7 +168,7 @@ it('should get all contained items by parent ID', async () => {
     const parentResponse = await request(app).post('/api/items').send(parentItemData);
     expect(parentResponse.status).toBe(201);
     const parentItem = parentResponse.body;
-  
+
     const childItemData1 = {
       name: 'Child Item 1',
       description: 'First child item',
@@ -185,7 +185,7 @@ it('should get all contained items by parent ID', async () => {
     await request(app).post('/api/items').send(childItemData1);
     //const childResponse2 = 
     await request(app).post('/api/items').send(childItemData2);
-  
+
     // Get all contained items for the parent
     const response = await request(app).get(`/api/items/allContained/${parentItem._id}`);
     if (response.status !== 200) {
@@ -193,7 +193,7 @@ it('should get all contained items by parent ID', async () => {
     }
     expect(response.status).toBe(200);
     expect(response.body.containedItems).toHaveLength(2);
-    expect(response.body.containedItems.map(item => item.name)).toEqual(
+    expect(response.body.containedItems.map((item: { name: unknown; }) => item.name)).toEqual(
       expect.arrayContaining(['Child Item 1', 'Child Item 2'])
     );
   });
@@ -208,7 +208,7 @@ it('should get all contained items by parent ID', async () => {
     const topLevelParentResponse = await request(app).post('/api/items').send(topLevelParentData);
     expect(topLevelParentResponse.status).toBe(201);
     const topLevelParent = topLevelParentResponse.body;
-  
+
     // Create a middle-level item contained by the top-level parent
     const middleItemData = {
       name: 'Middle Item',
@@ -219,7 +219,7 @@ it('should get all contained items by parent ID', async () => {
     const middleItemResponse = await request(app).post('/api/items').send(middleItemData);
     expect(middleItemResponse.status).toBe(201);
     const middleItem = middleItemResponse.body;
-  
+
     const nestedItemData = {
       name: 'Nested Item',
       description: 'A deeply nested item',
@@ -229,29 +229,29 @@ it('should get all contained items by parent ID', async () => {
     const nestedItemResponse = await request(app).post('/api/items').send(nestedItemData);
     expect(nestedItemResponse.status).toBe(201);
     const nestedItem = nestedItemResponse.body;
-  
+
     const deleteResponse = await request(app).delete(`/api/items/${middleItem._id}`);
     expect(deleteResponse.status).toBe(200);
     expect(deleteResponse.body.message).toBe('Item deleted successfully');
-  
+
     const updatedNestedItem = await BasicItem.findById(nestedItem._id).exec();
     expect(updatedNestedItem).not.toBeNull();
     expect(updatedNestedItem?.parentItem?.toString()).toBe(topLevelParent._id.toString());
-  
+
     const updatedTopLevelParent = await BasicItem.findById(topLevelParent._id).exec();
     expect(updatedTopLevelParent?.containedItems?.map(String)).not.toContain(middleItem._id);
-  
+
     expect(updatedTopLevelParent?.containedItems?.map(String)).toContain(nestedItem._id);
-  
+
     const deleteTopLevelResponse = await request(app).delete(`/api/items/${topLevelParent._id}`);
     expect(deleteTopLevelResponse.status).toBe(200);
     expect(deleteTopLevelResponse.body.message).toBe('Item deleted successfully');
-  
+
     const updatedNestedItemAfterTopLevelDelete = await BasicItem.findById(nestedItem._id).exec();
     expect(updatedNestedItemAfterTopLevelDelete).not.toBeNull();
     expect(updatedNestedItemAfterTopLevelDelete?.parentItem).toBeNull();
   });
-  
+
   it('should fetch the parent chain of an item', async () => {
     const topLevelParentData = {
       name: 'Top-Level Parent',
@@ -259,7 +259,7 @@ it('should get all contained items by parent ID', async () => {
     const topLevelParentResponse = await request(app).post('/api/items').send(topLevelParentData);
     expect(topLevelParentResponse.status).toBe(201);
     const topLevelParent = topLevelParentResponse.body;
-  
+
     const middleItemData = {
       name: 'Middle Item',
       parentItem: topLevelParent._id
@@ -267,7 +267,7 @@ it('should get all contained items by parent ID', async () => {
     const middleItemResponse = await request(app).post('/api/items').send(middleItemData);
     expect(middleItemResponse.status).toBe(201);
     const middleItem = middleItemResponse.body;
-  
+
     const nestedItemData = {
       name: 'Nested Item',
       parentItem: middleItem._id
@@ -275,7 +275,7 @@ it('should get all contained items by parent ID', async () => {
     const nestedItemResponse = await request(app).post('/api/items').send(nestedItemData);
     expect(nestedItemResponse.status).toBe(201);
     const nestedItem = nestedItemResponse.body;
-  
+
     const response = await request(app).get(`/api/items/parentChain/${nestedItem._id}`);
     expect(response.status).toBe(200);
     expect(response.body).toHaveLength(3);
@@ -292,7 +292,7 @@ it('should get all contained items by parent ID', async () => {
     const homeItemResponse = await request(app).post('/api/items').send(homeItemData);
     expect(homeItemResponse.status).toBe(201);
     const homeItem = homeItemResponse.body;
-  
+
     const itemWithHomeData = {
       name: 'Item with Home',
       description: 'An item with a home reference',
@@ -301,11 +301,11 @@ it('should get all contained items by parent ID', async () => {
     const itemWithHomeResponse = await request(app).post('/api/items').send(itemWithHomeData);
     expect(itemWithHomeResponse.status).toBe(201);
     const itemWithHome = itemWithHomeResponse.body;
-  
+
     const deleteResponse = await request(app).delete(`/api/items/${homeItem._id}`);
     expect(deleteResponse.status).toBe(200);
     expect(deleteResponse.body.message).toBe('Item deleted successfully');
-  
+
     const updatedItemWithHome = await BasicItem.findById(itemWithHome._id).exec();
     expect(updatedItemWithHome).not.toBeNull();
     expect(updatedItemWithHome?.homeItem).toBeNull();
@@ -360,7 +360,7 @@ describe('Item and Custom Field API', () => {
     const customFieldResponse = await request(app).post('/api/customFields').send(customFieldData);
     expect(customFieldResponse.status).toBe(201);
     const customField = customFieldResponse.body;
-  
+
     const itemData = {
       name: 'Test Item with Custom Field',
       description: 'An item to test custom fields',
@@ -372,7 +372,7 @@ describe('Item and Custom Field API', () => {
     const createResponse = await request(app).post('/api/items').send(itemData);
     expect(createResponse.status).toBe(201);
     const createdItem = createResponse.body;
-  
+
     const updatedCustomFields = [
       { field: customField._id, value: '2 years' }
     ];
@@ -381,7 +381,7 @@ describe('Item and Custom Field API', () => {
       .send({ customFields: updatedCustomFields });
     expect(updateResponse.status).toBe(200);
     expect(updateResponse.body.customFields[0].value).toBe('2 years');
-  
+
     const updatedItem = await BasicItem.findById(createdItem._id).exec();
     expect(updatedItem?.customFields).toHaveLength(1);
     expect(updatedItem?.customFields![0].value).toBe('2 years');
@@ -445,32 +445,32 @@ describe('Item and Template API', () => {
     const updatedItem = await BasicItem.findById(createdItem._id).populate('customFields.field').exec();
     expect(updatedItem).not.toBeNull();
     expect(updatedItem?.customFields).toHaveLength(3);
-    expect(updatedItem?.customFields?.find(cf => (cf.field as unknown as ICustomField).fieldName === 'field3')?.value) == "";
+    expect(updatedItem?.customFields?.find(cf => (cf.field as unknown as ICustomField).fieldName === 'field3')?.value).toBe("");
   });
 });
 
 describe('Item Tree API', () => {
   it('should fetch root level items with hasChildren flag', async () => {
-    const rootItem = await BasicItem.create({ 
+    const rootItem = await BasicItem.create({
       name: 'Root Item'
     });
 
-    const childItem = await BasicItem.create({ 
+    const _childItem = await BasicItem.create({
       name: 'Child Item',
-      parentItem: rootItem._id 
+      parentItem: rootItem._id
     });
 
-    const emptyRoot = await BasicItem.create({ 
+    const _emptyRoot = await BasicItem.create({
       name: 'Empty Root'
     });
 
     const response = await request(app).get('/api/items/tree');
     expect(response.status).toBe(200);
     expect(response.body).toHaveLength(2);
-    
-    const rootWithChild = response.body.find(item => item.name === 'Root Item');
-    const rootWithoutChild = response.body.find(item => item.name === 'Empty Root');
-    
+
+    const rootWithChild = response.body.find((item: { name: string; }) => item.name === 'Root Item');
+    const rootWithoutChild = response.body.find((item: { name: string; }) => item.name === 'Empty Root');
+
     expect(rootWithChild.hasChildren).toBe(true);
     expect(rootWithoutChild.hasChildren).toBe(false);
     expect(rootWithChild.children).toHaveLength(1);
@@ -478,23 +478,23 @@ describe('Item Tree API', () => {
   });
 
   it('should fetch subtree for specific item', async () => {
-    const parentItem = await BasicItem.create({ 
+    const parentItem = await BasicItem.create({
       name: 'Parent'
     });
 
-    const childItem = await BasicItem.create({ 
+    const childItem = await BasicItem.create({
       name: 'Child',
-      parentItem: parentItem._id 
+      parentItem: parentItem._id
     });
 
-    const grandchildItem = await BasicItem.create({ 
+    const _grandchildItem = await BasicItem.create({
       name: 'Grandchild',
-      parentItem: childItem._id 
+      parentItem: childItem._id
     });
 
     const response = await request(app).get(`/api/items/tree/${childItem._id}`);
     expect(response.status).toBe(200);
-    
+
     expect(response.body.name).toBe('Child');
     expect(response.body.hasChildren).toBe(true);
     expect(response.body.children).toHaveLength(1);

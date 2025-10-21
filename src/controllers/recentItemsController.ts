@@ -4,12 +4,12 @@ import { Types } from 'mongoose';
 
 export const getRecentsByType = async (req: Request, res: Response) => {
   const { type } = req.params;
-  
+
   let normalizedType = type; //if you are reading this then you have seen some stupid code. sowwy. 
   if (type === 'items') normalizedType = 'item';
   else if (type === 'templates') normalizedType = 'template';
   else if (type === 'customFields') normalizedType = 'customField';
-  
+
   try {
     let recents = await RecentItems.findOne({ type: normalizedType })
       .populate({
@@ -18,7 +18,7 @@ export const getRecentsByType = async (req: Request, res: Response) => {
       })
       .exec();
 
-  
+
     if (!recents) {
       recents = await RecentItems.create({ type: normalizedType, recentIds: [] });
     }
@@ -32,7 +32,7 @@ export const getRecentsByType = async (req: Request, res: Response) => {
 
 export const addManualRecent = async (req: Request, res: Response) => {
   const { type, itemId } = req.body;
-  
+
   let normalizedType = type;
   if (type === 'items') normalizedType = 'item';
   else if (type === 'templates') normalizedType = 'template';
@@ -40,7 +40,7 @@ export const addManualRecent = async (req: Request, res: Response) => {
 
   try {
     const result = await addToRecents(normalizedType, new Types.ObjectId(itemId));
-    
+
     if (result) {
       res.status(200).json({ message: 'Successfully added to recents' });
     } else {

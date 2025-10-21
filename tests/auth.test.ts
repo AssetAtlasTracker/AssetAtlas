@@ -69,7 +69,7 @@ describe('Authentication API', () => {
     const secondResponse = await request(app)
       .post('/api/auth/register')
       .send(secondUserData);
-      
+
     expect(secondResponse.status).toBe(201);
     expect(secondResponse.body).toHaveProperty('token');
     expect(secondResponse.body.user).toHaveProperty('username', 'regularuser');
@@ -79,10 +79,10 @@ describe('Authentication API', () => {
     // Verify users in database (only check username and permission level)
     const adminUser = await User.findOne({ username: 'adminuser' }).select('username permissionLevel');
     const regularUser = await User.findOne({ username: 'regularuser' }).select('username permissionLevel');
-    
+
     expect(adminUser).not.toBeNull();
     expect(adminUser?.permissionLevel).toBe(10);
-    
+
     expect(regularUser).not.toBeNull();
     expect(regularUser?.permissionLevel).toBe(1);
   });
@@ -93,7 +93,7 @@ describe('Authentication API', () => {
       username: 'testuser',
       password: 'password123'
     };
-    
+
     await request(app)
       .post('/api/auth/register')
       .send(userData);
@@ -113,7 +113,7 @@ describe('Authentication API', () => {
       username: 'loginuser',
       password: 'password123'
     };
-    
+
     await request(app)
       .post('/api/auth/register')
       .send(userData);
@@ -134,7 +134,7 @@ describe('Authentication API', () => {
       username: 'loginuser',
       password: 'password123'
     };
-    
+
     await request(app)
       .post('/api/auth/register')
       .send(userData);
@@ -159,15 +159,15 @@ describe('Authentication API', () => {
       username: 'protecteduser',
       password: 'password123'
     };
-    
+
     await request(app)
       .post('/api/auth/register')
       .send(userData);
-      
+
     const loginResponse = await request(app)
       .post('/api/auth/login')
       .send(userData);
-      
+
     const token = loginResponse.body.token;
 
     // Use token to access protected route
@@ -201,7 +201,7 @@ describe('Authentication API', () => {
       username: 'adminuser',
       password: 'password123'
     };
-    
+
     await request(app)
       .post('/api/auth/register')
       .send(adminUserData);
@@ -210,16 +210,16 @@ describe('Authentication API', () => {
       username: 'regularuser',
       password: 'password123'
     };
-    
-    const regularUserResponse = await request(app)
+
+    await request(app)
       .post('/api/auth/register')
       .send(regularUserData);
-    
+
     // Login as regular user to get token
     const loginResponse = await request(app)
       .post('/api/auth/login')
       .send(regularUserData);
-      
+
     const regularUserToken = loginResponse.body.token;
 
     // Try to access admin route with regular user token
@@ -237,11 +237,11 @@ describe('Authentication API', () => {
       username: 'adminuser',
       password: 'password123'
     };
-    
+
     const adminResponse = await request(app)
       .post('/api/auth/register')
       .send(adminUserData);
-    
+
     const adminToken = adminResponse.body.token;
 
     // Use token to access admin route
@@ -259,11 +259,11 @@ describe('Authentication API', () => {
       username: 'profileuser',
       password: 'password123'
     };
-    
+
     const registerResponse = await request(app)
       .post('/api/auth/register')
       .send(userData);
-    
+
     const token = registerResponse.body.token;
 
     // Get profile with token
@@ -282,25 +282,25 @@ describe('Authentication API', () => {
       username: 'adminuser',
       password: 'password123'
     };
-    
+
     const adminResponse = await request(app)
       .post('/api/auth/register')
       .send(adminUserData);
-    
+
     const adminToken = adminResponse.body.token;
-    
+
     // Register regular user
     const regularUserData = {
       username: 'regularuser',
       password: 'password123'
     };
-    
+
     const regularUserResponse = await request(app)
       .post('/api/auth/register')
       .send(regularUserData);
-    
+
     const regularUserId = regularUserResponse.body.user.id;
-    
+
     // Admin updates regular user's permission level
     const updateResponse = await request(app)
       .put('/api/auth/permissions')
@@ -309,16 +309,16 @@ describe('Authentication API', () => {
         userId: regularUserId,
         permissionLevel: 3
       });
-    
+
     expect(updateResponse.status).toBe(200);
     expect(updateResponse.body).toHaveProperty('message', 'User permission updated successfully');
     expect(updateResponse.body.user).toHaveProperty('permissionLevel', 3);
-    
+
     // Verify through login
     const loginResponse = await request(app)
       .post('/api/auth/login')
       .send(regularUserData);
-    
+
     expect(loginResponse.body.user).toHaveProperty('permissionLevel', 3);
   });
 
@@ -328,14 +328,14 @@ describe('Authentication API', () => {
       username: 'adminuser',
       password: 'password123'
     };
-    
+
     const adminResponse = await request(app)
       .post('/api/auth/register')
       .send(adminUserData);
-    
+
     const adminToken = adminResponse.body.token;
     const adminId = adminResponse.body.user.id;
-    
+
     // Try to update own permission level
     const updateResponse = await request(app)
       .put('/api/auth/permissions')
@@ -344,7 +344,7 @@ describe('Authentication API', () => {
         userId: adminId,
         permissionLevel: 5
       });
-    
+
     expect(updateResponse.status).toBe(400);
     expect(updateResponse.body).toHaveProperty('message', 'Cannot modify your own permission level');
   });

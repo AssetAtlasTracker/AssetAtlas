@@ -1,11 +1,11 @@
-import request from 'supertest';
 import express from 'express';
-import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import mongoose from 'mongoose';
+import request from 'supertest';
+import { RecentItems } from '../src/models/recentItems.js';
+import customFieldRouter from '../src/routes/customFieldRoutes.js';
 import itemRouter from '../src/routes/itemRoutes.js';
 import templateRouter from '../src/routes/templateRoutes.js';
-import customFieldRouter from '../src/routes/customFieldRoutes.js';
-import { RecentItems } from '../src/models/recentItems.js';
 
 let app: express.Application;
 let mongoServer: MongoMemoryServer;
@@ -33,7 +33,7 @@ beforeEach(async () => {
   await mongoose.connection.collection('items').deleteMany({});
   await mongoose.connection.collection('templates').deleteMany({});
   await mongoose.connection.collection('customfields').deleteMany({});
-  
+
   // Initialize RecentItems documents
   await Promise.all([
     RecentItems.create({ type: 'item', recentIds: [], maxItems: 5 }),
@@ -74,13 +74,13 @@ describe('Recent Items Integration', () => {
   });
 
   it('should add templates to recents when created', async () => {
-    const templateData = { 
+    const templateData = {
       name: 'Test Template',
-      fields : []
+      fields: []
     };
     const response = await request(app).post('/api/templates/createTemplate').send(templateData);
     expect(response.status).toBe(201);
-  
+
     const recents = await RecentItems.findOne({ type: 'template' }).populate('recentIds');
     expect(recents?.recentIds[0]._id.toString()).toBe(response.body._id);
   });

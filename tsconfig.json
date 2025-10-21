@@ -12,17 +12,22 @@
     "jsx": "preserve",
     "verbatimModuleSyntax": true,
     "sourceMap": true,
-    "lib": ["dom", "es2017"],
+    "lib": [
+      "dom",
+      "es2017"
+    ],
     "allowSyntheticDefaultImports": true,
-    "typeRoots": ["./node_modules/@types"],
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
     "incremental": true,
     "tsBuildInfoFile": ".tsbuildcache/tsbuildinfo",
     "allowJs": true
   },
   "type": "module",
   "include": [
-    "src/**/*",  //Include all TypeScript and JavaScript files from src
-    "svelte.d.ts", //Add  custom Svelte typings
+    "src/**/*", //Include all TypeScript and JavaScript files from src
+    "svelte.d.ts", //Add custom Svelte typings
     "vitest-globals.d.ts",
     "tests/**/*"
   ],
