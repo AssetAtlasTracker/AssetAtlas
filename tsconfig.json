@@ -8,7 +8,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist", // Ensure compiled files go into dist
-    "rootDir": "./src",  // Set the root directory
     "isolatedModules": true, // Important for Svelte + TypeScript
     "jsx": "preserve",
     "verbatimModuleSyntax": true,
@@ -23,7 +22,9 @@
   "type": "module",
   "include": [
     "src/**/*",  //Include all TypeScript and JavaScript files from src
-    "svelte.d.ts" //Add  custom Svelte typings
+    "svelte.d.ts", //Add  custom Svelte typings
+    "vitest-globals.d.ts",
+    "tests/**/*"
   ],
   "exclude": [
     "node_modules",
