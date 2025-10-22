@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Document, Schema, Types, model } from 'mongoose';
 
 const MAX_ITEMS: number = 5;
 
@@ -9,30 +9,28 @@ export interface IRecentItems extends Document {
 }
 
 const RecentItemsSchema = new Schema({
-    type: { 
-      type: String, 
-      required: true, 
-      enum: ['item', 'template', 'customField'],
-    },
-    recentIds: [{
-      type: Schema.Types.ObjectId,
-      ref: function(this: { type: 'item' | 'template' | 'customField' }) {
-        switch(this.type) {
-          case 'item': return 'BasicItem';
-          case 'template': return 'Template';
-          case 'customField': return 'CustomField';
-        }
+  type: {
+    type: String,
+    required: true,
+    enum: ['item', 'template', 'customField'],
+  },
+  recentIds: [{
+    type: Schema.Types.ObjectId,
+    ref: function (this: { type: 'item' | 'template' | 'customField' }) {
+      switch (this.type) {
+        case 'item': return 'BasicItem';
+        case 'template': return 'Template';
+        case 'customField': return 'CustomField';
       }
-    }],
-    maxItems: { type: Number, default: MAX_ITEMS }
-  }, { collection: 'recents' });
+    }
+  }],
+  maxItems: { type: Number, default: MAX_ITEMS }
+}, { collection: 'recents' });
 
 export const addToRecents = async (type: 'item' | 'template' | 'customField', id: Types.ObjectId) => {
   try {
-    
     let recents = await RecentItems.findOne({ type });
     if (!recents) {
-  
       recents = await RecentItems.create({ type, recentIds: [], maxItems: 5 });
     }
 

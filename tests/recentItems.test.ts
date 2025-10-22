@@ -5,6 +5,7 @@ import request from 'supertest';
 import { RecentItems } from '../src/models/recentItems.js';
 import customFieldRouter from '../src/routes/customFieldRoutes.js';
 import itemRouter from '../src/routes/itemRoutes.js';
+import recentItemsRouter from '../src/routes/recentItemsRoutes.js';
 import templateRouter from '../src/routes/templateRoutes.js';
 
 let app: express.Application;
@@ -20,6 +21,7 @@ beforeAll(async () => {
   app.use('/api/items', itemRouter);
   app.use('/api/templates', templateRouter);
   app.use('/api/customFields', customFieldRouter);
+  app.use('/api/recents', recentItemsRouter);
 });
 
 afterAll(async () => {
@@ -40,6 +42,41 @@ beforeEach(async () => {
     RecentItems.create({ type: 'template', recentIds: [], maxItems: 5 }),
     RecentItems.create({ type: 'customField', recentIds: [], maxItems: 5 })
   ]);
+});
+
+describe('Recent Items Controller', () => {
+  it('should get recent items by type', async () => {
+    const item = { name: 'Test Item', description: 'Test Description' };
+    const response = await request(app).post('/api/items').send(item);
+    expect(response.status).toBe(201);
+
+    const recentsResponse = await request(app).get('/api/recents/item');
+    expect(recentsResponse.status).toBe(200);
+    expect(recentsResponse.body[0]._id.toString()).toBe(response.body._id);
+  });
+
+  it('should fail to get recent items by type', async () => {
+    const item = { name: 'Test Item', description: 'Test Description' };
+    const response = await request(app).post('/api/items').send(item);
+    expect(response.status).toBe(201);
+
+    const recentsResponse = await request(app).get('/api/recents/invalidType');
+    expect(recentsResponse.status).toBe(400);
+    expect(recentsResponse.body.message).toBe('Invalid type parameter');
+  });
+
+  it('should manually add a recent item', async () => {
+    const item = { name: 'Test Item', description: 'Test Description' };
+    const creationResponse = await request(app).post('/api/items').send(item);
+    expect(creationResponse.status).toBe(201);
+
+    const itemId = creationResponse.body._id;
+    const itemInfo = { type: 'item', itemId: itemId };
+    const recentsAddResponse = await request(app).post('/api/recents/add').send(itemInfo);
+    expect(recentsAddResponse.status).toBe(200);
+    const recents = await RecentItems.findOne({ type: 'item' }).populate('recentIds');
+    expect(recents?.recentIds[0]._id.toString()).toBe(itemId);
+  });
 });
 
 describe('Recent Items Integration', () => {

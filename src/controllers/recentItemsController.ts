@@ -1,26 +1,24 @@
 import type { Request, Response } from 'express';
-import { RecentItems, addToRecents } from '../models/recentItems.js';
 import { Types } from 'mongoose';
+import { RecentItems, addToRecents } from '../models/recentItems.js';
+
+const validTypes = ['item', 'template', 'customField'];
 
 export const getRecentsByType = async (req: Request, res: Response) => {
   const { type } = req.params;
 
-  let normalizedType = type; //if you are reading this then you have seen some stupid code. sowwy. 
-  if (type === 'items') normalizedType = 'item';
-  else if (type === 'templates') normalizedType = 'template';
-  else if (type === 'customFields') normalizedType = 'customField';
+  if (!validTypes.includes(type)) {
+    res.status(400).json({ message: 'Invalid type parameter' });
+    return;
+  }
 
   try {
-    let recents = await RecentItems.findOne({ type: normalizedType })
-      .populate({
-        path: 'recentIds',
-        select: 'name fieldName dataType',
-      })
+    let recents = await RecentItems.findOne({ type: type })
+      .populate({ path: 'recentIds', select: 'name fieldName dataType', })
       .exec();
 
-
     if (!recents) {
-      recents = await RecentItems.create({ type: normalizedType, recentIds: [] });
+      recents = await RecentItems.create({ type: type, recentIds: [] });
     }
 
     res.status(200).json(recents.recentIds);
@@ -33,13 +31,13 @@ export const getRecentsByType = async (req: Request, res: Response) => {
 export const addManualRecent = async (req: Request, res: Response) => {
   const { type, itemId } = req.body;
 
-  let normalizedType = type;
-  if (type === 'items') normalizedType = 'item';
-  else if (type === 'templates') normalizedType = 'template';
-  else if (type === 'customFields') normalizedType = 'customField';
+  if (!validTypes.includes(type)) {
+    res.status(400).json({ message: 'Invalid type parameter' });
+    return;
+  }
 
   try {
-    const result = await addToRecents(normalizedType, new Types.ObjectId(itemId));
+    const result = await addToRecents(type, new Types.ObjectId(itemId));
 
     if (result) {
       res.status(200).json({ message: 'Successfully added to recents' });
