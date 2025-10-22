@@ -50,22 +50,16 @@ services:
       - default
   
   app-mongoexpress:
-    # Development-only interface to view the mongodb contents
-    # Based on https://gist.github.com/adamelliotfields/cd49f056deab05250876286d7657dc4b
-    image: mongo-express
-    container_name: assetatlas-DEVONLY-mongodb-express
+    extends:
+      file: ./common-services.yml
+      service: app-mongoexpress
     environment:
       ME_CONFIG_MONGODB_SERVER: mongo
       ME_CONFIG_MONGODB_PORT: "27017"
-      ME_CONFIG_OPTIONS_EDITORTHEME: "darcula"
-      ME_CONFIG_BASICAUTH_USERNAME:   "user"
-      ME_CONFIG_BASICAUTH_PASSWORD:  "password"
     depends_on:
       - mongo
     networks:
       - default
-    ports:
-      - "8081:8081"
 
 networks:
   default:
