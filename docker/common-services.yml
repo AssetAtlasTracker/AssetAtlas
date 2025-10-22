@@ -1,0 +1,7 @@
+services:
+  auto-migration:
+    build:
+      context: .
+      dockerfile: migrate.Dockerfile
+    environment:
+      MONGO_URI: mongodb://mongo:27017/assetatlas_db
