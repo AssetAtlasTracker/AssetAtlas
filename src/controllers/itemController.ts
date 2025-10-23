@@ -241,7 +241,7 @@ export const updateItem = async (req: Request, res: Response) => {
       .exec();
 
     if (!item) {
-      return res.status(404).json({ message: 'Item not found' });
+      return res.status(404).json({ message: 'Cannot update: Item not found' });
     }
 
 

@@ -73,11 +73,18 @@ describe('Item API', () => {
     expect(response.body.name).toBe(newItem.name);
   });
 
-  it('should return 404 if item is not found', async () => {
+  it('should return 404 if item is not found when trying to get it by its ID', async () => {
     const nonExistentId = new mongoose.Types.ObjectId();
     const response = await request(app).get(`/api/items/${nonExistentId}`);
     expect(response.status).toBe(404);
     expect(response.body.message).toBe('Cannot get: Item not found');
+  });
+
+  it('should return 404 if item is not found when trying to update it', async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+    const response = await request(app).patch(`/api/items/${nonExistentId}`);
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe('Cannot update: Item not found');
   });
 
   it('should delete an item by ID', async () => {
