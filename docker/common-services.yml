@@ -1,12 +1,5 @@
 services:
-  auto-migration:
-    build:
-      context: .
-      dockerfile: migrate.Dockerfile
-    environment:
-      MONGO_URI: mongodb://mongo:27017/assetatlas_db
-
-
+  
   app-mongoexpress:
     # Development-only interface to view the mongodb contents
     # Based on https://gist.github.com/adamelliotfields/cd49f056deab05250876286d7657dc4b
