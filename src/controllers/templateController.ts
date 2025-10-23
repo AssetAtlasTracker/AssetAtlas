@@ -1,8 +1,8 @@
 import type { Request, Response } from 'express';
 import Fuse from 'fuse.js';
-import Template from '../models/template.js';
-import BasicItem from '../models/basicItem.js';
 import mongoose from 'mongoose';
+import BasicItem from '../models/basicItem.js';
+import Template from '../models/template.js';
 
 export const createTemplate = async (req: Request, res: Response) => {
   const { name, fields } = req.body;
