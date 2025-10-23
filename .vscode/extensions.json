@@ -32,7 +32,11 @@
         "svelte.svelte-vscode",
         // Workspace Theme: Set the theme of your editor per-workspace
         "sagittarian.workspacetheme",
-        // MongoDB for VS Code: Access and explore the MongoDB database directly from VS Code
-        "mongodb.mongodb-vscode"
+        // MongoDB for VS Code: Access and explore the MongoDB database directly
+        "mongodb.mongodb-vscode",
+        // GitHub Local Actions: Run GitHub Actions locally
+        "SanjulaGanepola.github-local-actions",
+        // Vitest Explorer: Useful for running individual tests
+        "vitest.explorer"
     ]
 }
