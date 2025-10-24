@@ -63,6 +63,9 @@
 		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
 			<Link to={`/viewTemplates`}>Templates</Link>
 		</nav>
+		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
+			<Link to={`/about`}>About</Link>
+		</nav>
 
 		{#if permissionLevel >= 9}
 			<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
