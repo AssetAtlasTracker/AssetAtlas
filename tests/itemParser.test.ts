@@ -1,8 +1,8 @@
 import { Types } from "mongoose";
-import BasicItem from "../src/models/basicItem";
-import CustomField, { ICustomField } from "../src/models/customField";
-import {test} from "../src/utility"
-import {describe, it, expect} from "vitest";
+import { describe, expect, it } from "vitest";
+import BasicItem from "../src/models/basicItem.js";
+import CustomField, { type ICustomField } from "../src/models/customField.js";
+import { test } from "../src/utility/index.js";
 
 const resources = test();
 const CSVItemParser = resources.itemParser;
@@ -13,7 +13,7 @@ describe("Testing Item Parsing", () => {
     it("Should make one item with all types of fields, no template", async () => {
         const csvContent = `item name,template,description,amount,seller,sold\ncat,,a black cat,1,barbra,false`;
 
-        const itemParser = new CSVItemParser([]);
+        const itemParser = new CSVItemParser([], [], []);
         const canParse = itemParser.canParse(csvContent.split(/\n|\r/)[0].split(/,/));
         expect(canParse).toBeTruthy();
 
@@ -27,25 +27,25 @@ describe("Testing Item Parsing", () => {
         let fieldMap = new Map<Types.ObjectId, ICustomField>();
         firstItem.customFields = [];
         let amountField = new CustomField();
-        amountField.id=20;
+        amountField.id = 20;
         amountField.fieldName = "amount";
         amountField.dataType = "number";
         fieldMap.set(amountField.id, amountField);
-        firstItem.customFields.push({field: amountField.id, value: "1"});
+        firstItem.customFields.push({ field: amountField.id, value: "1" });
         let sellerField = new CustomField();
-        sellerField.id=21;
+        sellerField.id = 21;
         sellerField.fieldName = "seller";
         sellerField.dataType = "string";
         fieldMap.set(sellerField.id, sellerField);
-        firstItem.customFields.push({field: sellerField.id, value: "barbra"});
+        firstItem.customFields.push({ field: sellerField.id, value: "barbra" });
         let soldField = new CustomField();
-        soldField.id=22;
+        soldField.id = 22;
         soldField.fieldName = "sold";
         soldField.dataType = "boolean";
         fieldMap.set(soldField.id, soldField);
-        firstItem.customFields.push({field: soldField.id, value: "false"});
-        
-        
+        firstItem.customFields.push({ field: soldField.id, value: "false" });
+
+
         expect(itemParser.itemTree.length == 1);
         let parsedItem = itemParser.itemTree[0];
         expect(parsedItem.name).toBe(firstItem.name);
@@ -61,12 +61,12 @@ describe("Testing Item Parsing", () => {
                 let fieldId = field.field;
                 expect(fieldId).toStrictEqual(amountField._id);
             }
-            const ids = fieldMap.keys();
-            const idSTr = field.field.toHexString();
+            const _ids = fieldMap.keys();
+            const _idSTr = field.field.toHexString();
             const fieldCustom = fieldMap.get(field.field.toHexString() as unknown as Types.ObjectId);
             expect(fieldCustom).not.toBe(undefined);
-            const parsedIds = itemParser.customFieldMap.keys();
-            const parsedIdStr = parsedField.field.toHexString();
+            const _parsedIds = itemParser.customFieldMap.keys();
+            const _parsedIdStr = parsedField.field.toHexString();
             const parsedFieldCustom = itemParser.customFieldMap.get(parsedField.field.toHexString() as unknown as Types.ObjectId);
             expect(parsedFieldCustom).not.toBe(undefined);
             expect(parsedFieldCustom!.fieldName).toBe(fieldCustom!.fieldName);
@@ -80,7 +80,7 @@ describe("Testing Item Parsing", () => {
         const path = "./tests/resource/test-csv-item-1.csv";
         const loader = new FileLoader();
         const content = await loader.readFile(path);
-        const itemParser = new CSVItemParser([]);
+        const itemParser = new CSVItemParser([], [], []);
 
         const canParse = itemParser.canParse(content.split(/\n|\r/)[0].split(/,/));
         expect(canParse).toBeTruthy();

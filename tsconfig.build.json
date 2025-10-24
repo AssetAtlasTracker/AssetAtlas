@@ -5,10 +5,14 @@
     "outDir": "./dist",
     "noEmit": false,
     "declaration": false,
-    "incremental": false  // Disable incremental caching
+    "incremental": false // Disable incremental caching
   },
   "include": [
     "src/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "tests/**/*",
+    "**/*.test.ts"
+  ]
 }

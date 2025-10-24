@@ -1,17 +1,17 @@
 import express from 'express';
+import { getUpload, gfs } from '../config/gridfs.js';
 import {
   createItem,
-  getItemById,
   deleteItemById,
-  searchItems,
   getAllContainedById,
-  moveItem,
-  updateItem,
+  getItemById,
+  getItemTree,
   getParentChain,
-  getItemTree
+  moveItem,
+  searchItems,
+  updateItem
 } from '../controllers/itemController.js';
 import BasicItem from '../models/basicItem.js';
-import { getUpload, gfs } from '../config/gridfs.js';
 
 const router = express.Router();
 
@@ -36,6 +36,7 @@ router.patch('/:id', (req, res, next) => {
     next();
   }
 }, updateItem);
+
 router.get('/parentChain/:id', getParentChain);
 
 router.get('/:id/image', async (req, res) => {
@@ -51,13 +52,13 @@ router.get('/:id/image', async (req, res) => {
     }
 
     const file = files[0];
-    
+
     // Set the proper content type
     res.set('Content-Type', file.contentType);
-    
+
     // Create download stream
     const downloadStream = gfs.openDownloadStream(file._id);
-    
+
     // Pipe the file to the response
     downloadStream.pipe(res);
   } catch (error) {

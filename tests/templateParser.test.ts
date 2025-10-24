@@ -1,15 +1,12 @@
-import {test} from "../src/utility"
-import CustomField, { ICustomField } from "../src/models/customField";
+import { Types } from "mongoose";
+import CustomField, { type ICustomField } from "../src/models/customField.js";
+import Template from "../src/models/template.js";
+import { test } from "../src/utility/index.js";
 
 const resources = test();
 const CSVTemplateParser = resources.templateParser;
 
-import Template from "../src/models/template";
-import { Types } from "mongoose";
-
-
 describe("Testing Template Parsing", () => {
-
     it("Should make one template with all types of fields", async () => {
         const csvContent = `template name\nfirst,name,amount,edible\n,string,number,boolean`;
 

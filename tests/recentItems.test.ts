@@ -1,11 +1,12 @@
-import request from 'supertest';
 import express from 'express';
-import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import itemRouter from '../src/routes/itemRoutes.js';
-import templateRouter from '../src/routes/templateRoutes.js';
-import customFieldRouter from '../src/routes/customFieldRoutes.js';
+import mongoose from 'mongoose';
+import request from 'supertest';
 import { RecentItems } from '../src/models/recentItems.js';
+import customFieldRouter from '../src/routes/customFieldRoutes.js';
+import itemRouter from '../src/routes/itemRoutes.js';
+import recentItemsRouter from '../src/routes/recentItemsRoutes.js';
+import templateRouter from '../src/routes/templateRoutes.js';
 
 let app: express.Application;
 let mongoServer: MongoMemoryServer;
@@ -20,6 +21,7 @@ beforeAll(async () => {
   app.use('/api/items', itemRouter);
   app.use('/api/templates', templateRouter);
   app.use('/api/customFields', customFieldRouter);
+  app.use('/api/recents', recentItemsRouter);
 });
 
 afterAll(async () => {
@@ -33,13 +35,48 @@ beforeEach(async () => {
   await mongoose.connection.collection('items').deleteMany({});
   await mongoose.connection.collection('templates').deleteMany({});
   await mongoose.connection.collection('customfields').deleteMany({});
-  
+
   // Initialize RecentItems documents
   await Promise.all([
     RecentItems.create({ type: 'item', recentIds: [], maxItems: 5 }),
     RecentItems.create({ type: 'template', recentIds: [], maxItems: 5 }),
     RecentItems.create({ type: 'customField', recentIds: [], maxItems: 5 })
   ]);
+});
+
+describe('Recent Items Controller', () => {
+  it('should get recent items by type', async () => {
+    const item = { name: 'Test Item', description: 'Test Description' };
+    const response = await request(app).post('/api/items').send(item);
+    expect(response.status).toBe(201);
+
+    const recentsResponse = await request(app).get('/api/recents/item');
+    expect(recentsResponse.status).toBe(200);
+    expect(recentsResponse.body[0]._id.toString()).toBe(response.body._id);
+  });
+
+  it('should fail to get recent items by type', async () => {
+    const item = { name: 'Test Item', description: 'Test Description' };
+    const response = await request(app).post('/api/items').send(item);
+    expect(response.status).toBe(201);
+
+    const recentsResponse = await request(app).get('/api/recents/invalidType');
+    expect(recentsResponse.status).toBe(400);
+    expect(recentsResponse.body.message).toBe('Invalid type parameter');
+  });
+
+  it('should manually add a recent item', async () => {
+    const item = { name: 'Test Item', description: 'Test Description' };
+    const creationResponse = await request(app).post('/api/items').send(item);
+    expect(creationResponse.status).toBe(201);
+
+    const itemId = creationResponse.body._id;
+    const itemInfo = { type: 'item', itemId: itemId };
+    const recentsAddResponse = await request(app).post('/api/recents/add').send(itemInfo);
+    expect(recentsAddResponse.status).toBe(200);
+    const recents = await RecentItems.findOne({ type: 'item' }).populate('recentIds');
+    expect(recents?.recentIds[0]._id.toString()).toBe(itemId);
+  });
 });
 
 describe('Recent Items Integration', () => {
@@ -74,13 +111,13 @@ describe('Recent Items Integration', () => {
   });
 
   it('should add templates to recents when created', async () => {
-    const templateData = { 
+    const templateData = {
       name: 'Test Template',
-      fields : []
+      fields: []
     };
     const response = await request(app).post('/api/templates/createTemplate').send(templateData);
     expect(response.status).toBe(201);
-  
+
     const recents = await RecentItems.findOne({ type: 'template' }).populate('recentIds');
     expect(recents?.recentIds[0]._id.toString()).toBe(response.body._id);
   });

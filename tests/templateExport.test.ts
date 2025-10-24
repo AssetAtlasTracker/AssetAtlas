@@ -1,7 +1,7 @@
-import Template, { ITemplatePopulated } from "../src/models/template";
-import CustomField from "../src/models/customField";
-import {describe, it, expect} from "vitest";
-import { CSVFormatterPopulated } from "../src/utility/formating/CSVFormatterPopulated";
+import { describe, expect, it } from "vitest";
+import CustomField from "../src/models/customField.js";
+import Template, { type ITemplatePopulated } from "../src/models/template.js";
+import { CSVFormatterPopulated } from "../src/utility/formating/CSVFormatterPopulated.js";
 
 describe("Testing Template Formatting", () => {
 
@@ -28,7 +28,7 @@ describe("Testing Template Formatting", () => {
         firstTemplate.fields.push(edibleField);
 
         const csvContent = `template name\nfirst,name,amount,edible\n,string,number,boolean`;
-        const formatter = new CSVFormatterPopulated([], [firstTemplate], []);
+        const formatter = new CSVFormatterPopulated([], [firstTemplate], [], []);
         const str = formatter.formatTemplates();
         expect(str).toBe(csvContent);
     });
