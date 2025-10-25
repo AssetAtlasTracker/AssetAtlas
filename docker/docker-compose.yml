@@ -40,14 +40,14 @@ services:
       retries: 3
 
   auto-migration:
-    extends:
-      file: ./common-services.yml
-      service: auto-migration
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
     depends_on:
-      mongo:
-        condition: service_healthy
-    networks:
-      - default
+      - mongo
+    command: ["npx", "migrate-mongo", "up", "-f", "migrate-mongo-docker-config.cjs"]
+    environment:
+      MONGO_URI: mongodb://mongo:27017/assetatlas_db
   
   app-mongoexpress:
     extends:

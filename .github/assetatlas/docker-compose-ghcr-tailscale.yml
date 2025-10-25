@@ -27,6 +27,15 @@ services:
     networks:
       - assetatlas-network
 
+  auto-migration:
+    image: ${DOCKER_IMAGE:-ghcr.io/assetatlastracker/assetatlas:latest}
+    pull_policy: always
+    depends_on:
+      - mongo
+    command: ["npx", "migrate-mongo", "up", "-f", "migrate-mongo-docker-config.cjs"]
+    environment:
+      MONGO_URI: mongodb://mongo:27017/assetatlas_db
+
   tailscale:
     image: tailscale/tailscale:stable
     container_name: assetatlas-ts
