@@ -48,6 +48,18 @@ services:
         condition: service_healthy
     networks:
       - default
+  
+  app-mongoexpress:
+    extends:
+      file: ./common-services.yml
+      service: app-mongoexpress
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_PORT: "27017"
+    depends_on:
+      - mongo
+    networks:
+      - default
 
 networks:
   default:
