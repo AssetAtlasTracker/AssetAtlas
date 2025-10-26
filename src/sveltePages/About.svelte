@@ -7,6 +7,7 @@
 
   let menu: HTMLDialogElement;
   let searchQuery = "";
+  const version = import.meta.env.VITE_APP_VERSION || 'dev version';
   
   function onSearch(query: string) {
     //maybe some day
@@ -29,7 +30,7 @@
           AssetAtlas is a self hosted asset management tool designed to help you organize your belongings.
         </p>
         <p class="text-center">
-          Current Version: 1.0.0
+          Current Version: {version}
         </p>
         <p class="text-center">
           Past versions can be found <a href="https://github.com/AssetAtlasTracker/AssetAtlas/pkgs/container/assetatlas" style="text-decoration: underline;">here</a>
