@@ -56,6 +56,12 @@ you want to apply should be put into the "up" method. In case of destructive cha
 
 ---
 
+## [Mongo Express](https://github.com/mongo-express/mongo-express)
+
+Mongo express is a web-based admin interface for our MongoDB database. When running the dev version of the project, you can connect to the gui by going to localhost:8081 and signing in with username: "user" and password: "password". This will allow you to easily look into the DB and its contents
+
+---
+
 ## [Tailscale](https://tailscale.com/)
 
 If you've ever tried to host a video game server for your friends you may be familiar with port-forwarding. Port-forwarding is sort of like leaving a door open for people to come in through. However, Rose doesn't let us students do any port-forwarding on our laptops (probably for security reasons?), so Tailscale is our workaround.
