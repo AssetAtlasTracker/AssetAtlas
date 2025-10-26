@@ -35,10 +35,11 @@
           Past versions can be found <a href="https://github.com/AssetAtlasTracker/AssetAtlas/pkgs/container/assetatlas" style="text-decoration: underline;">here</a>
         </p>
         <br />
-        <p class ="text-center important-text">Patch Notes</p>
+        <p class ="text-center important-text">Report a Bug or Request a Feature</p>
         <br />
         <p class="text-center">
-            - Initial Release of AssetAtlas. Features include item tracking and template creation.
+            If you wish to report a bug or request a feature you can follow 
+            <a href = "https://github.com/AssetAtlasTracker/AssetAtlas/issues" style="text-decoration: underline">this</a> link.
         </p>
       </div>
   </div>
