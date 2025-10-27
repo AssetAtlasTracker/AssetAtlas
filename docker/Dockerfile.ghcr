@@ -1,5 +1,8 @@
 FROM node:20-bullseye AS build
 
+ARG APP_VERSION=dev
+ENV APP_VERSION=$APP_VERSION
+
 # Install OS dependencies
 RUN apt-get update && apt-get install -y python3 make g++ iputils-ping && rm -rf /var/lib/apt/lists/*
 
