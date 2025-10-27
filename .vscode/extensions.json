@@ -37,6 +37,8 @@
         // GitHub Local Actions: Run GitHub Actions locally
         "SanjulaGanepola.github-local-actions",
         // Vitest Explorer: Useful for running individual tests
-        "vitest.explorer"
+        "vitest.explorer",
+        // YAML: Language support for YAML files
+        "redhat.vscode-yaml"
     ]
 }
