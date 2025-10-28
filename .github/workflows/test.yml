@@ -1,12 +1,10 @@
-name: Run Tests, Coverage, and Lint
+name: Run Lint and Tests with Coverage
 
 on:
   push:
-    branches:
-      - main
+    branches: ["main"]
   pull_request:
-    branches:
-      - main
+    branches: ["main"]
 
 jobs:
   test:
@@ -14,21 +12,26 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "22.x"
+          cache: "npm"
 
       - name: Install dependencies
-        run: rm package-lock.json && npm install
-
-      - name: Run tests
-        run: npm run test
-
-      - name: Run coverage
-        run: npm run coverage
+        run: npm ci
 
       - name: Run lint
         run: npm run lint
+
+      - name: Run tests with coverage
+        run: npm run coverage
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Coverage Report
+          path: coverage/
+          if-no-files-found: error
