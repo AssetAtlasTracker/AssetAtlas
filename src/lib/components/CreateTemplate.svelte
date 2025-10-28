@@ -202,7 +202,7 @@
 
       try {
         const response = await fetch(
-          `/api/templates/searchTemplates?name=${encodeURIComponent(name)}`,
+          `/api/templates?name=${encodeURIComponent(name)}`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },

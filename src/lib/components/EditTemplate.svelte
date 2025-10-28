@@ -192,7 +192,7 @@
 
       try {
         const response = await fetch(
-          `/api/templates/searchTemplates?name=${encodeURIComponent(name)}`,
+          `/api/templates?name=${encodeURIComponent(name)}`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },
@@ -228,7 +228,7 @@
   async function searchTemplates(query: string) {
     try {
       const response = await fetch(
-        `/api/templates/searchTemplates?name=${encodeURIComponent(query)}`,
+        `/api/templates?name=${encodeURIComponent(query)}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
