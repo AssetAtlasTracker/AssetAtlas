@@ -33,7 +33,7 @@ services:
       - mongo-data:/data/db
     networks:
       - default
-    healthcheck: 
+    healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/tcp
       interval: 2s
       timeout: 5s
@@ -45,10 +45,11 @@ services:
       dockerfile: ./docker/Dockerfile
     depends_on:
       - mongo
-    command: ["npx", "migrate-mongo", "up", "-f", "migrate-mongo-docker-config.cjs"]
+    command:
+      ["npx", "migrate-mongo", "up", "-f", "migrate-mongo-docker-config.cjs"]
     environment:
       MONGO_URI: mongodb://mongo:27017/assetatlas_db
-  
+
   app-mongoexpress:
     extends:
       file: ./common-services.yml

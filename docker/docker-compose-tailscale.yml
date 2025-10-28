@@ -34,7 +34,7 @@ services:
       - "27017:27017"
     networks:
       - default
-    healthcheck: 
+    healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/tcp
       interval: 2s
       timeout: 5s
@@ -46,7 +46,8 @@ services:
       dockerfile: ./docker/Dockerfile
     depends_on:
       - mongo
-    command: ["npx", "migrate-mongo", "up", "-f", "migrate-mongo-docker-config.cjs"]
+    command:
+      ["npx", "migrate-mongo", "up", "-f", "migrate-mongo-docker-config.cjs"]
     environment:
       MONGO_URI: mongodb://mongo:27017/assetatlas_db
 
@@ -65,6 +66,18 @@ services:
       - SYS_MODULE
     restart: unless-stopped
     network_mode: host
+
+  app-mongoexpress:
+    extends:
+      file: ./common-services.yml
+      service: app-mongoexpress
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_PORT: "27017"
+    depends_on:
+      - mongo
+    networks:
+      - default
 
 volumes:
   mongo-data:
