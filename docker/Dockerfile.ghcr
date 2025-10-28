@@ -30,10 +30,13 @@ ENV NODE_ENV=production
 
 # Copy package.json + lock to install only prod dependencies
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev && npm install migrate-mongo
 
 # Copy over the dist folder from the build stage
 COPY --from=build /usr/src/app/dist ./dist
+
+COPY --from=build /usr/src/app/docker/migrate-mongo-docker-config.cjs ./
+COPY --from=build /usr/src/app/docker/migrations ./migrations
 
 # Copy entrypoint script
 COPY docker/entrypoint-ghcr.sh /entrypoint.sh
