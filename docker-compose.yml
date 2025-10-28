@@ -1,0 +1,46 @@
+name: assetatlas-project
+
+services:
+  assetatlas:
+    image: assetatlas
+    volumes:
+      - ./.env:/usr/src/app/.env
+      - tsbuild-cache:/usr/src/app/.tsbuildcache
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        BUILDKIT_INLINE_CACHE: "1"
+      cache_from:
+        - assetatlas:latest
+    environment:
+      NODE_ENV: production
+      MONGO_URI: mongodb://mongo:27017/assetatlas_db
+      DOCKER_BUILDKIT: "1"
+      COMPOSE_DOCKER_CLI_BUILD: "1"
+      ORIGIN: http://localhost:3000
+    ports:
+      - 3000:3000
+    networks:
+      - default
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
+    name: assetatlas-bridge
+
+volumes:
+  mongo-data:
+  tsbuild-cache:
+    name: assetatlas-tsbuild-cache

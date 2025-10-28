@@ -1,41 +1,86 @@
-# AssetAtlas
+# sv
 
-AssetAtlas is a self hosted database with an object-oriented approach to keeping track of your stuff. Currently in early development.
+Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
-## Asset Atlas User Setup
+## Creating a project
 
-### Main setup
+If you're seeing this, you've probably already done this step. Congrats!
 
-1. Install Docker
-   - <https://www.docker.com/products/docker-desktop/>
-1. Make sure you have Python downloaded
-   - <https://www.python.org/downloads/>
-1. Clone the repository
-   - If you dont know how to clone a repository, you can download a .zip of the repository from the "code" button near the top of the page linked below
-   - <https://github.com/AssetAtlasTracker/AssetAtlas>   
-1. Run the file named "start.py" in the folder that downloaded from this github page on the previous step.
-   - You may need to right click on the file and "Open with > python".
-1. In the start.py launcher:
-   - If you are only following the main setup: leave local host selected
-   - If you are using the multi-device remote functionality and have followed the optional setup steps: select Tailscale mode
-1. Click "Run Docker Compose"
-   - This may take five or so minutes the first time, but will be faster on subsequent composes
-   - If the compose action fails right away, docker may not be open/running. Make sure the "docker desktop" application you downloaded earlier is running.
-   - Once it finishes, a window will pop up "Service is running" with the IP
-1. In your web browser, go to the localhost or Tailscale URL depending on the mode you chose
-   - For tailscale to work, Tailscale must be currently running on the device trying to access AssetAtlas
+```sh
+# create a new project in the current directory
+npx sv create
 
-### (Optional) Multi device remote access additional setup
+# create a new project in my-app
+npx sv create my-app
+```
 
-1. Make a Tailscale account
-   - <https://login.tailscale.com/login>
-   - Sign in however you like, but you will need to login once every 90 days to refresh your access key which is used in the software.
-   <!-- - Rob: I created a tailnet for our org but not technically needed. We probably can't use it or will have to get an open source plan for it because it has a limit of 3 users -->
-   - You will need to download the tailscale software on any device you want to use over the internet, such as a phone (It has an app). You will only need to download it on the host device if you would also like to access it from the host device while using multi-device mode.
-1. Create a Tailscale auth key
-   - <https://login.tailscale.com/admin/settings/keys>
-1. Navigate to "Auth keys"
-1. Set your key to **reusable** and **ephemeral**
-1. When using the "start.py" launcher, paste your key in the auth key box and click save. You'll only need to do this once.
-   - Note: this is an authentication key that is stored in plain text on your host machine. If you already use Tailscale/a Tailnet for other things, they could be accessed by someone who has this key. If you are only using Tailscale for AssetAtlas this doesn't really matter as someone who can see this key already has access to your host computer and could see your database anyway.
 
+## MongoDB & Mongoose
+
+This project uses MongoDB and mongoose for database access. The `docker-compose.yml` includes a `mongo` service for local development and SSR.
+
+To use MongoDB in your code:
+
+```ts
+import { connectMongo } from '$lib/mongo';
+await connectMongo();
+```
+
+The default connection string is set via the `MONGO_URI` environment variable in compose:
+`mongodb://root:example@mongo:27017/?authSource=admin`
+
+## Docker
+
+This project includes a Dockerfile and a `docker-compose.yml` to run the app in a container.
+
+
+Production build (SSR, multi-stage):
+
+Build the image:
+
+```powershell
+docker build -t assetatlas-svelte5:latest .
+```
+
+Run the container (runs SvelteKit SSR Node server on port 3000):
+
+```powershell
+docker run --rm -p 3000:3000 assetatlas-svelte5:latest
+```
+
+Development (live-reload with host bind):
+
+Using docker-compose you'll get a development container that mounts the project and exposes Vite's dev server on port 5173:
+
+```powershell
+docker-compose up --build dev
+```
+
+Notes:
+
+- The Dockerfile now runs SvelteKit SSR using Node (port 3000).
+- If your adapter uses a different entrypoint, update the Dockerfile CMD accordingly.
+- For static builds, use the previous Dockerfile and expose port 4173.
+
+## Developing
+
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+
+```sh
+npm run dev
+
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
+```
+
+## Building
+
+To create a production version of your app:
+
+```sh
+npm run build
+```
+
+You can preview the production build with `npm run preview`.
+
+> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
