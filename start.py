@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring, missing-function-docstring, line-too-long, broad-exception-caught
 import os
 import subprocess
 import tkinter as tk
@@ -5,7 +6,7 @@ from tkinter import messagebox
 from tkinter import ttk
 import threading
 import time
-from envWriter import set_env_variable
+from env_writer import set_env_variable
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -27,7 +28,7 @@ def save_auth_key():
 
 
 # this is all so our popup has copy paste, basically ignore all
-def show_url_popup(url):
+def show_url_popup(url: str):
     popup = tk.Toplevel()
     popup.title("Service Running")
     tk.Label(popup, text="Service is running at:").pack(pady=5)
@@ -61,17 +62,19 @@ def shutdown_docker_thread():
     thread.start()
 
 
-def shutdown_containers_from_compose_file(compose_file):
+def shutdown_containers_from_compose_file(compose_file: str):
     compose_file = os.path.join(SCRIPT_DIR, "docker", compose_file)
 
     command = ["docker-compose", "-f", compose_file, "stop"]
 
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = process.communicate()
+    _, err = process.communicate()
 
     if process.returncode != 0:
         shutdown_button.config(state=tk.NORMAL)
-        messagebox.showerror("Error", f"Failed to stop Docker Containers:\n{err.decode()}")
+        messagebox.showerror(
+            "Error", f"Failed to stop Docker Containers:\n{err.decode()}"
+        )
         return
 
 
@@ -104,38 +107,48 @@ def on_closing():
     root.destroy()
 
 
-def run_docker_compose_thread(mode):
+def run_docker_compose_thread(mode: str):
     run_button.config(state=tk.DISABLED)
     thread = threading.Thread(target=run_docker_compose, args=(mode,))
     thread.start()
 
 
 # Function to run the appropriate docker-compose command based on mode
-def run_docker_compose(mode):
-    progressbar = ttk.Progressbar(mode="indeterminate", length=250)
-    progressbar.grid(row=5, column=1, padx=10)
-    progressbar.start()
+def run_docker_compose(mode: str):
+    compose_progressbar = ttk.Progressbar(mode="indeterminate", length=250)
+    compose_progressbar.grid(row=5, column=1, padx=10)
+    compose_progressbar.start()
     try:
         if mode == "local":
             compose_file = os.path.join(SCRIPT_DIR, "docker", "docker-compose.yml")
             command = ["docker-compose", "-f", compose_file, "up", "--build", "-d"]
             url = "http://localhost:3000"
-            set_env_variable("IP", "localhost:3000", os.path.join(SCRIPT_DIR, "docker", ".env"))
+            set_env_variable(
+                "IP", "localhost:3000", os.path.join(SCRIPT_DIR, "docker", ".env")
+            )
         elif mode == "tailscale":
-            compose_file = os.path.join(SCRIPT_DIR, "docker", "docker-compose-tailscale.yml")
+            compose_file = os.path.join(
+                SCRIPT_DIR, "docker", "docker-compose-tailscale.yml"
+            )
             command = ["docker-compose", "-f", compose_file, "up", "--build", "-d"]
+        else:
+            raise ValueError("Invalid mode selected: " + mode)
 
         # working directory to where docker-compose files are located
         os.chdir(os.path.join(SCRIPT_DIR, "docker"))
 
         # Run the docker-compose command
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = process.communicate()
+        process = subprocess.Popen(
+            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        _, err = process.communicate()
 
         # Check for errors
         if process.returncode != 0:
             run_button.config(state=tk.NORMAL)
-            messagebox.showerror("Error", f"Failed to run Docker Compose:\n{err.decode()}")
+            messagebox.showerror(
+                "Error", f"Failed to run Docker Compose:\n{err.decode()}"
+            )
             return
 
         if mode == "tailscale":
@@ -145,7 +158,9 @@ def run_docker_compose(mode):
                 try:
                     print(f"Attempt {attempt + 1} to get Tailscale IP...")
                     tailscale_ip = (
-                        subprocess.check_output(["docker", "exec", "tailscale", "tailscale", "ip", "-4"])
+                        subprocess.check_output(
+                            ["docker", "exec", "tailscale", "tailscale", "ip", "-4"]
+                        )
                         .decode()
                         .strip()
                     )
@@ -162,10 +177,14 @@ def run_docker_compose(mode):
                 time.sleep(3)  # Wait for 3 seconds before retrying
             else:
                 run_button.config(state=tk.NORMAL)
-                messagebox.showerror("Error", "Failed to get Tailscale IP after multiple attempts.")
+                messagebox.showerror(
+                    "Error", "Failed to get Tailscale IP after multiple attempts."
+                )
                 return
 
             url = f"http://{tailscale_ip}:3000"
+        else:
+            raise ValueError("Invalid mode selected: " + mode)
 
         show_url_popup(url)
         print(f"Service is running at {url}")
@@ -176,7 +195,7 @@ def run_docker_compose(mode):
         run_button.config(state=tk.NORMAL)
         messagebox.showerror("Error", f"Unexpected error: {e}")
     finally:
-        progressbar.stop()
+        compose_progressbar.stop()
 
 
 root = tk.Tk()
@@ -194,7 +213,9 @@ save_key_button.grid(row=1, columnspan=2, padx=10, pady=10)
 mode_var = tk.StringVar(value="local")
 
 tk.Label(root, text="Select Mode:").grid(row=2, column=0, padx=10, pady=10)
-local_mode_radio = tk.Radiobutton(root, text="Local Mode (localhost)", variable=mode_var, value="local")
+local_mode_radio = tk.Radiobutton(
+    root, text="Local Mode (localhost)", variable=mode_var, value="local"
+)
 local_mode_radio.grid(row=2, column=1, sticky="w", padx=10, pady=10)
 tailscale_mode_radio = tk.Radiobutton(
     root, text="Tailscale Mode (Tailscale IP)", variable=mode_var, value="tailscale"
@@ -203,7 +224,9 @@ tailscale_mode_radio.grid(row=3, column=1, sticky="w", padx=10, pady=10)
 
 # Button to run Docker Compose
 run_button = tk.Button(
-    root, text="Run Docker Compose", command=lambda: run_docker_compose_thread(mode_var.get())
+    root,
+    text="Run Docker Compose",
+    command=lambda: run_docker_compose_thread(mode_var.get()),
 )
 run_button.grid(row=5, column=0, padx=10)
 
@@ -211,7 +234,7 @@ progressbar = ttk.Progressbar(length=250)
 progressbar.grid(row=5, column=1, padx=10)
 
 shutdown_button = tk.Button(
-    root, text="Shut Down Docker Containers", command=lambda: shutdown_docker_thread()
+    root, text="Shut Down Docker Containers", command=shutdown_docker_thread
 )
 shutdown_button.grid(row=6, columnspan=2, padx=10, pady=10)
 
