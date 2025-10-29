@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import mongoose from 'mongoose';
 import BasicItem from '$lib/server/db/models/basicItem.js';
+import { uploadToGridFS, UploadsFiles } from '$lib/server/db/gridfs';
 
 export const GET: RequestHandler = async ({ params }) => {
   const { id } = params;
@@ -21,7 +22,7 @@ export const GET: RequestHandler = async ({ params }) => {
       .populate('itemHistory.location')
       .populate({
         path: 'image',
-        model: 'uploads.files'
+        model: UploadsFiles
       })
       .exec();
 

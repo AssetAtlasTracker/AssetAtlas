@@ -1,6 +1,19 @@
 import mongoose from 'mongoose';
 import type { GridFSBucket } from 'mongodb';
 
+const UploadsFilesSchema = new mongoose.Schema({
+  filename: { type: String, required: true },
+  contentType: { type: String, required: true },
+  length: { type: Number, required: true },
+  chunkSize: { type: Number, required: true },
+  uploadDate: { type: Date, required: true },
+  aliases: { type: [String], default: [] },
+  metadata: { type: mongoose.Schema.Types.Mixed }
+}, { collection: 'uploads.files' });
+
+const UploadsFiles = mongoose.models['uploads.files'] || mongoose.model('uploads.files', UploadsFilesSchema);
+
+
 let bucket: GridFSBucket | null = null;
 let bucketReady: Promise<GridFSBucket>;
 let resolveReady: (value: GridFSBucket) => void;
@@ -33,7 +46,7 @@ export function getGridFSBucket(): GridFSBucket {
   return bucket;
 }
 
-export { bucketReady };
+export { bucketReady, UploadsFiles };
 
 export async function uploadToGridFS(file: File): Promise<string> {
   await bucketReady; // Wait for GridFS to be ready
