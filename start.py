@@ -119,6 +119,7 @@ def run_docker_compose(mode: str):
     compose_progressbar.grid(row=5, column=1, padx=10)
     compose_progressbar.start()
     try:
+        url = ""
         if mode == "local":
             compose_file = os.path.join(SCRIPT_DIR, "docker", "docker-compose.yml")
             command = ["docker-compose", "-f", compose_file, "up", "--build", "-d"]
@@ -151,7 +152,9 @@ def run_docker_compose(mode: str):
             )
             return
 
-        if mode == "tailscale":
+        if mode == "local":
+            pass
+        elif mode == "tailscale":
             max_attempts = 20
             tailscale_ip = None
             for attempt in range(max_attempts):
