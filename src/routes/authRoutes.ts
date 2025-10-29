@@ -1,10 +1,10 @@
 import express from 'express';
 import {
-  getProfile,
-  getUsers,
-  login,
-  register,
-  updateUserPermission
+	getProfile,
+	getUsers,
+	login,
+	register,
+	updateUserPermission
 } from '../controllers/authController.js';
 import { authenticate, requirePermission } from '../middleware/authMiddleware.js';
 
