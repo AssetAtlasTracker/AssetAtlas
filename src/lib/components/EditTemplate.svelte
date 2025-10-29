@@ -130,7 +130,7 @@
 
   async function loadRecentCustomFields() {
     try {
-      const response = await fetch(`/api/recentItems/customFields`, {  // Changed from /api/recents/ to /api/recentItems/
+      const response = await fetch(`/api/recentItems/customField`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -250,7 +250,7 @@
 
   async function handleTemplateFocus() {
     if (!templateName) {
-      templateSuggestions = await loadRecentItems('templates');
+      templateSuggestions = await loadRecentItems('template');
     }
   }
 
@@ -293,7 +293,7 @@
 
   async function handleCustomFieldClick(index: number) {
     if (!customFields[index].fieldName) {
-      customFields[index].suggestions = await loadRecentItems('customFields');
+      customFields[index].suggestions = await loadRecentItems('customField');
     }
   }
 </script>

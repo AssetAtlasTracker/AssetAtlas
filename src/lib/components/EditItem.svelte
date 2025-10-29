@@ -494,31 +494,31 @@
 
   async function handleParentItemFocus() {
     if (!parentItemName) {
-      parentItemSuggestions = await loadRecentItems("items");
+      parentItemSuggestions = await loadRecentItems("item");
     }
   }
 
   async function handleHomeItemFocus() {
     if (!homeItemName) {
-      homeItemSuggestions = await loadRecentItems("items");
+      homeItemSuggestions = await loadRecentItems("item");
     }
   }
 
   async function handleTemplateFocus() {
     if (!templateName) {
-      templateSuggestions = await loadRecentItems("templates");
+      templateSuggestions = await loadRecentItems("template");
     }
   }
 
   async function handleCustomFieldFocus(index: number) {
     if (!customFields[index].fieldName) {
-      customFields[index].suggestions = await loadRecentItems("customFields");
+      customFields[index].suggestions = await loadRecentItems("customField");
     }
   }
 
   async function handleCustomFieldClick(index: number) {
     if (!customFields[index].fieldName) {
-      customFields[index].suggestions = await loadRecentItems("customFields");
+      customFields[index].suggestions = await loadRecentItems("customField");
     }
   }
 

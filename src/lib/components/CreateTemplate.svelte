@@ -224,7 +224,7 @@
 
   async function loadRecentCustomFields() {
     try {
-      const response = await fetch(`/api/recentItems/customFields`, {
+      const response = await fetch(`/api/recentItems/customField`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
