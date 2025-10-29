@@ -169,13 +169,14 @@ def run_docker_compose(mode):
 
         show_url_popup(url)
         print(f"Service is running at {url}")
-        progressbar.stop()
         label_status.config(text="Docker containers started (" + url + ")")
         run_button.config(state=tk.NORMAL)
 
     except Exception as e:
         run_button.config(state=tk.NORMAL)
         messagebox.showerror("Error", f"Unexpected error: {e}")
+    finally:
+        progressbar.stop()
 
 
 root = tk.Tk()
