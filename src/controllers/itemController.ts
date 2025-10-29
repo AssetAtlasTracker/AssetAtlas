@@ -1,61 +1,118 @@
-import type { Express, Request, Response } from 'express';
+import type { Express, NextFunction, Request, Response } from 'express';
 import Fuse from 'fuse.js';
 import mongoose from 'mongoose';
+import { getUpload, gfs } from '../config/gridfs.js';
 import type { IBasicItemPopulated } from '../models/basicItem.js';
 import BasicItem from '../models/basicItem.js';
 import type { ITemplate } from '../models/template.js';
 
 import '../config/gridfs.js';
 
-//interface for GridFS file
 export interface GridFSFile extends Express.Multer.File {
-  id?: string;
-  _id?: string;
-  filename: string;
-  metadata?: {
-    originalname: string;
-    mimetype: string;
-  };
+	id?: string;
+	_id?: string;
+	filename: string;
+	metadata?: {
+		originalname: string;
+		mimetype: string;
+	};
 }
 
-export const createItem = async (req: Request, res: Response) => {
+export const searchItems = async (req: Request, res: Response) => {
+	const { name, sort = 'alphabetical', exact } = req.query;
+
 	try {
-		// Parse JSON strings first
-		if (typeof req.body.tags === 'string') {
-			req.body.tags = JSON.parse(req.body.tags);
-		}
-		if (typeof req.body.customFields === 'string') {
-			const parsedFields = JSON.parse(req.body.customFields);
-			req.body.customFields = Array.isArray(parsedFields) ? parsedFields : [];
-		}
+		const items = await BasicItem.find({})
+			.populate('template')
+			.populate('parentItem')
+			.populate('homeItem')
+			.populate('containedItems')
+			.populate('customFields.field')
+			.populate('itemHistory.location')
+			.populate({
+				path: 'image',
+				model: 'uploads.files'
+			})
+			.lean<IBasicItemPopulated[]>()
+			.exec();
 
-		const itemData = { ...req.body };
-
-		// Handle file with proper typing
-		if (req.file) {
-			const gridFSFile = req.file as GridFSFile;
-			console.log('File received:', {
-				fieldname: gridFSFile.fieldname,
-				filename: gridFSFile.filename,
-				id: gridFSFile.id,
-				_id: gridFSFile._id
-			});
-
-			// Use ID from either property, fallback to filename
-			itemData.image = gridFSFile.id || gridFSFile._id || gridFSFile.filename;
+		// If no query, return all items directly
+		if (!name || typeof name !== 'string' || name.trim() === '') {
+			const sortedItems = sortItems(items, sort as string);
+			return res.status(200).json(sortedItems);
 		}
 
-		console.log('Creating item with data:', itemData);
-		const newItem = new BasicItem(itemData);
-		const savedItem = await newItem.save();
-
-		res.status(201).json(savedItem);
-	} catch (err) {
-		console.error('Error creating item:', err);
-		res.status(500).json({
-			message: 'Error creating item',
-			error: err instanceof Error ? err.message : String(err)
+		const fuse = new Fuse(items, {
+			keys: ['name'],
+			threshold: exact === 'true' ? 0 : 0.3,
+			findAllMatches: exact !== 'true',
+			location: 0,
+			distance: exact === 'true' ? 0 : 100
 		});
+
+		const fuzzyResults = fuse.search(name);
+		let resultItems = fuzzyResults.map(r => r.item);
+
+		const sortedItems = sortItems(resultItems, sort as string);
+		res.status(200).json(sortedItems);
+	} catch (error) {
+		console.error('Error during search:', error);
+		res.status(500).json({ error: 'Failed to search items' });
+	}
+};
+
+export const getItemTree = async (req: Request, res: Response) => {
+	const { id } = req.params;
+
+	try {
+		interface TreeItem {
+			_id: mongoose.Types.ObjectId;
+			name: string;
+			description?: string;
+			children: TreeItem[];
+			hasChildren: boolean;
+		}
+
+		const getItemChildren = async (parentId: mongoose.Types.ObjectId | null): Promise<TreeItem[]> => {
+			const query = parentId ? { parentItem: parentId } : { parentItem: null };
+			const items = await BasicItem.find(query).select('name description _id parentItem').lean();
+
+			return Promise.all(items.map(async (item) => {
+				const children = await getItemChildren(item._id);
+				return {
+					...item,
+					children,
+					hasChildren: children.length > 0
+				};
+			}));
+		};
+
+		if (!id || id.trim() === '') {
+			const tree = await getItemChildren(null);
+			return res.json(tree);
+		}
+
+		if (!mongoose.Types.ObjectId.isValid(id)) {
+			return res.status(400).json({ message: 'Invalid item ID' });
+		}
+
+		const root = await BasicItem.findById(id)
+			.select('name description _id parentItem')
+			.lean();
+
+		if (!root) {
+			return res.status(404).json({ message: 'Item not found' });
+		}
+
+		const children = await getItemChildren(root._id);
+		return res.json({
+			...root,
+			children,
+			hasChildren: children.length > 0
+		});
+
+	} catch (err) {
+		res.status(500).json({ message: 'Error generating tree', error: err });
 	}
 };
 
@@ -108,64 +165,6 @@ export const deleteItemById = async (req: Request, res: Response) => {
 	} catch (err) {
 		console.error('Error deleting item:', err);
 		res.status(500).json({ message: 'Error deleting item', error: err });
-	}
-};
-
-function sortItems(items: IBasicItemPopulated[], sortOption: string): IBasicItemPopulated[] {
-	return [...items].sort((a, b) => {
-		switch (sortOption) {
-		case 'alphabetical':
-			return a.name.localeCompare(b.name);
-		case 'firstAdded':
-			return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-		case 'lastAdded':
-			return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-		default:
-			return a.name.localeCompare(b.name);
-		}
-	});
-}
-
-export const searchItems = async (req: Request, res: Response) => {
-	const { name, sort = 'alphabetical', exact } = req.query;
-
-	try {
-		const items = await BasicItem.find({})
-			.populate('template')
-			.populate('parentItem')
-			.populate('homeItem')
-			.populate('containedItems')
-			.populate('customFields.field')
-			.populate('itemHistory.location')
-			.populate({
-				path: 'image',
-				model: 'uploads.files'
-			})
-			.lean<IBasicItemPopulated[]>()
-			.exec();
-
-		// If no query, return all items directly
-		if (!name || typeof name !== 'string' || name.trim() === '') {
-			const sortedItems = sortItems(items, sort as string);
-			return res.status(200).json(sortedItems);
-		}
-
-		const fuse = new Fuse(items, {
-			keys: ['name'],
-			threshold: exact === 'true' ? 0 : 0.3,
-			findAllMatches: exact !== 'true',
-			location: 0,
-			distance: exact === 'true' ? 0 : 100
-		});
-
-		const fuzzyResults = fuse.search(name);
-		let resultItems = fuzzyResults.map(r => r.item);
-
-		const sortedItems = sortItems(resultItems, sort as string);
-		res.status(200).json(sortedItems);
-	} catch (error) {
-		console.error('Error during search:', error);
-		res.status(500).json({ error: 'Failed to search items' });
 	}
 };
 
@@ -224,7 +223,9 @@ export const moveItem = async (req: Request, res: Response) => {
 	}
 };
 
-export const updateItem = async (req: Request, res: Response) => {
+export const updateItem = async (req: Request, res: Response, next: NextFunction) => {
+	handleMultipartFormData(req, res, next);
+
 	const { id } = req.params;
 
 	try {
@@ -268,8 +269,7 @@ export const updateItem = async (req: Request, res: Response) => {
 	}
 };
 
-//this method does not populate fields. keeping it like that for now because i want to. 
-//if something you wrote is using this and not working how you expect it that is probably why
+// NOTE: this method does not populate fields.
 export const getParentChain = async (req: Request, res: Response) => {
 	try {
 		const { id } = req.params;
@@ -291,57 +291,100 @@ export const getParentChain = async (req: Request, res: Response) => {
 	}
 };
 
-export const getItemTree = async (req: Request, res: Response) => {
-	const { id } = req.params;
+export const getImage = async (req: Request, res: Response) => {
+	try {
+		const item = await BasicItem.findById(req.params.id).select('image').lean();
+		if (!item?.image) {
+			return res.status(404).send('No image found');
+		}
+
+		const files = await gfs.find({ _id: item.image }).toArray();
+		if (!files || files.length === 0) {
+			return res.status(404).send('No image found');
+		}
+
+		const file = files[0];
+
+		// Set the proper content type
+		res.set('Content-Type', file.contentType);
+
+		// Create download stream
+		const downloadStream = gfs.openDownloadStream(file._id);
+
+		// Pipe the file to the response
+		downloadStream.pipe(res);
+	} catch (error) {
+		console.error('Error serving image:', error);
+		res.status(500).send('Error getting image');
+	}
+}
+
+export const createItem = async (req: Request, res: Response, next: NextFunction) => {
+	handleMultipartFormData(req, res, next);
 
 	try {
-    interface TreeItem {
-      _id: mongoose.Types.ObjectId;
-      name: string;
-      description?: string;
-      children: TreeItem[];
-      hasChildren: boolean;
-    }
+		// Parse JSON strings first
+		if (typeof req.body.tags === 'string') {
+			req.body.tags = JSON.parse(req.body.tags);
+		}
+		if (typeof req.body.customFields === 'string') {
+			const parsedFields = JSON.parse(req.body.customFields);
+			req.body.customFields = Array.isArray(parsedFields) ? parsedFields : [];
+		}
 
-    const getItemChildren = async (parentId: mongoose.Types.ObjectId | null): Promise<TreeItem[]> => {
-    	const query = parentId ? { parentItem: parentId } : { parentItem: null };
-    	const items = await BasicItem.find(query).select('name description _id parentItem').lean();
+		const itemData = { ...req.body };
 
-    	return Promise.all(items.map(async (item) => {
-    		const children = await getItemChildren(item._id);
-    		return {
-    			...item,
-    			children,
-    			hasChildren: children.length > 0
-    		};
-    	}));
-    };
+		// Handle file with proper typing
+		if (req.file) {
+			const gridFSFile = req.file as GridFSFile;
+			console.log('File received:', {
+				fieldname: gridFSFile.fieldname,
+				filename: gridFSFile.filename,
+				id: gridFSFile.id,
+				_id: gridFSFile._id
+			});
 
-    if (!id || id.trim() === '') {
-    	const tree = await getItemChildren(null);
-    	return res.json(tree);
-    }
+			// Use ID from either property, fallback to filename
+			itemData.image = gridFSFile.id || gridFSFile._id || gridFSFile.filename;
+		}
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-    	return res.status(400).json({ message: 'Invalid item ID' });
-    }
+		console.log('Creating item with data:', itemData);
+		const newItem = new BasicItem(itemData);
+		const savedItem = await newItem.save();
 
-    const root = await BasicItem.findById(id)
-    	.select('name description _id parentItem')
-    	.lean();
-
-    if (!root) {
-    	return res.status(404).json({ message: 'Item not found' });
-    }
-
-    const children = await getItemChildren(root._id);
-    return res.json({
-    	...root,
-    	children,
-    	hasChildren: children.length > 0
-    });
-
+		res.status(201).json(savedItem);
 	} catch (err) {
-		res.status(500).json({ message: 'Error generating tree', error: err });
+		console.error('Error creating item:', err);
+		res.status(500).json({
+			message: 'Error creating item',
+			error: err instanceof Error ? err.message : String(err)
+		});
 	}
 };
+
+function sortItems(items: IBasicItemPopulated[], sortOption: string): IBasicItemPopulated[] {
+	return [...items].sort((a, b) => {
+		switch (sortOption) {
+		case 'alphabetical':
+			return a.name.localeCompare(b.name);
+		case 'firstAdded':
+			return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+		case 'lastAdded':
+			return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+		default:
+			return a.name.localeCompare(b.name);
+		}
+	});
+}
+
+function handleMultipartFormData(req: Request, res: Response, next: NextFunction) {
+	const contentType = req.headers['content-type'] || '';
+	if (contentType.includes('multipart/form-data')) {
+		try {
+			const upload = getUpload();
+			upload.single('image')(req, res, next);
+		} catch (err) {
+			next(err);
+		}
+	}
+}
