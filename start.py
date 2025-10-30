@@ -147,7 +147,9 @@ def run_docker_compose(mode: str):
             )
         else:
             raise ValueError("Invalid mode selected: " + mode)
-        command = ["docker-compose", "-f", compose_file, "up", "-d"] + (["--build"] if build_var.get() else [])
+        command = ["docker-compose", "-f", compose_file, "up", "-d"] + (
+            ["--build"] if build_var.get() else []
+        )
 
         # working directory to where docker-compose files are located
         os.chdir(os.path.join(SCRIPT_DIR, "docker"))
@@ -227,28 +229,43 @@ root = tk.Tk()
 root.title("Docker Compose Launcher")
 root.protocol("WM_DELETE_WINDOW", on_closing)
 
-# GUI for Tailscale Auth Key input
-tk.Label(root, text="Tailscale Auth Key:").grid(row=0, column=0, padx=10, pady=10)
-auth_key_entry = tk.Entry(root, width=40)
-auth_key_entry.grid(row=0, column=1, padx=10, pady=10)
-
-save_key_button = tk.Button(root, text="Save Auth Key", command=save_auth_key)
-save_key_button.grid(row=1, columnspan=2, padx=10, pady=10)
-
 mode_var = tk.StringVar(value="local")
 
-tk.Label(root, text="Select Mode:").grid(row=2, column=0, padx=10, pady=10)
-local_mode_radio = tk.Radiobutton(
-    root, text="Local Mode (localhost)", variable=mode_var, value="local"
+## Begin frame
+mode_frame = tk.LabelFrame(
+    root, text="Select Mode", bd=2, relief="groove", padx=12, pady=8, width=560
 )
-local_mode_radio.grid(row=2, column=1, sticky="w", padx=10, pady=10)
-tailscale_mode_radio = tk.Radiobutton(
-    root, text="Tailscale Mode (Tailscale IP)", variable=mode_var, value="tailscale"
-)
-tailscale_mode_radio.grid(row=3, column=1, sticky="w", padx=10, pady=10)
+mode_frame.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky="w")
 
+# Local mode on its own row
+local_mode_radio = tk.Radiobutton(
+    mode_frame, text="Local Mode (localhost)", variable=mode_var, value="local"
+)
+local_mode_radio.grid(row=0, column=0, sticky="w", padx=10, pady=4)
+
+# Tailscale mode + Auth key entry and save button
+tailscale_mode_radio = tk.Radiobutton(
+    mode_frame,
+    text="Tailscale Mode (Tailscale IP)",
+    variable=mode_var,
+    value="tailscale",
+)
+tailscale_mode_radio.grid(row=1, column=0, sticky="w", padx=10, pady=4)
+
+tk.Label(mode_frame, text="Tailscale Auth Key:").grid(
+    row=1, column=1, sticky="w", padx=(12, 4)
+)
+auth_key_entry = tk.Entry(mode_frame, width=36)
+auth_key_entry.grid(row=1, column=2, sticky="w", padx=(0, 8))
+save_key_button = tk.Button(mode_frame, text="Save Auth Key", command=save_auth_key)
+save_key_button.grid(row=1, column=3, sticky="w", padx=4)
+## End frame
+
+# Checkbox on its own row
 build_var = tk.BooleanVar(value=True)
-build_checkbox = tk.Checkbutton(root, text="Rebuild containers? (use if code has changed)", variable=build_var)
+build_checkbox = tk.Checkbutton(
+    root, text="Rebuild containers? (use if code has changed)", variable=build_var
+)
 build_checkbox.grid(row=4, columnspan=2, sticky="w", padx=10, pady=5)
 
 # Button to run Docker Compose
@@ -267,7 +284,7 @@ shutdown_button = tk.Button(
 )
 shutdown_button.grid(row=6, columnspan=2, padx=10, pady=10)
 
-label_status = tk.Label(root, text="")
-label_status.grid(row=7, columnspan=2, padx=10, pady=20)
+label_status = tk.Label(root, text="(Press a button above to take an action)")
+label_status.grid(row=7, columnspan=2, padx=10, pady=10)
 
 root.mainloop()
