@@ -50,12 +50,10 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
     let bodyData: any;
     let file: File | null = null;
 
-    // Handle both JSON and FormData
     if (contentType?.includes('multipart/form-data')) {
       const formData = await request.formData();
       bodyData = {};
       
-      // Extract form fields
       for (const [key, value] of formData.entries()) {
         if (key === 'file' || key === 'image') {
           if (value instanceof File && value.size > 0) {
@@ -69,7 +67,6 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
       bodyData = await request.json();
     }
 
-    // Parse JSON strings
     if (typeof bodyData.tags === 'string') {
       bodyData.tags = JSON.parse(bodyData.tags);
     }
@@ -86,9 +83,8 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
       return json({ message: 'Item not found' }, { status: 404 });
     }
 
-    // Handle image updates
     if (bodyData.removeImage === 'true' || bodyData.removeImage === true) {
-      item.image = undefined; // Remove image reference
+      item.image = undefined;
     } else if (file) {
       console.log('Processing uploaded file:', file);
       const fileId = await uploadToGridFS(file);
@@ -97,7 +93,6 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
       }
     }
 
-    // Update other fields
     Object.assign(item, bodyData);
     const savedItem = await item.save();
 

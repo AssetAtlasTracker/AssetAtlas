@@ -18,6 +18,7 @@ services:
       MONGO_URI: mongodb://mongo:27017/assetatlas_db
       DOCKER_BUILDKIT: "1"
       COMPOSE_DOCKER_CLI_BUILD: "1"
+      ORIGIN: http://localhost:3000
     ports:
       - 3000:3000
     networks:
