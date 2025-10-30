@@ -17,7 +17,8 @@
         "Buildx",
         "iputils",
         "padx",
-        "pady"
+        "pady",
+        "pylance"
     ],
     "ignoreWords": [
         // Add words to ignore here
