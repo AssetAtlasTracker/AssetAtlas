@@ -134,9 +134,9 @@ def run_docker_compose(mode: str):
     compose_progressbar.start()
     try:
         url = ""
+        compose_file = ""
         if mode == "local":
             compose_file = os.path.join(SCRIPT_DIR, "docker", "docker-compose.yml")
-            command = ["docker-compose", "-f", compose_file, "up", "--build", "-d"]
             url = "http://localhost:3000"
             set_env_variable(
                 "IP", "localhost:3000", os.path.join(SCRIPT_DIR, "docker", ".env")
@@ -145,9 +145,9 @@ def run_docker_compose(mode: str):
             compose_file = os.path.join(
                 SCRIPT_DIR, "docker", "docker-compose-tailscale.yml"
             )
-            command = ["docker-compose", "-f", compose_file, "up", "--build", "-d"]
         else:
             raise ValueError("Invalid mode selected: " + mode)
+        command = ["docker-compose", "-f", compose_file, "up", "-d"] + (["--build"] if build_var.get() else [])
 
         # working directory to where docker-compose files are located
         os.chdir(os.path.join(SCRIPT_DIR, "docker"))
@@ -246,6 +246,10 @@ tailscale_mode_radio = tk.Radiobutton(
     root, text="Tailscale Mode (Tailscale IP)", variable=mode_var, value="tailscale"
 )
 tailscale_mode_radio.grid(row=3, column=1, sticky="w", padx=10, pady=10)
+
+build_var = tk.BooleanVar(value=True)
+build_checkbox = tk.Checkbutton(root, text="Rebuild containers? (use if code has changed)", variable=build_var)
+build_checkbox.grid(row=4, columnspan=2, sticky="w", padx=10, pady=5)
 
 # Button to run Docker Compose
 run_button = tk.Button(
