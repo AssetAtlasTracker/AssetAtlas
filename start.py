@@ -1,4 +1,4 @@
-# pylint: disable=missing-module-docstring, missing-function-docstring, line-too-long, broad-exception-caught
+# pylint: disable=missing-module-docstring, missing-function-docstring, line-too-long, broad-exception-caught global-statement
 import os
 import subprocess
 import tkinter as tk
@@ -6,9 +6,14 @@ from tkinter import messagebox
 from tkinter import ttk
 import threading
 import time
+from typing import List
 from env_writer import set_env_variable
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# pylint: disable-next=invalid-name
+containers_probably_running = False
+processes: List[subprocess.Popen[bytes]] = []
 
 
 # Function to write Tailscale auth key to .env file inside the docker folder
@@ -68,6 +73,7 @@ def shutdown_containers_from_compose_file(compose_file: str):
     command = ["docker-compose", "-f", compose_file, "stop"]
 
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    processes.append(process)
     _, err = process.communicate()
 
     if process.returncode != 0:
@@ -79,6 +85,7 @@ def shutdown_containers_from_compose_file(compose_file: str):
 
 
 def shutdown_docker():
+    global containers_probably_running
     try:
         # only target AssetAtlas containers
         command = ["docker", "compose", "ls", "--filter", "name=assetatlas", "-q"]
@@ -92,6 +99,7 @@ def shutdown_docker():
 
         shutdown_button.config(state=tk.NORMAL)
         label_status.config(text="Docker containers stopped")
+        containers_probably_running = False
 
     except Exception as e:
         shutdown_button.config(state=tk.NORMAL)
@@ -99,11 +107,16 @@ def shutdown_docker():
 
 
 def on_closing():
-    if messagebox.askyesno(
-        "Quit",
-        "Do you want to shut down the Docker containers before exiting? (If you dont, you will need to shut the program down in docker desktop)",
-    ):
-        shutdown_docker()
+    if containers_probably_running:
+        if messagebox.askyesno(
+            "Quit",
+            "Do you want to shut down the Docker containers before exiting? (If you dont, you will need to shut the program down in docker desktop)",
+        ):
+            shutdown_docker()
+    # TODO how to actually kill these? tried a lot of things with no luck
+    for process in processes:
+        if process.poll() is None:
+            print("Process is still running: ", process.args)
     root.destroy()
 
 
@@ -115,6 +128,7 @@ def run_docker_compose_thread(mode: str):
 
 # Function to run the appropriate docker-compose command based on mode
 def run_docker_compose(mode: str):
+    global containers_probably_running
     compose_progressbar = ttk.Progressbar(mode="indeterminate", length=250)
     compose_progressbar.grid(row=5, column=1, padx=10)
     compose_progressbar.start()
@@ -139,9 +153,17 @@ def run_docker_compose(mode: str):
         os.chdir(os.path.join(SCRIPT_DIR, "docker"))
 
         # Run the docker-compose command
+        containers_probably_running = True
         process = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
+        processes.append(process)
+        threading.Thread(
+            target=lambda: messagebox.showinfo(
+                "Starting ",
+                "Starting Docker containers via command:\n\n" + " ".join(command),
+            )
+        ).start()
         _, err = process.communicate()
 
         # Check for errors
