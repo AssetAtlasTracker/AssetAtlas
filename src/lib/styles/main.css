@@ -1,8 +1,3 @@
-/* 
-Large component styles
-e.g. containers, theming, etc.
-*/
-
 #home-component{
   margin: 1rem 2vw;
   padding: 2rem 2% 1rem 2vw;
@@ -33,32 +28,32 @@ e.g. containers, theming, etc.
 }
 
 .glass{
-  background: rgba(var(--color-primary-800) / 0.8) !important;
-  box-shadow: 0 8px 16px 0 rgb(var(--color-primary-900));
-  backdrop-filter: blur( 14px );
-  -webkit-backdrop-filter: blur( 14px );
+  background: color-mix(in oklch, var(--color-primary-800) 80%, transparent) !important;
+  box-shadow: 0 8px 16px 0 var(--color-primary-900);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border-radius: 10px;
 }
 
 .page-component {
   margin: 2rem 2vw;
   padding: 1rem 2vw;
-  border: 1px solid rgba(var(--color-primary-100) / 0.8);
+  border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
   border-radius: 10px;
 }
   
 .internal-component { /* For components inset within other components*/
   margin: 1rem 0;
   padding: 1rem;
-  background-color: rgba(var(--color-primary-900) / 0.1);
-  box-shadow: inset 5px 5px 8px -8px rgb(var(--color-primary-900));
+  background-color: color-mix(in oklch, var(--color-primary-900) 10%, transparent);
+  box-shadow: inset 5px 5px 8px -8px var(--color-primary-900);
 }
 
 .dialog-component {
   margin: 1rem;
   padding: 1rem;
-  background: rgb(var(--color-primary-100));
-  border: 1px solid rgba(var(--color-primary-100) / 0.8);
+  background: var(--color-primary-100);
+  border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
 }
 
 .small-dialog-padding{
@@ -82,8 +77,8 @@ e.g. containers, theming, etc.
   left: -100%;
   height: calc(100% - var(--top-bar-height, 64px));
   transition: left 0.3s ease-in-out;
-  background: rgb(var(--color-primary-100));
-  border: 1px solid rgba(var(--color-primary-100) / 0.8);
+  background: var(--color-primary-100);
+  border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
   border-radius: 10px 10px 10px 0;
   margin: 0;
   padding: 1rem;
@@ -108,8 +103,8 @@ e.g. containers, theming, etc.
 }
 
 .image-upload-container {
-  background: rgba(var(--color-primary-900), 0.8);
-  border: 1px solid rgba(var(--color-primary-100), 0.8);
+  background: color-mix(in oklch, var(--color-primary-900) 80%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -121,9 +116,9 @@ e.g. containers, theming, etc.
   width: 95%;
   margin: 0 auto;
   padding: 20px;
-  background-color: rgba(var(--color-primary-800) / 0.8);
-  box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4);
-  border: 1px solid rgba(var(--color-primary-100) / 0.8);
+  background-color: color-mix(in oklch, var(--color-primary-800) 80%, transparent);
+  box-shadow: 0 8px 32px 0 color-mix(in oklch, var(--color-primary-900) 40%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
   border-radius: 10px;
   transition: 0.4s ease; /* Expand & shrink */
   display:flex;
@@ -141,8 +136,8 @@ e.g. containers, theming, etc.
   top: 0px;
   background: 
     linear-gradient(90deg,
-                    rgba(var(--color-success-800) / 0.8),
-                    rgba(var(--color-primary-800) / 0.8));
+                    color-mix(in oklch, var(--color-success-800) 80%, transparent),
+                    color-mix(in oklch, var(--color-primary-800) 80%, transparent));
   transition: 0.7s ease; /* Gradient slide in & out*/
   z-index: -1; /* Behind item card text */
 }
@@ -165,10 +160,10 @@ e.g. containers, theming, etc.
   width: 95%;
   margin: 0.5rem auto;
   padding: 10px;
-  background-color: rgba(var(--color-primary-800) / 0.8);
-  box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) 0.4);
+  background-color: color-mix(in oklch, var(--color-primary-800) 80%, transparent);
+  box-shadow: 0 8px 32px 0 color-mix(in oklch, var(--color-primary-900) 40%, transparent);
   border-radius: 10px;
-  border: 1px solid rgba(var(--color-primary-100) / 0.8);
+  border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
 }
 
 .tree-container {
@@ -197,9 +192,9 @@ e.g. containers, theming, etc.
   white-space: nowrap;
   margin: 0 0 0.5rem 0;
   padding: 12px;
-  background-color: rgba(var(--color-primary-800) / .8);
-  box-shadow: 0 8px 32px 0 rgba(var(--color-primary-900) .4);
-  border: 1px solid rgba(var(--color-primary-100) / .8);
+  background-color: color-mix(in oklch, var(--color-primary-800) 80%, transparent);
+  box-shadow: 0 8px 32px 0 color-mix(in oklch, var(--color-primary-900) 40%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
   border-radius: 10px;
   transition: .4s ease;
   display: flex;
@@ -218,17 +213,17 @@ e.g. containers, theming, etc.
   position: relative;
   cursor: pointer;
   text-decoration: none;
-  color: rgb(var(--theme-font-color-base));
+  color: var(--base-font-color);
 }
 
 .tree-item-button:hover {
-  background: rgba(var(--color-primary-800), 0.4);
+  background: color-mix(in oklch, var(--color-primary-800) 40%, transparent);
 }
 
 .tree-item-button.current {
-  background: rgba(var(--color-success-900), 0.2);
+  background: color-mix(in oklch, var(--color-success-900) 20%, transparent);
   font-weight: 500;
-  color: rgb(var(--color-success-400));
+  color: var(--color-success-400);
 }
 
 .expand-button {
@@ -244,7 +239,7 @@ e.g. containers, theming, etc.
   margin-right: 0.25rem;
   position: relative;
   font-size: 0.8rem;
-  color: rgb(var(--theme-font-color-base));
+  color: var(--base-font-color);
 }
 
 .tree-icon {
@@ -260,8 +255,8 @@ e.g. containers, theming, etc.
 }
 
 .tree-item-button {
-  background: rgba(var(--color-primary-900), 0.3);
-  border: 1px solid rgba(var(--color-primary-100), 0.4);
+  background: color-mix(in oklch, var(--color-primary-900) 30%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-primary-100) 40%, transparent);
   border-radius: 6px;
   padding: 0.2rem 0.5rem;
   margin: 0.05rem 0;
@@ -274,15 +269,15 @@ e.g. containers, theming, etc.
 }
 
 .tree-item-button:hover {
-  background: rgba(var(--color-primary-800), 0.5);
+  background: color-mix(in oklch, var(--color-primary-800) 50%, transparent);
   transform: translateX(2px);
 }
 
 .tree-item-button.current {
-  background: rgba(var(--color-success-900), 0.2);
-  border-color: rgba(var(--color-success-400), 0.6);
+  background: color-mix(in oklch, var(--color-success-900) 20%, transparent);
+  border-color: color-mix(in oklch, var(--color-success-400) 60%, transparent);
   font-weight: 500;
-  color: rgb(var(--color-success-400));
+  color: var(--color-success-400);
 }
 
 .expand-button {
@@ -337,7 +332,7 @@ e.g. containers, theming, etc.
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  background: rgba(var(--color-primary-900)/.9);
+  background: color-mix(in oklch, var(--color-primary-900) 90%, transparent);
   border: none;
   border-radius: 10px;
   padding: 0.5rem;
@@ -449,9 +444,9 @@ e.g. containers, theming, etc.
 /* New utility classes for input and dropdown coloring (from CreateItem.svelte styles) */
 .input-box,
 .dropdown-box {
-  background: rgba(var(--color-primary-900)/.1);
-  color: rgb(var(--theme-font-color-base));
-  border: 1px solid rgba(var(--color-primary-100)/.8);
+  background: color-mix(in oklch, var(--color-primary-900) 10%, transparent);
+  color: var(--base-font-color);
+  border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
   border-radius: 10px;
   padding: 0.5rem 1rem;
   box-sizing: border-box;
@@ -514,7 +509,7 @@ e.g. buttons, lists, textareas, etc.
 }
 
 .border{
-  border: 1px solid rgba(var(--color-primary-100) / 0.8);
+  border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
 }
 
 .round{
@@ -523,19 +518,19 @@ e.g. buttons, lists, textareas, etc.
 
 .border-button { /* Standard button style*/
   border-radius: 10px;
-  border: 1px solid rgba(var(--color-primary-100) /.8);
+  border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
   padding: 0.5rem 1rem;
-  background: rgba(var(--color-primary-900)/.0);
-  color: rgb(var(--theme-font-color-base));
+  background: color-mix(in oklch, var(--color-primary-900) 0%, transparent);
+  color: var(--base-font-color);
 }
 
 .border-button:hover{
-  background: rgba(var(--color-primary-900));
+  background: var(--color-primary-900);
 }
 
 .x-button { /* "X" button to close windows/dialogs */
   float: right;
-  color: rgba(var(--color-warning-500));
+  color: var(--color-warning-500);
   text-transform: uppercase;
   font-weight: 800;
   line-height: 0.75rem;
@@ -543,40 +538,40 @@ e.g. buttons, lists, textareas, etc.
 }
 
 .x-button:hover {
-  color: rgba(var(--color-warning-900));
-  background-color: rgba(var(--color-warning-900) /.2);
+  color: var(--color-warning-900);
+  background-color: color-mix(in oklch, var(--color-warning-900) 20%, transparent);
 }
 
 .warn-button { /* For delete, cancel, etc.*/
   border-radius: 10px;
-  border: 1px solid rgba(var(--color-error-400) /.8);
+  border: 1px solid color-mix(in oklch, var(--color-error-400) 80%, transparent);
   padding: 0.5rem 1rem;
-  background: rgba(var(--color-warning-700)/.1);
-  color: rgb(var(--theme-font-color-base));
+  background: color-mix(in oklch, var(--color-warning-700) 10%, transparent);
+  color: var(--base-font-color);
 }
 
 .warn-button:hover {
-  background: rgb(var(--color-warning-900));
+  background: var(--color-warning-900);
 }
 
 .success-button { /* For create, confirm, etc. */
   border-radius: 10px;
-  border: 1px solid rgba(var(--color-success-400));
+  border: 1px solid var(--color-success-400);
   padding: 0.5rem 1rem;
-  background: rgba(var(--color-success-600)/.1);
-  color: rgb(var(--theme-font-color-base));
+  background: color-mix(in oklch, var(--color-success-600) 10%, transparent);
+  color: var(--base-font-color);
 }
 
 .success-button:hover {
-  background: rgb(var(--color-success-900));
+  background: var(--color-success-900);
 }
 
 .add-button {
-  background: rgb(var(--color-surface-800)) !important;
+  background: var(--color-surface-800) !important;
   background-repeat: no-repeat !important;
   background-size: 100% 50rem !important;
-  background-image: radial-gradient(at 0% 0%, rgba(var(--color-success-500) / .2) 0px, transparent 55%);
-  border: 1px solid rgba(var(--color-primary-100) /.8);
+  background-image: radial-gradient(at 0% 0%, oklch(75.54% 0.12 169.99deg / 0.2) 0px, transparent 55%);
+  border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
   border-radius: 9999px;
   padding: 1rem 1.25rem 1.55rem;
   position: fixed;
@@ -586,14 +581,14 @@ e.g. buttons, lists, textareas, etc.
 
 .inactive-button {
   border-radius: 10px;
-  border: 1px solid rgba(var(--color-primary-400) /.8);
+  border: 1px solid color-mix(in oklch, var(--color-primary-400) 80%, transparent);
   padding: .5rem 1rem;
-  background: rgba(var(--color-primary-900)/.6);
-  color: rgb(var(--theme-font-color-base) /.5);
+  background: color-mix(in oklch, var(--color-primary-900) 60%, transparent);
+  color: color-mix(in oklch, var(--base-font-color) 50%, transparent);
 }
 
 .add-button:hover{
-  background: rgb(var(--color-primary-900));
+  background: var(--color-primary-900);
 }
 
 .small-add-button {
@@ -605,19 +600,19 @@ e.g. buttons, lists, textareas, etc.
 }
 
 .menu-button:hover{
-  background: rgb(var(--color-primary-900) /.25);
+  background: color-mix(in oklch, var(--color-primary-900) 25%, transparent);
   border-radius: 10px;
-  color: rgb(var(--color-success-400));
+  color: var(--color-success-400);
 }
 
 .toggle-background{
-  background: rgb(var(--color-success-600));
+  background: var(--color-success-600);
 }
 
 .suggestions {
-  background: rgba(var(--color-primary-900));
-  color: rgb(var(--theme-font-color-base));
-  border: 1px solid rgba(var(--color-primary-100) /.8);
+  background: var(--color-primary-900);
+  color: var(--base-font-color);
+  border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
   padding: 0.25rem;
   position: absolute;
   width: calc(100% - 4px); /* Account for borders */
@@ -626,14 +621,14 @@ e.g. buttons, lists, textareas, etc.
   max-height: 200px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(var(--color-primary-100) /.8) rgba(var(--color-primary-900));
+  scrollbar-color: color-mix(in oklch, var(--color-primary-100) 80%, transparent) var(--color-primary-900);
   margin-top: 2px; /* Small gap between input and suggestions */
 }
 
 .small-dialog-suggestions {
-  background: rgba(var(--color-primary-900));
-  color: rgb(var(--theme-font-color-base));
-  border: 1px solid rgba(var(--color-primary-100) /.8);
+  background: var(--color-primary-900);
+  color: var(--base-font-color);
+  border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
   width: 100%;
   border-radius: 10px;
   max-height: 120px;
@@ -647,7 +642,7 @@ e.g. buttons, lists, textareas, etc.
 }
 
 .suggestions::-webkit-scrollbar-track {
-  background: rgba(var(--color-primary-900));
+  background: var(--color-primary-900);
   border-radius: 10px;
 }
 
@@ -655,7 +650,7 @@ e.g. buttons, lists, textareas, etc.
   width: 100%;
   position: absolute;
   z-index: 10;
-  background: rgba(var(--color-primary-100) /.8);
+  background: color-mix(in oklch, var(--color-primary-100) 80%, transparent);
   border-radius: 10px;
 }
 
@@ -667,26 +662,26 @@ e.g. buttons, lists, textareas, etc.
 }
 
 .suggestion-item:hover {
-  background: rgba(var(--color-primary-800));
+  background: var(--color-primary-800);
   border-radius: 6px; /* Slight rounding on hover highlight */
 }
 
 .dark-textarea { /* Should be used on any/all text input boxes*/
-  background: rgba(var(--color-primary-900)/.1);
-  color: rgb(var(--theme-font-color-base));
-  border: 1px solid rgba(var(--color-primary-100) /.8);
+  background: color-mix(in oklch, var(--color-primary-900) 10%, transparent);
+  color: var(--base-font-color);
+  border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
   border-radius: 10px;
 }
 
 .dark-area {
-  background: rgba(var(--color-primary-900)/.1);
-  color: rgb(var(--theme-font-color-base));
+  background: color-mix(in oklch, var(--color-primary-900) 10%, transparent);
+  color: var(--base-font-color);
 }
 
 .searchbar {
-  background: rgba(var(--color-primary-900)/.1);
-  color: rgb(var(--theme-font-color-base));
-  border: 1px solid rgba(var(--color-primary-100) /.8);
+  background: color-mix(in oklch, var(--color-primary-900) 10%, transparent);
+  color: var(--base-font-color);
+  border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
   border-radius: 10px;
 }
 
@@ -706,13 +701,13 @@ e.g. buttons, lists, textareas, etc.
 }
 
 select option { /* Select dropdown options */
-  background: rgba(var(--color-primary-900));
-  color: rgb(var(--theme-font-color-base));
+  background: var(--color-primary-900);
+  color: var(--base-font-color);
   padding: 0.5rem;
 }
 
 select option:hover {
-  background: rgba(var(--color-primary-800));
+  background: var(--color-primary-800);
 }
 
 .item-image {
@@ -737,22 +732,22 @@ select option:hover {
 
 .custom-dropdown select {
   appearance: none;
-  background: rgba(var(--color-primary-900));
-  color: rgb(var(--theme-font-color-base));
-  border: 1px solid rgba(var(--color-primary-100) /.8);
+  background: var(--color-primary-900);
+  color: var(--base-font-color);
+  border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
   border-radius: 10px;
   padding: 0.5rem 1rem;
   width: 100%;
 }
 
 .custom-dropdown select option {
-  background: rgba(var(--color-primary-900));
-  color: rgb(var(--theme-font-color-base));
+  background: var(--color-primary-900);
+  color: var(--base-font-color);
   padding: 0.5rem;
 }
 
 .custom-dropdown select option:hover {
-  background: rgba(var(--color-primary-800));
+  background: var(--color-primary-800);
 }
 
 .custom-dropdown::after {
@@ -762,12 +757,12 @@ select option:hover {
   right: 1rem;
   transform: translateY(-50%);
   pointer-events: none;
-  color: rgba(var(--theme-font-color-base)/.8);
+  color: color-mix(in oklch, var(--base-font-color) 80%, transparent);
 }
 
 .custom-dropdown select:disabled {
-  background: rgba(var(--color-primary-900)/.4);
-  color: rgba(var(--theme-font-color-base)/.6);
+  background: color-mix(in oklch, var(--color-primary-900) 40%, transparent);
+  color: color-mix(in oklch, var(--base-font-color) 60%, transparent);
   cursor: not-allowed;
 }
 
@@ -785,8 +780,8 @@ select option:hover {
 }
 
 .action-message {
-  background-color: rgba(var(--color-success-600) / 0.9);
-  color: rgb(var(--theme-font-color-base));
+  background-color: color-mix(in oklch, var(--color-success-600) 90%, transparent);
+  color: var(--base-font-color);
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -869,17 +864,17 @@ select option:hover {
 Text styles 
 */
 #title{
-  color: rgb(var(--theme-font-color-base));
+  color: var(--base-font-color);
   letter-spacing: -0.1rem;
   transition: color 0.2s ease-in-out;
 }
 
 #title:hover{
-  color:rgb(var(--color-success-500));
+  color: var(--color-success-500);
 }
 
 #underline-header{
-  border-bottom: 1px solid rgba(var(--color-primary-100) /.8);
+  border-bottom: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
 }
 
 .important-text{ 
@@ -893,19 +888,19 @@ Text styles
 }
 
 .sub-text{
-  color: rgba(var(--theme-font-color-base)/.8);
+  color: color-mix(in oklch, var(--base-font-color) 80%, transparent);
   font-weight: lighter;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .clickable-text{
-  color: rgb(var(--color-success-400));
+  color: var(--color-success-400);
   text-decoration: underline;
 }
 
 .clickable-text:hover{
-  color: rgb(var(--color-success-500));
+  color: var(--color-success-500);
   text-decoration: underline;
 }
 
@@ -974,24 +969,24 @@ Text styles
 Modifications of built-in tags
 */
 div {
-  color: rgb(var(--theme-font-color-base));
+  color: var(--base-font-color);
 }
 
 h1 {
-  color: rgb(var(--theme-font-color-base));
+  color: var(--base-font-color);
   padding: 0rem 0rem 1rem 0rem; 
 }
 
 h2 {
-  color: rgb(var(--theme-font-color-base));
+  color: var(--base-font-color);
 }
 
 body {
-  background: rgb(var(--color-surface-800)) !important;
+  background: var(--color-surface-800) !important;
   background-repeat: no-repeat !important;
   background-size: 100% 50rem !important;
-  background-image: radial-gradient(at 0% 0%, rgba(var(--color-success-500) / .2) 0px, transparent 55%), 
-                    radial-gradient(at 98% 1%, rgba(var(--color-error-500) / .33) 0px, transparent 50%) !important;         
+  background-image: radial-gradient(at 0% 0%, oklch(75.54% 0.12 169.99deg / 0.2) 0px, transparent 55%), 
+                    radial-gradient(at 98% 1%, oklch(48.75% 0.19 22.13deg / 0.33) 0px, transparent 50%) !important;         
 }
 
 ul {
@@ -1008,8 +1003,8 @@ select {
 }
 
 input[type="file"] { /* File input areas (universal) */
-  background: rgba(var(--color-primary-900), 0.8); 
-  color: rgb(var(--theme-font-color-base));
+  background: color-mix(in oklch, var(--color-primary-900) 80%, transparent); 
+  color: var(--base-font-color);
   padding: 1rem;
   width: 100%;
   text-align: center;
@@ -1038,6 +1033,6 @@ input[type="file"][accept*="image"]{ /* File input areas (image specific) */
 }
 
 ::backdrop { /* Dialog background */
-  background: rgba(var(--color-surface-900) / 0.7);
+  background: color-mix(in oklch, var(--color-surface-900) 70%, transparent);
   z-index: 9998;
-}
+} 

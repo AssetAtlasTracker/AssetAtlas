@@ -2,6 +2,5 @@
 
 @import '@skeletonlabs/skeleton';
 @import '@skeletonlabs/skeleton-svelte';
-@import '@skeletonlabs/skeleton/themes/cerberus';
 
-@import '../custom-theme.css';
+@import '../customTheme.css';
