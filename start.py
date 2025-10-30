@@ -63,6 +63,9 @@ def show_url_popup(url: str):
 # This is done in threads since docker takes a while, and we want the application to still do stuff while waiting
 def shutdown_docker_thread():
     shutdown_button.config(state=tk.DISABLED)
+    run_button.config(state=tk.DISABLED)
+    progressbar.config(mode="indeterminate", length=250)
+    progressbar.start()
     thread = threading.Thread(target=shutdown_docker)
     thread.start()
 
@@ -89,8 +92,6 @@ def shutdown_docker():
     global containers_probably_running
     try:
         label_status.config(text="Stopping docker containers...")
-        progressbar.config(mode="indeterminate", length=250)
-        progressbar.start()
 
         # only target AssetAtlas containers
         command = ["docker", "compose", "ls", "--filter", "name=assetatlas", "-q"]
@@ -103,14 +104,14 @@ def shutdown_docker():
             for filename in compose_filenames:
                 shutdown_containers_from_compose_file(filename)
 
-        shutdown_button.config(state=tk.NORMAL)
         label_status.config(text="Docker containers stopped")
         containers_probably_running = False
 
     except Exception as e:
-        shutdown_button.config(state=tk.NORMAL)
         messagebox.showerror("Error", f"Unexpected error: {e}")
     finally:
+        shutdown_button.config(state=tk.NORMAL)
+        run_button.config(state=tk.NORMAL)
         progressbar.stop()
 
 
@@ -130,6 +131,7 @@ def on_closing():
 
 def run_docker_compose_thread(mode: str):
     run_button.config(state=tk.DISABLED)
+    shutdown_button.config(state=tk.DISABLED)
     thread = threading.Thread(target=run_docker_compose, args=(mode,))
     thread.start()
 
@@ -165,6 +167,7 @@ def run_docker_compose(mode: str):
 
         # Run the docker-compose command
         containers_probably_running = True
+        run_button.config(state=tk.DISABLED)
         process = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
@@ -174,9 +177,11 @@ def run_docker_compose(mode: str):
         # Check for errors
         if process.returncode != 0:
             run_button.config(state=tk.NORMAL)
+            shutdown_button.config(state=tk.NORMAL)
             messagebox.showerror(
                 "Error", f"Failed to run Docker Compose:\n{err.decode()}"
             )
+            progressbar.stop()
             return
 
         if mode == "local":
@@ -207,6 +212,8 @@ def run_docker_compose(mode: str):
                 time.sleep(3)  # Wait for 3 seconds before retrying
             else:
                 run_button.config(state=tk.NORMAL)
+                shutdown_button.config(state=tk.NORMAL)
+                progressbar.stop()
                 messagebox.showerror(
                     "Error", "Failed to get Tailscale IP after multiple attempts."
                 )
@@ -219,12 +226,11 @@ def run_docker_compose(mode: str):
         show_url_popup(url)
         print(f"Service is running at {url}")
         label_status.config(text="Docker containers started (" + url + ")")
-        run_button.config(state=tk.NORMAL)
-
     except Exception as e:
-        run_button.config(state=tk.NORMAL)
         messagebox.showerror("Error", f"Unexpected error: {e}")
     finally:
+        run_button.config(state=tk.NORMAL)
+        shutdown_button.config(state=tk.NORMAL)
         progressbar.stop()
 
 
@@ -278,6 +284,9 @@ run_button = tk.Button(
     command=lambda: run_docker_compose_thread(mode_var.get()),
 )
 run_button.grid(row=5, column=0, padx=10)
+run_button.config(
+    state=tk.NORMAL if not containers_probably_running else tk.DISABLED
+)  # initial state
 
 # Progressbar to communicate when application is busy
 progressbar = ttk.Progressbar(length=250)
