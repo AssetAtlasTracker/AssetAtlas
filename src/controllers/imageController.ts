@@ -8,11 +8,6 @@ export const uploadMultiple = (req: Request, res: Response, next: NextFunction) 
 		const upload = getUpload();
 		console.log(upload.array('images'));
 		upload.array('images')(req, res, next);
-	} catch (err) {
-		next(err);
-	}
-
-	try {
 		console.log("Got", req.files);
 		const files = req.files as unknown as GridFSFile[];
 		const ids = files.map(file => { return file._id || file.filename });
