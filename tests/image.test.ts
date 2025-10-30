@@ -9,6 +9,49 @@ import BasicItem from '../src/models/basicItem.js';
 import CustomField from '../src/models/customField.js';
 import { RecentItems } from '../src/models/recentItems.js';
 import Template from '../src/models/template.js';
+
+vi.mock('../src/config/gridfs.js', () => {
+	const mockUpload = {
+		array: vi.fn().mockImplementation((fieldName) => {
+			return (req: Request, res: Response, next: NextFunction) => {
+				req.files = [
+					{
+						fieldname: fieldName,
+						originalname: 'fake-image.jpg',
+						encoding: '7bit',
+						mimetype: 'image/jpeg',
+						size: 100,
+						destination: '',
+						filename: 'fake-image.jpg',
+						path: '',
+						buffer: Buffer.from('fake-image-data'),
+						stream: Readable.from(Buffer.from('fake-image-data'))
+					},
+					{
+						fieldname: fieldName,
+						originalname: 'fake-image2.jpg',
+						encoding: '7bit',
+						mimetype: 'image/jpeg',
+						size: 100,
+						destination: '',
+						filename: 'fake-image2.jpg',
+						path: '',
+						buffer: Buffer.from('fake-image-data'),
+						stream: Readable.from(Buffer.from('fake-image-data'))
+					}
+				];
+				next();
+			};
+		})
+	};
+
+	return {
+		gridFsReady: Promise.resolve(),
+		getUpload: vi.fn().mockReturnValue(mockUpload),
+		gfs: {}
+	};
+});
+
 import imageRouter from '../src/routes/imageRoutes.js';
 
 let app: express.Application;
@@ -50,48 +93,6 @@ afterEach(() => {
 
 describe('Images API', () => {
 	it('Should upload images', async () => {
-		vi.mock('../src/config/gridfs.js', () => {
-			const mockUpload = {
-				array: vi.fn().mockImplementation((fieldName) => {
-					return (req: Request, res: Response, next: NextFunction) => {
-						req.files = [
-							{
-								fieldname: fieldName,
-								originalname: 'fake-image.jpg',
-								encoding: '7bit',
-								mimetype: 'image/jpeg',
-								size: 100,
-								destination: '',
-								filename: 'fake-image.jpg',
-								path: '',
-								buffer: Buffer.from('fake-image-data'),
-								stream: Readable.from(Buffer.from('fake-image-data'))
-							},
-							{
-								fieldname: fieldName,
-								originalname: 'fake-image2.jpg',
-								encoding: '7bit',
-								mimetype: 'image/jpeg',
-								size: 100,
-								destination: '',
-								filename: 'fake-image2.jpg',
-								path: '',
-								buffer: Buffer.from('fake-image-data'),
-								stream: Readable.from(Buffer.from('fake-image-data'))
-							}
-						];
-						next();
-					};
-				})
-			};
-
-			return {
-				gridFsReady: Promise.resolve(),
-				getUpload: vi.fn().mockReturnValue(mockUpload),
-				gfs: {}
-			};
-		});
-
 		const uploadResponse = await request(app)
 			.post('/api/image')
 			.attach('images', Buffer.from('fake-image-data'), 'fake-image.jpg')
