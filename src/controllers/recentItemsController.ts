@@ -3,6 +3,7 @@ import { Types } from 'mongoose';
 import { RecentItems, addToRecents } from '../models/recentItems.js';
 
 const validTypes = ['item', 'template', 'customField'];
+const defaultMaxItems = 5;
 
 export const getRecentsByType = async (req: Request, res: Response) => {
 	const { type } = req.params;
@@ -18,7 +19,7 @@ export const getRecentsByType = async (req: Request, res: Response) => {
 			.exec();
 
 		if (!recents) {
-			recents = await RecentItems.create({ type: type, recentIds: [] });
+			recents = await RecentItems.create({ type: type, recentIds: [], maxItems: defaultMaxItems });
 		}
 
 		res.status(200).json(recents.recentIds);
