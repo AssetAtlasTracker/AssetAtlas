@@ -192,26 +192,30 @@ export const getAllContainedById = async (req: Request, res: Response) => {
 export const moveItem = async (req: Request, res: Response) => {
 	try {
 		const { itemId, newParentId } = req.body;
-		//Treat an empty string (or only whitespace) as no parent
-		const newParent = newParentId && newParentId.trim() !== "" ? newParentId : null;
+
+		if(itemId === newParentId){
+			return res.status(400).json({ error: 'Item cannot be its own parent' });
+		}
 
 		const item = await BasicItem.findById(itemId).exec();
-
+		
 		if (!item) {
 			return res.status(404).json({ error: 'Item not found' });
 		}
 
-		if (newParent) {
-			const newParentItem = await BasicItem.findById(newParent).exec();
-
-			if (!newParentItem) {
-				return res.status(404).json({ error: 'New parent item not found' });
-			}
-
-			//self-reference and cyclic checks here based on newParent
+		if (!newParentId || newParentId.trim() === "") {
+			return res.status(400).json({ error: 'Invalid parent ID' });
 		}
 
-		item.parentItem = newParent;
+		const newParentItem = await BasicItem.findById(newParentId).exec();
+
+		if (!newParentItem) {
+			return res.status(404).json({ error: 'New parent item not found' });
+		}
+
+		// TODO: Add checks to prevent circular references (see issue #187)
+
+		item.parentItem = newParentId;
 
 		//pre-save will handle the history and parent containers
 		await item.save();
@@ -276,7 +280,7 @@ export const getParentChain = async (req: Request, res: Response) => {
 		const chain = [];
 		let currentItem = await BasicItem.findById(id).exec();
 		if (!currentItem) {
-			return res.status(404).json({ message: 'Item not found' });
+			return res.status(404).json({ message: 'Cannot get parent chain: item not found' });
 		}
 		while (currentItem) {
 			chain.unshift(currentItem);

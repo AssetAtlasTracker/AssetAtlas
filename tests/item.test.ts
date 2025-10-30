@@ -80,6 +80,56 @@ describe('Item API', () => {
 		expect(response.body.message).toBe('Cannot get: Item not found');
 	});
 
+	it('should update an item', async () => {
+		const itemData = {
+			name: 'Test Item',
+			description: 'A sample item for testing',
+			tags: ['tag1', 'tag2']
+		};
+
+		const creationResponse = await request(app).post('/api/items').send(itemData);
+		expect(creationResponse.status).toBe(201);
+		const itemId = creationResponse.body._id;
+
+		const updatedData = {
+			name: 'Updated Test Item',
+			description: 'Updated description',
+			tags: ['tag3']
+		};
+
+		const updateResponse = await request(app).patch(`/api/items/${itemId}`).send(updatedData);
+		expect(updateResponse.status).toBe(200);
+		expect(updateResponse.body.name).toBe(updatedData.name);
+		expect(updateResponse.body.description).toBe(updatedData.description);
+		expect(updateResponse.body.tags).toHaveLength(1);
+		expect(updateResponse.body.tags[0]).toBe('tag3');
+	});
+
+	it('should update an item with a tag in string format', async () => {
+		const itemData = {
+			name: 'Test Item',
+			description: 'A sample item for testing',
+			tags: ['tag1', 'tag2']
+		};
+
+		const creationResponse = await request(app).post('/api/items').send(itemData);
+		expect(creationResponse.status).toBe(201);
+		const itemId = creationResponse.body._id;
+
+		const updatedData = {
+			name: 'Updated Test Item',
+			description: 'Updated description',
+			tags: '["tag3"]'
+		};
+
+		const updateResponse = await request(app).patch(`/api/items/${itemId}`).send(updatedData);
+		expect(updateResponse.status).toBe(200);
+		expect(updateResponse.body.name).toBe(updatedData.name);
+		expect(updateResponse.body.description).toBe(updatedData.description);
+		expect(updateResponse.body.tags).toHaveLength(1);
+		expect(updateResponse.body.tags[0]).toBe('tag3');
+	});
+
 	it('should return 404 if item is not found when trying to update it', async () => {
 		const nonExistentId = new mongoose.Types.ObjectId();
 		const response = await request(app).patch(`/api/items/${nonExistentId}`);
@@ -104,7 +154,6 @@ describe('Item API', () => {
 
 		const response = await request(app).get('/api/items/search?name=Test');
 		expect(response.status).toBe(200);
-		//console.log('Search results:', response.body);
 		expect(response.body.length).toBeGreaterThanOrEqual(1);
 		expect(response.body[0].name).toContain('Test');
 	});
@@ -291,6 +340,13 @@ describe('Item API', () => {
 		expect(response.body[0].name).toBe('Top-Level Parent');
 	});
 
+	it('should return 404 when an invalid item id is provided when fetching parent chain', async () => {
+		const nonExistentId = new mongoose.Types.ObjectId();
+		const response = await request(app).get(`/api/items/parentChain/${nonExistentId}`);
+		expect(response.status).toBe(404);
+		expect(response.body.message).toBe('Cannot get parent chain: item not found');
+	});
+
 	it('should delete an item and unset its home item field in other items', async () => {
 		const homeItemData = {
 			name: 'Home Item',
@@ -317,7 +373,6 @@ describe('Item API', () => {
 		expect(updatedItemWithHome).not.toBeNull();
 		expect(updatedItemWithHome?.homeItem).toBeNull();
 	});
-
 });
 
 describe('Item and Custom Field API', () => {
@@ -392,6 +447,40 @@ describe('Item and Custom Field API', () => {
 		const updatedItem = await BasicItem.findById(createdItem._id).exec();
 		expect(updatedItem?.customFields).toHaveLength(1);
 		expect(updatedItem?.customFields![0].value).toBe('2 years');
+	});
+
+	it('should update an item with a custom field in string format', async () => {
+		const customFieldData = { fieldName: 'custom field', dataType: 'string' };
+		const customFieldResponse = await request(app).post('/api/customFields').send(customFieldData);
+		expect(customFieldResponse.status).toBe(201);
+		const customField = customFieldResponse.body;
+
+		const itemData = {
+			name: 'Test Item',
+			description: 'A sample item for testing',
+			tags: ['tag1', 'tag2'],
+			customFields: [
+				{ field: customField._id, value: 'custom field value' }
+			]
+		};
+
+		const creationResponse = await request(app).post('/api/items').send(itemData);
+		expect(creationResponse.status).toBe(201);
+		const itemId = creationResponse.body._id;
+		expect(creationResponse.body.customFields).toHaveLength(1);
+		expect(creationResponse.body.customFields[0].value).toBe('custom field value');
+
+		const updatedData = {
+			name: 'Updated Test Item',
+			description: 'Updated description',
+			tags: ['tag1', 'tag2'],
+			customFields: `[{ "field": "${customField._id}", "value": "updated custom field value" }]`
+		};
+
+		const updateResponse = await request(app).patch(`/api/items/${itemId}`).send(updatedData);
+		expect(updateResponse.status).toBe(200);
+		expect(updateResponse.body.customFields).toHaveLength(1);
+		expect(updateResponse.body.customFields[0].value).toBe('updated custom field value');
 	});
 });
 
