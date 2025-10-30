@@ -62,6 +62,50 @@ describe('Template API', () => {
 		expect(createdTemplate?.fields[0].dataType).toBe('string');
 	});
 
+	it('should fail to create a template when no name is provided', async () => {
+		const customField1 = await CustomField.create({ fieldName: 'field1', dataType: 'string' });
+		const customField2 = await CustomField.create({ fieldName: 'field2', dataType: 'number' });
+
+		const templateData = {
+			fields: [customField1._id, customField2._id]
+		};
+
+		const response = await request(app).post('/api/templates/createTemplate').send(templateData);
+		expect(response.status).toBe(400);
+		expect(response.body.message).toBe('Failed to create template: missing name and/or fields');
+	});
+
+	it('should fail to create a template when no fields are provided', async () => {
+		const templateData = {
+			name: 'Test Template'
+		};
+
+		const response = await request(app).post('/api/templates/createTemplate').send(templateData);
+		expect(response.status).toBe(400);
+		expect(response.body.message).toBe('Failed to create template: missing name and/or fields');
+	});
+
+	it('should fail to create a template when a duplicate template name is used', async () => {
+		const customField1 = await CustomField.create({ fieldName: 'field1', dataType: 'string' });
+		const customField2 = await CustomField.create({ fieldName: 'field2', dataType: 'number' });
+
+		const templateData1 = {
+			name: 'Test Template',
+			fields: [customField1._id]
+		};
+
+		const templateData2 = {
+			name: 'Test Template',
+			fields: [customField2._id]
+		};
+
+		const response = await request(app).post('/api/templates/createTemplate').send(templateData1);
+		expect(response.status).toBe(201);
+
+		const secondResponse = await request(app).post('/api/templates/createTemplate').send(templateData2);
+		expect(secondResponse.status).toBe(500);
+	});
+
 	it('should fetch all templates with populated fields', async () => {
 		// Create CustomField documents
 		const customField = await CustomField.create({ fieldName: 'field1', dataType: 'string' });
@@ -94,6 +138,12 @@ describe('Template API', () => {
 		expect(response.body.fields[0].dataType).toBe('string');
 		expect(response.body.fields[1].fieldName).toBe('field2');
 		expect(response.body.fields[1].dataType).toBe('number');
+	});
+
+	it('should fail to fetch template with an invalid name', async () => {
+		const response = await request(app).get('/api/templates/getFields/invalidName');
+		expect(response.status).toBe(404);
+		expect(response.body.message).toBe('Template not found');
 	});
 
 	it('should return all templates if no search query is provided', async () => {
