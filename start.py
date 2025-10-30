@@ -71,6 +71,7 @@ def shutdown_containers_from_compose_file(compose_file: str):
     compose_file = os.path.join(SCRIPT_DIR, "docker", compose_file)
 
     command = ["docker-compose", "-f", compose_file, "stop"]
+    update_command_display(command)
 
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     processes.append(process)
@@ -87,8 +88,13 @@ def shutdown_containers_from_compose_file(compose_file: str):
 def shutdown_docker():
     global containers_probably_running
     try:
+        label_status.config(text="Stopping docker containers...")
+        progressbar.config(mode="indeterminate", length=250)
+        progressbar.start()
+
         # only target AssetAtlas containers
         command = ["docker", "compose", "ls", "--filter", "name=assetatlas", "-q"]
+        update_command_display(command)
         running = subprocess.check_output(command).decode().strip()
 
         if running:
@@ -104,6 +110,8 @@ def shutdown_docker():
     except Exception as e:
         shutdown_button.config(state=tk.NORMAL)
         messagebox.showerror("Error", f"Unexpected error: {e}")
+    finally:
+        progressbar.stop()
 
 
 def on_closing():
@@ -129,9 +137,9 @@ def run_docker_compose_thread(mode: str):
 # Function to run the appropriate docker-compose command based on mode
 def run_docker_compose(mode: str):
     global containers_probably_running
-    compose_progressbar = ttk.Progressbar(mode="indeterminate", length=250)
-    compose_progressbar.grid(row=5, column=1, padx=10)
-    compose_progressbar.start()
+    label_status.config(text="Starting docker containers...")
+    progressbar.config(mode="indeterminate", length=250)
+    progressbar.start()
     try:
         url = ""
         compose_file = ""
@@ -150,6 +158,7 @@ def run_docker_compose(mode: str):
         command = ["docker-compose", "-f", compose_file, "up", "-d"] + (
             ["--build"] if build_var.get() else []
         )
+        update_command_display(command)
 
         # working directory to where docker-compose files are located
         os.chdir(os.path.join(SCRIPT_DIR, "docker"))
@@ -160,12 +169,6 @@ def run_docker_compose(mode: str):
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         processes.append(process)
-        threading.Thread(
-            target=lambda: messagebox.showinfo(
-                "Starting ",
-                "Starting Docker containers via command:\n\n" + " ".join(command),
-            )
-        ).start()
         _, err = process.communicate()
 
         # Check for errors
@@ -222,7 +225,7 @@ def run_docker_compose(mode: str):
         run_button.config(state=tk.NORMAL)
         messagebox.showerror("Error", f"Unexpected error: {e}")
     finally:
-        compose_progressbar.stop()
+        progressbar.stop()
 
 
 root = tk.Tk()
@@ -261,14 +264,14 @@ save_key_button = tk.Button(mode_frame, text="Save Auth Key", command=save_auth_
 save_key_button.grid(row=1, column=3, sticky="w", padx=4)
 ## End frame
 
-# Checkbox on its own row
+# 'Rebuild' checkbox on its own row
 build_var = tk.BooleanVar(value=True)
 build_checkbox = tk.Checkbutton(
     root, text="Rebuild containers? (use if code has changed)", variable=build_var
 )
 build_checkbox.grid(row=4, columnspan=2, sticky="w", padx=10, pady=5)
 
-# Button to run Docker Compose
+# Button to run Docker Compose, left
 run_button = tk.Button(
     root,
     text="Run Docker Compose",
@@ -276,15 +279,36 @@ run_button = tk.Button(
 )
 run_button.grid(row=5, column=0, padx=10)
 
+# Progressbar to communicate when application is busy
 progressbar = ttk.Progressbar(length=250)
 progressbar.grid(row=5, column=1, padx=10)
 
+# Shut down button on its own row
 shutdown_button = tk.Button(
     root, text="Shut Down Docker Containers", command=shutdown_docker_thread
 )
 shutdown_button.grid(row=6, columnspan=2, padx=10, pady=10)
 
+# Read-only selectable text box to display executed docker commands, on its own row
+command_text = tk.Text(root, height=2, width=72, wrap="none")
+command_text.grid(row=7, column=0, columnspan=2, padx=10, pady=5, sticky="we")
+command_text.config(state="disabled")
+
+
+def update_command_display(cmd: list[str]):
+    text = " ".join(cmd)
+    print(text)
+    try:
+        command_text.config(state="normal")
+        command_text.delete("1.0", tk.END)
+        command_text.insert("1.0", text)
+        command_text.config(state="disabled")
+    except NameError:
+        # widget not yet created
+        pass
+
+
 label_status = tk.Label(root, text="(Press a button above to take an action)")
-label_status.grid(row=7, columnspan=2, padx=10, pady=10)
+label_status.grid(row=8, columnspan=2, padx=10, pady=10)
 
 root.mainloop()
