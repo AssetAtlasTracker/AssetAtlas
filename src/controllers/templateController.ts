@@ -8,7 +8,7 @@ export const createTemplate = async (req: Request, res: Response) => {
 	const { name, fields } = req.body;
 
 	if (!name || !fields) {
-		return res.status(400).json({ message: 'must have a name and fields' });
+		return res.status(400).json({ message: 'Failed to create template: missing name and/or fields' });
 	}
 
 	try {
