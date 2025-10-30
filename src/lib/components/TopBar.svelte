@@ -4,7 +4,7 @@
   import SearchBar from "./SearchBar.svelte";
   import MdMenu from "svelte-icons/md/MdMenu.svelte";
   import { onMount } from 'svelte';
-  import { setTopBarHeight } from '../stores/topBarStore.js';
+  import { setTopBarHeight } from '$lib/stores/topBarStore.js';
   import { createEventDispatcher } from 'svelte';
 
   export let searchQuery: string = "";
