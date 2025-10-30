@@ -7,8 +7,8 @@ services:
       - ./.env:/usr/src/app/.env
       - tsbuild-cache:/usr/src/app/.tsbuildcache
     build:
-      context: .
-      dockerfile: ./Dockerfile
+      context: ..
+      dockerfile: ./docker/Dockerfile
       args:
         BUILDKIT_INLINE_CACHE: "1"
       cache_from:
@@ -18,7 +18,6 @@ services:
       MONGO_URI: mongodb://mongo:27017/assetatlas_db
       DOCKER_BUILDKIT: "1"
       COMPOSE_DOCKER_CLI_BUILD: "1"
-      ORIGIN: http://localhost:3000
     ports:
       - 3000:3000
     networks:
@@ -32,6 +31,34 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    networks:
+      - default
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/tcp
+      interval: 2s
+      timeout: 5s
+      retries: 3
+
+  auto-migration:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+    depends_on:
+      - mongo
+    command:
+      ["npx", "migrate-mongo", "up", "-f", "migrate-mongo-docker-config.cjs"]
+    environment:
+      MONGO_URI: mongodb://mongo:27017/assetatlas_db
+
+  app-mongoexpress:
+    extends:
+      file: ./common-services.yml
+      service: app-mongoexpress
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_PORT: "27017"
+    depends_on:
+      - mongo
     networks:
       - default
 

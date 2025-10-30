@@ -41,12 +41,14 @@
 		"vitest-browser-svelte": "^1.1.0"
 	},
 	"dependencies": {
-		"bcrypt": "^5.1.1",
+		"bcryptjs": "^3.0.2",
 		"crypto-js": "^4.2.0",
 		"fuse.js": "^7.0.0",
 		"gridfs-stream": "^1.1.1",
+		"jsonwebtoken": "^9.0.2",
+		"jszip": "^3.10.1",
 		"mongodb": "^5.9.1",
-    	"mongoose": "^8.9.5",
+		"mongoose": "^8.9.5",
 		"multer-gridfs-storage": "^5.0.2",
 		"svelte-icons": "^2.1.0"
 	}
