@@ -35,13 +35,6 @@ beforeEach(async () => {
 	await mongoose.connection.collection('items').deleteMany({});
 	await mongoose.connection.collection('templates').deleteMany({});
 	await mongoose.connection.collection('customfields').deleteMany({});
-
-	// Initialize RecentItems documents
-	await Promise.all([
-		RecentItems.create({ type: 'item', recentIds: [], maxItems: 5 }),
-		RecentItems.create({ type: 'template', recentIds: [], maxItems: 5 }),
-		RecentItems.create({ type: 'customField', recentIds: [], maxItems: 5 })
-	]);
 });
 
 describe('Recent Items Controller', () => {
@@ -52,14 +45,17 @@ describe('Recent Items Controller', () => {
 
 		const recentsResponse = await request(app).get('/api/recents/item');
 		expect(recentsResponse.status).toBe(200);
+		expect(recentsResponse.body.length).toBe(1);
 		expect(recentsResponse.body[0]._id.toString()).toBe(response.body._id);
 	});
 
-	it('should fail to get recent items by type', async () => {
-		const item = { name: 'Test Item', description: 'Test Description' };
-		const response = await request(app).post('/api/items').send(item);
-		expect(response.status).toBe(201);
+	it('should return no items when none have been created', async () => {
+		const recentsResponse = await request(app).get('/api/recents/item');
+		expect(recentsResponse.status).toBe(200);
+		expect(recentsResponse.body.length).toBe(0);
+	});
 
+	it('should fail to get recent items when given an invalid type', async () => {
 		const recentsResponse = await request(app).get('/api/recents/invalidType');
 		expect(recentsResponse.status).toBe(400);
 		expect(recentsResponse.body.message).toBe('Invalid type parameter');
@@ -76,6 +72,13 @@ describe('Recent Items Controller', () => {
 		expect(recentsAddResponse.status).toBe(200);
 		const recents = await RecentItems.findOne({ type: 'item' }).populate('recentIds');
 		expect(recents?.recentIds[0]._id.toString()).toBe(itemId);
+	});
+
+	it('should fail to manually add a recent item with invalid type', async () => {
+		const itemInfo = { type: 'invalidType', itemId: '0' };
+		const recentsAddResponse = await request(app).post('/api/recents/add').send(itemInfo);
+		expect(recentsAddResponse.status).toBe(400);
+		expect(recentsAddResponse.body.message).toBe('Invalid type parameter');
 	});
 });
 
