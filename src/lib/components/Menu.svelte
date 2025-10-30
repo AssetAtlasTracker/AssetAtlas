@@ -37,7 +37,7 @@
 	$: permissionLevel = currentUser?.permissionLevel ?? 0;
 </script>
 
-<button
+<div
 	class="glass slide-out-menu"
 	bind:this={menu}
 	class:open
@@ -48,14 +48,14 @@
 			<a href="/">Home</a>
 		</nav>
 		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
-			<!-- <button on:click={openAuthDialog} class="text-left">
+			<button on:click={openAuthDialog} class="text-left">
 				{#if currentUser?.isLoggedIn}
 					User: {currentUser.username}
 				{:else}
 					User Login
 				{/if}
-			</button> -->
-			<h1>PLACEHOLDER: FIX ME!!!!</h1>
+			</button>
+			<!-- <h1>PLACEHOLDER: FIX ME!!!!</h1> -->
 		</nav>
 		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
 			<a href="/utility">Import/Export</a>
@@ -70,6 +70,6 @@
 			</nav>
 		{/if}
 	</div>
-</button>
+</div>
 
 <UserAuth bind:dialog={authDialog} />

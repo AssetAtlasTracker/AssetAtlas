@@ -1,12 +1,11 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
-  import { user, type UserState } from "../stores/userStore.js";
+  import { user, type UserState } from "$lib/stores/userStore.js";
   
   const dispatch = createEventDispatcher();
   
   export let dialog: HTMLDialogElement;
 
-  // NEW (Web Crypto API)
   async function sha256(message: string) {
     const msgBuffer = new TextEncoder().encode(message);
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
