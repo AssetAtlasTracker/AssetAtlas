@@ -1,6 +1,6 @@
 FROM node:20-alpine AS build
 
-# Install OS dependencies for Alpine
+# Install OS dependencies
 RUN apk add --no-cache python3 make g++ iputils
 
 # Set working directory

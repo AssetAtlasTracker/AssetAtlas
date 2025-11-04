@@ -35,11 +35,10 @@ services:
     networks:
       - default
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
-      interval: 10s
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/tcp
+      interval: 2s
       timeout: 5s
       retries: 3
-      start_period: 40s
 
   auto-migration:
     build:
