@@ -26,8 +26,6 @@ export const GET: RequestHandler = async ({ params }) => {
       })
       .exec();
 
-    console.log('Found item:', JSON.stringify(item, null, 2));
-    
     if (item) {
       return json(item, { status: 200 });
     } else {

@@ -178,8 +178,11 @@
           toggleView()
           }}
         >
-        <Switch.Thumb />
+        <Switch.Control>
+          <Switch.Thumb />
+        </Switch.Control>
         <Switch.Label>Tree View</Switch.Label>
+        <Switch.HiddenInput />
       </Switch>
     </div>
   </div>

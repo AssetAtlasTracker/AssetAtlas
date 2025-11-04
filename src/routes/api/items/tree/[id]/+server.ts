@@ -29,7 +29,7 @@ export const GET: RequestHandler = async ({ params }) => {
   try {
     const { id } = params;
 
-    if (!id || id.trim() === '') {
+    if (!id || id.trim() === 'all') {
       const tree = await getItemChildren(null);
       return json(tree);
     }

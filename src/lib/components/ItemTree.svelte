@@ -34,7 +34,7 @@
 
   async function fetchTree(id?: string) {
     try {
-      const url = id ? `/api/items/tree/${id}` : `/api/items/tree`;
+      const url = id ? `/api/items/tree/${id}` : `/api/items/tree/all`;
       const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch tree data");
       const data = await res.json();
