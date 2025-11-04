@@ -1,25 +1,11 @@
 import { connectDB } from '$lib/server/db/mongo.js';
 import { bucketReady } from '$lib/server/db/gridfs.js';
+import type { Handle } from '@sveltejs/kit';
 
-let dbInitialized = false;
+await connectDB();
+await bucketReady;
+console.log('MongoDB and GridFS ready');
 
-async function initializeDatabase() {
-  if (dbInitialized) return;
-  
-  console.log('Initializing database connection...');
-  await connectDB();
-  
-  await bucketReady;
-  console.log('GridFS initialized');
-  
-  dbInitialized = true;
-  console.log('Database initialization complete');
-}
-
-export async function handle({ event, resolve }) {
-  if (!dbInitialized) {
-    await initializeDatabase();
-  }
-  
+export const handle: Handle = async ({ event, resolve }) => {
   return resolve(event);
-}
+};

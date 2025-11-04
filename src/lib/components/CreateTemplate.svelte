@@ -169,7 +169,7 @@
     customFields[index].isExisting = true;
     customFields[index].suggestions = [];
     if (suggestion && suggestion._id) {
-      addToRecents('customFields', suggestion);
+      addToRecents('customField', suggestion);
     }
   }
 

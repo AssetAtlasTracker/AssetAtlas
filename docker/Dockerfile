@@ -32,7 +32,10 @@ RUN npm ci --omit=dev --silent || npm install --omit=dev --silent
 
 # Copy built output from builder stage (SvelteKit outputs to 'build' not 'dist')
 COPY --from=build /usr/src/app/build ./build
+COPY --from=build /usr/src/app/static ./static
 COPY --from=build /usr/src/app/package.json ./package.json
+COPY --from=build /usr/src/app/docker/migrate-mongo-docker-config.cjs ./
+COPY --from=build /usr/src/app/docker/migrations ./migrations
 
 USER node
 

@@ -3,16 +3,24 @@ import { initGridFS } from './gridfs.js';
 
 const MONGODB_URI = process.env.MONGO_URI || 'mongodb://localhost:27017';
 
-let isConnected = false;
-
 export async function connectDB() {
-  if (isConnected) {
+  if (mongoose.connection.readyState === 1) {
     return mongoose.connection;
   }
 
+  if (mongoose.connection.readyState === 2) {
+    return new Promise((resolve, reject) => {
+      mongoose.connection.once('connected', () => resolve(mongoose.connection));
+      mongoose.connection.once('error', reject);
+    });
+  }
+
   try {
-    const db = await mongoose.connect(MONGODB_URI);
-    isConnected = true;
+    const db = await mongoose.connect(MONGODB_URI, {
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+    });
+    
     console.log('MongoDB connected:', db.connection.db?.databaseName);
     initGridFS();
     await import('./models/index.js');
@@ -22,6 +30,16 @@ export async function connectDB() {
     throw error;
   }
 }
+
+async function shutdown() {
+  try {
+    await mongoose.connection.close(false);
+    process.exit(0);
+  } catch (error) {
+    process.exit(1);
+  }
+}
+
 
 mongoose.connection.on('connected', () => {
   console.log('Mongoose connected to MongoDB');
@@ -33,11 +51,7 @@ mongoose.connection.on('error', (err) => {
 
 mongoose.connection.on('disconnected', () => {
   console.log('Mongoose disconnected');
-  isConnected = false;
 });
 
-// Graceful shutdown
-process.on('SIGINT', async () => {
-  await mongoose.connection.close();
-  process.exit(0);
-});
+process.on('SIGINT', () => shutdown());
+process.on('SIGTERM', () => shutdown());

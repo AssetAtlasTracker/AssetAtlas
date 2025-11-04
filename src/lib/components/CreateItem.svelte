@@ -298,7 +298,7 @@
     parentItemId = item._id;
     parentItemSuggestions = [];
     if (item && item._id) {
-      addToRecents("items", item);
+      addToRecents("item", item);
     }
   }
 
@@ -307,7 +307,7 @@
     homeItemId = item._id;
     homeItemSuggestions = [];
     if (item && item._id) {
-      addToRecents("items", item);
+      addToRecents("item", item);
     }
   }
 
@@ -317,7 +317,7 @@
     templateSuggestions = [];
     loadTemplateFields(templateId);
     if (item && item._id) {
-      addToRecents("templates", item);
+      addToRecents("template", item);
     }
   }
 
@@ -453,7 +453,7 @@
     customFields[index].isExisting = true;
     customFields[index].suggestions = [];
     if (suggestion && suggestion._id) {
-      addToRecents("customFields", suggestion);
+      addToRecents("customField", suggestion);
     }
   }
 

@@ -159,7 +159,7 @@
     customFields[index].isExisting = true;
     customFields[index].suggestions = [];
     if (suggestion && suggestion._id) {
-      addToRecents('customFields', suggestion);
+      addToRecents('customField', suggestion);
     }
   }
 
@@ -245,7 +245,7 @@
     templateName = template.name;
     templateId = template._id;
     templateSuggestions = [];
-    addToRecents('templates', template);
+    addToRecents('template', template);
   }
 
   async function handleTemplateFocus() {

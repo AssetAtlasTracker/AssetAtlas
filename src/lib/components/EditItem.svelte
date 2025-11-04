@@ -223,7 +223,7 @@
     parentItemName = item.name;
     parentItemId = item._id;
     parentItemSuggestions = [];
-    if (item._id) addToRecents("items", item);
+    if (item._id) addToRecents("item", item);
   }
 
   //Home item search handlers
@@ -257,7 +257,7 @@
     homeItemName = item.name;
     homeItemId = item._id;
     homeItemSuggestions = [];
-    if (item._id) addToRecents("items", item);
+    if (item._id) addToRecents("item", item);
   }
 
   function handleTemplateInput(event: Event) {
@@ -307,7 +307,7 @@
     templateId = item._id;
     templateSuggestions = [];
     loadTemplateFields(templateId);
-    addToRecents("templates", item);
+    addToRecents("template", item);
   }
 
   async function loadTemplateFields(templateId: string | null) {
@@ -445,7 +445,7 @@
     customFields[index].isNew = false;
     customFields[index].isExisting = true;
     customFields[index].suggestions = [];
-    addToRecents("customFields", suggestion);
+    addToRecents("customField", suggestion);
   }
 
   function addCustomFieldLine() {
