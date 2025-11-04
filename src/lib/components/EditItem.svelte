@@ -11,14 +11,6 @@
 
   export let item: IBasicItemPopulated;
 
-  console.log("EditItem component mounted");
-  console.log("Received item:", item);
-
-  onMount(() => {
-    console.log("EditItem onMount");
-    console.log("Item data:", item);
-  });
-
   let templateDialog: HTMLDialogElement | undefined;
 
   let name = item.name;
@@ -57,8 +49,6 @@
   let debounceTimeout: NodeJS.Timeout | undefined;
   let removeExistingImage = false;
   let sameLocations: boolean = false;
-
-  
 
   interface ICustomField {
     _id: string;
@@ -557,8 +547,15 @@
         "tags",
         JSON.stringify(tags.split(",").map((t) => t.trim())),
       );
-      if (parentItemId) formData.append("parentItem", parentItemId);
-      if (homeItemId) formData.append("homeItem", homeItemId);
+      if (homeItemId) {
+        formData.append("homeItem", homeItemId);
+        if (sameLocations) {
+          formData.append("parentItem", homeItemId);
+        }
+      }
+
+      if (parentItemId && !sameLocations) formData.append("parentItem", parentItemId);
+      
       if (templateId) formData.append("template", templateId);
 
       // Add custom fields
@@ -643,11 +640,19 @@
         on:imageChange={handleImageChange}
       />
 
-      <!-- <SlideToggle
-        name="slide"
-        bind:checked={sameLocations}
-        active="bg-green-700">Use same home and current location</SlideToggle
-      > -->
+      <Switch 
+        checked={sameLocations} 
+        onchange={() => {
+          sameLocations = !sameLocations;
+        }}
+      >
+        <Switch.Control>
+          <Switch.Thumb />
+        </Switch.Control>
+        <Switch.Label>Use same home and current location</Switch.Label>
+        <Switch.HiddenInput />
+      </Switch>
+
       <div class="flex space-x-4">
         <!-- Parent Item -->
         {#if !sameLocations}

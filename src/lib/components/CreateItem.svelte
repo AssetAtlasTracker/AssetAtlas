@@ -648,12 +648,19 @@
         </div>
         <br />
 
-        <!-- <SlideToggle
-          name="slide"
-          bind:checked={sameLocations}
-          active="toggle-background"
-          >Item is currently at its home location</SlideToggle
-        > -->
+        <Switch 
+          checked={sameLocations} 
+          onchange={() => {
+            sameLocations = !sameLocations;
+          }}
+        >
+          <Switch.Control>
+            <Switch.Thumb />
+          </Switch.Control>
+          <Switch.Label>Item is currently at its home location</Switch.Label>
+          <Switch.HiddenInput />
+        </Switch>
+
         <div class="flex space-x-4">
           <!-- Parent Item -->
           {#if !sameLocations}
