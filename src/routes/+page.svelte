@@ -146,12 +146,17 @@
   }
 </script>
 
-<TopBar
-  {searchQuery}
-  onSearch={handleSearch}
-  {menu}
+<TopBar 
+  bind:searchQuery
+  bind:menu
   bind:exactSearch
-  on:change={() => handleSearch(searchQuery)}></TopBar>
+  onSearch={(query) => {
+    handleSearch(query);
+  }}
+  onExactSearchChange={(value) => {
+    handleSearch(searchQuery);
+  }}
+/>
 
 <div class="view-layout page-with-topbar">
   <Menu bind:menu />

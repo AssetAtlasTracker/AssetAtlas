@@ -5,11 +5,21 @@
   import MdMenu from "svelte-icons/md/MdMenu.svelte";
   import { onMount } from 'svelte';
   import { setTopBarHeight } from '$lib/stores/topBarStore.js';
-  import { createEventDispatcher } from 'svelte';
 
-  export let searchQuery: string = "";
-  export let onSearch: (query: string) => void;
-  export let menu: HTMLDialogElement | undefined;
+  // Props using $props() rune
+  let {
+    searchQuery = $bindable(""),
+    onSearch,
+    menu = $bindable(),
+    exactSearch = $bindable(false),
+    onExactSearchChange
+  }: {
+    searchQuery?: string;
+    onSearch: (query: string) => void;
+    menu?: HTMLDialogElement;
+    exactSearch?: boolean;
+    onExactSearchChange?: (value: boolean) => void;
+  } = $props();
 
   function handleClickMenu() {
     menu?.click();
@@ -40,23 +50,16 @@
     };
   });
 
-  export let exactSearch: boolean;
-
-
-  interface ChangeEventDetail {
-    value: string; 
-  }
-
-  const dispatch = createEventDispatcher<{ change: ChangeEventDetail }>();
-  function handleChange(event: Event) {
-    dispatch('change', { value: "change" });
+  function handleChange() {
+    exactSearch = !exactSearch;
+    onExactSearchChange?.(exactSearch);
   }
 </script>
 
 <div bind:this={topBarElement} class="top-bar-wrapper">
   <AppBar class="top-bar border glass">
     <div class="top-bar-flex">
-      <button class="mx-4" on:click={handleClickMenu}>
+      <button class="mx-4" onclick={handleClickMenu}>
         <div class="icon-small">
           <MdMenu />
         </div>
@@ -69,14 +72,18 @@
           <SearchBar {searchQuery} {onSearch} />
         </div>
       </div>
-       <div class="sort-flex"></div>
-    <!-- <SlideToggle
-      name="exactToggle"
-      active="toggle-background"
-      bind:checked={exactSearch}
-      on:change={handleChange}
-      >Exact Search</SlideToggle
-    > -->
+      <div class="sort-flex"></div>
+
+      <Switch 
+        checked={exactSearch} 
+        onchange={handleChange}
+      >
+        <Switch.Control>
+          <Switch.Thumb />
+        </Switch.Control>
+        <Switch.Label>Exact Search</Switch.Label>
+        <Switch.HiddenInput />
+      </Switch>
     </div>
   </AppBar>
 </div>
