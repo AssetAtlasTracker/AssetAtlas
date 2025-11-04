@@ -1,0 +1,8 @@
+item name,template,description,expiration date,weight,source,expired
+kitchen,,a place to cook food
+>
+fridge,,a place to put food
+>
+maybe an apple,,a green sour thing,jan 19th, 20oz, tree?, true
+<
+<
