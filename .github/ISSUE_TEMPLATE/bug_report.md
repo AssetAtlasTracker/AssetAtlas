@@ -1,34 +1,37 @@
 ---
 name: Bug report
 about: Report a bug you encountered
-title: "[BUG]"
-labels: ''
-assignees: ''
+type: bug
 
 ---
 
-**Describe the bug**
-Please give a high level overview of what the bug is.
+**Bug Description**
+Please give a high-level overview of the bug.
 
-**To Reproduce**
-List the steps you took so we can reproduce the bug. Please be specific as it is often very small things that produce bugs. 
+**Steps To Reproduce**
+List the steps you took so we can reproduce the bug. Please be specific as it is often small details that produce bugs.
 
-**Expected behavior**
+**Expected Behavior**
 What did you expect to happen?
 
+**Actual Behavior**
+What actually happened?
+
 **Screenshots**
-If applicable, add screenshots to help explain your problem.
+If applicable, add screenshots that show the problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+**If the bug occurs on desktop, please complete the following information:**
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone16]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+- OS: (e.g. macOS, Windows)
+- Browser (e.g. Chrome, Firefox, Safari)
+- Version (e.g. 22)
 
-**Additional context**
-Add any other context about the problem here.
+**If the bug occurs on mobile, please complete the following information:**
+
+- Device: (e.g. iPhone 16, Samsung S24)
+- OS: (e.g. iOS 18, android 15)
+- Browser (e.g. Chrome, Firefox, Safari)
+- Version (e.g. 22)
+
+**Additional Information**
+If you have any other information about the problem, please add it here.
