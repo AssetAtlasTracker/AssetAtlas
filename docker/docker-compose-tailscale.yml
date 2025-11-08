@@ -51,6 +51,18 @@ services:
     environment:
       MONGO_URI: mongodb://mongo:27017/assetatlas_db
 
+  app-mongoexpress:
+    extends:
+      file: ./common-services.yml
+      service: app-mongoexpress
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_PORT: "27017"
+    depends_on:
+      - mongo
+    networks:
+      - default
+
   tailscale:
     image: tailscale/tailscale:stable
     container_name: tailscale
@@ -67,25 +79,13 @@ services:
     restart: unless-stopped
     network_mode: host
 
-  app-mongoexpress:
-    extends:
-      file: ./common-services.yml
-      service: app-mongoexpress
-    environment:
-      ME_CONFIG_MONGODB_SERVER: mongo
-      ME_CONFIG_MONGODB_PORT: "27017"
-    depends_on:
-      - mongo
-    networks:
-      - default
+networks:
+  default:
+    driver: bridge
+    name: assetatlas-bridge
 
 volumes:
   mongo-data:
   tsbuild-cache:
     name: assetatlas-tsbuild-cache
   tailscale-state:
-
-networks:
-  default:
-    driver: bridge
-    name: assetatlas-bridge
