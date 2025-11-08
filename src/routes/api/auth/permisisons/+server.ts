@@ -4,12 +4,12 @@ import mongoose from 'mongoose';
 import { requirePermissionLevel } from '$lib/server/auth.js';
 import User from '$lib/server/db/models/user.js';
 
-export const PUT: RequestHandler = async ({ request, ...event }) => {
+export const PUT: RequestHandler = async (event) => {
   try {
     // Require permission level 9 or higher
     const currentUser = requirePermissionLevel(event, 9);
     
-    const { userId, permissionLevel } = await request.json();
+    const { userId, permissionLevel } = await event.request.json();
 
     // Validate inputs
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
