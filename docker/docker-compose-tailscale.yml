@@ -13,6 +13,7 @@ services:
         BUILDKIT_INLINE_CACHE: "1"
       cache_from:
         - assetatlas:latest
+    env_file: secrets.env
     environment:
       NODE_ENV: production
       MONGO_URI: mongodb://mongo:27017/assetatlas_db

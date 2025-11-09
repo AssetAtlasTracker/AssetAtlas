@@ -3,8 +3,11 @@
 	import { Link } from "svelte-routing";
 	import { onMount } from "svelte";
 	import UserAuth from "./UserAuth.svelte";
+	import OAuth from "./OAuth.svelte";
 	import { user } from "../stores/userStore.js";
 	import type { UserState } from "../stores/userStore.js";
+	import type { LoginState } from "../stores/loginStore.js";
+	import {login} from "../stores/loginStore.js";
 
 	var open = false;
 	export let menu;
@@ -18,7 +21,17 @@
 		authDialog.showModal();
 	}
 
-	onMount(() => {
+	let currentUser: UserState | undefined;
+	user.subscribe((value) => {
+		currentUser = value;
+	});
+
+	let currentLogin: LoginState | undefined;
+	login.subscribe((value) => {
+		currentLogin = value;
+	});
+
+	onMount(async () => {
 		const topBar = document.querySelector(".top-bar");
 		if (topBar) {
 			const height = topBar.getBoundingClientRect().height;
@@ -27,12 +40,19 @@
 				`${height}px`,
 			);
 		}
+
+		const response = await fetch('/api/oauth/profile');
+		if (response.ok) {
+			const userData = await response.json();
+			login.set({
+			isLoggedIn: true,
+			name: userData.name,
+			sub_id: userData.sub_id,
+			permissionLevel: userData.permissionLevel
+			});
+  		}
 	});
 
-	let currentUser: UserState | undefined;
-	user.subscribe((value) => {
-		currentUser = value;
-	});
 
 	//if permission level is ever undefined (it shouldnt be but typescript seems to think it may be) we default to 0
 	$: permissionLevel = currentUser?.permissionLevel ?? 0;
@@ -50,8 +70,8 @@
 		</nav>
 		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
 			<button on:click={openAuthDialog} class="text-left">
-				{#if currentUser?.isLoggedIn}
-					User: {currentUser.username}
+				{#if currentLogin?.isLoggedIn}
+					User: {currentLogin?.name}
 				{:else}
 					User Login
 				{/if}
@@ -75,4 +95,4 @@
 	</div>
 </button>
 
-<UserAuth bind:dialog={authDialog} />
+<OAuth bind:dialog={authDialog} />
