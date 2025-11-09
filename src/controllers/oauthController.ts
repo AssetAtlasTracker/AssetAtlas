@@ -126,15 +126,15 @@ export const callbackGoogle = async (req: Request, res: Response) => {
 				message: 'OAuth2 request error',
 				error: e.message,
 			});
-			const code = e.code;
-			// ...
+			
 		}
 		if (e instanceof arctic.ArcticFetchError) {
-			// Failed to call `fetch()`
-			// const cause = e.cause;
-			// ...
+			res.status(400).json({
+				message: 'Arctic Fetch Error',
+				error: e.message,
+			});
 		}
-		// Parse error
+		
 	}
 }
 
@@ -223,11 +223,12 @@ export const callbackGithub = async (req: Request, res: Response) => {
 			// ...
 		}
 		if (e instanceof arctic.ArcticFetchError) {
-			// Failed to call `fetch()`
-			// const cause = e.cause;
-			// ...
+			res.status(400).json({
+				message: 'Arctic Fetch Error',
+				error: e.message,
+			});
 		}
-		// Parse error
+		
 	}
 
 }
