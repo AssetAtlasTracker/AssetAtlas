@@ -30,6 +30,8 @@
     "@skeletonlabs/skeleton": "^2.10.3",
     "@skeletonlabs/tw-plugin": "^0.4.0",
     "@sveltejs/vite-plugin-svelte": "^2.5.3",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/svelte": "^5.2.8",
     "@tsconfig/svelte": "^5.0.4",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",

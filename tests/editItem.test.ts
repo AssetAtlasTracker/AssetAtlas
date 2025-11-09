@@ -12,7 +12,6 @@ function renderComponent(props = {}) {
 	return { target, component };
 }
 
-// --- Mock Dialog (to prevent .close() errors) ---
 if (typeof HTMLDialogElement !== "undefined") {
 	if (!HTMLDialogElement.prototype.close) {
 		HTMLDialogElement.prototype.close = vi.fn();
@@ -21,14 +20,12 @@ if (typeof HTMLDialogElement !== "undefined") {
 		HTMLDialogElement.prototype.showModal = vi.fn();
 	}
 } else {
-	// fallback if jsdom is very old
 	(global as any).HTMLDialogElement = class {
 		close = vi.fn();
 		showModal = vi.fn();
 	};
 }
 
-// --- Mock actionStore ---
 vi.mock("../src/stores/actionStore.js", () => ({
 	actionStore: {
 		addMessage: vi.fn(),
