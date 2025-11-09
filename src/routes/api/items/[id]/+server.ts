@@ -1,4 +1,4 @@
-import { json } from '@sveltejs/kit';
+import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import mongoose from 'mongoose';
 import BasicItem from '$lib/server/db/models/basicItem.js';
@@ -97,10 +97,7 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
     return json(savedItem, { status: 200 });
   } catch (err) {
     console.error('Error updating item:', err);
-    return json({ 
-      message: 'Error updating item', 
-      error: err instanceof Error ? err.message : String(err)
-    }, { status: 500 });
+    error(500, 'An error occurred while updating the item');
   }
 };
 

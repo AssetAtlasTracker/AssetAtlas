@@ -36,6 +36,6 @@ export const POST: RequestHandler = async ({ request }) => {
       throw err;
     }
     console.error('Error moving item:', err);
-    throw error(500, 'An error occurred while moving the item');
+    error(500, 'An error occurred while moving the item');
   }
 };
