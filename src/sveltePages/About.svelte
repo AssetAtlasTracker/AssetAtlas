@@ -7,7 +7,7 @@
 
   let menu: HTMLDialogElement;
   let searchQuery = "";
-  const version = import.meta.env.VITE_APP_VERSION || 'dev version';
+  const version = import.meta.env.APP_VERSION || 'dev version';
   
   function onSearch(query: string) {
     //maybe some day

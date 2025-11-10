@@ -2,7 +2,7 @@ name: Build and Publish Docker Images
 
 on:
   push:
-    branches: 
+    branches:
       - production
   pull_request:
     branches:
@@ -57,6 +57,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            APP_VERSION=${{ steps.meta.outputs.version || github.ref_name }}
+            APP_VERSION=${{ format('{0} ({1})', steps.meta.outputs.version, github.sha) }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
