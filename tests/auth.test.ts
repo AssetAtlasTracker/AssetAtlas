@@ -1,12 +1,12 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import { requireAuth, requirePermissionLevel } from '../src/lib/server/auth.js';
-import User from '../src/lib/server/db/models/user.js';
-import { POST as registerHandler } from '../src/routes/api/auth/register/+server.js';
-import { POST as loginHandler } from '../src/routes/api/auth/login/+server.js';
-import { GET as profileHandler } from '../src/routes/api/auth/profile/+server.js';
-import { PUT as permissionsHandler } from '../src/routes/api/auth/permisisons/+server.js';
+import { requireAuth, requirePermissionLevel } from '$lib/server/auth.js';
+import User from '$lib/server/db/models/user.js';
+import { POST as registerHandler } from '$routes/api/auth/register/+server.js';
+import { POST as loginHandler } from '$routes/api/auth/login/+server.js';
+import { GET as profileHandler } from '$routes/api/auth/profile/+server.js';
+import { PUT as permissionsHandler } from '$routes/api/auth/permisisons/+server.js';
 import type { RequestEvent } from '@sveltejs/kit';
 
 let mongoServer: MongoMemoryServer;

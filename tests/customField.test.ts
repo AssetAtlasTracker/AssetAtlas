@@ -2,11 +2,11 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import type { RequestEvent } from '@sveltejs/kit';
-import type { ICustomField } from '../src/lib/server/db/models/customField.js';
-import { RecentItems } from '../src/lib/server/db/models/recentItems.js';
-import { POST as createCustomFieldHandler } from '../src/routes/api/customFields/+server.js';
-import { GET as searchCustomFieldsHandler } from '../src/routes/api/customFields/search/+server.js';
-import { GET as getCustomFieldByIdHandler } from '../src/routes/api/customFields/[id]/+server.js';
+import type { ICustomField } from '$lib/server/db/models/customField.js';
+import { RecentItems } from '$lib/server/db/models/recentItems.js';
+import { POST as createCustomFieldHandler } from '$routes/api/customFields/+server.js';
+import { GET as searchCustomFieldsHandler } from '$routes/api/customFields/search/+server.js';
+import { GET as getCustomFieldByIdHandler } from '$routes/api/customFields/[id]/+server.js';
 
 let mongoServer: MongoMemoryServer;
 

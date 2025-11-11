@@ -2,13 +2,13 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest';
 import type { RequestEvent } from '@sveltejs/kit';
-import BasicItem from '../src/lib/server/db/models/basicItem.js';
-import CustomField from '../src/lib/server/db/models/customField.js';
-import { RecentItems } from '../src/lib/server/db/models/recentItems.js';
-import Template from '../src/lib/server/db/models/template.js';
+import BasicItem from '$lib/server/db/models/basicItem.js';
+import CustomField from '$lib/server/db/models/customField.js';
+import { RecentItems } from '$lib/server/db/models/recentItems.js';
+import Template from '$lib/server/db/models/template.js';
 
 // Mock the GridFS module
-vi.mock('../src/lib/server/db/gridfs.js', () => {
+vi.mock('$lib/server/db/gridfs.js', () => {
 	return {
 		bucketReady: Promise.resolve(),
 		initGridFS: vi.fn(),
@@ -21,7 +21,7 @@ vi.mock('../src/lib/server/db/gridfs.js', () => {
 	};
 });
 
-import { POST as uploadImagesHandler } from '../src/routes/api/images/+server.js';
+import { POST as uploadImagesHandler } from '$routes/api/images/+server.js';
 
 let mongoServer: MongoMemoryServer;
 

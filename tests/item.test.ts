@@ -7,16 +7,16 @@ import type { ICustomField } from '$lib/server/db/models/customField.js';
 import CustomField from '$lib/server/db/models/customField.js';
 import { RecentItems } from '$lib/server/db/models/recentItems.js';
 import Template from '$lib/server/db/models/template.js';
-import { POST as createItemHandler } from '$lib/../routes/api/items/+server.js';
-import { GET as getItemByIdHandler, PATCH as updateItemHandler, DELETE as deleteItemHandler } from '$lib/../routes/api/items/[id]/+server.js';
-import { GET as searchItemsHandler } from '$lib/../routes/api/items/search/+server.js';
-import { POST as moveItemHandler } from '$lib/../routes/api/items/move/+server.js';
-import { GET as getAllContainedHandler } from '$lib/../routes/api/items/allContained/[parentID]/+server.js';
-import { GET as getParentChainHandler } from '$lib/../routes/api/items/parentChain/[id]/+server.js';
-import { GET as getTreeHandler } from '$lib/../routes/api/items/tree/[id]/+server.js';
-import { POST as createCustomFieldHandler } from '$lib/../routes/api/customFields/+server.js';
-import { DELETE as deleteTemplateHandler } from '$lib/../routes/api/templates/[id]/+server.js';
-import { PUT as editTemplateHandler } from '$lib/../routes/api/templates/editTemplate/[id]/+server.js';
+import { POST as createItemHandler } from '$routes/api/items/+server.js';
+import { GET as getItemByIdHandler, PATCH as updateItemHandler, DELETE as deleteItemHandler } from '$routes/api/items/[id]/+server.js';
+import { GET as searchItemsHandler } from '$routes/api/items/search/+server.js';
+import { POST as moveItemHandler } from '$routes/api/items/move/+server.js';
+import { GET as getAllContainedHandler } from '$routes/api/items/allContained/[parentID]/+server.js';
+import { GET as getParentChainHandler } from '$routes/api/items/parentChain/[id]/+server.js';
+import { GET as getTreeHandler } from '$routes/api/items/tree/[id]/+server.js';
+import { POST as createCustomFieldHandler } from '$routes/api/customFields/+server.js';
+import { DELETE as deleteTemplateHandler } from '$routes/api/templates/[id]/+server.js';
+import { PUT as editTemplateHandler } from '$routes/api/templates/editTemplate/[id]/+server.js';
 
 let mongoServer: MongoMemoryServer;
 
