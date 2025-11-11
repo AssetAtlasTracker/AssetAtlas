@@ -16,19 +16,19 @@ export class CSVTemplateParser implements Parser {
     }
 
     parse(input: string): void {
-        let data = CSVPreProcessor.preprocess(CSVSplitter.split(input));
+        const data = CSVPreProcessor.preprocess(CSVSplitter.split(input));
 
-        for (var i = 1; i < data.length; i += 2) {
-            let template = new Template();
+        for (let i = 1; i < data.length; i += 2) {
+            const template = new Template();
             template.name = data[i][0].toString();
 
             this.checkTypeRow(data[i+1]);
             
-            for (var j = 1; j < data[i].length; j++) {
+            for (let j = 1; j < data[i].length; j++) {
                 const key = data[i][j].toString();
                 this.checkEmptyKey(key);
-                let customField = new CustomField();
-                let newId = new Types.ObjectId();
+                const customField = new CustomField();
+                const newId = new Types.ObjectId();
                 customField.id = newId;
                 const valueType = data[i+1][j].toString();
                 customField.dataType = valueType;
@@ -53,9 +53,9 @@ export class CSVTemplateParser implements Parser {
     }
 
     canParse(columns: string[]): boolean {
-        let tempName = (columns[0] === "template name");
+        const tempName = (columns[0] === "template name");
         columns.shift();
-        let blankColumns = (columns.filter(ele => ele !== "").length === 0);
+        const blankColumns = (columns.filter(ele => ele !== "").length === 0);
         return tempName && blankColumns;
     }
     

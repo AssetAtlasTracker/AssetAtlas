@@ -9,8 +9,8 @@ export class EntityAdder {
     customFidMap = new Map<Types.ObjectId, Types.ObjectId>();
 
     async addCustomFields(fieldMap: Map<Types.ObjectId, ICustomField>) : Promise<Map<Types.ObjectId, Types.ObjectId>> {
-        let keysIter = fieldMap.keys()
-        for (var i = 0; i < fieldMap.size; i++) {
+        const keysIter = fieldMap.keys()
+        for (let i = 0; i < fieldMap.size; i++) {
             const key = keysIter.next().value!;
             const value = fieldMap.get(key)!;
             const fieldName = value.fieldName;
@@ -35,7 +35,7 @@ export class EntityAdder {
     }
 
     async addItems(items: IBasicItem[], map: Map<Types.ObjectId, IBasicItem>) {
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             const item = items[i];
             const containedItems = item.containedItems;
             const newId = await this.callAddItem(item);
@@ -50,7 +50,7 @@ export class EntityAdder {
     }
 
     async addItemsHelper(items: IBasicItem[], map: Map<Types.ObjectId, IBasicItem>, parentID: Types.ObjectId) {
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             const item = items[i];
             item.parentItem = parentID;
             const containedItems = item.containedItems;
@@ -66,7 +66,7 @@ export class EntityAdder {
     }
 
     async addTemplates(templates: ITemplate[]) {
-        for (var i = 0; i < templates.length; i++) {
+        for (let i = 0; i < templates.length; i++) {
             try {
                 const template = templates[i];
                 template.fields = template.fields?.map(field => this.customFidMap.get(field.toHexString() as unknown as Types.ObjectId)!);

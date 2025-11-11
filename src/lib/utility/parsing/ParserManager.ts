@@ -13,14 +13,14 @@ export class ParserManager {
         let itemData = "";
 
         console.log("Data is", data);
-        for (var i=0; i < data.length; i++) {
-            var contents = data[i]
+        for (let i=0; i < data.length; i++) {
+            const contents = data[i]
             if (templateParser.canParse(CSVPreProcessor.getColumns(contents))) {
                 console.log("Parsing Templates From:", contents);
                 templateParser.parse(contents);
-                let templates = templateParser.templatesToAdd;
+                const templates = templateParser.templatesToAdd;
                 console.log("Parsed Templates:", templates);
-                let customFields = templateParser.customFieldMap;
+                const customFields = templateParser.customFieldMap;
                 console.log("Parsed Custom Fields:", customFields);
                 await adder.addCustomFields(customFields);
                 await adder.addTemplates(templates);
@@ -32,13 +32,13 @@ export class ParserManager {
 
         if (itemData !== "" ) {
             //get existing templates ==> will be populated
-            let templates : ITemplatePopulated[] =  await Template.find().populate('fields').exec() as unknown as ITemplatePopulated[];
+            const templates : ITemplatePopulated[] =  await Template.find().populate('fields').exec() as unknown as ITemplatePopulated[];
 
             const contents = itemData;
             const itemParser = new CSVItemParserPopulated(templates, names, ids);
             if (itemParser.canParse(CSVPreProcessor.getColumns(contents))) {
                 itemParser.parse(contents);
-                let customFields = itemParser.customFieldMap;
+                const customFields = itemParser.customFieldMap;
                 await adder.addCustomFields(customFields);
                 await adder.addItems(itemParser.itemTree, itemParser.itemMap);
             } else {

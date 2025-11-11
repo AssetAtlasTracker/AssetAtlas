@@ -17,7 +17,7 @@
 
 <ActionDisplay />
 
-<TopBar searchQuery={""} {onSearch} {menu}></TopBar>
+<TopBar searchQuery="" {onSearch} {menu}></TopBar>
 
 <div class="page-with-topbar">
   <Menu bind:menu />

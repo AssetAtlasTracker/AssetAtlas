@@ -1,6 +1,6 @@
 export class CSVPreProcessor {
     static preprocess(data: string[][]) : string[][] {
-        let trimmed = data.map(row => row.map(ele => ele.trim().toLowerCase()));
+        const trimmed = data.map(row => row.map(ele => ele.trim().toLowerCase()));
         return trimmed;
     }
 

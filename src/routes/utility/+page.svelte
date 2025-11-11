@@ -237,7 +237,7 @@
   });
 </script>
 
-<TopBar searchQuery={""} {onSearch} {menu} exactSearch={false} />
+<TopBar searchQuery="" {onSearch} {menu} exactSearch={false} />
 <Menu bind:menu />
 
 <div class="page-with-topbar">

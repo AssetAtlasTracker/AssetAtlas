@@ -165,7 +165,7 @@
       {#each parentChain as parent, index}
         {#if index < parentChain.length - 1}
           <span class="clickable-text">
-            <ItemLink className={""} itemId={ensureString(parent._id)} itemName={parent.name} on:openItem={handleItemLinkClick} />
+            <ItemLink className="" itemId={ensureString(parent._id)} itemName={parent.name} on:openItem={handleItemLinkClick} />
           </span>
           <span class="separator"> &gt; </span>
         {:else}
@@ -217,7 +217,7 @@
       <li>
         <strong>Current Location:</strong>
         <span class="clickable-text">
-          <ItemLink className={""} itemId={ensureString(item.parentItem._id)} itemName={item.parentItem.name} on:openItem={handleItemLinkClick} />
+          <ItemLink className="" itemId={ensureString(item.parentItem._id)} itemName={item.parentItem.name} on:openItem={handleItemLinkClick} />
         </span>
       </li>
     {:else}
@@ -228,7 +228,7 @@
       <li>
         <strong>Home Location:</strong>
         <span class="clickable-text">
-          <ItemLink className={""} itemId={ensureString(item.homeItem._id)} itemName={item.homeItem.name} on:openItem={handleItemLinkClick} />
+          <ItemLink className="" itemId={ensureString(item.homeItem._id)} itemName={item.homeItem.name} on:openItem={handleItemLinkClick} />
         </span>
       </li>
     {:else}
@@ -242,7 +242,7 @@
           {#each item.containedItems as containedItem}
             <li>
               <span class="clickable-text">
-                <ItemLink className={""} itemId={ensureString(containedItem._id)} itemName={containedItem.name} on:openItem={handleItemLinkClick} />
+                <ItemLink className="" itemId={ensureString(containedItem._id)} itemName={containedItem.name} on:openItem={handleItemLinkClick} />
               </span>
             </li>
           {/each}
@@ -279,7 +279,7 @@
                 {#if history.location}
                   <strong> Location:</strong>
                   <span class="clickable-text">
-                    <ItemLink className={""} itemId={ensureString(history.location._id)} itemName={history.location.name} on:openItem={handleItemLinkClick} />
+                    <ItemLink className="" itemId={ensureString(history.location._id)} itemName={history.location.name} on:openItem={handleItemLinkClick} />
                   </span>
                 {:else}
                   <strong> Location:</strong> None

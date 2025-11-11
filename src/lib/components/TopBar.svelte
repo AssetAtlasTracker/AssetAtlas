@@ -65,7 +65,7 @@
         </div>
       </button>
       <div class="flex-1 m-4">
-        <a href={"/"}>
+        <a href="/">
           <div id="title" class="mx-4 text-2xl font-bold">AssetAtlas</div>
         </a>
         <div class="mx-4">

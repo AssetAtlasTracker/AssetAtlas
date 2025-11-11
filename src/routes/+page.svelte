@@ -254,7 +254,7 @@
     <Window
       initialX={window.x}
       initialY={window.y}
-      windowTitle={`Item View`}
+      windowTitle="Item View"
       windowClass="page-component"
       showClose={true}
       showOpenInNewTab={true}

@@ -109,7 +109,7 @@
 </script>
 
 <!-- Rest of your template stays the same -->
-<TopBar searchQuery={""} {onSearch} {menu} />
+<TopBar searchQuery="" {onSearch} {menu} />
 <Menu bind:menu />
 
 {#if item}
@@ -228,7 +228,7 @@
       <Window
         initialX={itemWindow.x}
         initialY={itemWindow.y}
-        windowTitle={`Item View`}
+        windowTitle="Item View"
         windowClass="page-component"
         showClose={true}
         showOpenInNewTab={true}

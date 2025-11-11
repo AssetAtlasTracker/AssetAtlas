@@ -17,11 +17,11 @@ export class CSVItemParserPopulated implements Parser {
     imageNameIdMap : Map<string, Types.ObjectId> = new Map<string, Types.ObjectId>()
 
     constructor(templates : ITemplatePopulated[], names: string[], ids: string[]) {
-        for (var i = 0; i < templates.length; i++) {
+        for (let i = 0; i < templates.length; i++) {
             this.templates.set(templates[i].name, templates[i]);
         }
         if (ids) {
-            for (var j = 0; j < ids.length; j++) {
+            for (let j = 0; j < ids.length; j++) {
                 this.imageNameIdMap.set(names[j], ids[j] as unknown as Types.ObjectId)
             }
         }
@@ -33,7 +33,7 @@ export class CSVItemParserPopulated implements Parser {
 
     collectColumnTypes(data: string[][], columns: string[]){
         for (var i = 3; i < columns.length; i++) { // first 3 columns are reserved - determine types for 4th+
-            let column = data.map(row => {
+            const column = data.map(row => {
                 if (!row[i]) {
                     row[i] = ""; // fill in empty rows with no value // TODO: determine if this is the best way, else, append commas
                 }
@@ -50,11 +50,11 @@ export class CSVItemParserPopulated implements Parser {
         // string will be default
         // Regex for number and boolean
         // No other types necessary
-        let numberRegEx = /^\d*.?\d*$/;
-        let booleanRegEx = /^true$|^false$|^t$|^f$|^0$|^1$/;
+        const numberRegEx = /^\d*.?\d*$/;
+        const booleanRegEx = /^true$|^false$|^t$|^f$|^0$|^1$/;
         let currentType = "number";
-        for (var i = 1; i < column.length; i++) {
-            let entry = column[i].toString();
+        for (let i = 1; i < column.length; i++) {
+            const entry = column[i].toString();
             if (entry.length != 0) {
                 if (currentType == "number") {
                     // check if still a number
@@ -76,15 +76,15 @@ export class CSVItemParserPopulated implements Parser {
     }
 
     parse(input: string): void {
-        var data = CSVPreProcessor.preprocess(CSVSplitter.split(input));
+        const data = CSVPreProcessor.preprocess(CSVSplitter.split(input));
         this.columns = data[0];
         this.collectColumnTypes(data, this.columns);
 
-        var i = 1;
+        const i = 1;
         // get first item
 
-        var items: IBasicItem[] = [];
-        var last_item : IBasicItem | null = null;
+        const items: IBasicItem[] = [];
+        const last_item : IBasicItem | null = null;
         this.parseHelper(data, i, items, last_item);    
     }
 
@@ -120,9 +120,9 @@ export class CSVItemParserPopulated implements Parser {
     }
     
     parseHelperItem(data: string[][], i: number, items: IBasicItem[], last_item: IBasicItem | null) {
-        let new_item = this.parseItemFromLine(data[i]);
+        const new_item = this.parseItemFromLine(data[i]);
         if (items.length > 0) {
-            let upper_item = items.pop() as IBasicItem;
+            const upper_item = items.pop() as IBasicItem;
             new_item.parentItem = upper_item!.id;
             if (!upper_item.containedItems) {
                 upper_item.containedItems = [];
@@ -141,8 +141,8 @@ export class CSVItemParserPopulated implements Parser {
     }
 
     parseItemFromLine(line: string[]) : IBasicItem {
-        let item = new BasicItem();
-        let id = new Types.ObjectId();
+        const item = new BasicItem();
+        const id = new Types.ObjectId();
         item.id = id;
 
         // get values from required columns.
@@ -155,7 +155,7 @@ export class CSVItemParserPopulated implements Parser {
         item.description = line[2].toString();
     
         // get custom fields.
-        for (var i = 3; i < line.length; i++) {
+        for (let i = 3; i < line.length; i++) {
             if (line[i].length > 0) {
                 if (this.columns[i] == "image") {
                     const imageId = this.imageNameIdMap.get(line[i]);
@@ -186,10 +186,10 @@ export class CSVItemParserPopulated implements Parser {
         if (!item.customFields) {
             item.customFields = [];
         }
-        let customField = new CustomField();
+        const customField = new CustomField();
         customField.id=i;
         customField.fieldName = this.columns[i].toString();
-        let dataType = this.columnTypes.get(this.columns[i]);
+        const dataType = this.columnTypes.get(this.columns[i]);
 
         if (dataType === undefined) {
             throw new Error();

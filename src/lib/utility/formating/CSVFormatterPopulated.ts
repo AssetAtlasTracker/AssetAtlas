@@ -24,7 +24,7 @@ export class CSVFormatterPopulated {
 
     formatTemplates(): string {
         let csv = "template name\n";
-        for (var i = 0; i < this.templates.length; i++) {
+        for (let i = 0; i < this.templates.length; i++) {
             csv += this.formatTemplate(this.templates[i]);
             if (i == this.templates.length - 1) {
                 csv = csv.substring(0, csv.length -1);
@@ -38,7 +38,7 @@ export class CSVFormatterPopulated {
         let secondline = "";
         firstline += template.name + ",";
         secondline += ",";
-        for (var i = 0; i < template.fields.length; i++) {
+        for (let i = 0; i < template.fields.length; i++) {
             const customField = template.fields[i];
             firstline += customField.fieldName;
             secondline += customField.dataType;
@@ -74,8 +74,8 @@ export class CSVFormatterPopulated {
 
     formatItemsHelper(itemTree: IBasicItemPopulated[], itemMap: Map<Types.ObjectId, IBasicItemPopulated>, columns: string[]) : string[] {
         let csv = "";
-        for (var i = 0; i < itemTree.length; i++) {
-            let item = itemTree[i];
+        for (let i = 0; i < itemTree.length; i++) {
+            const item = itemTree[i];
             columns = columns.concat(this.addColumns(item, columns));
             csv += this.formatItem(item, columns);
             if (item.containedItems !== undefined && item.containedItems.length !== 0) {
@@ -107,15 +107,15 @@ export class CSVFormatterPopulated {
         if (item.template) {
             templateName = item.template.name;
         }
-        let imageFile = item.image ? item.image!.filename : "";
+        const imageFile = item.image ? item.image!.filename : "";
         let line = item.name + "," + templateName + "," + item.description + ",";
         if (this.imageMap.size > 0) {
             line += imageFile + ",";
         }
         if (item.customFields) {
             const custom = this.getColumns(item);
-            for (var i = 3; i < columns.length; i++) {
-                let column = columns[i];
+            for (let i = 3; i < columns.length; i++) {
+                const column = columns[i];
                 if (custom.includes(column)) {
                     const index = custom.indexOf(column);
                     line += item.customFields![index].value;
@@ -123,10 +123,10 @@ export class CSVFormatterPopulated {
                 line += ",";
             }
         }
-        let match = line.match(/,*$/);
+        const match = line.match(/,*$/);
         if (match && match.length !== 0) {
-            let strMatch = match[0];
-            let index = line.lastIndexOf(strMatch);
+            const strMatch = match[0];
+            const index = line.lastIndexOf(strMatch);
             line = line.substring(0, index);
         }
 

@@ -57,27 +57,27 @@ describe("Testing Item Exporting", () => {
 	it("Should format one item with all types of data", async () => {
 		const _csvContent = `item name,template,description,amount,seller,sold\ncat,,a black cat,1,barbra,false`;
 
-		let firstItem = new BasicItem();
+		const firstItem = new BasicItem();
 		firstItem.id = 1;
 		firstItem.name = "cat";
 		firstItem.template = undefined;
 		firstItem.description = "a black cat"
 
-		let fieldMap = new Map<Types.ObjectId, ICustomField>();
+		const fieldMap = new Map<Types.ObjectId, ICustomField>();
 		firstItem.customFields = [];
-		let amountField = new CustomField();
+		const amountField = new CustomField();
 		amountField.id = 20;
 		amountField.fieldName = "amount";
 		amountField.dataType = "number";
 		fieldMap.set(amountField.id, amountField);
 		firstItem.customFields.push({ field: amountField.id, value: "1" });
-		let sellerField = new CustomField();
+		const sellerField = new CustomField();
 		sellerField.id = 21;
 		sellerField.fieldName = "seller";
 		sellerField.dataType = "string";
 		fieldMap.set(sellerField.id, sellerField);
 		firstItem.customFields.push({ field: sellerField.id, value: "barbra" });
-		let soldField = new CustomField();
+		const soldField = new CustomField();
 		soldField.id = 22;
 		soldField.fieldName = "sold";
 		soldField.dataType = "boolean";
@@ -86,7 +86,7 @@ describe("Testing Item Exporting", () => {
 
 		const item = firstItem as unknown as IBasicItemPopulated;
 
-		let itemMap = new Map<Types.ObjectId, IBasicItemPopulated>();
+		const itemMap = new Map<Types.ObjectId, IBasicItemPopulated>();
 		itemMap.set(item._id, item);
 
 		const _formatter = new CSVFormatterPopulated([item], [], [item], []);
