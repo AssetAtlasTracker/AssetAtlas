@@ -8,7 +8,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
     if (!name || !fields) {
       return json({ 
-        message: 'must have a name and fields' 
+        message: 'Failed to create template: missing name and/or fields' 
       }, { status: 400 });
     }
 
