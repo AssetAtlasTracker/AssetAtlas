@@ -1,9 +1,9 @@
-import type {ITemplatePopulated } from "../../models/template.js";
+import type {ITemplatePopulated } from "$lib/server/db/models/template.js";
 import { CSVTemplateParser } from "./CSVTemplateParser.js";
 import { CSVPreProcessor } from "../CSVPreProcessor.js";
 import { EntityAdder } from "../EntityAdder.js";
 import { CSVItemParserPopulated } from "./CSVItemParserPopulated.js";
-import Template from "../../models/template.js";
+import Template from "$lib/server/db/models/template.js";
 
 export class ParserManager {
 
