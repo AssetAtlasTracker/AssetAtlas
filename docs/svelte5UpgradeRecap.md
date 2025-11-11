@@ -18,7 +18,7 @@ Most other files were moved somewhere within the `/src/lib` directory. These fil
 
 ## Syntax Changes
 
-Svelte 5 has introduced [runes](https://svelte.dev/docs/svelte/what-are-runes), and many old features now use some version of this feature. Fortunately, files can run in legacy mode which allows Svelte 4 syntax to still be valid. Rune mode and legacy mode are separate, which means a file can either use the old Svelte 4 syntax or the new rune system,**but not both**. File A can be in legacy mode while we update File B to runes. We cannot have File B use both legacy syntax and runes.
+Svelte 5 has introduced [runes](https://svelte.dev/docs/svelte/what-are-runes), and many old features now use some version of this feature. Fortunately, files can run in legacy mode which allows Svelte 4 syntax to still be valid. Rune mode and legacy mode are separate, which means a file can either use the old Svelte 4 syntax or the new rune system, **but not both**. File A can be in legacy mode while we update File B to runes. We cannot have File B use both legacy syntax and runes.
 
 Our project is currently completely in legacy mode. Our goal should be to steadily update old files to the new rune syntax, which we can do on a file-by-file basis.
 
