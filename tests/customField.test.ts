@@ -181,11 +181,14 @@ describe('CustomField API', () => {
 			params: { id: invalidId }
 		});
 
-		const response = await getCustomFieldByIdHandler(event);
-		const body = await response.json();
-
-		expect(response.status).toBe(400);
-		expect(body.message).toBe('Invalid ID format');
+		try {
+			await getCustomFieldByIdHandler(event);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(400);
+			expect(err.body?.message).toBe('Invalid ID format');
+		}
 	});
 
 	it('should return a 404 error for a non-existent ID', async () => {
@@ -197,11 +200,14 @@ describe('CustomField API', () => {
 			params: { id: nonExistentId }
 		});
 
-		const response = await getCustomFieldByIdHandler(event);
-		const body = await response.json();
-
-		expect(response.status).toBe(404);
-		expect(body.message).toBe('Custom field not found');
+		try {
+			await getCustomFieldByIdHandler(event);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(404);
+			expect(err.body?.message).toBe('Custom field not found');
+		}
 	});
 
 });

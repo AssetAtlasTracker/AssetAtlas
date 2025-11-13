@@ -123,13 +123,18 @@ describe('Template API', () => {
 			url: 'http://localhost/api/templates/createTemplate',
 			body: templateData
 		});
-		const response = await createTemplateHandler(createEvent);
-		expect(response.status).toBe(400);
-		const responseBody = await response.json();
-		expect(responseBody.message).toBe('Failed to create template: missing name and/or fields');
+		
+		try {
+			await createTemplateHandler(createEvent);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(400);
+			expect(err.body?.message).toBe('Failed to create template: missing name and/or fields');
+		}
 	});
 
-	it('should fail to create a template when no fields are provided', async () => {
+	it('should fail to create a template when a duplicate template name is used', async () => {
 		const templateData = {
 			name: 'Test Template'
 		};
@@ -139,10 +144,15 @@ describe('Template API', () => {
 			url: 'http://localhost/api/templates/createTemplate',
 			body: templateData
 		});
-		const response = await createTemplateHandler(createEvent);
-		expect(response.status).toBe(400);
-		const responseBody = await response.json();
-		expect(responseBody.message).toBe('Failed to create template: missing name and/or fields');
+		
+		try {
+			await createTemplateHandler(createEvent);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(400);
+			expect(err.body?.message).toBe('Failed to create template: missing name and/or fields');
+		}
 	});
 
 	it('should fail to create a template when a duplicate template name is used', async () => {
@@ -172,8 +182,11 @@ describe('Template API', () => {
 			url: 'http://localhost/api/templates/createTemplate',
 			body: templateData2
 		});
-		const secondResponse = await createTemplateHandler(createEvent2);
-		expect(secondResponse.status).toBe(500);
+		
+		// MongoDB will throw a duplicate key error
+		await expect(async () => {
+			await createTemplateHandler(createEvent2);
+		}).rejects.toThrow();
 	});
 
 	it('should fetch all templates with populated fields', async () => {
@@ -227,10 +240,14 @@ describe('Template API', () => {
 			url: 'http://localhost/api/templates/getFields/invalidName',
 			params: { templateName: 'invalidName' }
 		});
-		const response = await getFieldsByNameHandler(getEvent);
-		expect(response.status).toBe(404);
-		const responseBody = await response.json();
-		expect(responseBody.message).toBe('Template not found');
+		try {
+			await getFieldsByNameHandler(getEvent);
+			expect.fail('Should have thrown an error');
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(404);
+			expect(err.body?.message).toBe('Template not found');
+		}
 	});
 
 	it('should return all templates if no search query is provided', async () => {

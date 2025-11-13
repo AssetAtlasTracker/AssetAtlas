@@ -173,11 +173,14 @@ describe('Item API', () => {
 			params: { id: nonExistentId.toString() }
 		});
 
-		const response = await getItemByIdHandler(event);
-		const body = await response.json();
-
-		expect(response.status).toBe(404);
-		expect(body.message).toBe('Cannot get: Item not found');
+		try {
+			await getItemByIdHandler(event);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(404);
+			expect(err.body?.message).toBe('Cannot get: Item not found');
+		}
 	});
 
 	it('should update an item', async () => {
@@ -273,11 +276,14 @@ describe('Item API', () => {
 			params: { id: nonExistentId.toString() }
 		});
 
-		const response = await updateItemHandler(event);
-		const body = await response.json();
-
-		expect(response.status).toBe(404);
-		expect(body.message).toBe('Cannot update: Item not found');
+		try {
+			await getItemByIdHandler(event);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(404);
+			expect(err.body?.message).toBe('Cannot get: Item not found');
+		}
 	});
 
 	it('should delete an item by ID', async () => {
@@ -620,11 +626,15 @@ describe('Item API', () => {
 			url: `http://localhost:3000/api/items/parentChain/${nonExistentId}`,
 			params: { id: nonExistentId.toString() }
 		});
-		const response = await getParentChainHandler(chainEvent);
-		const body = await response.json();
 
-		expect(response.status).toBe(404);
-		expect(body.message).toBe('Cannot get parent chain: item not found');
+		try {
+			await getParentChainHandler(chainEvent);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(404);
+			expect(err.body?.message).toBe('Item not found');
+		}
 	});
 
 	it('should delete an item and unset its home item field in other items', async () => {

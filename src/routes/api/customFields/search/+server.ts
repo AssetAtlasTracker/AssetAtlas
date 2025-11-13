@@ -8,24 +8,19 @@ import Fuse from 'fuse.js';
 export const GET: RequestHandler = async ({ url }) => {
   const fieldName = url.searchParams.get('fieldName');
 
-  try {
-    const customFields = await CustomField.find({}).exec();
+  const customFields = await CustomField.find({}).exec();
 
-    if (fieldName) {
-      const fuse = new Fuse(customFields, {
-        keys: ['fieldName'],
-        threshold: 0.3,
-      });
+  if (fieldName) {
+    const fuse = new Fuse(customFields, {
+      keys: ['fieldName'],
+      threshold: 0.3,
+    });
 
-      const fuzzyResults = fuse.search(fieldName);
-      const resultFields = fuzzyResults.map(result => result.item);
+    const fuzzyResults = fuse.search(fieldName);
+    const resultFields = fuzzyResults.map(result => result.item);
 
-      return json(resultFields);
-    } else {
-      return json(customFields);
-    }
-  } catch (error) {
-    console.error('Error during custom field search:', error);
-    return json({ error: 'Failed to search custom fields' }, { status: 500 });
+    return json(resultFields);
+  } else {
+    return json(customFields);
   }
 };

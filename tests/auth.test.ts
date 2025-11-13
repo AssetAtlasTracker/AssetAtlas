@@ -175,11 +175,15 @@ describe('Authentication API', () => {
 			url: 'http://localhost:3000/api/auth/register'
 		});
 
-		const response = await registerHandler(secondEvent);
-		const body = await response.json();
-
-		expect(response.status).toBe(409);
-		expect(body).toHaveProperty('message', 'Username already exists');
+		
+		try {
+			await registerHandler(secondEvent);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(409);
+			expect(err.body?.message).toBe('Username already exists');
+		}
 	});
 
 	it('should login a user with correct credentials', async () => {
@@ -239,11 +243,14 @@ describe('Authentication API', () => {
 			url: 'http://localhost:3000/api/auth/login'
 		});
 
-		const response = await loginHandler(loginEvent);
-		const body = await response.json();
-
-		expect(response.status).toBe(401);
-		expect(body).toHaveProperty('message', 'Invalid credentials');
+		try {
+			await loginHandler(loginEvent);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(401);
+			expect(err.body?.message).toBe('Invalid credentials');
+		}
 	});
 
 	it('should access protected route with valid token from login', async () => {
@@ -521,10 +528,13 @@ describe('Authentication API', () => {
 			url: 'http://localhost:3000/api/auth/permissions'
 		});
 
-		const updateResponse = await permissionsHandler(updateEvent);
-		const updateBody = await updateResponse.json();
-
-		expect(updateResponse.status).toBe(400);
-		expect(updateBody).toHaveProperty('message', 'Cannot modify your own permission level');
+		try {
+			await permissionsHandler(updateEvent);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(400);
+			expect(err.body?.message).toBe('Cannot modify your own permission level');
+		}
 	});
 });

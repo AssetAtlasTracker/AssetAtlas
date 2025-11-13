@@ -126,10 +126,13 @@ describe('Images API', () => {
 			url: 'http://localhost:3000/api/images'
 		});
 
-		const uploadResponse = await uploadImagesHandler(event);
-		const body = await uploadResponse.json();
-
-		expect(uploadResponse.status).toBe(400);
-		expect(body.message).toBe('No files provided');
+		try {
+			await uploadImagesHandler(event);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(400);
+			expect(err.body?.message).toBe('No files provided');
+		}
 	});
 });

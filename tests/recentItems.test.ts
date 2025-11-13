@@ -134,10 +134,14 @@ describe('Recent Items Controller', () => {
 			url: 'http://localhost/api/recentItems/invalidType',
 			params: { type: 'invalidType' }
 		});
-		const recentsResponse = await getRecentsByTypeHandler(recentsEvent);
-		expect(recentsResponse.status).toBe(400);
-		const recentsBody = await recentsResponse.json();
-		expect(recentsBody.message).toBe('Invalid type parameter: invalidType');
+		try {
+			await getRecentsByTypeHandler(recentsEvent);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(400);
+			expect(err.body?.message).toBe('Invalid type parameter: invalidType');
+		}
 	});
 
 	it('should manually add a recent item', async () => {
@@ -171,10 +175,14 @@ describe('Recent Items Controller', () => {
 			url: 'http://localhost/api/recentItems/add',
 			body: itemInfo
 		});
-		const recentsAddResponse = await addManualRecentHandler(addEvent);
-		expect(recentsAddResponse.status).toBe(400);
-		const recentsBody = await recentsAddResponse.json();
-		expect(recentsBody.message).toBe('Invalid type parameter: invalidType');
+		try {
+			await addManualRecentHandler(addEvent);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(400);
+			expect(err.body?.message).toBe('Invalid type parameter: invalidType');
+		}
 	});
 });
 
