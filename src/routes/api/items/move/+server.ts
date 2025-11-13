@@ -3,8 +3,9 @@ import type { RequestHandler } from './$types';
 import BasicItem from '$lib/server/db/models/basicItem.js';
 
 export const POST: RequestHandler = async ({ request }) => {
-  const { itemId, newParentId } = await request.json();
-  
+  const formData = await request.formData();
+  const itemId = formData.get('itemId') as string;
+  const newParentId = formData.get('newParentId') as string;
   //Treat an empty string (or only whitespace) as no parent
   const newParent = newParentId && newParentId.trim() !== "" ? newParentId : null;
 
@@ -18,10 +19,8 @@ export const POST: RequestHandler = async ({ request }) => {
     const newParentItem = await BasicItem.findById(newParent).exec();
 
     if (!newParentItem) {
-      throw error(404, 'New parent item not found');
+      throw error(404, 'New parent item dockernot found');
     }
-
-    //self-reference and cyclic checks here based on newParent
   }
 
   item.parentItem = newParent;

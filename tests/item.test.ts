@@ -40,7 +40,7 @@ function createMockEvent(options: {
 			for (const [key, value] of Object.entries(options.body)) {
 				if (value !== undefined && value !== null) {
 					if (typeof value === 'object' && !Array.isArray(value)) {
-						formData.append(key, JSON.stringify(value));
+						formData.append(key, value.toString());
 					} else if (Array.isArray(value)) {
 						formData.append(key, JSON.stringify(value));
 					} else {
