@@ -61,12 +61,8 @@ describe("Testing Item Parsing", () => {
 				const fieldId = field.field;
 				expect(fieldId).toStrictEqual(amountField._id);
 			}
-			const _ids = fieldMap.keys();
-			const _idSTr = field.field.toHexString();
 			const fieldCustom = fieldMap.get(field.field.toHexString() as unknown as Types.ObjectId);
 			expect(fieldCustom).not.toBe(undefined);
-			const _parsedIds = itemParser.customFieldMap.keys();
-			const _parsedIdStr = parsedField.field.toHexString();
 			const parsedFieldCustom = itemParser.customFieldMap.get(parsedField.field.toHexString() as unknown as Types.ObjectId);
 			expect(parsedFieldCustom).not.toBe(undefined);
 			expect(parsedFieldCustom!.fieldName).toBe(fieldCustom!.fieldName);

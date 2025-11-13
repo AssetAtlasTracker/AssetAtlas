@@ -33,7 +33,6 @@
   let templateSuggestions: any[] = [];
   let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
   let selectedImage: File | null = null;
-  let removeExistingImage = false;
 
   const dispatch = createEventDispatcher();
 
@@ -139,7 +138,6 @@
     homeItemSuggestions = [];
     templateSuggestions = [];
     selectedImage = null;
-    removeExistingImage = false;
   }
 
   async function handleCreateItem() {
@@ -481,10 +479,9 @@
   }
 
   function handleImageChange(event: CustomEvent) {
-    const { selectedImage: newImage, removeExistingImage: remove } =
+    const { selectedImage: newImage } =
       event.detail;
     selectedImage = newImage;
-    removeExistingImage = remove;
   }
 
   async function loadRecentItems(type: string) {
@@ -520,12 +517,6 @@
   }
 
   async function handleCustomFieldFocus(index: number) {
-    if (!customFields[index].fieldName) {
-      customFields[index].suggestions = await loadRecentItems("customField");
-    }
-  }
-
-  async function handleCustomFieldClick(index: number) {
     if (!customFields[index].fieldName) {
       customFields[index].suggestions = await loadRecentItems("customField");
     }
@@ -681,7 +672,7 @@
               />
               {#if parentItemSuggestions.length > 0}
                 <ul class="suggestions suggestion-box">
-                  {#each parentItemSuggestions as item}
+                  {#each parentItemSuggestions as item (item.id)}
                     <button
                       class="suggestion-item"
                       type="button"
@@ -716,7 +707,7 @@
             />
             {#if homeItemSuggestions.length > 0}
               <ul class="suggestions suggestion-box">
-                {#each homeItemSuggestions as item}
+                {#each homeItemSuggestions as item (item.id)}
                   <button
                     class="suggestion-item"
                     type="button"
@@ -753,7 +744,7 @@
             />
             {#if templateSuggestions.length > 0}
               <ul class="suggestions suggestion-box">
-                {#each templateSuggestions as t}
+                {#each templateSuggestions as t (t.id)}
                   <button
                     class="suggestion-item"
                     type="button"
@@ -793,7 +784,7 @@
           +
         </button>
       </div>
-      {#each customFields as field, index}
+      {#each customFields as field, index (field.fieldId)}
         <CustomFieldPicker
           bind:field
           onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
@@ -803,7 +794,7 @@
           onDelete={() => removeCustomField(index)}
         >
           <svelte:fragment slot="suggestions">
-            {#each field.suggestions as suggestion}
+            {#each field.suggestions as suggestion (suggestion._id)}
               <button
                 class="suggestion-item"
                 type="button"

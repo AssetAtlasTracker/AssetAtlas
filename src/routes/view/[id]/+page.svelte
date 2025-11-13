@@ -14,6 +14,7 @@
   import { goto } from '$app/navigation';
   import { browser } from '$app/environment';
   import type { PageData } from './$types';
+  import { resolve } from "$app/paths";
   
   let { data }: { data: PageData } = $props();
   let item = $state(data.item);
@@ -57,13 +58,14 @@
       item = data;
       restart();
     } catch (err) {
+      console.error(err);
       item = null;
     }
   }
 
   function handleDelete() {
     deleteDialog?.close();
-    goto('/b');
+    goto(resolve('/'));
   }
 
   function onSearch(query: string) {}

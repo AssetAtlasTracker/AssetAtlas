@@ -55,8 +55,6 @@ function createMockEvent(options: {
 describe("Testing Item Exporting", () => {
 
 	it("Should format one item with all types of data", async () => {
-		const _csvContent = `item name,template,description,amount,seller,sold\ncat,,a black cat,1,barbra,false`;
-
 		const firstItem = new BasicItem();
 		firstItem.id = 1;
 		firstItem.name = "cat";
@@ -88,9 +86,6 @@ describe("Testing Item Exporting", () => {
 
 		const itemMap = new Map<Types.ObjectId, IBasicItemPopulated>();
 		itemMap.set(item._id, item);
-
-		const _formatter = new CSVFormatterPopulated([item], [], [item], []);
-
 	});
 
 	it("Should format an item with a subitem and export the content", async () => {
@@ -179,7 +174,6 @@ describe("Testing Item Exporting", () => {
 			const itemRoot = items.filter(item => { return item.parentItem == null });
 
 			const formatter = new CSVFormatterPopulated(items, templates, itemRoot, []);
-			const _tempContent = formatter.formatTemplates();
 			const itemContent = formatter.formatItems();
 
 			const csvContent = `item name,template,description,expiration date,weight,source,expired\nkitchen,,a place to cook food\n>\nfridge,,a place to put food\n>\nmaybe an apple,produce,a green sour thing,Jan 19th,20oz,tree?,true\n<\n<`;
@@ -189,7 +183,6 @@ describe("Testing Item Exporting", () => {
 			const exporter = new FileExporter();
 			await exporter.export(itemFile, path, itemContent.toString(), extension);
 
-			const _result2 = await loader.readFile(`${path}/${itemFile}${extension}`);
 			//expect(result2).toBe(csvContent);
 
 			await mongoose.connection.dropDatabase();

@@ -43,7 +43,7 @@ function createMockEvent(options: {
 		params: options.params || {},
 		url: new URL(options.url || 'http://localhost'),
 		locals: {},
-		cookies: {} as any,
+		cookies: {},
 		fetch: global.fetch,
 		getClientAddress: () => '127.0.0.1',
 		isDataRequest: false,
