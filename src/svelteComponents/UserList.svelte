@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { user } from '../stores/userStore.js';
-
+  import { login, getEditOnLogin, toggleEditOnLogin } from '../stores/loginStore.js';
   interface User {
     id: string;
     username: string;
@@ -123,6 +123,12 @@
     }
     return false;
   }
+
+  function toggleUserEditOnLogin() {
+    const current = getEditOnLogin();
+    toggleEditOnLogin(!current);
+  }
+
 </script>
 
 <div class="glass page-component max-w-3xl mx-auto">
@@ -132,7 +138,23 @@
     <div class="error-message mb-4 p-2 text-center">{updateError}</div>
   {/if}
 
-  {#if isLoading}
+  <div class="flex items-center justify-between mb-4 p-3 border-b border-gray-700">
+    <label class="text-sm font-medium" for="toggle-slider">Only edit if logged in</label>
+    <label class="relative inline-flex items-center cursor-pointer">
+      <input 
+        type="checkbox" 
+        id="toggle-slider" 
+        class="sr-only peer"
+        checked={getEditOnLogin()}
+        on:change={toggleUserEditOnLogin}
+      >
+      <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-600 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+    </label>
+  </div>
+
+   <div class="text-center py-4">User List WIP</div>
+
+  <!-- {#if isLoading}
     <div class="text-center py-4">Loading users...</div>
   {:else if error}
     <div class="error-message text-center py-4">{error}</div>
@@ -169,5 +191,5 @@
         {/each}
       </tbody>
     </table>
-  {/if}
+  {/if} -->
 </div>
