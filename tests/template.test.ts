@@ -13,7 +13,6 @@ import { PUT as editTemplateHandler } from '$routes/api/templates/editTemplate/[
 
 let mongoServer: MongoMemoryServer;
 
-// Helper function to create a mock RequestEvent for SvelteKit
 function createMockEvent(options: {
 	method?: string;
 	body?: Record<string, unknown>;
@@ -23,8 +22,7 @@ function createMockEvent(options: {
 }): RequestEvent {
 	const headers = new Headers(options.headers || {});
 	
-	// Templates use JSON, not FormData
-	let requestInit: RequestInit;
+	let requestInit;
 	if (options.body && (options.method === 'POST' || options.method === 'PUT' || options.method === 'PATCH')) {
 		headers.set('content-type', 'application/json');
 		requestInit = { 
@@ -69,7 +67,6 @@ afterAll(async () => {
 	await mongoServer.stop();
 });
 
-// Clear the database before each test to ensure isolation
 beforeEach(async () => {
 	await Template.deleteMany({});
 	await RecentItems.deleteMany({});
@@ -83,13 +80,12 @@ beforeEach(async () => {
 
 describe('Template API', () => {
 	it('should create a new template with custom fields', async () => {
-		// Create CustomField documents
 		const customField1 = await CustomField.create({ fieldName: 'field1', dataType: 'string' });
 		const customField2 = await CustomField.create({ fieldName: 'field2', dataType: 'number' });
 
 		const templateData = {
 			name: 'Test Template',
-			fields: [customField1._id, customField2._id], // Referencing CustomField ObjectIds
+			fields: [customField1._id, customField2._id],
 		};
 
 		const createEvent = createMockEvent({
@@ -102,7 +98,6 @@ describe('Template API', () => {
 		const responseBody = await response.json();
 		expect(responseBody.name).toBe(templateData.name);
 
-		// Verify that the fields are populated correctly
 		const createdTemplate = await Template.findOne({ name: 'Test Template' }).populate<{ fields: CustomFieldType[] }>('fields').exec();
 		expect(createdTemplate).not.toBeNull();
 		expect(createdTemplate?.fields).toHaveLength(2);
@@ -127,7 +122,6 @@ describe('Template API', () => {
 		try {
 			await createTemplateHandler(createEvent);
 			expect.fail('Should have thrown an error');
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (err: any) {
 			expect(err.status).toBe(400);
 			expect(err.body?.message).toBe('Failed to create template: missing name and/or fields');
@@ -148,7 +142,6 @@ describe('Template API', () => {
 		try {
 			await createTemplateHandler(createEvent);
 			expect.fail('Should have thrown an error');
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (err: any) {
 			expect(err.status).toBe(400);
 			expect(err.body?.message).toBe('Failed to create template: missing name and/or fields');
@@ -183,17 +176,14 @@ describe('Template API', () => {
 			body: templateData2
 		});
 		
-		// MongoDB will throw a duplicate key error
 		await expect(async () => {
 			await createTemplateHandler(createEvent2);
 		}).rejects.toThrow();
 	});
 
 	it('should fetch all templates with populated fields', async () => {
-		// Create CustomField documents
 		const customField = await CustomField.create({ fieldName: 'field1', dataType: 'string' });
 
-		// Create a Template document
 		await Template.create({ name: 'Test Template', fields: [customField._id] });
 
 		const getEvent = createMockEvent({
@@ -205,15 +195,13 @@ describe('Template API', () => {
 		const responseBody = await response.json();
 		expect(responseBody.length).toBeGreaterThanOrEqual(1);
 		expect(responseBody[0].name).toBe('Test Template');
-		expect(responseBody[0].fields[0].fieldName).toBe('field1'); // Populated field check
+		expect(responseBody[0].fields[0].fieldName).toBe('field1');
 	});
 
 	it('should fetch the fields of a specific template by name', async () => {
-		// Create CustomField documents
 		const customField1 = await CustomField.create({ fieldName: 'field1', dataType: 'string' });
 		const customField2 = await CustomField.create({ fieldName: 'field2', dataType: 'number' });
 
-		// Create a Template document
 		const template = await Template.create({
 			name: 'Fields Test Template',
 			fields: [customField1._id, customField2._id],
@@ -243,7 +231,6 @@ describe('Template API', () => {
 		try {
 			await getFieldsByNameHandler(getEvent);
 			expect.fail('Should have thrown an error');
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (err: any) {
 			expect(err.status).toBe(404);
 			expect(err.body?.message).toBe('Template not found');
@@ -251,11 +238,9 @@ describe('Template API', () => {
 	});
 
 	it('should return all templates if no search query is provided', async () => {
-		// Create CustomField documents
 		const customField1 = await CustomField.create({ fieldName: 'field1', dataType: 'string' });
 		const customField2 = await CustomField.create({ fieldName: 'field2', dataType: 'number' });
 
-		// Create Template documents
 		await Template.create({ name: 'Template A', fields: [customField1._id] });
 		await Template.create({ name: 'Template B', fields: [customField2._id] });
 
@@ -266,17 +251,15 @@ describe('Template API', () => {
 		const response = await getTemplatesHandler(searchEvent);
 		expect(response.status).toBe(200);
 		const responseBody = await response.json();
-		expect(responseBody.length).toBe(2); // Two templates in the database
+		expect(responseBody.length).toBe(2); 
 		expect(responseBody[0].name).toBe('Template A');
 		expect(responseBody[1].name).toBe('Template B');
 	});
 
 	it('should return matching templates for a fuzzy search query', async () => {
-		// Create CustomField documents
 		const customField1 = await CustomField.create({ fieldName: 'field1', dataType: 'string' });
 		const customField2 = await CustomField.create({ fieldName: 'field2', dataType: 'number' });
 
-		// Create Template documents
 		await Template.create({ name: 'Template Alpha', fields: [customField1._id] });
 		await Template.create({ name: 'Template Beta', fields: [customField2._id] });
 
@@ -287,7 +270,7 @@ describe('Template API', () => {
 		const response = await getTemplatesHandler(searchEvent);
 		expect(response.status).toBe(200);
 		const responseBody = await response.json();
-		expect(responseBody.length).toBe(1); // Only one template matches "Alph"
+		expect(responseBody.length).toBe(1);
 		expect(responseBody[0].name).toBe('Template Alpha');
 	});
 
@@ -311,17 +294,15 @@ describe('Template API', () => {
 	});
 
 	it('should edit an existing template', async () => {
-		// Create CustomField documents
 		const customField1 = await CustomField.create({ fieldName: 'field1', dataType: 'string' });
 		const customField2 = await CustomField.create({ fieldName: 'field2', dataType: 'number' });
 		const customField3 = await CustomField.create({ fieldName: 'field3', dataType: 'boolean' });
 
-		// Create a Template document
 		const template = await Template.create({ name: 'Original Template', fields: [customField1._id, customField2._id] });
 
 		const updatedTemplateData = {
 			name: 'Updated Template',
-			fields: [customField2._id, customField3._id], // Update fields
+			fields: [customField2._id, customField3._id],
 		};
 
 		const editEvent = createMockEvent({
@@ -335,7 +316,6 @@ describe('Template API', () => {
 		const responseBody = await response.json();
 		expect(responseBody.name).toBe(updatedTemplateData.name);
 
-		// Verify that the fields are updated correctly
 		const updatedTemplate = await Template.findById(template._id).populate<{ fields: CustomFieldType[] }>('fields').exec();
 		expect(updatedTemplate).not.toBeNull();
 		expect(updatedTemplate?.fields).toHaveLength(2);

@@ -25,7 +25,6 @@ import { POST as uploadImagesHandler } from '$routes/api/images/+server.js';
 
 let mongoServer: MongoMemoryServer;
 
-// Helper function to create a mock RequestEvent for SvelteKit
 function createMockEvent(options: {
 	method?: string;
 	formData?: FormData;
@@ -34,7 +33,6 @@ function createMockEvent(options: {
 }): RequestEvent {
 	const headers = new Headers(options.headers || {});
 	
-	// Create a request with FormData
 	const request = new Request(options.url || 'http://localhost:3000/api/test', {
 		method: options.method || 'POST',
 		headers,
@@ -96,7 +94,6 @@ afterEach(() => {
 
 describe('Images API', () => {
 	it('Should upload images', async () => {
-		// Create mock files
 		const formData = new FormData();
 		const file1 = new File([Buffer.from('fake-image-data')], 'fake-image.jpg', { type: 'image/jpeg' });
 		const file2 = new File([Buffer.from('fake-image-data')], 'fake-image2.jpg', { type: 'image/jpeg' });

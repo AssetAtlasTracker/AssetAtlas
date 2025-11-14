@@ -8,30 +8,30 @@ export interface ICustomField extends Document {
 }
 
 const CustomFieldSchema = new Schema<ICustomField>({
-  fieldName: { type: String, required: true },
-  dataType: { 
-    type: String, 
-    required: true,
-    enum: ['string', 'number', 'boolean', 'date'] 
-  },
-  createdAt: { type: Date, default: Date.now },
+	fieldName: { type: String, required: true },
+	dataType: { 
+		type: String, 
+		required: true,
+		enum: ['string', 'number', 'boolean', 'date'] 
+	},
+	createdAt: { type: Date, default: Date.now },
 });
 
 CustomFieldSchema.post('save', async function() {
-  await addToRecents('customField', this._id as Types.ObjectId);
+	await addToRecents('customField', this._id as Types.ObjectId);
 });
 
 CustomFieldSchema.pre('findOneAndDelete', async function (next) {
-  const fieldId = this.getQuery()._id;
-  if (!fieldId) return next();
+	const fieldId = this.getQuery()._id;
+	if (!fieldId) return next();
 
-  try {
-    await removeFromRecents('customField', fieldId);
-    next();
-  } catch (err) {
-    console.error('Error in pre-delete hook:', err);
-    next(err as CallbackError);
-  }
+	try {
+		await removeFromRecents('customField', fieldId);
+		next();
+	} catch (err) {
+		console.error('Error in pre-delete hook:', err);
+		next(err as CallbackError);
+	}
 });
 
 const CustomField = mongoose.models.CustomField || model<ICustomField>('CustomField', CustomFieldSchema);

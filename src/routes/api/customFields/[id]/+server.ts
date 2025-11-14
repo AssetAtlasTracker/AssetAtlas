@@ -4,17 +4,17 @@ import mongoose from 'mongoose';
 import CustomField from '$lib/server/db/models/customField.js';
 
 export const GET: RequestHandler = async ({ params }) => {
-  const { id } = params;
+	const { id } = params;
 
-  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-    throw error(400, 'Invalid ID format');
-  }
+	if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+		throw error(400, 'Invalid ID format');
+	}
 
-  const field = await CustomField.findById(id).exec();
+	const field = await CustomField.findById(id).exec();
   
-  if (!field) {
-    throw error(404, 'Custom field not found');
-  }
+	if (!field) {
+		throw error(404, 'Custom field not found');
+	}
 
-  return json(field);
+	return json(field);
 };

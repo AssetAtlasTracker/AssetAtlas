@@ -11,46 +11,46 @@ interface JWTPayload {
 }
 
 export function verifyToken(token: string): JWTPayload | null {
-  try {
-    return jwt.verify(token, JWT_SECRET) as JWTPayload;
-  } catch (err) {
-    return null;
-  }
+	try {
+		return jwt.verify(token, JWT_SECRET) as JWTPayload;
+	} catch (err) {
+		return null;
+	}
 }
 
 export function requireAuth(event: RequestEvent): JWTPayload {
-  const authHeader = event.request.headers.get('authorization');
+	const authHeader = event.request.headers.get('authorization');
   
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw error(401, 'Authentication required');
-  }
+	if (!authHeader || !authHeader.startsWith('Bearer ')) {
+		throw error(401, 'Authentication required');
+	}
 
-  const token = authHeader.substring(7); // Remove 'Bearer '
-  const payload = verifyToken(token);
+	const token = authHeader.substring(7); // Remove 'Bearer '
+	const payload = verifyToken(token);
 
-  if (!payload) {
-    throw error(401, 'Invalid or expired token');
-  }
+	if (!payload) {
+		throw error(401, 'Invalid or expired token');
+	}
 
-  return payload;
+	return payload;
 }
 
 export function requireAdmin(event: RequestEvent): JWTPayload {
-  const user = requireAuth(event);
+	const user = requireAuth(event);
 
-  if (user.permissionLevel < 10) {
-    throw error(403, 'Admin access required');
-  }
+	if (user.permissionLevel < 10) {
+		throw error(403, 'Admin access required');
+	}
 
-  return user;
+	return user;
 }
 
 export function requirePermissionLevel(event: RequestEvent, minLevel: number): JWTPayload {
-  const user = requireAuth(event);
+	const user = requireAuth(event);
 
-  if (user.permissionLevel < minLevel) {
-    throw error(403, `Permission level ${minLevel} or higher required`);
-  }
+	if (user.permissionLevel < minLevel) {
+		throw error(403, `Permission level ${minLevel} or higher required`);
+	}
 
-  return user;
+	return user;
 }

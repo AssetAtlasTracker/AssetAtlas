@@ -1,40 +1,65 @@
-import { fileURLToPath } from 'node:url';
-import { includeIgnoreFile } from '@eslint/compat';
-import js from '@eslint/js';
-import svelte from 'eslint-plugin-svelte';
-import { defineConfig } from 'eslint/config';
-import globals from 'globals';
-import ts from 'typescript-eslint';
-import svelteConfig from './svelte.config.js';
+import pluginJs from "@eslint/js";
+import tseslint from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
+import sveltePlugin from "eslint-plugin-svelte";
+import globals from "globals";
+import svelteParser from "svelte-eslint-parser";
 
-const gitignorePath = fileURLToPath(new URL('./.gitignore', import.meta.url));
-
-export default defineConfig(
-	includeIgnoreFile(gitignorePath),
-	js.configs.recommended,
-	...ts.configs.recommended,
-	...svelte.configs.recommended,
+export default [
 	{
+		files: ["**/*.{js,mjs,cjs,ts}"],
 		languageOptions: {
-			globals: { ...globals.browser, ...globals.node }
+			parser: tsParser,
+			parserOptions: {
+				ecmaVersion: 2020,
+				sourceType: "module",
+			},
+			globals: {
+				...globals.browser,
+				...globals.jest,
+				...globals.node,
+			},
 		},
-		rules: { // typescript-eslint strongly recommend that you do not use the no-undef lint rule on TypeScript projects.
-		// see: https://typescript-eslint.io/troubleshooting/faqs/eslint/#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors
-		"no-undef": 'off' }
+		plugins: {
+			"@typescript-eslint": tseslint,
+		},
+		rules: {
+			...pluginJs.configs.recommended.rules,
+			...tseslint.configs.recommended.rules,
+			"@typescript-eslint/no-unused-vars": [
+				"warn",
+				{ "varsIgnorePattern": "^_", "argsIgnorePattern": "^_" }
+			],
+			"@typescript-eslint/no-explicit-any": "warn",
+			"indent": ["warn", "tab"]
+		},
 	},
 	{
-		files: [
-			'**/*.svelte',
-			'**/*.svelte.ts',
-			'**/*.svelte.js'
-		],
+		files: ["**/*.svelte"],
 		languageOptions: {
+			parser: svelteParser,
 			parserOptions: {
-				projectService: true,
-				extraFileExtensions: ['.svelte'],
-				parser: ts.parser,
-				svelteConfig
-			}
-		}
-	}
-);
+				parser: tsParser,
+				ecmaVersion: 2020,
+				sourceType: "module",
+			},
+			globals: {
+				...globals.browser,
+			},
+		},
+		plugins: {
+			svelte: sveltePlugin,
+			"@typescript-eslint": tseslint,
+		},
+		rules: {
+			...sveltePlugin.configs.recommended.rules,
+			...tseslint.configs.recommended.rules,
+			"@typescript-eslint/no-unused-vars": [
+				"warn",
+				{ "varsIgnorePattern": "^_", "argsIgnorePattern": "^_" }
+			],
+			"@typescript-eslint/no-explicit-any": "warn",
+			"svelte/indent": ["warn", { "indent": "tab" }]
+		},
+	},
+];

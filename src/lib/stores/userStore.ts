@@ -8,10 +8,10 @@ export interface UserState {
 }
 
 const initialState: UserState = {
-  isLoggedIn: false,
-  username: '',
-  permissionLevel: 0,
-  id: ''
+	isLoggedIn: false,
+	username: '',
+	permissionLevel: 0,
+	id: ''
 };
 
 export const user = writable<UserState>(initialState);

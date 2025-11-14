@@ -1,91 +1,91 @@
 <script lang="ts">
-  import TemplateList from "$lib/components/TemplateList.svelte";
-  import TopBar from "$lib/components/TopBar.svelte";
-  import Menu from "$lib/components/Menu.svelte";
-  import DeleteTemplate from "$lib/components/DeleteTemplate.svelte";
-  import CreateTemplate from "$lib/components/CreateTemplate.svelte";
-  import Dialog from "$lib/components/Dialog.svelte";
-  import type { ITemplatePopulated } from "$lib/server/db/models/template.js";
-  import { onMount } from "svelte";
+	import TemplateList from "$lib/components/TemplateList.svelte";
+	import TopBar from "$lib/components/TopBar.svelte";
+	import Menu from "$lib/components/Menu.svelte";
+	import DeleteTemplate from "$lib/components/DeleteTemplate.svelte";
+	import CreateTemplate from "$lib/components/CreateTemplate.svelte";
+	import Dialog from "$lib/components/Dialog.svelte";
+	import type { ITemplatePopulated } from "$lib/server/db/models/template.js";
+	import { onMount } from "svelte";
 
-  import "$lib/styles/main.css";
+	import "$lib/styles/main.css";
 
 
-  let templates: ITemplatePopulated[] = [];
-  let menu: HTMLDialogElement;
-  let templateDialog: HTMLDialogElement | undefined;
+	let templates: ITemplatePopulated[] = [];
+	let menu: HTMLDialogElement;
+	let templateDialog: HTMLDialogElement | undefined;
 
-  async function fetchTemplates() {
-    try {
-      const response = await fetch(`/api/templates`);
+	async function fetchTemplates() {
+		try {
+			const response = await fetch(`/api/templates`);
 
-      if (!response.ok) {
-        throw new Error(
-          `Failed to fetch templates: ${response.status} ${response.statusText}`,
-        );
-      }
+			if (!response.ok) {
+				throw new Error(
+					`Failed to fetch templates: ${response.status} ${response.statusText}`,
+				);
+			}
 
-      const data: ITemplatePopulated[] = await response.json();
-      templates = data;
-    } catch (err) {
-      console.error("Error fetching templates:", err);
-      templates = [];
-    }
-  }
+			const data: ITemplatePopulated[] = await response.json();
+			templates = data;
+		} catch (err) {
+			console.error("Error fetching templates:", err);
+			templates = [];
+		}
+	}
 
-  let showCreateTemplateDialog = false;
+	let showCreateTemplateDialog = false;
 
-  $: if (showCreateTemplateDialog && templateDialog) {
-    templateDialog.showModal();
-  }
+	$: if (showCreateTemplateDialog && templateDialog) {
+		templateDialog.showModal();
+	}
 
-  function closeCreateDialog() {
-    showCreateTemplateDialog = false;
-    templateDialog?.close();
-  }
+	function closeCreateDialog() {
+		showCreateTemplateDialog = false;
+		templateDialog?.close();
+	}
 
-  function handleTemplateCreated() {
-    closeCreateDialog();
-    fetchTemplates();
-  }
+	function handleTemplateCreated() {
+		closeCreateDialog();
+		fetchTemplates();
+	}
 
-  fetchTemplates();
+	fetchTemplates();
 
-  function onSearch(query: string) {}
+	function onSearch(query: string) {}
 
-  function handleTemplateDeleted() {
-    fetchTemplates();
-  }
+	function handleTemplateDeleted() {
+		fetchTemplates();
+	}
 
-  onMount(() => {
-    document.title = "Templates - AssetAtlas";
-    fetchTemplates();
-  });
+	onMount(() => {
+		document.title = "Templates - AssetAtlas";
+		fetchTemplates();
+	});
 </script>
 
 <TopBar searchQuery="" {onSearch} {menu}></TopBar>
 
 <div class="page-with-topbar">
-  <Menu bind:menu />
-  <TemplateList {templates} />
+	<Menu bind:menu />
+	<TemplateList {templates} />
 
-  <button
-    class="add-button text-icon font-bold shadow"
-    on:click={() => {
-      showCreateTemplateDialog = true;
-    }}
-  >
-    +
-  </button>
-  {#if showCreateTemplateDialog}
-    <Dialog
-      bind:dialog={templateDialog}
-      on:close={closeCreateDialog}
-    >
-      <CreateTemplate
-        on:templateCreated={handleTemplateCreated}
-        on:close={closeCreateDialog}
-      />
-    </Dialog>
-  {/if}
+	<button
+		class="add-button text-icon font-bold shadow"
+		on:click={() => {
+			showCreateTemplateDialog = true;
+		}}
+	>
+		+
+	</button>
+	{#if showCreateTemplateDialog}
+		<Dialog
+			bind:dialog={templateDialog}
+			on:close={closeCreateDialog}
+		>
+			<CreateTemplate
+				on:templateCreated={handleTemplateCreated}
+				on:close={closeCreateDialog}
+			/>
+		</Dialog>
+	{/if}
 </div>

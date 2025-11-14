@@ -7,9 +7,9 @@ import { FileExporter } from "./file/FileExporter.js";
 
 
 export function prod() {
-    return ParserManager;
+	return ParserManager;
 }
 
 export function test() {
-    return {itemParser: CSVItemParserPopulated, templateParser: CSVTemplateParser, formatter: CSVFormatterPopulated, loader: FileLoader, exporter: FileExporter};
+	return {itemParser: CSVItemParserPopulated, templateParser: CSVTemplateParser, formatter: CSVFormatterPopulated, loader: FileLoader, exporter: FileExporter};
 }

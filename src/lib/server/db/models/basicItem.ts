@@ -54,152 +54,152 @@ export interface IBasicItemPopulated {
   };
 }
 
-  const BasicItemSchema: Schema = new Schema({
-    //id: { type: Number, unique: true }, //we dont need this because mongodb default _id works
-    name: { type: String, required: true },
-    description: { type: String, required: false },
-    // createdAt: { type: Date, required: true },
-    // updatedAt: { type: Date, required: true }, 
-    tags: { type: [String] },
-    containedItems: [{ type: Schema.Types.ObjectId, ref: 'BasicItem'}],
-    parentItem: { type: Schema.Types.ObjectId, ref: 'BasicItem', required: false},
-    homeItem: { type: Schema.Types.ObjectId, ref: 'BasicItem', required: false},
-    template: {type: Schema.Types.ObjectId, ref: "Template", required: false},
-    customFields: [
-      {
-        field: {type: Schema.Types.ObjectId, ref: "CustomField", required: true },
-        value: Schema.Types.Mixed,
-      },
-    ],
-    itemHistory: [
-      {
-        location: {type: Schema.Types.ObjectId, ref: 'BasicItem', required: false},
-        timestamp: {type: Date, required: true},
-      },
-    ],
-    image: { type: Schema.Types.ObjectId, ref: 'uploads.files', required: false },
-  }, 
-    {   
-      timestamps: true, //this should mean we dont need to state createdAt and updatedAt feilds
-      strict: false,
-  }
+const BasicItemSchema: Schema = new Schema({
+	//id: { type: Number, unique: true }, //we dont need this because mongodb default _id works
+	name: { type: String, required: true },
+	description: { type: String, required: false },
+	// createdAt: { type: Date, required: true },
+	// updatedAt: { type: Date, required: true }, 
+	tags: { type: [String] },
+	containedItems: [{ type: Schema.Types.ObjectId, ref: 'BasicItem'}],
+	parentItem: { type: Schema.Types.ObjectId, ref: 'BasicItem', required: false},
+	homeItem: { type: Schema.Types.ObjectId, ref: 'BasicItem', required: false},
+	template: {type: Schema.Types.ObjectId, ref: "Template", required: false},
+	customFields: [
+		{
+			field: {type: Schema.Types.ObjectId, ref: "CustomField", required: true },
+			value: Schema.Types.Mixed,
+		},
+	],
+	itemHistory: [
+		{
+			location: {type: Schema.Types.ObjectId, ref: 'BasicItem', required: false},
+			timestamp: {type: Date, required: true},
+		},
+	],
+	image: { type: Schema.Types.ObjectId, ref: 'uploads.files', required: false },
+}, 
+{   
+	timestamps: true, //this should mean we dont need to state createdAt and updatedAt feilds
+	strict: false,
+}
 );
 
 //handles item update stuff and keeping parent containers in check
 BasicItemSchema.pre('save', async function (next) {
-  const item = this as unknown as IBasicItem;
+	const item = this as unknown as IBasicItem;
 
-  const BasicItem = model<IBasicItem>('BasicItem');
+	const BasicItem = model<IBasicItem>('BasicItem');
 
-  //Prevent self-referencing
-  if (item.parentItem && item._id && item.parentItem.equals(item._id)) {
-    return next(new Error("An item cannot be its own parent."));
-  }
+	//Prevent self-referencing
+	if (item.parentItem && item._id && item.parentItem.equals(item._id)) {
+		return next(new Error("An item cannot be its own parent."));
+	}
 
-  //Prevent cyclic nesting
-  if (item.parentItem) {
-    let current = await BasicItem.findById(item.parentItem).exec();
-    while (current) {
-      if (current._id.equals(item._id)) {
-        return next(new Error("Cyclic nesting detected: an item cannot be nested inside one of its descendants."));
-      }
-      if (!current.parentItem) break;
-      current = await BasicItem.findById(current.parentItem).exec();
-    }
-  }
+	//Prevent cyclic nesting
+	if (item.parentItem) {
+		let current = await BasicItem.findById(item.parentItem).exec();
+		while (current) {
+			if (current._id.equals(item._id)) {
+				return next(new Error("Cyclic nesting detected: an item cannot be nested inside one of its descendants."));
+			}
+			if (!current.parentItem) break;
+			current = await BasicItem.findById(current.parentItem).exec();
+		}
+	}
 
-  // Handle new items or items with modified parentItem
-  if (item.isNew || item.isModified('parentItem')) {
-    // For existing items, remove from the old parent's containedItems
-    if (!item.isNew) {
-      const previousItem = await BasicItem.findById(item._id);
-      if (previousItem && previousItem.parentItem) {
-        const oldParent = await BasicItem.findById(previousItem.parentItem);
-        if (oldParent) {
-          oldParent.containedItems = oldParent.containedItems?.filter(
-            (containedId) => !containedId.equals(item._id)
-          ) || [];
-          await oldParent.save();
-        }
-      }
-    }
+	// Handle new items or items with modified parentItem
+	if (item.isNew || item.isModified('parentItem')) {
+		// For existing items, remove from the old parent's containedItems
+		if (!item.isNew) {
+			const previousItem = await BasicItem.findById(item._id);
+			if (previousItem && previousItem.parentItem) {
+				const oldParent = await BasicItem.findById(previousItem.parentItem);
+				if (oldParent) {
+					oldParent.containedItems = oldParent.containedItems?.filter(
+						(containedId) => !containedId.equals(item._id)
+					) || [];
+					await oldParent.save();
+				}
+			}
+		}
 
-    if (item.parentItem) {
-      const newParent = await BasicItem.findById(item.parentItem);
-      if (newParent) {
-        if (!newParent.containedItems?.includes(item._id)) {
-          newParent.containedItems = [...(newParent.containedItems || []), item._id];
-          await newParent.save();
-        }
-      }
-    }
+		if (item.parentItem) {
+			const newParent = await BasicItem.findById(item.parentItem);
+			if (newParent) {
+				if (!newParent.containedItems?.includes(item._id)) {
+					newParent.containedItems = [...(newParent.containedItems || []), item._id];
+					await newParent.save();
+				}
+			}
+		}
 
-    item.itemHistory = item.itemHistory || [];
-    item.itemHistory.push({
-      location: item.parentItem || null,
-      timestamp: new Date(),
-    });
-  }
+		item.itemHistory = item.itemHistory || [];
+		item.itemHistory.push({
+			location: item.parentItem || null,
+			timestamp: new Date(),
+		});
+	}
 
-  next();
+	next();
 });
 
 //update parent of the children and contained items with the given item on item delete
 BasicItemSchema.pre('findOneAndDelete', async function (next) {
-  const itemId = this.getQuery()._id;
-  if (!itemId) return next();
+	const itemId = this.getQuery()._id;
+	if (!itemId) return next();
 
-  const BasicItem = model<IBasicItem>('BasicItem');
+	const BasicItem = model<IBasicItem>('BasicItem');
 
-  try {
-    await removeFromRecents('item', itemId);
-    const itemToDelete = await BasicItem.findById(itemId).exec();
-    if (!itemToDelete) return next();
+	try {
+		await removeFromRecents('item', itemId);
+		const itemToDelete = await BasicItem.findById(itemId).exec();
+		if (!itemToDelete) return next();
 
-    const { containedItems, parentItem } = itemToDelete;
+		const { containedItems, parentItem } = itemToDelete;
 
-    if (containedItems && containedItems.length > 0) {
-      await BasicItem.updateMany(
-        { _id: { $in: containedItems } },
-        { $set: { parentItem: parentItem || null } }
-      ).exec();
+		if (containedItems && containedItems.length > 0) {
+			await BasicItem.updateMany(
+				{ _id: { $in: containedItems } },
+				{ $set: { parentItem: parentItem || null } }
+			).exec();
 
-      if (parentItem) {
-        const parent = await BasicItem.findById(parentItem).exec();
-        if (parent) {
-          parent.containedItems = [
-            ...(parent.containedItems || []),
-            ...containedItems.filter((nestedId) => !parent.containedItems?.includes(nestedId)),
-          ];
-          await parent.save();
-        }
-      }
-    }
+			if (parentItem) {
+				const parent = await BasicItem.findById(parentItem).exec();
+				if (parent) {
+					parent.containedItems = [
+						...(parent.containedItems || []),
+						...containedItems.filter((nestedId) => !parent.containedItems?.includes(nestedId)),
+					];
+					await parent.save();
+				}
+			}
+		}
 
-    if (parentItem) {
-      const parent = await BasicItem.findById(parentItem).exec();
-      if (parent && parent.containedItems) {
-        parent.containedItems = parent.containedItems.filter(
-          (childId) => !childId.equals(itemId)
-        );
-        await parent.save();
-      }
-    }
+		if (parentItem) {
+			const parent = await BasicItem.findById(parentItem).exec();
+			if (parent && parent.containedItems) {
+				parent.containedItems = parent.containedItems.filter(
+					(childId) => !childId.equals(itemId)
+				);
+				await parent.save();
+			}
+		}
 
-    await BasicItem.updateMany(
-      { homeItem: itemId },
-      { $set: { homeItem: null } }
-    ).exec();
+		await BasicItem.updateMany(
+			{ homeItem: itemId },
+			{ $set: { homeItem: null } }
+		).exec();
 
-    next();
-  } catch (err) {
-    console.error('Error in pre-delete hook:', err);
-    next(err as CallbackError);
-  }
+		next();
+	} catch (err) {
+		console.error('Error in pre-delete hook:', err);
+		next(err as CallbackError);
+	}
 });
 
 BasicItemSchema.post('save', async function() {
-  await addToRecents('item', this._id as Types.ObjectId);
+	await addToRecents('item', this._id as Types.ObjectId);
 });
 
 const BasicItem = mongoose.models.BasicItem ||  model<IBasicItem>('BasicItem', BasicItemSchema);
