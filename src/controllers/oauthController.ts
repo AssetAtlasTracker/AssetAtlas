@@ -242,7 +242,7 @@ export const getProfile = async (req: Request, res: Response) => {
 		// Get token from cookie
 		const token = req.cookies.auth_token; 
     
-		if (!token) {
+		if (!token || token === '') {
 			return res.status(401).json({ message: 'Not authenticated' });
 		}
     
@@ -263,6 +263,15 @@ export const getProfile = async (req: Request, res: Response) => {
 	} catch (error) {
 		res.status(401).json({ message: `Invalid or expired token: "${error}"` });
 	}
+}
+
+export const logout = async (req: Request, res: Response) => {
+	res.clearCookie('auth_token', {
+		httpOnly: true,
+		secure: process.env.NODE_ENV === 'production'
+	});
+    
+	res.status(200).json({ message: 'Logged out successfully' });
 }
 
 export const updateUserPermission = async (req: Request, res: Response) => {

@@ -62,11 +62,7 @@
 		</nav>
 		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
 			<button on:click={openAuthDialog} class="text-left">
-				{#if currentLogin?.isLoggedIn}
-					User: {currentLogin?.name}
-				{:else}
-					Logout
-				{/if}
+				Login/Logout
 			</button>
 		</nav>
 		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">

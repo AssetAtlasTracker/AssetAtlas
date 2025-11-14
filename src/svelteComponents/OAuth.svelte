@@ -52,6 +52,38 @@
     }
   }
 
+  async function handleLogout() {
+    try {
+      const response = await fetch('/api/oauth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'OAuth failed');
+      }
+
+      login.set({
+        isLoggedIn: false,
+        name: "",
+        sub_id: "",
+        permissionLevel: 0
+      });
+
+      oauthResult = "Successfully logged out.";
+
+    } catch (err) {
+      oauthResult = err instanceof Error ? err.message : 'Something went wrong';
+      console.error('Logout error:', err);
+    }
+  }
+
+
+
   
   let currentLogin: LoginState | undefined;
 	login.subscribe((value) => {
@@ -78,6 +110,10 @@
 
       <button class="border-button w-full" on:click={handleLoginGithub}>
         Login with Github Account
+      </button>
+
+      <button class="border-button w-full" on:click={handleLogout}>
+        Logout
       </button>
     </div>
   </div>
