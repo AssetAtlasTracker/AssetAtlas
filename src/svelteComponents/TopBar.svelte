@@ -7,6 +7,8 @@
   import { setTopBarHeight } from '../stores/topBarStore.js';
   import { SlideToggle } from "@skeletonlabs/skeleton";
   import { createEventDispatcher } from 'svelte';
+  import type { LoginState } from "../stores/loginStore.js";
+	import {login} from "../stores/loginStore.js";
 
   export let searchQuery: string = "";
   export let onSearch: (query: string) => void;
@@ -17,6 +19,11 @@
   }
 
   let topBarElement: HTMLDivElement;
+
+  let currentLogin: LoginState | undefined;
+	login.subscribe((value) => {
+		currentLogin = value;
+	});
 
   onMount(() => {
     if (topBarElement) {
@@ -79,5 +86,13 @@
       >Exact Search</SlideToggle
     >
     </div>
+    <div class="loginUser" style="font-size: larger; margin-left: auto; padding-right: 2rem;">
+    {#if currentLogin?.isLoggedIn}
+					User: {currentLogin?.name}
+				{:else}
+					Not Logged In
+				{/if}
+      </div>
   </AppBar>
+  
 </div>

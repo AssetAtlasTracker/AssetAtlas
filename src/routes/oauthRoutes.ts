@@ -1,12 +1,12 @@
 import express from 'express';
 import {
-  getProfile,
-  getLogins,
-  loginGoogle,
-  callbackGoogle,
-  loginGithub,
-  callbackGithub,
-  updateUserPermission
+	getProfile,
+	logout,
+	loginGoogle,
+	callbackGoogle,
+	loginGithub,
+	callbackGithub,
+	updateUserPermission
 } from '../controllers/oauthController.js';
 import { authenticate, requirePermission } from '../middleware/authMiddleware.js';
 
@@ -17,6 +17,7 @@ router.get('/loginGoogle', loginGoogle);
 router.get('/callback1', callbackGoogle);
 router.get('/loginGithub', loginGithub);
 router.get('/callback2', callbackGithub);
+router.post('/logout', logout);
 
 // Protected routes
 router.get('/profile', getProfile);

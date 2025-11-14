@@ -2,10 +2,7 @@
 	import "../svelteStyles/main.css";
 	import { Link } from "svelte-routing";
 	import { onMount } from "svelte";
-	import UserAuth from "./UserAuth.svelte";
 	import OAuth from "./OAuth.svelte";
-	import { user } from "../stores/userStore.js";
-	import type { UserState } from "../stores/userStore.js";
 	import type { LoginState } from "../stores/loginStore.js";
 	import {login} from "../stores/loginStore.js";
 
@@ -20,11 +17,6 @@
 	function openAuthDialog() {
 		authDialog.showModal();
 	}
-
-	let currentUser: UserState | undefined;
-	user.subscribe((value) => {
-		currentUser = value;
-	});
 
 	let currentLogin: LoginState | undefined;
 	login.subscribe((value) => {
@@ -55,7 +47,7 @@
 
 
 	//if permission level is ever undefined (it shouldnt be but typescript seems to think it may be) we default to 0
-	$: permissionLevel = currentUser?.permissionLevel ?? 0;
+	$: permissionLevel = currentLogin?.permissionLevel ?? 0;
 </script>
 
 <button
@@ -70,11 +62,7 @@
 		</nav>
 		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
 			<button on:click={openAuthDialog} class="text-left">
-				{#if currentLogin?.isLoggedIn}
-					User: {currentLogin?.name}
-				{:else}
-					User Login
-				{/if}
+				Login/Logout
 			</button>
 		</nav>
 		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
