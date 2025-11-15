@@ -25,7 +25,7 @@ function isOAuthPayload(payload: JWTPayload): payload is OAuthJWTPayload {
 
 
 export function verifyToken(token: string | undefined): JWTPayload | null {
-	if (!token) return null;
+	if (!token || token === '') return null;
 	
 	try {
 		return jwt.verify(token, JWT_SECRET) as JWTPayload;

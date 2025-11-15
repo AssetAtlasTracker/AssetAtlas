@@ -5,6 +5,9 @@
 	import MdMenu from "svelte-icons/md/MdMenu.svelte";
 	import { onMount } from 'svelte';
 	import { setTopBarHeight } from '$lib/stores/topBarStore.js';
+	import type { LoginState } from "../stores/loginStore.js";
+	import {login} from "../stores/loginStore.js";
+
 
 	// Props using $props() rune
 	let {
@@ -26,6 +29,11 @@
 	}
 
 	let topBarElement: HTMLDivElement;
+
+	let currentLogin: LoginState | undefined;
+	login.subscribe((value) => {
+		currentLogin = value;
+	});
 
 	onMount(() => {
 		if (topBarElement) {
@@ -84,6 +92,13 @@
 				<Switch.Label>Exact Search</Switch.Label>
 				<Switch.HiddenInput />
 			</Switch>
+		</div>
+		<div class="loginUser" style="font-size: larger; margin-left: auto; padding-right: 2rem;">
+			{#if currentLogin?.isLoggedIn}
+				User: {currentLogin?.name}
+			{:else}
+				Not Logged In
+			{/if}
 		</div>
 	</AppBar>
 </div>

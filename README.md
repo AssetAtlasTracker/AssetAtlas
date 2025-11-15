@@ -1,86 +1,70 @@
-# sv
+# AssetAtlas Container Registry Info
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+This document contains information about running AssetAtlas from our container registry, which lets you run AssetAtlas from the command line and with a more minimal initial download. Application data is NOT shared between the ghcr version and GUI-launched version as of (3/27/2025).
 
-## Creating a project
+## Download Required Files
 
-If you're seeing this, you've probably already done this step. Congrats!
+This application consists of multiple container images.
+Docker Compose is used to configure and [run the images together](https://docs.docker.com/get-started/docker-concepts/running-containers/multi-container-applications/).
 
-```sh
-# create a new project in the current directory
-npx sv create
+You can get the required files with either of these methods:
 
-# create a new project in my-app
-npx sv create my-app
+### a. Direct download
+
+[Download ZIP with all files from the latest release](https://github.com/AssetAtlasTracker/AssetAtlas/releases/latest/download/assetatlas-ghcr-files.zip).
+
+It contains the required docker-compose files and a copy of this readme.
+
+### b. Clone from GitHub
+
+Only do this if you'd like to get a development version.
+
+```bash
+# requires Node.js
+npx degit AssetAtlasTracker/AssetAtlas/ghcr-files assetatlas-ghcr
 ```
 
+## Running the Containers
 
-## MongoDB & Mongoose
+Make sure to run these commands in the folder containing the docker-compose files, and that Docker is running.
 
-This project uses MongoDB and mongoose for database access. The `docker-compose.yml` includes a `mongo` service for local development and SSR.
+Run either the Localhost or Tailscale version, depending on your needs.
 
-To use MongoDB in your code:
+### a. Localhost
 
-```ts
-import { connectMongo } from '$lib/mongo';
-await connectMongo();
+Enables accessing AssetAtlas from the same device you're hosting it on.
+
+For Windows (PowerShell and bash) and Linux/macOS (bash):
+
+```bash
+docker compose -f docker-compose-ghcr.yml up -d
 ```
 
-The default connection string is set via the `MONGO_URI` environment variable in compose:
-`mongodb://root:example@mongo:27017/?authSource=admin`
+### b. Tailscale
 
-## Docker
+Enables using Tailscale to connect from other devices without additional network configuration.
+Replace `your-tailscale-auth-key` with your actual Tailscale auth key.
 
-This project includes a Dockerfile and a `docker-compose.yml` to run the app in a container.
+TODO how to get a tailscale auth key?
 
+For Windows (PowerShell):
 
-Production build (SSR, multi-stage):
-
-Build the image:
-
-```powershell
-docker build -t assetatlas-svelte5:latest .
+```ps
+$env:TS_AUTH_KEY="your-tailscale-auth-key"; docker-compose -f docker-compose-ghcr-tailscale.yml up -d
 ```
 
-Run the container (runs SvelteKit SSR Node server on port 3000):
+For Linux/macOS (bash) or Windows (bash):
 
-```powershell
-docker run --rm -p 3000:3000 assetatlas-svelte5:latest
+```bash
+TS_AUTH_KEY="your-tailscale-auth-key" docker compose -f docker-compose-ghcr-tailscale.yml up -d
 ```
 
-Development (live-reload with host bind):
+## Stopping the Containers
 
-Using docker-compose you'll get a development container that mounts the project and exposes Vite's dev server on port 5173:
+```bash
+# Localhost
+docker compose -f docker-compose-ghcr.yml down
 
-```powershell
-docker-compose up --build dev
+# Tailscale
+docker compose -f docker-compose-ghcr-tailscale.yml down
 ```
-
-Notes:
-
-- The Dockerfile now runs SvelteKit SSR using Node (port 3000).
-- If your adapter uses a different entrypoint, update the Dockerfile CMD accordingly.
-- For static builds, use the previous Dockerfile and expose port 4173.
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.

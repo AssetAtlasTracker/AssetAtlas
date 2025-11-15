@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { user } from "$lib/stores/userStore.js";
-	import type { UserState } from "$lib/stores/userStore.js";
 	import OAuth from "$lib/components/OAuth.svelte";
 	import "$lib/styles/main.css";
 	import { onMount } from "svelte";
@@ -24,7 +22,7 @@
 		currentLogin = value;
 	});
 
-	onMount(() => {
+	onMount(async () => {
 		const topBar = document.querySelector(".top-bar");
 		if (topBar) {
 			const height = topBar.getBoundingClientRect().height;
@@ -33,15 +31,21 @@
 				`${height}px`,
 			);
 		}
-	});
 
-	let currentUser: UserState | undefined;
-	user.subscribe((value) => {
-		currentUser = value;
+		const response = await fetch('/api/oauth/profile');
+		if (response.ok) {
+			const userData = await response.json();
+			login.set({
+			isLoggedIn: true,
+			name: userData.name,
+			sub_id: userData.sub_id,
+			permissionLevel: userData.permissionLevel
+			});
+  		}
 	});
 
 	//if permission level is ever undefined (it shouldnt be but typescript seems to think it may be) we default to 0
-	$: permissionLevel = currentUser?.permissionLevel ?? 0;
+	$: permissionLevel = currentLogin?.permissionLevel ?? 0;
 </script>
 
 <div
