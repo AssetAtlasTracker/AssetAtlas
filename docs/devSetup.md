@@ -41,6 +41,8 @@ The information here is almost identical to the user setup found in the repo's R
   - `../resource` - Contains resource files used in testing.
 - `/docs` - Folder containing documentation related to the project. No code should be here unless it's for the sake of documentation
   - `24-25` - Folder containing documentation from the 2024-2025 team of Asset Atlas
+- `/docker` - Folder containing Docker stuff
+  - `secrets.env` - This is a .env village that holds secrets necessary for user to log in. You can either go to the pinned messages in general in discord to find our current local dev secrets, or configure your own in a manner similar to the doc in the .github/assetatlas folder
 
 ## Troubleshooting
 

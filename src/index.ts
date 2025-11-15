@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { fileURLToPath } from 'url';
 import path, { dirname } from 'path';
 import cors from 'cors';
+import cookieParser from 'cookie-parser'; // Add this import
 import fs from 'fs';//for modern .env access
 import templateRoutes from './routes/templateRoutes.js';
 import customFieldRoutes from './routes/customFieldRoutes.js';
@@ -13,6 +14,7 @@ import recentItemsRoutes from './routes/recentItemsRoutes.js';
 import csvRoutes from "./routes/csvRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
 import authRoutes from './routes/authRoutes.js';
+import OauthRoutes from './routes/oauthRoutes.js';
 
 const app = express();
 //const PORT = process.env.PORT || 3000;
@@ -93,6 +95,7 @@ app.use(cors({
   credentials: true,
 }));
 
+app.use(cookieParser()); 
 app.use(express.json({limit: '100mb'}));
 
 app.get('/api/ip', (req, res) => {
@@ -115,6 +118,7 @@ app.use('/api/csv', csvRoutes);
 app.use('/api/recentItems', recentItemsRoutes);
 app.use('/api/images', imageRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/oauth', OauthRoutes);
 
 //Serve static assets from the dist folder
 app.use(express.static(path.join(__dirname, '../dist')));
