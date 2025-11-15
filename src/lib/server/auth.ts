@@ -4,45 +4,59 @@ import { error } from '@sveltejs/kit';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 
-interface JWTPayload {
+// Legacy User model payload (header-based Bearer token)
+interface UserJWTPayload {
   id: string;
   username: string;
   permissionLevel: number;
 }
 
-export function verifyToken(token: string): JWTPayload | null {
+interface OAuthJWTPayload {
+  sub_id: string;
+  name: string;
+  permissionLevel: number;
+}
+
+type JWTPayload = UserJWTPayload | OAuthJWTPayload;
+
+function isOAuthPayload(payload: JWTPayload): payload is OAuthJWTPayload {
+	return 'sub_id' in payload;
+}
+
+
+export function verifyToken(token: string | undefined): JWTPayload | null {
+	if (!token) return null;
+	
 	try {
 		return jwt.verify(token, JWT_SECRET) as JWTPayload;
-	} catch (err) {
+	} catch {
 		return null;
 	}
 }
 
 export function requireAuth(event: RequestEvent): JWTPayload {
+	const cookieToken = event.cookies.get('auth_token');
+	if (cookieToken) {
+		const payload = verifyToken(cookieToken);
+		if (payload) {
+			return payload;
+		}
+	}
+
 	const authHeader = event.request.headers.get('authorization');
-  
-	if (!authHeader || !authHeader.startsWith('Bearer ')) {
-		throw error(401, 'Authentication required');
+	if (authHeader && authHeader.startsWith('Bearer ')) {
+		const token = authHeader.substring(7);
+		const payload = verifyToken(token);
+		if (payload) {
+			return payload;
+		}
 	}
 
-	const token = authHeader.substring(7); // Remove 'Bearer '
-	const payload = verifyToken(token);
-
-	if (!payload) {
-		throw error(401, 'Invalid or expired token');
-	}
-
-	return payload;
+	throw error(401, 'Authentication required');
 }
 
 export function requireAdmin(event: RequestEvent): JWTPayload {
-	const user = requireAuth(event);
-
-	if (user.permissionLevel < 10) {
-		throw error(403, 'Admin access required');
-	}
-
-	return user;
+	return requirePermissionLevel(event, 10);
 }
 
 export function requirePermissionLevel(event: RequestEvent, minLevel: number): JWTPayload {
@@ -53,4 +67,12 @@ export function requirePermissionLevel(event: RequestEvent, minLevel: number): J
 	}
 
 	return user;
+}
+
+export function getUserId(payload: JWTPayload): string {
+	return isOAuthPayload(payload) ? payload.sub_id : payload.id;
+}
+
+export function getUserName(payload: JWTPayload): string {
+	return isOAuthPayload(payload) ? payload.name : payload.username;
 }
