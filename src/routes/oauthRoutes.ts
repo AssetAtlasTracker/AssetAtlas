@@ -14,9 +14,9 @@ const router = express.Router();
 
 // Public routes
 router.get('/loginGoogle', loginGoogle);
-router.get('/callback1', callbackGoogle);
+router.get('/callbackGoogle', callbackGoogle);
 router.get('/loginGithub', loginGithub);
-router.get('/callback2', callbackGithub);
+router.get('/callbackGithub', callbackGithub);
 router.post('/logout', logout);
 
 // Protected routes

@@ -12,6 +12,8 @@
   import MoveItem from "../svelteComponents/MoveItem.svelte";
   import TopBar from "../svelteComponents/TopBar.svelte";
   import Window from "../svelteComponents/Window.svelte";
+  import {login, getEditOnLogin} from '../stores/loginStore.js';
+  import type { LoginState } from "../stores/loginStore.js";
 
   import "../svelteStyles/main.css";
 
@@ -33,6 +35,11 @@
   let targetItemName: string | undefined = undefined;
   let showMoveDialog: boolean = false;
   let moveDialog: HTMLDialogElement;
+
+  let currentLogin: LoginState | undefined;
+	login.subscribe((value) => {
+		currentLogin = value;
+	});
 
   $: {
     if (showMoveDialog) {
@@ -256,14 +263,16 @@
     </Window>
   {/each}
 
-  <button
-    class="add-button text-icon font-bold shadow"
-    on:click={() => {
-      topLevel = false;
-      if (dialog) dialog.showModal();
-    }}>
-    +
-  </button>
+  {#if !getEditOnLogin() || currentLogin?.isLoggedIn}
+    <button
+      class="add-button text-icon font-bold shadow"
+      on:click={() => {
+        topLevel = false;
+        if (dialog) dialog.showModal();
+      }}>
+      +
+    </button>
+  {/if}
   <CreateItem
     bind:dialog
     item={null}

@@ -14,10 +14,10 @@ vi.hoisted(() => {
 	process.env.JWT_SECRET = 'test-jwt-secret';
 	process.env.GOOGLE_CLIENT_ID = 'test-google-client-id';
 	process.env.GOOGLE_CLIENT_SECRET = 'test-google-client-secret';
-	process.env.GOOGLE_REDIRECT_URI = 'http://localhost:3000/api/oauth/callback1';
+	process.env.GOOGLE_REDIRECT_URI = 'http://localhost:3000/api/oauth/callbackGoogle';
 	process.env.GITHUB_CLIENT_ID = 'test-github-client-id';
 	process.env.GITHUB_CLIENT_SECRET = 'test-github-client-secret';
-	process.env.GITHUB_REDIRECT_URI = 'http://localhost:3000/api/oauth/callback2';
+	process.env.GITHUB_REDIRECT_URI = 'http://localhost:3000/api/oauth/callbackGithub';
 });
 
 
@@ -72,10 +72,10 @@ beforeAll(async () => {
 	vi.stubEnv('JWT_SECRET', 'test-jwt-secret');
 	vi.stubEnv('GOOGLE_CLIENT_ID', 'test-google-client-id');
 	vi.stubEnv('GOOGLE_CLIENT_SECRET', 'test-google-client-secret');
-	vi.stubEnv('GOOGLE_REDIRECT_URI', 'http://localhost:3000/api/oauth/callback1');
+	vi.stubEnv('GOOGLE_REDIRECT_URI', 'http://localhost:3000/api/oauth/callbackGoogle');
 	vi.stubEnv('GITHUB_CLIENT_ID', 'test-github-client-id');
 	vi.stubEnv('GITHUB_CLIENT_SECRET', 'test-github-client-secret');
-	vi.stubEnv('GITHUB_REDIRECT_URI', 'http://localhost:3000/api/oauth/callback2');
+	vi.stubEnv('GITHUB_REDIRECT_URI', 'http://localhost:3000/api/oauth/callbackGithub');
 
 	mongoServer = await MongoMemoryServer.create();
 	const mongoUri = mongoServer.getUri();
@@ -140,7 +140,7 @@ describe('OAuth Controller', () => {
 	});
 
 
-	describe('GET /api/oauth/callback1', () => {
+	describe('GET /api/oauth/callbackGoogle', () => {
 		it('should create new user on first Google login', async () => {
 			const mockAccessToken = 'mock-access-token';
 			const mockUser = {
@@ -157,7 +157,7 @@ describe('OAuth Controller', () => {
 			});
 
 			const response = await request(app)
-				.get('/api/oauth/callback1')
+				.get('/api/oauth/callbackGoogle')
 				.query({ code: 'mock-code', state: 'mock-state' });
 
 			expect(response.status).toBe(302); // Redirect
@@ -197,7 +197,7 @@ describe('OAuth Controller', () => {
 			});
 
 			const response = await request(app)
-				.get('/api/oauth/callback1')
+				.get('/api/oauth/callbackGoogle')
 				.query({ code: 'mock-code', state: 'mock-state' });
 
 			expect(response.status).toBe(302);
@@ -213,7 +213,7 @@ describe('OAuth Controller', () => {
 
 	});
 
-	describe('GET /api/oauth/callback2', () => {
+	describe('GET /api/oauth/callbackGithub', () => {
 		it('should create new user on first GitHub login', async () => {
 			const mockAccessToken = 'mock-access-token';
 			const mockUser = {
@@ -230,7 +230,7 @@ describe('OAuth Controller', () => {
 			});
 
 			const response = await request(app)
-				.get('/api/oauth/callback2')
+				.get('/api/oauth/callbackGithub')
 				.query({ code: 'mock-code', state: 'mock-state' });
 
 			expect(response.status).toBe(302); // Redirect
@@ -271,7 +271,7 @@ describe('OAuth Controller', () => {
 			});
 
 			const response = await request(app)
-				.get('/api/oauth/callback2')
+				.get('/api/oauth/callbackGithub')
 				.query({ code: 'mock-code', state: 'mock-state' });
 
 			expect(response.status).toBe(302);

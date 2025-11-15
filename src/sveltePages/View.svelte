@@ -19,6 +19,8 @@
   import EditItem from "../svelteComponents/EditItem.svelte";
   import MoveItem from "../svelteComponents/MoveItem.svelte";
   import Window from "../svelteComponents/Window.svelte";
+  import {login, getEditOnLogin} from '../stores/loginStore.js';
+  import type { LoginState } from "../stores/loginStore.js";
   export let params: { id?: string };
 
   let editDialog: HTMLDialogElement | undefined;
@@ -29,6 +31,11 @@
   let dialog: HTMLDialogElement | undefined;
   let moveDialog: HTMLDialogElement | undefined;
   let menu: HTMLDialogElement | undefined;
+
+  let currentLogin: LoginState | undefined;
+	login.subscribe((value) => {
+		currentLogin = value;
+	});
 
   let unique = {};
   function restart() {
@@ -129,7 +136,9 @@
       <ItemDetails {item} on:openItem={handleOpenItem} />
 
       <div class="button-row-flex">
-        <!--Move button-->
+       
+        {#if !getEditOnLogin() || currentLogin?.isLoggedIn}
+         <!--Move button-->
         <button
           class="border-button center-button-icons flex-grow font-semibold shadow"
           on:click={() => moveDialog?.showModal()}
@@ -144,6 +153,7 @@
             /></svg
           >
         </button>
+        
         <!--Return to home button-->
         <button
           class="border-button center-button-icons flex-grow font-semibold shadow"
@@ -159,21 +169,40 @@
             /></svg
           >
         </button>
+
         <!--Edit button-->
+          <button
+            class="border-button center-button-icons flex-grow font-semibold shadow"
+            on:click={() => editDialog?.showModal()}
+          >
+            <svg
+              class="icon-small"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 512 512"
+              ><path
+                fill="#ffffff"
+                d="M362.7 19.3L314.3 67.7 444.3 197.7l48.4-48.4c25-25 25-65.5 0-90.5L453.3 19.3c-25-25-65.5-25-90.5 0zm-71 71L58.6 323.5c-10.4 10.4-18 23.3-22.2 37.4L1 481.2C-1.5 489.7 .8 498.8 7 505s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L421.7 220.3 291.7 90.3z"
+              /></svg
+            >
+          </button>
+
+          <!--Delete button-->
         <button
-          class="border-button center-button-icons flex-grow font-semibold shadow"
-          on:click={() => editDialog?.showModal()}
+          class="warn-button center-button-icons flex-grow font-semibold shadow"
+          on:click={() => deleteDialog?.showModal()}
         >
           <svg
             class="icon-small"
             xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 512 512"
+            viewBox="0 0 448 512"
             ><path
               fill="#ffffff"
-              d="M362.7 19.3L314.3 67.7 444.3 197.7l48.4-48.4c25-25 25-65.5 0-90.5L453.3 19.3c-25-25-65.5-25-90.5 0zm-71 71L58.6 323.5c-10.4 10.4-18 23.3-22.2 37.4L1 481.2C-1.5 489.7 .8 498.8 7 505s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L421.7 220.3 291.7 90.3z"
+              d="M135.2 17.7L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-7.2-14.3C307.4 6.8 296.3 0 284.2 0L163.8 0c-12.1 0-23.2 6.8-28.6 17.7zM416 128L32 128 53.2 467c1.6 25.3 22.6 45 47.9 45l245.8 0c25.3 0 46.3-19.7 47.9-45L416 128z"
             /></svg
           >
         </button>
+        {/if}
+        
         <!-- Add Show Item Tree button when tree is hidden -->
         {#if !showItemTree}
           <button
@@ -191,21 +220,7 @@
             >
           </button>
         {/if}
-        <!--Delete button-->
-        <button
-          class="warn-button center-button-icons flex-grow font-semibold shadow"
-          on:click={() => deleteDialog?.showModal()}
-        >
-          <svg
-            class="icon-small"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 448 512"
-            ><path
-              fill="#ffffff"
-              d="M135.2 17.7L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-7.2-14.3C307.4 6.8 296.3 0 284.2 0L163.8 0c-12.1 0-23.2 6.8-28.6 17.7zM416 128L32 128 53.2 467c1.6 25.3 22.6 45 47.9 45l245.8 0c25.3 0 46.3-19.7 47.9-45L416 128z"
-            /></svg
-          >
-        </button>
+        
       </div>
     </Window>
 
@@ -323,12 +338,14 @@
 </Dialog>
 
 <!-- Create Item Dialog -->
-<button
-  class="add-button text-icon font-bold shadow"
-  on:click={() => createDialog?.showModal()}
->
-  +
-</button>
+ {#if !getEditOnLogin() || currentLogin?.isLoggedIn}
+  <button
+    class="add-button text-icon font-bold shadow"
+    on:click={() => createDialog?.showModal()}
+  >
+    +
+  </button>
+{/if}
 
 {#key unique}
   <CreateItem

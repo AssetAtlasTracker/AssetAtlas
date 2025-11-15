@@ -15,4 +15,14 @@ const initialState: LoginState = {
 	permissionLevel: 0,
 };
 
+export function toggleEditOnLogin(value?: boolean) {
+	if (value !== undefined) {
+		localStorage.setItem('editOnLogin', String(value));
+	}
+}
+
+export function getEditOnLogin() {
+	return localStorage.getItem('editOnLogin') === 'true';
+}
+
 export const login = writable<LoginState>(initialState);
