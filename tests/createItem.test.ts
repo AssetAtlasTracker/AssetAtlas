@@ -1,6 +1,8 @@
 /** 
  * @vitest-environment jsdom 
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { describe, it, beforeEach, expect, vi } from 'vitest';
 import CreateItem from '../src/svelteComponents/CreateItem.svelte';
 

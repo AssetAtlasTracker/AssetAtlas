@@ -1,6 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { describe, it, vi, expect, beforeEach } from "vitest";
 import EditItem from "../src/svelteComponents/EditItem.svelte";

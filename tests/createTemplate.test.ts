@@ -1,6 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { render, fireEvent, waitFor } from '@testing-library/svelte';
 import { vi } from 'vitest';
