@@ -548,7 +548,7 @@
     }
   });
 
-  async function handleEditItem() {
+  export async function handleEditItem() {
     try {
       const formData = new FormData();
       formData.append("name", name);
