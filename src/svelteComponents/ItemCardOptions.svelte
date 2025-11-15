@@ -10,6 +10,9 @@
     import CreateItem from "./CreateItem.svelte";
     import Duplicate from "./Duplicate.svelte";
     import ImageSelector from "./ImageSelector.svelte";
+    import {login, getEditOnLogin} from '../stores/loginStore.js';
+    import type { LoginState } from "../stores/loginStore.js";
+
 
     export let item: IBasicItemPopulated;
 
@@ -20,16 +23,25 @@
     let duplicator: Duplicate;
     let selectedItem: IBasicItemPopulated | null = null;
 
+    let currentLogin: LoginState | undefined;
+	login.subscribe((value) => {
+		currentLogin = value;
+	});
+
     let unique = {};
 
     function duplicateFunction(item: IBasicItemPopulated) {
-        duplicator.changeItem(item);
-        duplicateDialog.showModal();
+        if(!getEditOnLogin() || currentLogin?.isLoggedIn){
+            duplicator.changeItem(item);
+            duplicateDialog.showModal();
+        }    
     }
 
     function duplicateEditFunction(item: IBasicItemPopulated) {
-        creator.changeItem(item);
-        createDialog.showModal();
+        if(!getEditOnLogin() || currentLogin?.isLoggedIn){
+            creator.changeItem(item);
+            createDialog.showModal();
+        }
     }
 
     function onCreated() {
@@ -39,11 +51,14 @@
     export function setItem(newItem: IBasicItemPopulated) {
         item = newItem;
     }
+
+
 </script>
 
 <div class="simple-flex">
     <!--Duplicate button-->
-    <button
+    {#if !getEditOnLogin() || currentLogin?.isLoggedIn}
+        <button
         class="border-button hoverable"
         type="button"
         on:click={() => duplicateFunction(item)}
@@ -69,6 +84,8 @@
         <!-- Example usage inside ItemCardOptions.svelte -->
         <img src="/assets/icons/DupAndEdit.svg" alt="Duplicate and Edit" width="40" />
         </button>
+    {/if}
+
 </div>
 
 {#key unique}
