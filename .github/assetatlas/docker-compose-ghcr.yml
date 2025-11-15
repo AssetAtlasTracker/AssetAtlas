@@ -7,6 +7,7 @@ services:
     volumes:
       - assetatlas-config:/usr/src/app/config
       - assetatlas-tsbuild-cache:/usr/src/app/.tsbuildcache
+    env_file: secrets.env
     environment:
       NODE_ENV: production
       MONGO_URI: mongodb://mongo:27017/assetatlas_db

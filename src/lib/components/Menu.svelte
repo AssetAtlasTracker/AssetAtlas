@@ -1,9 +1,11 @@
 <script lang="ts">
-	import UserAuth from "./UserAuth.svelte";
 	import { user } from "$lib/stores/userStore.js";
 	import type { UserState } from "$lib/stores/userStore.js";
+	import OAuth from "$lib/components/OAuth.svelte";
 	import "$lib/styles/main.css";
 	import { onMount } from "svelte";
+	import type { LoginState } from "$lib/stores/loginStore.js";
+	import {login} from "$lib/stores/loginStore.js";
 
 	var open = false;
 	export let menu;
@@ -16,6 +18,11 @@
 	function openAuthDialog() {
 		authDialog.showModal();
 	}
+
+	let currentLogin: LoginState | undefined;
+	login.subscribe((value) => {
+		currentLogin = value;
+	});
 
 	onMount(() => {
 		const topBar = document.querySelector(".top-bar");
@@ -49,19 +56,17 @@
 		</nav>
 		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
 			<button on:click={openAuthDialog} class="text-left">
-				{#if currentUser?.isLoggedIn}
-					User: {currentUser.username}
-				{:else}
-					User Login
-				{/if}
+				Login/Logout
 			</button>
-			<!-- <h1>PLACEHOLDER: FIX ME!!!!</h1> -->
 		</nav>
 		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
 			<a href="/utility">Import/Export</a>
 		</nav>
 		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
 			<a href="/viewTemplates">Templates</a>
+		</nav>
+		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
+			<a href={`/about`}>About</a>
 		</nav>
 
 		{#if permissionLevel >= 9}
@@ -72,4 +77,4 @@
 	</div>
 </div>
 
-<UserAuth bind:dialog={authDialog} />
+<OAuth bind:dialog={authDialog} />
