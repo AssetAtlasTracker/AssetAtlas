@@ -338,12 +338,14 @@
 </Dialog>
 
 <!-- Create Item Dialog -->
-<button
-  class="add-button text-icon font-bold shadow"
-  on:click={() => createDialog?.showModal()}
->
-  +
-</button>
+ {#if !getEditOnLogin() || currentLogin?.isLoggedIn}
+  <button
+    class="add-button text-icon font-bold shadow"
+    on:click={() => createDialog?.showModal()}
+  >
+    +
+  </button>
+{/if}
 
 {#key unique}
   <CreateItem

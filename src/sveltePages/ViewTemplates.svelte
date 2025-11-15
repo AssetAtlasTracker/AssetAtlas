@@ -5,6 +5,8 @@
   import type { ITemplatePopulated } from "../models/template.js";
   import DeleteTemplate from "../svelteComponents/DeleteTemplate.svelte";
   import { onMount } from "svelte";
+  import {login, getEditOnLogin} from '../stores/loginStore.js';
+  import type { LoginState } from "../stores/loginStore.js";
 
   import "../svelteStyles/main.css";
   import CreateTemplate from "../svelteComponents/CreateTemplate.svelte";
@@ -13,6 +15,12 @@
   let templates: ITemplatePopulated[] = [];
   let menu: HTMLDialogElement;
   let templateDialog: HTMLDialogElement | undefined;
+
+  let currentLogin: LoginState | undefined;
+	login.subscribe((value) => {
+		currentLogin = value;
+	});
+
 
   async function fetchTemplates() {
     try {
@@ -68,14 +76,16 @@
   <Menu bind:menu />
   <TemplateList {templates} />
 
-  <button
-    class="add-button text-icon font-bold shadow"
-    on:click={() => {
-      showCreateTemplateDialog = true;
-    }}
-  >
-    +
-  </button>
+  {#if !getEditOnLogin() || currentLogin?.isLoggedIn}
+    <button
+      class="add-button text-icon font-bold shadow"
+      on:click={() => {
+        showCreateTemplateDialog = true;
+      }}
+    >
+      +
+    </button>
+  {/if}
   {#if showCreateTemplateDialog}
     <Dialog
       bind:dialog={templateDialog}
