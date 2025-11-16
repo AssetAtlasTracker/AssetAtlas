@@ -3,11 +3,19 @@
 	import EditTemplate from "./EditTemplate.svelte";
 	import Dialog from "./Dialog.svelte";
 	import type { ITemplatePopulated } from "$lib/server/db/models/template.js";
+	import {login, getEditOnLogin} from '../stores/loginStore.js';
+  	import type { LoginState } from "../stores/loginStore.js";
+
 
 	export let templates: ITemplatePopulated[] = [];
 
 	let editingTemplate: ITemplatePopulated | null = null;
 	let editDialog: HTMLDialogElement | undefined;
+
+	let currentLogin: LoginState | undefined;
+	login.subscribe((value) => {
+		currentLogin = value;
+	});
 
 	function handleDelete(templateId: string) {
 		templates = templates.filter(
@@ -46,18 +54,20 @@
 				</ul>
 			</div>
 
-			<DeleteTemplate
-				templateId={template._id.toString()}
-				onDelete={handleDelete}
-			>
+			{#if !getEditOnLogin() || currentLogin?.isLoggedIn}
+				<DeleteTemplate
+					templateId={template._id.toString()}
+					onDelete={handleDelete}
+				>
 				Delete
-			</DeleteTemplate>
-			<button
-				class="border-button font-semibold shadow ml-2"
-				on:click={() => handleEdit(template)}
-			>
+				</DeleteTemplate>
+				<button
+					class="border-button font-semibold shadow ml-2"
+					on:click={() => handleEdit(template)}
+				>
 				Edit
-			</button>
+				</button>
+			{/if}
 		</div>
 		<br />
 	{/each}

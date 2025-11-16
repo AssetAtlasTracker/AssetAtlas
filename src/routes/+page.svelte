@@ -12,6 +12,8 @@
 	import Window from "$lib/components/Window.svelte";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { topBarHeight } from "$lib/stores/topBarStore.js";
+	import {login, getEditOnLogin} from '$lib/stores/loginStore.js';
+	import type { LoginState } from "$lib/stores/loginStore.js";
 	import "$lib/styles/main.css";
 
 	export let searchQuery = "";
@@ -32,6 +34,11 @@
 	let targetItemName: string | undefined = undefined;
 	let showMoveDialog: boolean = false;
 	let moveDialog: HTMLDialogElement;
+
+	let currentLogin: LoginState | undefined;
+	login.subscribe((value) => {
+		currentLogin = value;
+	});
 
 	$: {
 		if (showMoveDialog) {
@@ -267,14 +274,16 @@
 		</Window>
 	{/each}
 
-	<button
-		class="add-button text-icon font-bold shadow"
-		on:click={() => {
-			topLevel = false;
-			if (dialog) dialog.showModal();
-		}}>
-		+
-	</button>
+	{#if !getEditOnLogin() || currentLogin?.isLoggedIn}
+		<button
+			class="add-button text-icon font-bold shadow"
+			on:click={() => {
+				topLevel = false;
+				if (dialog) dialog.showModal();
+			}}>
+			+
+		</button>
+	{/if}
 	<CreateItem
 		bind:dialog
 		item={null}
