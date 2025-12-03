@@ -16,7 +16,7 @@
 	import type { PageData } from './$types';
 	import { resolve } from "$app/paths";
 	import {login, getEditOnLogin} from '$lib/stores/loginStore.js';
-  	import type { LoginState } from "$lib/stores/loginStore.js";
+	import type { LoginState } from "$lib/stores/loginStore.js";
   
 	let { data }: { data: PageData } = $props();
 	let item = $state(data.item);

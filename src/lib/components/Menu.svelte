@@ -36,12 +36,12 @@
 		if (response.ok) {
 			const userData = await response.json();
 			login.set({
-			isLoggedIn: true,
-			name: userData.name,
-			sub_id: userData.sub_id,
-			permissionLevel: userData.permissionLevel
+				isLoggedIn: true,
+				name: userData.name,
+				sub_id: userData.sub_id,
+				permissionLevel: userData.permissionLevel
 			});
-  		}
+		}
 	});
 
 	//if permission level is ever undefined (it shouldnt be but typescript seems to think it may be) we default to 0

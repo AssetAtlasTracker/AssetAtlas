@@ -10,7 +10,7 @@
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { createEventDispatcher } from "svelte";
 	import {login, getEditOnLogin} from '../stores/loginStore.js';
-    import type { LoginState } from "../stores/loginStore.js";
+	import type { LoginState } from "../stores/loginStore.js";
 
 	export let item: IBasicItemPopulated;
 
@@ -29,18 +29,18 @@
 	let unique = {};
 
 	function duplicateFunction(item: IBasicItemPopulated) {
-        if(!getEditOnLogin() || currentLogin?.isLoggedIn){
-            duplicator.changeItem(item);
-            duplicateDialog.showModal();
-        }    
-    }
+		if(!getEditOnLogin() || currentLogin?.isLoggedIn){
+			duplicator.changeItem(item);
+			duplicateDialog.showModal();
+		}    
+	}
 
-    function duplicateEditFunction(item: IBasicItemPopulated) {
-        if(!getEditOnLogin() || currentLogin?.isLoggedIn){
-            creator.changeItem(item);
-            createDialog.showModal();
-        }
-    }
+	function duplicateEditFunction(item: IBasicItemPopulated) {
+		if(!getEditOnLogin() || currentLogin?.isLoggedIn){
+			creator.changeItem(item);
+			createDialog.showModal();
+		}
+	}
 
 	function onCreated() {
 		dispatch("itemCreated");

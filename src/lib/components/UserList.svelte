@@ -141,18 +141,18 @@
 	<div class="flex items-center justify-between mb-4 p-3 border-b border-gray-700">
 		<label class="text-sm font-medium" for="toggle-slider">Only edit if logged in</label>
 		<label class="relative inline-flex items-center cursor-pointer">
-		<input 
-			type="checkbox" 
-			id="toggle-slider" 
-			class="sr-only peer"
-			checked={getEditOnLogin()}
-			on:change={toggleUserEditOnLogin}
-		>
-		<div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-600 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+			<input 
+				type="checkbox" 
+				id="toggle-slider" 
+				class="sr-only peer"
+				checked={getEditOnLogin()}
+				on:change={toggleUserEditOnLogin}
+			>
+			<div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-600 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
 		</label>
 	</div>
 
-   <div class="text-center py-4">User List WIP</div>
+	<div class="text-center py-4">User List WIP</div>
 
 	<!-- {#if isLoading}
 		<div class="text-center py-4">Loading users...</div>

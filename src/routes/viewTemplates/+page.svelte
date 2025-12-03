@@ -8,7 +8,7 @@
 	import type { ITemplatePopulated } from "$lib/server/db/models/template.js";
 	import { onMount } from "svelte";
 	import {login, getEditOnLogin} from '$lib/stores/loginStore.js';
-  	import type { LoginState } from "$lib/stores/loginStore.js";
+	import type { LoginState } from "$lib/stores/loginStore.js";
 
 
 	import "$lib/styles/main.css";
@@ -79,12 +79,12 @@
 
 	{#if !getEditOnLogin() || currentLogin?.isLoggedIn}
 		<button
-		class="add-button text-icon font-bold shadow"
-		on:click={() => {
-			showCreateTemplateDialog = true;
-		}}
+			class="add-button text-icon font-bold shadow"
+			on:click={() => {
+				showCreateTemplateDialog = true;
+			}}
 		>
-		+
+			+
 		</button>
 	{/if}
 	

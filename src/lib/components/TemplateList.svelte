@@ -4,7 +4,7 @@
 	import Dialog from "./Dialog.svelte";
 	import type { ITemplatePopulated } from "$lib/server/db/models/template.js";
 	import {login, getEditOnLogin} from '../stores/loginStore.js';
-  	import type { LoginState } from "../stores/loginStore.js";
+	import type { LoginState } from "../stores/loginStore.js";
 
 
 	export let templates: ITemplatePopulated[] = [];
@@ -59,13 +59,13 @@
 					templateId={template._id.toString()}
 					onDelete={handleDelete}
 				>
-				Delete
+					Delete
 				</DeleteTemplate>
 				<button
 					class="border-button font-semibold shadow ml-2"
 					on:click={() => handleEdit(template)}
 				>
-				Edit
+					Edit
 				</button>
 			{/if}
 		</div>
