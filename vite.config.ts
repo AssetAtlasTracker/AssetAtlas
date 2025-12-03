@@ -11,6 +11,14 @@ const gitVer = (() => {
 	}
 })();
 
+const gitVer = (() => {
+	try {
+		return execSync('git describe --always --dirty', { encoding: 'utf8' }).trim();
+	} catch {
+		return 'dev';
+	}
+})();
+
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
 	test: {

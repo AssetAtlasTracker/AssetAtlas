@@ -2,7 +2,7 @@ name: Build and Publish Docker Images
 
 on:
   push:
-    branches: 
+    branches:
       - production
   pull_request:
     branches:
