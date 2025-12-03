@@ -1,2 +1,0 @@
-PRs to check:
-https://github.com/AssetAtlasTracker/AssetAtlas/pull/188
