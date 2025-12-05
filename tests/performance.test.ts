@@ -1,17 +1,70 @@
-import express from 'express';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose, { Types } from 'mongoose';
-import request from 'supertest';
-import BasicItem, { type IBasicItemPopulated } from '../src/models/basicItem.js';
-import customFieldRouter from '../src/routes/customFieldRoutes.js';
-import itemRouter from '../src/routes/itemRoutes.js';
-import TemplateRouter from '../src/routes/templateRoutes.js';
-import { FileExporter } from '../src/utility/file/FileExporter.js';
-import { FileLoader } from '../src/utility/file/FileLoader.js';
-import { CSVFormatterPopulated } from '../src/utility/formating/CSVFormatterPopulated.js';
-import { CSVItemParserPopulated } from '../src/utility/parsing/CSVItemParserPopulated.js';
+import mongoose from 'mongoose';
+import { beforeAll, afterAll, describe, expect, it } from 'vitest';
+import type { RequestEvent } from '@sveltejs/kit';
+import type { IBasicItemPopulated } from '$lib/server/db/models/basicItem.js';
+import { POST as createItemHandler } from '$routes/api/items/+server.js';
+import { GET as searchItemsHandler } from '$routes/api/items/search/+server.js';
+import { FileExporter } from '$lib/utility/file/FileExporter.js';
+import { FileLoader } from '$lib/utility/file/FileLoader.js';
+import { CSVFormatterPopulated } from '$lib/utility/formating/CSVFormatterPopulated.js';
+import { CSVItemParserPopulated } from '$lib/utility/parsing/CSVItemParserPopulated.js';
 
-let app: express.Application;
+function createMockEvent(options: {
+	method?: string;
+	body?: Record<string, unknown>;
+	headers?: Record<string, string>;
+	url?: string;
+	params?: Record<string, string>;
+}): RequestEvent {
+	const headers = new Headers(options.headers || {});
+	
+	const isItemsRoute = options.url?.includes('/api/items');
+	let requestInit;
+	if (options.body && (options.method === 'POST' || options.method === 'PUT' || options.method === 'PATCH')) {
+		if (isItemsRoute) {
+			const formData = new FormData();
+			for (const [key, value] of Object.entries(options.body)) {
+				if (value !== undefined && value !== null) {
+					if (typeof value === 'object' && !Array.isArray(value)) {
+						formData.append(key, JSON.stringify(value));
+					} else if (Array.isArray(value)) {
+						formData.append(key, JSON.stringify(value));
+					} else {
+						formData.append(key, String(value));
+					}
+				}
+			}
+			requestInit = { method: options.method || 'GET', body: formData, headers };
+		} else {
+			headers.set('content-type', 'application/json');
+			requestInit = { method: options.method || 'GET', body: JSON.stringify(options.body), headers };
+		}
+	} else {
+		requestInit = { method: options.method || 'GET', headers };
+	}
+
+	const request = new Request(options.url || 'http://localhost', requestInit);
+
+	return {
+		request,
+		params: options.params || {},
+		url: new URL(request.url),
+		locals: {},
+		cookies: {} as unknown as RequestEvent['cookies'],
+		fetch: globalThis.fetch,
+		getClientAddress: () => '127.0.0.1',
+		platform: undefined,
+		route: { id: null },
+		isDataRequest: false,
+		isSubRequest: false,
+		setHeaders: () => {},
+		depends: () => {},
+		tracing: undefined,
+		isRemoteRequest: false
+	} as unknown as RequestEvent;
+}
+
 let mongoServer: MongoMemoryServer;
 
 beforeAll(async () => {
@@ -19,12 +72,6 @@ beforeAll(async () => {
 	const mongoUri = mongoServer.getUri();
 
 	await mongoose.connect(mongoUri, { dbName: 'test' });
-
-	app = express();
-	app.use(express.json());
-	app.use('/api/items', itemRouter);
-	app.use('/api/customFields', customFieldRouter);
-	app.use('/api/templates', TemplateRouter);
 });
 
 afterAll(async () => {
@@ -35,16 +82,6 @@ afterAll(async () => {
 
 type testItem = { name: string; description: string; tags?: string[] }
 
-function appendItemToArray(itemData: testItem, array: IBasicItemPopulated[]): IBasicItemPopulated[] {
-	const item = new BasicItem();
-	item._id = new Types.ObjectId();
-	item.name = itemData.name;
-	item.template = undefined;
-	item.description = itemData.description;
-	array.push(itemData as unknown as IBasicItemPopulated);
-	return array;
-}
-
 function newTestItem(index: number): testItem {
 	return {
 		name: 'test item ' + index,
@@ -54,18 +91,24 @@ function newTestItem(index: number): testItem {
 }
 
 describe('Creating, exporting, and importing many items', () => {
-	let itemCount = 2000;
-	let timeout = 15000;
-	let allCreatedItems: IBasicItemPopulated[] = [];
-	let allImportedItems: IBasicItemPopulated[] = [];
+	const itemCount = 2000;
+	const timeout = 15000;
+	const allCreatedItems: IBasicItemPopulated[] = [];
+	const allImportedItems: IBasicItemPopulated[] = [];
 
 	it('should create ' + itemCount + ' new items', async () => {
 		for (let i = 0; i < itemCount; i++) {
 			const itemData = newTestItem(i);
 
-			allCreatedItems = appendItemToArray(itemData, allCreatedItems);
+			allCreatedItems.push(itemData as unknown as IBasicItemPopulated);
 
-			const response = await request(app).post('/api/items').send(itemData);
+			const event = createMockEvent({
+				method: 'POST',
+				url: 'http://localhost/api/items',
+				body: itemData
+			});
+
+			const response = await createItemHandler(event);
 			expect(response.status).toBe(201);
 		}
 		expect(allCreatedItems.length).toBe(itemCount);
@@ -119,16 +162,20 @@ describe('Creating, exporting, and importing many items', () => {
 
 	it("should search and find one result among " + itemCount + " items", async () => {
 		const searchString = "test item " + (itemCount - 1);
-		const searchURL = `/api/items/search?` +
+		const searchURL = `http://localhost/api/items/search?` +
       `name=${encodeURIComponent(searchString)}&` +
       `sort=${encodeURIComponent("alphabetical")}&` +
-      `exact=${encodeURIComponent("true")}`
+      `exact=${encodeURIComponent("true")}`;
 
-		const searchResponse = await request(app).get(searchURL).set('Content-Type', 'application/json');
+		const event = createMockEvent({
+			method: 'GET',
+			url: searchURL
+		});
 
+		const searchResponse = await searchItemsHandler(event);
 		expect(searchResponse.status).toBe(200);
 
-		const searchResults = await searchResponse.body as IBasicItemPopulated[];
+		const searchResults = await searchResponse.json() as IBasicItemPopulated[];
 
 		expect(searchResults.length).toBe(1);
 		expect(searchResults[0].name).toBe(searchString);
@@ -136,16 +183,20 @@ describe('Creating, exporting, and importing many items', () => {
 
 	it("should search and find all " + itemCount + " items", async () => {
 		const searchString = "item";
-		const searchURL = `/api/items/search?` +
+		const searchURL = `http://localhost/api/items/search?` +
       `name=${encodeURIComponent(searchString)}&` +
       `sort=${encodeURIComponent("alphabetical")}&` +
-      `exact=${encodeURIComponent("false")}`
+      `exact=${encodeURIComponent("false")}`;
 
-		const searchResponse = await request(app).get(searchURL).set('Content-Type', 'application/json');
+		const event = createMockEvent({
+			method: 'GET',
+			url: searchURL
+		});
 
+		const searchResponse = await searchItemsHandler(event);
 		expect(searchResponse.status).toBe(200);
 
-		const searchResults = await searchResponse.body as IBasicItemPopulated[];
+		const searchResults = await searchResponse.json() as IBasicItemPopulated[];
 
 		expect(searchResults.length).toBe(itemCount);
 	}, timeout);

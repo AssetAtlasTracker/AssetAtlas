@@ -1,24 +1,24 @@
 import { describe, expect, it } from "vitest";
-import CustomField from "../src/models/customField.js";
-import Template, { type ITemplatePopulated } from "../src/models/template.js";
-import { CSVFormatterPopulated } from "../src/utility/formating/CSVFormatterPopulated.js";
+import CustomField from "$lib/server/db/models/customField.js";
+import Template, { type ITemplatePopulated } from "$lib/server/db/models/template.js";
+import { CSVFormatterPopulated } from "$lib/utility/formating/CSVFormatterPopulated.js";
 
 describe("Testing Template Formatting", () => {
 
 	it("Should format one template", async () => {
-		let firstTemplate = new Template() as unknown as ITemplatePopulated;
+		const firstTemplate = new Template() as unknown as ITemplatePopulated;
 		firstTemplate.name = "first";
 		firstTemplate.id = 1;
 		firstTemplate.name = "first";
-		let nameField = new CustomField();
+		const nameField = new CustomField();
 		nameField.id = 2;
 		nameField.fieldName = "name";
 		nameField.dataType = "string";
-		let amountField = new CustomField();
+		const amountField = new CustomField();
 		amountField.id = 3;
 		amountField.fieldName = "amount";
 		amountField.dataType = "number";
-		let edibleField = new CustomField();
+		const edibleField = new CustomField();
 		edibleField.id = 4;
 		edibleField.fieldName = "edible";
 		edibleField.dataType = "boolean";

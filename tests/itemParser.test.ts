@@ -1,8 +1,8 @@
 import { Types } from "mongoose";
 import { describe, expect, it } from "vitest";
-import BasicItem from "../src/models/basicItem.js";
-import CustomField, { type ICustomField } from "../src/models/customField.js";
-import { test } from "../src/utility/index.js";
+import BasicItem from "$lib/server/db/models/basicItem.js";
+import CustomField, { type ICustomField } from "$lib/server/db/models/customField.js";
+import { test } from "$lib/utility/index.js";
 
 const resources = test();
 const CSVItemParser = resources.itemParser;
@@ -19,26 +19,26 @@ describe("Testing Item Parsing", () => {
 
 		itemParser.parse(csvContent);
 
-		let firstItem = new BasicItem();
+		const firstItem = new BasicItem();
 		firstItem.name = "cat";
 		firstItem.template = undefined;
 		firstItem.description = "a black cat";
 
-		let fieldMap = new Map<Types.ObjectId, ICustomField>();
+		const fieldMap = new Map<Types.ObjectId, ICustomField>();
 		firstItem.customFields = [];
-		let amountField = new CustomField();
+		const amountField = new CustomField();
 		amountField.id = 20;
 		amountField.fieldName = "amount";
 		amountField.dataType = "number";
 		fieldMap.set(amountField.id, amountField);
 		firstItem.customFields.push({ field: amountField.id, value: "1" });
-		let sellerField = new CustomField();
+		const sellerField = new CustomField();
 		sellerField.id = 21;
 		sellerField.fieldName = "seller";
 		sellerField.dataType = "string";
 		fieldMap.set(sellerField.id, sellerField);
 		firstItem.customFields.push({ field: sellerField.id, value: "barbra" });
-		let soldField = new CustomField();
+		const soldField = new CustomField();
 		soldField.id = 22;
 		soldField.fieldName = "sold";
 		soldField.dataType = "boolean";
@@ -47,26 +47,22 @@ describe("Testing Item Parsing", () => {
 
 
 		expect(itemParser.itemTree.length == 1);
-		let parsedItem = itemParser.itemTree[0];
+		const parsedItem = itemParser.itemTree[0];
 		expect(parsedItem.name).toBe(firstItem.name);
 		expect(parsedItem.template).toBe(firstItem.template);
 		expect(parsedItem.description).toBe(firstItem.description);
 		expect(parsedItem.customFields).not.toBeNull();
 		expect(parsedItem.customFields!.length).toBe(3);
 
-		for (var i = 0; i < parsedItem.customFields!.length; i++) {
-			let parsedField = parsedItem.customFields![i];
+		for (let i = 0; i < parsedItem.customFields!.length; i++) {
+			const parsedField = parsedItem.customFields![i];
 			const field = firstItem.customFields[i];
 			if (i === 0) {
-				let fieldId = field.field;
+				const fieldId = field.field;
 				expect(fieldId).toStrictEqual(amountField._id);
 			}
-			const _ids = fieldMap.keys();
-			const _idSTr = field.field.toHexString();
 			const fieldCustom = fieldMap.get(field.field.toHexString() as unknown as Types.ObjectId);
 			expect(fieldCustom).not.toBe(undefined);
-			const _parsedIds = itemParser.customFieldMap.keys();
-			const _parsedIdStr = parsedField.field.toHexString();
 			const parsedFieldCustom = itemParser.customFieldMap.get(parsedField.field.toHexString() as unknown as Types.ObjectId);
 			expect(parsedFieldCustom).not.toBe(undefined);
 			expect(parsedFieldCustom!.fieldName).toBe(fieldCustom!.fieldName);

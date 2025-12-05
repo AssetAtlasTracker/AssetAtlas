@@ -1,47 +1,44 @@
-FROM node:20-bullseye AS build
+FROM node:20-alpine AS build
 
 # Install OS dependencies
-RUN apt-get update && apt-get install -y python3 make g++ iputils-ping && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache python3 make g++ iputils
 
 # Set working directory
 WORKDIR /usr/src/app
 
-# Copy only package.json + package-lock.json to install dependencies first
-COPY package*.json ./
+# Copy package files
+COPY package.json package-lock.json* pnpm-lock.yaml* ./
 
-# Install all (dev+prod) dependencies
-RUN npm ci
+# Install dependencies
+RUN npm ci --silent || npm install --silent
 
+# Copy source files
 COPY . .
 
-# Build
+# Build the app
 RUN npm run build
 
-# Debug: show what's in dist/ after the build
-RUN echo "DEBUG: Listing dist folder..." && ls -l dist
+FROM node:20-alpine AS production
 
-FROM node:20-bullseye AS production
-
-# Install OS dependencies
-RUN apt-get update && apt-get install -y python3 make g++ iputils-ping && rm -rf /var/lib/apt/lists/*
+# Install OS dependencies for Alpine
+RUN apk add --no-cache python3 make g++ iputils
 
 WORKDIR /usr/src/app
 ENV NODE_ENV=production
 
-# Copy package.json + lock to install only prod dependencies
-COPY package*.json ./
-RUN npm ci --omit=dev && npm install migrate-mongo
+# Copy package files
+COPY package.json package-lock.json* pnpm-lock.yaml* ./
+RUN npm ci --omit=dev --silent || npm install --omit=dev --silent
 
-# Copy over the dist folder from the build stage
-COPY --from=build /usr/src/app/dist ./dist
-
+# Copy built output from builder stage (SvelteKit outputs to 'build' not 'dist')
+COPY --from=build /usr/src/app/build ./build
+COPY --from=build /usr/src/app/static ./static
+COPY --from=build /usr/src/app/package.json ./package.json
 COPY --from=build /usr/src/app/docker/migrate-mongo-docker-config.cjs ./
 COPY --from=build /usr/src/app/docker/migrations ./migrations
 
-# Switch to non-root user
 USER node
 
 EXPOSE 3000
 
-CMD ["node", "dist/index.js"]
-
+CMD ["node", "build/index.js"]

@@ -1,38 +1,19 @@
 {
-  "compilerOptions": {
-    "target": "ES2017",
-    "module": "NodeNext",
-    "moduleResolution": "nodenext",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist", // Ensure compiled files go into dist
-    "isolatedModules": true, // Important for Svelte + TypeScript
-    "jsx": "preserve",
-    "verbatimModuleSyntax": true,
-    "sourceMap": true,
-    "lib": [
-      "dom",
-      "es2017"
-    ],
-    "allowSyntheticDefaultImports": true,
-    "typeRoots": [
-      "./node_modules/@types"
-    ],
-    "incremental": true,
-    "tsBuildInfoFile": ".tsbuildcache/tsbuildinfo",
-    "allowJs": true
-  },
-  "type": "module",
-  "include": [
-    "src/**/*", //Include all TypeScript and JavaScript files from src
-    "svelte.d.ts", //Add custom Svelte typings
-    "vitest-globals.d.ts",
-    "tests/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "public" // Don't compile static files
-  ]
+	"extends": "./.svelte-kit/tsconfig.json",
+	"compilerOptions": {
+		"allowJs": true,
+		"checkJs": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"strict": true,
+		"moduleResolution": "bundler"
+	}
+	// Path aliases are handled by https://svelte.dev/docs/kit/configuration#alias
+	// except $lib which is handled by https://svelte.dev/docs/kit/configuration#files
+	//
+	// To make changes to top-level options such as include and exclude, we recommend extending
+	// the generated config; see https://svelte.dev/docs/kit/configuration#typescript
 }

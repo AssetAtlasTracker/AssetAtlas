@@ -1,71 +1,72 @@
-import type { NextFunction, Request, Response } from 'express';
-import express from 'express';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
-import { Readable } from 'stream';
-import request from 'supertest';
-import { vi } from 'vitest';
-import BasicItem from '../src/models/basicItem.js';
-import CustomField from '../src/models/customField.js';
-import { RecentItems } from '../src/models/recentItems.js';
-import Template from '../src/models/template.js';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest';
+import type { RequestEvent } from '@sveltejs/kit';
+import BasicItem from '$lib/server/db/models/basicItem.js';
+import CustomField from '$lib/server/db/models/customField.js';
+import { RecentItems } from '$lib/server/db/models/recentItems.js';
+import Template from '$lib/server/db/models/template.js';
 
-vi.mock('../src/config/gridfs.js', () => {
-	const mockUpload = {
-		array: vi.fn().mockImplementation((fieldName) => {
-			return (req: Request, res: Response, next: NextFunction) => {
-				req.files = [
-					{
-						fieldname: fieldName,
-						originalname: 'fake-image.jpg',
-						encoding: '7bit',
-						mimetype: 'image/jpeg',
-						size: 100,
-						destination: '',
-						filename: 'fake-image.jpg',
-						path: '',
-						buffer: Buffer.from('fake-image-data'),
-						stream: Readable.from(Buffer.from('fake-image-data'))
-					},
-					{
-						fieldname: fieldName,
-						originalname: 'fake-image2.jpg',
-						encoding: '7bit',
-						mimetype: 'image/jpeg',
-						size: 100,
-						destination: '',
-						filename: 'fake-image2.jpg',
-						path: '',
-						buffer: Buffer.from('fake-image-data'),
-						stream: Readable.from(Buffer.from('fake-image-data'))
-					}
-				];
-				next();
-			};
-		})
-	};
-
+// Mock the GridFS module
+vi.mock('$lib/server/db/gridfs.js', () => {
 	return {
-		gridFsReady: Promise.resolve(),
-		getUpload: vi.fn().mockReturnValue(mockUpload),
-		gfs: {}
+		bucketReady: Promise.resolve(),
+		initGridFS: vi.fn(),
+		getGridFSBucket: vi.fn(),
+		uploadToGridFS: vi.fn().mockImplementation(async (file: File) => {
+			// Return the filename as the ID for testing
+			return Promise.resolve(file.name);
+		}),
+		UploadsFiles: {}
 	};
 });
 
-import imageRouter from '../src/routes/imageRoutes.js';
+import { POST as uploadImagesHandler } from '$routes/api/images/+server.js';
 
-let app: express.Application;
 let mongoServer: MongoMemoryServer;
+
+function createMockEvent(options: {
+	method?: string;
+	formData?: FormData;
+	headers?: Record<string, string>;
+	url?: string;
+}): RequestEvent {
+	const headers = new Headers(options.headers || {});
+	
+	const request = new Request(options.url || 'http://localhost:3000/api/test', {
+		method: options.method || 'POST',
+		headers,
+		body: options.formData
+	});
+
+	return {
+		request,
+		params: {},
+		url: new URL(options.url || 'http://localhost:3000/api/test'),
+		locals: {},
+		cookies: {
+			get: () => undefined,
+			set: () => {},
+			delete: () => {},
+			getAll: () => [],
+			serialize: () => ''
+		},
+		fetch: global.fetch,
+		getClientAddress: () => '127.0.0.1',
+		platform: undefined,
+		route: { id: null },
+		setHeaders: () => {},
+		isDataRequest: false,
+		isSubRequest: false,
+		tracing: {} as never,
+		isRemoteRequest: false
+	} as RequestEvent;
+}
 
 beforeAll(async () => {
 	mongoServer = await MongoMemoryServer.create();
 	const mongoUri = mongoServer.getUri();
-
 	await mongoose.connect(mongoUri, { dbName: 'test' });
-
-	app = express();
-	app.use(express.json());
-	app.use('/api/image', imageRouter);
 });
 
 afterAll(async () => {
@@ -93,17 +94,42 @@ afterEach(() => {
 
 describe('Images API', () => {
 	it('Should upload images', async () => {
-		const uploadResponse = await request(app)
-			.post('/api/image')
-			.attach('images', Buffer.from('fake-image-data'), 'fake-image.jpg')
-			.attach('images', Buffer.from('fake-image-data'), 'fake-image2.jpg');
+		const formData = new FormData();
+		const file1 = new File([Buffer.from('fake-image-data')], 'fake-image.jpg', { type: 'image/jpeg' });
+		const file2 = new File([Buffer.from('fake-image-data')], 'fake-image2.jpg', { type: 'image/jpeg' });
+		
+		formData.append('images', file1);
+		formData.append('images', file2);
+
+		const event = createMockEvent({
+			method: 'POST',
+			formData,
+			url: 'http://localhost:3000/api/images'
+		});
+
+		const uploadResponse = await uploadImagesHandler(event);
+		const body = await uploadResponse.json();
 
 		expect(uploadResponse.status).toBe(201);
-		expect(uploadResponse.body.ids).toEqual(["fake-image.jpg", "fake-image2.jpg"]);
+		expect(body.ids).toEqual(['fake-image.jpg', 'fake-image2.jpg']);
 	});
 
 	it('Should fail to upload images when no images are provided', async () => {
-		const uploadResponse = await request(app).post('/api/image');
-		expect(uploadResponse.status).toBe(500);
+		const formData = new FormData();
+
+		const event = createMockEvent({
+			method: 'POST',
+			formData,
+			url: 'http://localhost:3000/api/images'
+		});
+
+		try {
+			await uploadImagesHandler(event);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(400);
+			expect(err.body?.message).toBe('No files provided');
+		}
 	});
 });

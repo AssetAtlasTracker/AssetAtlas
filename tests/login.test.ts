@@ -1,14 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as setCookie from 'set-cookie-parser';
-import request from 'supertest';
-import express from 'express';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { vi } from 'vitest';
-import Login from '../src/models/login.js';
-import cookieParser from 'cookie-parser';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
+import type { RequestEvent, Cookies } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
-
+import { Login } from '$lib/server/db/models/login.js';
+import { GET as loginGoogleHandler } from '$routes/api/oauth/loginGoogle/+server.js';
+import { GET as loginGithubHandler } from '$routes/api/oauth/loginGithub/+server.js';
+import { GET as callbackGoogleHandler } from '$routes/api/oauth/callbackGoogle/+server.js';
+import { GET as callbackGithubHandler } from '$routes/api/oauth/callbackGithub/+server.js';
+import { GET as profileHandler } from '$routes/api/oauth/profile/+server.js';
+import { POST as logoutHandler } from '$routes/api/oauth/logout/+server.js';
 
 vi.hoisted(() => {
 	process.env.JWT_SECRET = 'test-jwt-secret';
@@ -19,8 +21,6 @@ vi.hoisted(() => {
 	process.env.GITHUB_CLIENT_SECRET = 'test-github-client-secret';
 	process.env.GITHUB_REDIRECT_URI = 'http://localhost:3000/api/oauth/callbackGithub';
 });
-
-
 
 const {
 	mockCreateAuthorizationURL,
@@ -60,33 +60,85 @@ vi.mock('arctic', () => ({
 // Mock fetch for API calls
 global.fetch = vi.fn();
 
-let app: express.Application;
 let mongoServer: MongoMemoryServer;
 
-//Mock a protected route for testing authentication
-const mockProtectedRoute = express.Router();
+// Helper to create mock RequestEvent
+function createMockEvent(options: {
+	method?: string;
+	url?: string;
+	searchParams?: Record<string, string>;
+	cookies?: Record<string, string>;
+	headers?: Record<string, string>;
+}): RequestEvent {
+	const headers = new Headers(options.headers || {});
+	const url = new URL(options.url || 'http://localhost');
+	
+	// Add search params to URL
+	if (options.searchParams) {
+		Object.entries(options.searchParams).forEach(([key, value]) => {
+			url.searchParams.set(key, value);
+		});
+	}
 
-import oauthRouter from '../src/routes/oauthRoutes.js';
+	const request = new Request(url.toString(), {
+		method: options.method || 'GET',
+		headers
+	});
+
+	const cookieStore: Record<string, string> = options.cookies || {};
+	const setCookieHeaders: string[] = [];
+
+	const cookies: Cookies = {
+		get: (name: string) => cookieStore[name],
+		set: (name: string, value: string, opts?: any) => {
+			cookieStore[name] = value;
+			const cookieParts = [`${name}=${value}`];
+			if (opts?.path) cookieParts.push(`Path=${opts.path}`);
+			if (opts?.httpOnly) cookieParts.push('HttpOnly');
+			if (opts?.secure) cookieParts.push('Secure');
+			if (opts?.sameSite) cookieParts.push(`SameSite=${opts.sameSite}`);
+			if (opts?.maxAge) cookieParts.push(`Max-Age=${opts.maxAge}`);
+			setCookieHeaders.push(cookieParts.join('; '));
+		},
+		delete: (name: string, opts?: any) => {
+			delete cookieStore[name];
+			setCookieHeaders.push(`${name}=; Max-Age=0; Path=${opts?.path || '/'}`);
+		},
+		serialize: (name: string, value: string) => {
+			return `${name}=${value}`;
+		},
+		getAll: () => Object.entries(cookieStore).map(([name, value]) => ({ name, value }))
+	};
+
+	const mockEvent: RequestEvent = {
+		request,
+		params: {},
+		url,
+		locals: {},
+		cookies,
+		fetch: global.fetch,
+		getClientAddress: () => '127.0.0.1',
+		isDataRequest: false,
+		isSubRequest: false,
+		platform: undefined,
+		route: { id: null },
+		setHeaders: () => {},
+		tracing: {
+			fetchStart: () => {}
+		} as any,
+		isRemoteRequest: false
+	};
+
+	// Store setCookieHeaders on the mock for testing
+	(mockEvent as any).setCookieHeaders = setCookieHeaders;
+
+	return mockEvent;
+}
 
 beforeAll(async () => {
-	vi.stubEnv('JWT_SECRET', 'test-jwt-secret');
-	vi.stubEnv('GOOGLE_CLIENT_ID', 'test-google-client-id');
-	vi.stubEnv('GOOGLE_CLIENT_SECRET', 'test-google-client-secret');
-	vi.stubEnv('GOOGLE_REDIRECT_URI', 'http://localhost:3000/api/oauth/callbackGoogle');
-	vi.stubEnv('GITHUB_CLIENT_ID', 'test-github-client-id');
-	vi.stubEnv('GITHUB_CLIENT_SECRET', 'test-github-client-secret');
-	vi.stubEnv('GITHUB_REDIRECT_URI', 'http://localhost:3000/api/oauth/callbackGithub');
-
 	mongoServer = await MongoMemoryServer.create();
 	const mongoUri = mongoServer.getUri();
-
 	await mongoose.connect(mongoUri, { dbName: 'test' });
-
-	app = express();
-	app.use(express.json());
-    app.use(cookieParser());
-	app.use('/api/oauth', oauthRouter);
-	app.use('/api/mock', mockProtectedRoute); //mock routes for testing auth
 });
 
 afterAll(async () => {
@@ -95,50 +147,68 @@ afterAll(async () => {
 	await mongoServer.stop();
 });
 
-beforeEach(() => {
-	mongoose.connection.dropCollection("logins");// Clear all logins between tests
+beforeEach(async () => {
+	await Login.deleteMany({});
 	vi.clearAllMocks();
 });
 
-describe('OAuth Controller', () => {
+describe('OAuth API', () => {
 	describe('GET /api/oauth/loginGoogle', () => {
 		it('should return Google authorization URL', async () => {
 			const mockUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth?client_id=test');
 			mockCreateAuthorizationURL.mockReturnValue(mockUrl);
 
-			const response = await request(app)
-				.get('/api/oauth/loginGoogle');
+			const event = createMockEvent({
+				method: 'GET',
+				url: 'http://localhost/api/oauth/loginGoogle'
+			});
 
+			const response = await loginGoogleHandler(event);
 			expect(response.status).toBe(200);
-			expect(response.body.url).toBeDefined();
-			expect(response.body.url).toBe(mockUrl.toString());
+
+			const body = await response.json();
+			expect(body.url).toBeDefined();
+			expect(body.url).toBe(mockUrl.toString());
 			expect(mockCreateAuthorizationURL).toHaveBeenCalledWith(
 				'mock-state',
 				'mock-code-verifier',
 				['openid', 'profile']
 			);
+
+			// Check Set-Cookie headers from Response
+			const setCookieHeader = response.headers.get('set-cookie');
+			expect(setCookieHeader).toBeDefined();
+			expect(setCookieHeader).toContain('google_oauth_state=mock-state');
+			expect(setCookieHeader).toContain('google_code_verifier=mock-code-verifier');
 		});
 	});
-
 
 	describe('GET /api/oauth/loginGithub', () => {
 		it('should return GitHub authorization URL', async () => {
 			const mockUrl = new URL('https://github.com/login/oauth/authorize?client_id=test');
 			mockCreateAuthorizationURL.mockReturnValue(mockUrl);
 
-			const response = await request(app)
-				.get('/api/oauth/loginGithub');
+			const event = createMockEvent({
+				method: 'GET',
+				url: 'http://localhost/api/oauth/loginGithub'
+			});
 
+			const response = await loginGithubHandler(event);
 			expect(response.status).toBe(200);
-			expect(response.body.url).toBeDefined();
-			expect(response.body.url).toBe(mockUrl.toString());
+
+			const body = await response.json();
+			expect(body.url).toBeDefined();
+			expect(body.url).toBe(mockUrl.toString());
 			expect(mockCreateAuthorizationURL).toHaveBeenCalledWith(
 				'mock-state',
 				['user:email', 'repo']
 			);
+
+			const setCookieHeader = response.headers.get('set-cookie');
+			expect(setCookieHeader).toBeDefined();
+			expect(setCookieHeader).toContain('github_oauth_state=mock-state');
 		});
 	});
-
 
 	describe('GET /api/oauth/callbackGoogle', () => {
 		it('should create new user on first Google login', async () => {
@@ -156,18 +226,34 @@ describe('OAuth Controller', () => {
 				json: async () => mockUser,
 			});
 
-			const response = await request(app)
-				.get('/api/oauth/callbackGoogle')
-				.query({ code: 'mock-code', state: 'mock-state' });
+			const event = createMockEvent({
+				method: 'GET',
+				url: 'http://localhost/api/oauth/callbackGoogle',
+				searchParams: { code: 'mock-code', state: 'mock-state' },
+				cookies: { 
+					google_oauth_state: 'mock-state',
+					google_code_verifier: 'mock-code-verifier'
+				}
+			});
 
-			expect(response.status).toBe(302); // Redirect
-			expect(response.headers.location).toBe('/');
-			expect(response.headers['set-cookie']).toBeDefined();
+			try {
+				await callbackGoogleHandler(event);
+				// Should throw redirect
+				expect.fail('Should have thrown redirect');
+			} catch (error: any) {
+				expect(error.status).toBe(302);
+				expect(error.location).toBe('/');
+			}
 
-			// Get the cookie header and scan
-			const setCookieHeader = response.headers['set-cookie'];
-			scanCookiesForValue(setCookieHeader, 'google-user-123');
+			// Check auth token was set
+			const authToken = event.cookies.get('auth_token');
+			expect(authToken).toBeDefined();
 
+			const decoded = jwt.verify(authToken!, 'test-jwt-secret') as any;
+			expect(decoded.sub_id).toBe('google-user-123');
+			expect(decoded.name).toBe('Test User');
+
+			// Verify user was created in database
 			const login = await Login.findOne({ login_id: 'google-user-123' });
 			expect(login).toBeTruthy();
 			expect(login?.is_google).toBe(true);
@@ -196,29 +282,44 @@ describe('OAuth Controller', () => {
 				json: async () => mockUser,
 			});
 
-			const response = await request(app)
-				.get('/api/oauth/callbackGoogle')
-				.query({ code: 'mock-code', state: 'mock-state' });
+			const event = createMockEvent({
+				method: 'GET',
+				url: 'http://localhost/api/oauth/callbackGoogle',
+				searchParams: { code: 'mock-code', state: 'mock-state' },
+				cookies: {
+					google_oauth_state: 'mock-state',
+					google_code_verifier: 'mock-code-verifier'
+				}
+			});
 
-			expect(response.status).toBe(302);
-			expect(response.headers.location).toBe('/');
+			try {
+				await callbackGoogleHandler(event);
+				expect.fail('Should have thrown redirect');
+			} catch (error: any) {
+				expect(error.status).toBe(302);
+				expect(error.location).toBe('/');
+			}
 
-			// Get the cookie header and scan
-			const setCookieHeader = response.headers['set-cookie'];
-			scanCookiesForValue(setCookieHeader, 'google-existing-456');
+			// Check auth token was set
+			const authToken = event.cookies.get('auth_token');
+			expect(authToken).toBeDefined();
 
+			const decoded = jwt.verify(authToken!, 'test-jwt-secret') as any;
+			expect(decoded.sub_id).toBe('google-existing-456');
+
+			// Verify no duplicate was created
 			const logins = await Login.find({ login_id: 'google-existing-456' });
-			expect(logins).toHaveLength(1); // Should not create duplicate
+			expect(logins).toHaveLength(1);
 		});
-
 	});
 
 	describe('GET /api/oauth/callbackGithub', () => {
 		it('should create new user on first GitHub login', async () => {
 			const mockAccessToken = 'mock-access-token';
 			const mockUser = {
-				id: 'github-user-123',
+				id: 123456789,
 				name: 'Test User',
+				login: 'testuser'
 			};
 
 			mockValidateAuthorizationCode.mockResolvedValue({
@@ -229,28 +330,39 @@ describe('OAuth Controller', () => {
 				json: async () => mockUser,
 			});
 
-			const response = await request(app)
-				.get('/api/oauth/callbackGithub')
-				.query({ code: 'mock-code', state: 'mock-state' });
+			const event = createMockEvent({
+				method: 'GET',
+				url: 'http://localhost/api/oauth/callbackGithub',
+				searchParams: { code: 'mock-code', state: 'mock-state' },
+				cookies: { github_oauth_state: 'mock-state' }
+			});
 
-			expect(response.status).toBe(302); // Redirect
-			expect(response.headers.location).toBe('/');
-			expect(response.headers['set-cookie']).toBeDefined();
+			try {
+				await callbackGithubHandler(event);
+				expect.fail('Should have thrown redirect');
+			} catch (error: any) {
+				expect(error.status).toBe(302);
+				expect(error.location).toBe('/');
+			}
 
-			// Get the cookie header and scan
-			const setCookieHeader = response.headers['set-cookie'];
-			scanCookiesForValue(setCookieHeader, 'github-user-123');
+			// Check auth token was set
+			const authToken = event.cookies.get('auth_token');
+			expect(authToken).toBeDefined();
 
-			const login = await Login.findOne({ login_id: 'github-user-123' });
+			const decoded = jwt.verify(authToken!, 'test-jwt-secret') as any;
+			expect(decoded.sub_id).toBe('123456789');
+			expect(decoded.name).toBe('Test User');
+
+			// Verify user was created in database
+			const login = await Login.findOne({ login_id: '123456789' });
 			expect(login).toBeTruthy();
 			expect(login?.is_google).toBe(false);
 			expect(login?.permissionLevel).toBe(10); // First user gets admin
-                 
 		});
 
-		it('should handle existing Github user', async () => {
+		it('should handle existing GitHub user', async () => {
 			const existingLogin = new Login({
-				login_id: 'github-existing-456',
+				login_id: '987654321',
 				is_google: false,
 				permissionLevel: 1,
 			});
@@ -258,8 +370,9 @@ describe('OAuth Controller', () => {
 
 			const mockAccessToken = 'mock-access-token';
 			const mockUser = {
-				id: 'github-existing-456',
+				id: 987654321,
 				name: 'Existing User',
+				login: 'existinguser'
 			};
 
 			mockValidateAuthorizationCode.mockResolvedValue({
@@ -270,73 +383,93 @@ describe('OAuth Controller', () => {
 				json: async () => mockUser,
 			});
 
-			const response = await request(app)
-				.get('/api/oauth/callbackGithub')
-				.query({ code: 'mock-code', state: 'mock-state' });
+			const event = createMockEvent({
+				method: 'GET',
+				url: 'http://localhost/api/oauth/callbackGithub',
+				searchParams: { code: 'mock-code', state: 'mock-state' },
+				cookies: { github_oauth_state: 'mock-state' }
+			});
 
-			expect(response.status).toBe(302);
-			expect(response.headers.location).toBe('/');
+			try {
+				await callbackGithubHandler(event);
+				expect.fail('Should have thrown redirect');
+			} catch (error: any) {
+				expect(error.status).toBe(302);
+				expect(error.location).toBe('/');
+			}
 
-			// Get the cookie header and scan
-			const setCookieHeader = response.headers['set-cookie'];
-			scanCookiesForValue(setCookieHeader, 'github-existing-456');
+			// Check auth token was set
+			const authToken = event.cookies.get('auth_token');
+			expect(authToken).toBeDefined();
 
-			const logins = await Login.find({ login_id: 'github-existing-456' });
-			expect(logins).toHaveLength(1); // Should not create duplicate
+			const decoded = jwt.verify(authToken!, 'test-jwt-secret') as any;
+			expect(decoded.sub_id).toBe('987654321');
+
+			// Verify no duplicate was created
+			const logins = await Login.find({ login_id: '987654321' });
+			expect(logins).toHaveLength(1);
 		});
 	});
 
-
 	describe('GET /api/oauth/profile', () => {
 		it('should return user profile for logged in user', async () => {
-
 			const token = jwt.sign(
 				{
-					sub_id: 'github-existing-456',
-				    name: 'Existing User',
+					sub_id: 'github-user-456',
+					name: 'Test User',
 					permissionLevel: 1
 				},
 				'test-jwt-secret',
 				{ expiresIn: '7d' }
 			);
-            
-			const response = await request(app)
-				.get('/api/oauth/profile')
-				.set('Cookie', `auth_token=${token}`);
 
-			expect(response.status).toBe(200);
-			expect(response.body).toEqual({
-				sub_id: 'github-existing-456',
-				name: 'Existing User',
-				permissionLevel: 1,
+			const event = createMockEvent({
+				method: 'GET',
+				url: 'http://localhost/api/oauth/profile',
+				cookies: { auth_token: token }
 			});
+
+			const response = await profileHandler(event);
+			expect(response.status).toBe(200);
+
+			const body = await response.json();
+			expect(body.sub_id).toBe('github-user-456');
+			expect(body.name).toBe('Test User');
+			expect(body.permissionLevel).toBe(1);
 		});
 
 		it('should return 401 for unauthenticated user', async () => {
-			const response = await request(app)
-				.get('/api/oauth/profile');
+			const event = createMockEvent({
+				method: 'GET',
+				url: 'http://localhost/api/oauth/profile'
+			});
 
-			expect(response.status).toBe(401);
+			try {
+				await profileHandler(event);
+				expect.fail('Should have thrown 401 error');
+			} catch (error: any) {
+				expect(error.status).toBe(401);
+			}
 		});
 	});
 
+	describe('POST /api/oauth/logout', () => {
+		it('should clear auth cookie', async () => {
+			const event = createMockEvent({
+				method: 'POST',
+				url: 'http://localhost/api/oauth/logout',
+				cookies: { auth_token: 'some-token' }
+			});
 
-});
-function scanCookiesForValue(setCookieHeader: string, searchValue: string) {
-	
-	expect(setCookieHeader).toBeDefined();
-    
-	const combinedCookieHeader = Array.isArray(setCookieHeader) ? setCookieHeader.join(', ') : setCookieHeader;
+			const response = await logoutHandler(event);
+			expect(response.status).toBe(200);
 
-	const cookies = setCookie.parse(combinedCookieHeader, {
-		decodeValues: true // Decodes cookie values (e.g., URL-encoded characters)
+			const body = await response.json();
+			expect(body.message).toBe('Logged out successfully');
+
+			// Verify cookie was deleted from the mock store
+			expect(event.cookies.get('auth_token')).toBeUndefined();
+		});
 	});
-
-	const jwtCookie = cookies.find(cookie => cookie.name === 'auth_token');
-	expect(jwtCookie).toBeDefined();
-	expect(jwtCookie?.value).toBeDefined();
-	const decoded = jwt.verify(jwtCookie!.value, process.env.JWT_SECRET!);
-	expect((decoded as any).sub_id).toBe(searchValue);
-	
-}
+});
 

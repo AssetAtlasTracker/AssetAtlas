@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
-import CustomField, { type ICustomField } from "../src/models/customField.js";
-import Template from "../src/models/template.js";
-import { test } from "../src/utility/index.js";
+import CustomField, { type ICustomField } from "$lib/server/db/models/customField.js";
+import Template from "$lib/server/db/models/template.js";
+import { test } from "$lib/utility/index.js";
 
 const resources = test();
 const CSVTemplateParser = resources.templateParser;
@@ -15,18 +15,18 @@ describe("Testing Template Parsing", () => {
 		expect(canParse).toBeTruthy();
 		templateParser.parse(csvContent);
 
-		let firstTemplate = new Template();
+		const firstTemplate = new Template();
 		firstTemplate.id = 1;
 		firstTemplate.name = "first";
-		let nameField = new CustomField();
+		const nameField = new CustomField();
 		nameField.id = 2;
 		nameField.fieldName = "name";
 		nameField.dataType = "string";
-		let amountField = new CustomField();
+		const amountField = new CustomField();
 		amountField.id = 3;
 		amountField.fieldName = "amount";
 		amountField.dataType = "number";
-		let edibleField = new CustomField();
+		const edibleField = new CustomField();
 		edibleField.id = 4;
 		edibleField.fieldName = "edible";
 		edibleField.dataType = "boolean";
@@ -35,7 +35,7 @@ describe("Testing Template Parsing", () => {
 		firstTemplate.fields.push(amountField.id);
 		firstTemplate.fields.push(edibleField.id);
 
-		let fieldMap = new Map<Types.ObjectId, ICustomField>();
+		const fieldMap = new Map<Types.ObjectId, ICustomField>();
 		fieldMap.set(nameField.id, nameField);
 		fieldMap.set(amountField.id, amountField);
 		fieldMap.set(edibleField.id, edibleField);
@@ -43,7 +43,7 @@ describe("Testing Template Parsing", () => {
 		const templateToTest = templateParser.templatesToAdd[0];
 		const fieldsToTest = templateParser.customFieldMap;
 		expect(templateToTest.name).toBe(firstTemplate.name);
-		for (var i = 0; i < templateToTest.fields.length; i++) {
+		for (let i = 0; i < templateToTest.fields.length; i++) {
 			const fieldId = firstTemplate.fields[i];
 			const field = fieldMap.get(fieldId.toHexString() as unknown as Types.ObjectId);
 			expect(field).not.toBe(undefined);

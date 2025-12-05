@@ -36,7 +36,7 @@ services:
       - default
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/tcp
-      interval: 2s
+      interval: 10s
       timeout: 5s
       retries: 3
 

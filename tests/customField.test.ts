@@ -1,23 +1,58 @@
-import express from 'express';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
-import request from 'supertest';
-import type { ICustomField } from '../src/models/customField.js';
-import { RecentItems } from '../src/models/recentItems.js';
-import customFieldRouter from '../src/routes/customFieldRoutes.js';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import type { RequestEvent } from '@sveltejs/kit';
+import type { ICustomField } from '$lib/server/db/models/customField.js';
+import { RecentItems } from '$lib/server/db/models/recentItems.js';
+import { POST as createCustomFieldHandler } from '$routes/api/customFields/+server.js';
+import { GET as searchCustomFieldsHandler } from '$routes/api/customFields/search/+server.js';
+import { GET as getCustomFieldByIdHandler } from '$routes/api/customFields/[id]/+server.js';
 
-let app: express.Application;
 let mongoServer: MongoMemoryServer;
+
+// Helper function to create a mock RequestEvent for SvelteKit
+function createMockEvent(options: {
+	method?: string;
+	body?: Record<string, unknown>;
+	headers?: Record<string, string>;
+	url?: string;
+	params?: Record<string, string>;
+}): RequestEvent {
+	const headers = new Headers(options.headers || {});
+	const request = new Request(options.url || 'http://localhost:3000/api/test', {
+		method: options.method || 'GET',
+		headers,
+		body: options.body ? JSON.stringify(options.body) : undefined
+	});
+
+	return {
+		request,
+		params: options.params || {},
+		url: new URL(options.url || 'http://localhost:3000/api/test'),
+		locals: {},
+		cookies: {
+			get: () => undefined,
+			set: () => {},
+			delete: () => {},
+			getAll: () => [],
+			serialize: () => ''
+		},
+		fetch: global.fetch,
+		getClientAddress: () => '127.0.0.1',
+		platform: undefined,
+		route: { id: null },
+		setHeaders: () => {},
+		isDataRequest: false,
+		isSubRequest: false,
+		tracing: {} as never,
+		isRemoteRequest: false
+	} as RequestEvent;
+}
 
 beforeAll(async () => {
 	mongoServer = await MongoMemoryServer.create();
 	const mongoUri = mongoServer.getUri();
-
 	await mongoose.connect(mongoUri, { dbName: 'test' });
-
-	app = express();
-	app.use(express.json());
-	app.use('/api/customFields', customFieldRouter);
 });
 
 afterAll(async () => {
@@ -43,10 +78,18 @@ describe('CustomField API', () => {
 			dataType: 'string'
 		};
 
-		const response = await request(app).post('/api/customFields').send(customFieldData);
+		const event = createMockEvent({
+			method: 'POST',
+			body: customFieldData,
+			url: 'http://localhost:3000/api/customFields'
+		});
+
+		const response = await createCustomFieldHandler(event);
+		const body = await response.json();
+
 		expect(response.status).toBe(201);
-		expect(response.body.fieldName).toBe(customFieldData.fieldName);
-		expect(response.body.dataType).toBe(customFieldData.dataType);
+		expect(body.fieldName).toBe(customFieldData.fieldName);
+		expect(body.dataType).toBe(customFieldData.dataType);
 	});
 
 	it('should create multiple custom fields and search among (us lol) them', async () => {
@@ -59,20 +102,40 @@ describe('CustomField API', () => {
 		];
 
 		for (const field of customFields) {
-			const response = await request(app).post('/api/customFields').send(field);
+			const event = createMockEvent({
+				method: 'POST',
+				body: field,
+				url: 'http://localhost:3000/api/customFields'
+			});
+
+			const response = await createCustomFieldHandler(event);
 			expect(response.status).toBe(201);
 		}
 
-		const searchResponse = await request(app).get('/api/customFields/search?fieldName=Price');
+		const searchEvent = createMockEvent({
+			method: 'GET',
+			url: 'http://localhost:3000/api/customFields/search?fieldName=Price'
+		});
+
+		const searchResponse = await searchCustomFieldsHandler(searchEvent);
+		const searchBody = await searchResponse.json();
+
 		expect(searchResponse.status).toBe(200);
-		expect(searchResponse.body.length).toBe(1);
-		expect(searchResponse.body[0].fieldName).toBe('Price');
+		expect(searchBody.length).toBe(1);
+		expect(searchBody[0].fieldName).toBe('Price');
 
-		const emptySearchResponse = await request(app).get('/api/customFields/search');
+		const emptySearchEvent = createMockEvent({
+			method: 'GET',
+			url: 'http://localhost:3000/api/customFields/search'
+		});
+
+		const emptySearchResponse = await searchCustomFieldsHandler(emptySearchEvent);
+		const emptySearchBody = await emptySearchResponse.json();
+
 		expect(emptySearchResponse.status).toBe(200);
-		expect(emptySearchResponse.body.length).toBe(customFields.length);
+		expect(emptySearchBody.length).toBe(customFields.length);
 
-		const fieldNames = emptySearchResponse.body.map((field: ICustomField) => field.fieldName);
+		const fieldNames = emptySearchBody.map((field: ICustomField) => field.fieldName);
 		expect(fieldNames).toEqual(expect.arrayContaining(['Warranty', 'Price', 'Color', 'Material']));
 	});
 
@@ -83,32 +146,68 @@ describe('CustomField API', () => {
 			dataType: 'string',
 		};
 
-		const createResponse = await request(app).post('/api/customFields').send(customFieldData);
+		const createEvent = createMockEvent({
+			method: 'POST',
+			body: customFieldData,
+			url: 'http://localhost:3000/api/customFields'
+		});
+
+		const createResponse = await createCustomFieldHandler(createEvent);
+		const createdField = await createResponse.json();
+
 		expect(createResponse.status).toBe(201);
 
-		const createdField = createResponse.body;
-
 		// Fetch the custom field by ID
-		const fetchResponse = await request(app).get(`/api/customFields/${createdField._id}`);
+		const fetchEvent = createMockEvent({
+			method: 'GET',
+			url: `http://localhost:3000/api/customFields/${createdField._id}`,
+			params: { id: createdField._id }
+		});
+
+		const fetchResponse = await getCustomFieldByIdHandler(fetchEvent);
+		const fetchBody = await fetchResponse.json();
+
 		expect(fetchResponse.status).toBe(200);
-		expect(fetchResponse.body.fieldName).toBe(customFieldData.fieldName);
-		expect(fetchResponse.body.dataType).toBe(customFieldData.dataType);
+		expect(fetchBody.fieldName).toBe(customFieldData.fieldName);
+		expect(fetchBody.dataType).toBe(customFieldData.dataType);
 	});
 
 	it('should return a 400 error for an invalid ID format', async () => {
 		const invalidId = 'invalid-id-format';
 
-		const response = await request(app).get(`/api/customFields/${invalidId}`);
-		expect(response.status).toBe(400);
-		expect(response.body.message).toBe('Invalid ID format');
+		const event = createMockEvent({
+			method: 'GET',
+			url: `http://localhost:3000/api/customFields/${invalidId}`,
+			params: { id: invalidId }
+		});
+
+		try {
+			await getCustomFieldByIdHandler(event);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(400);
+			expect(err.body?.message).toBe('Invalid ID format');
+		}
 	});
 
 	it('should return a 404 error for a non-existent ID', async () => {
 		const nonExistentId = new mongoose.Types.ObjectId().toString();
 
-		const response = await request(app).get(`/api/customFields/${nonExistentId}`);
-		expect(response.status).toBe(404);
-		expect(response.body.message).toBe('Custom field not found');
+		const event = createMockEvent({
+			method: 'GET',
+			url: `http://localhost:3000/api/customFields/${nonExistentId}`,
+			params: { id: nonExistentId }
+		});
+
+		try {
+			await getCustomFieldByIdHandler(event);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(404);
+			expect(err.body?.message).toBe('Custom field not found');
+		}
 	});
 
 });

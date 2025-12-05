@@ -30,6 +30,7 @@ export default [
 				"warn",
 				{ "varsIgnorePattern": "^_", "argsIgnorePattern": "^_" }
 			],
+			"@typescript-eslint/no-explicit-any": "warn",
 			"indent": ["warn", "tab"]
 		},
 	},

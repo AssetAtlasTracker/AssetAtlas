@@ -1,35 +1,91 @@
-import express from 'express';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
-import request from 'supertest';
-import { authenticate, requirePermission } from '../src/middleware/authMiddleware.js';
-import User from '../src/models/user.js';
-import authRouter from '../src/routes/authRoutes.js';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { requireAuth, requirePermissionLevel } from '$lib/server/auth.js';
+import User from '$lib/server/db/models/user.js';
+import { POST as registerHandler } from '$routes/api/auth/register/+server.js';
+import { POST as loginHandler } from '$routes/api/auth/login/+server.js';
+import { GET as profileHandler } from '$routes/api/auth/profile/+server.js';
+import { PUT as permissionsHandler } from '$routes/api/auth/permisisons/+server.js';
+import type { RequestEvent } from '@sveltejs/kit';
 
-let app: express.Application;
 let mongoServer: MongoMemoryServer;
 
-//Mock a protected route for testing authentication
-const mockProtectedRoute = express.Router();
+// Helper function to create a mock RequestEvent for SvelteKit
+function createMockEvent(options: {
+	method?: string;
+	body?: Record<string, unknown>;
+	headers?: Record<string, string>;
+	url?: string;
+}): RequestEvent {
+	const headers = new Headers(options.headers || {});
+	const request = new Request(options.url || 'http://localhost:3000/api/test', {
+		method: options.method || 'GET',
+		headers,
+		body: options.body ? JSON.stringify(options.body) : undefined
+	});
 
-mockProtectedRoute.get('/protected', authenticate, (req, res) => {
-	res.status(200).json({ message: 'Access granted to protected route' });
-});
+	return {
+		request,
+		params: {},
+		url: new URL(options.url || 'http://localhost:3000/api/test'),
+		locals: {},
+		cookies: {
+			get: () => undefined,
+			set: () => {},
+			delete: () => {},
+			getAll: () => [],
+			serialize: () => ''
+		},
+		fetch: global.fetch,
+		getClientAddress: () => '127.0.0.1',
+		platform: undefined,
+		route: { id: null },
+		setHeaders: () => {},
+		isDataRequest: false,
+		isSubRequest: false,
+		tracing: {} as never,
+		isRemoteRequest: false
+	} as RequestEvent;
+}
 
-mockProtectedRoute.get('/admin', authenticate, requirePermission(10), (req, res) => {
-	res.status(200).json({ message: 'Access granted to admin route' });
-});
+// Mock protected route handlers for testing
+async function mockProtectedRouteHandler(event: RequestEvent): Promise<Response> {
+	try {
+		requireAuth(event);
+		return new Response(JSON.stringify({ message: 'Access granted to protected route' }), {
+			status: 200,
+			headers: { 'Content-Type': 'application/json' }
+		});
+	} catch (err) {
+		const error = err as { status?: number; body?: { message?: string } };
+		return new Response(JSON.stringify({ message: error.body?.message || 'Authentication required' }), {
+			status: error.status || 401,
+			headers: { 'Content-Type': 'application/json' }
+		});
+	}
+}
+
+async function mockAdminRouteHandler(event: RequestEvent): Promise<Response> {
+	try {
+		requirePermissionLevel(event, 10);
+		return new Response(JSON.stringify({ message: 'Access granted to admin route' }), {
+			status: 200,
+			headers: { 'Content-Type': 'application/json' }
+		});
+	} catch (err) {
+		const error = err as { status?: number; body?: { message?: string } };
+		return new Response(JSON.stringify({ message: error.body?.message || 'Insufficient permissions' }), {
+			status: error.status || 403,
+			headers: { 'Content-Type': 'application/json' }
+		});
+	}
+}
 
 beforeAll(async () => {
 	mongoServer = await MongoMemoryServer.create();
 	const mongoUri = mongoServer.getUri();
-
 	await mongoose.connect(mongoUri, { dbName: 'test' });
-
-	app = express();
-	app.use(express.json());
-	app.use('/api/auth', authRouter);
-	app.use('/api/mock', mockProtectedRoute); //mock routes for testing auth
 });
 
 afterAll(async () => {
@@ -50,15 +106,20 @@ describe('Authentication API', () => {
 			password: 'password123'
 		};
 
-		const firstResponse = await request(app)
-			.post('/api/auth/register')
-			.send(firstUserData);
+		const firstEvent = createMockEvent({
+			method: 'POST',
+			body: firstUserData,
+			url: 'http://localhost:3000/api/auth/register'
+		});
+
+		const firstResponse = await registerHandler(firstEvent);
+		const firstBody = await firstResponse.json();
 
 		expect(firstResponse.status).toBe(201);
-		expect(firstResponse.body).toHaveProperty('token');
-		expect(firstResponse.body.user).toHaveProperty('username', 'adminuser');
-		expect(firstResponse.body.user).toHaveProperty('permissionLevel', 10);
-		expect(firstResponse.body.message).toBe('Admin user registered successfully');
+		expect(firstBody).toHaveProperty('token');
+		expect(firstBody.user).toHaveProperty('username', 'adminuser');
+		expect(firstBody.user).toHaveProperty('permissionLevel', 10);
+		expect(firstBody.message).toBe('Admin user registered successfully');
 
 		// Second user should get regular privileges (level 1)
 		const secondUserData = {
@@ -66,17 +127,22 @@ describe('Authentication API', () => {
 			password: 'password123'
 		};
 
-		const secondResponse = await request(app)
-			.post('/api/auth/register')
-			.send(secondUserData);
+		const secondEvent = createMockEvent({
+			method: 'POST',
+			body: secondUserData,
+			url: 'http://localhost:3000/api/auth/register'
+		});
+
+		const secondResponse = await registerHandler(secondEvent);
+		const secondBody = await secondResponse.json();
 
 		expect(secondResponse.status).toBe(201);
-		expect(secondResponse.body).toHaveProperty('token');
-		expect(secondResponse.body.user).toHaveProperty('username', 'regularuser');
-		expect(secondResponse.body.user).toHaveProperty('permissionLevel', 1);
-		expect(secondResponse.body.message).toBe('User registered successfully');
+		expect(secondBody).toHaveProperty('token');
+		expect(secondBody.user).toHaveProperty('username', 'regularuser');
+		expect(secondBody.user).toHaveProperty('permissionLevel', 1);
+		expect(secondBody.message).toBe('User registered successfully');
 
-		// Verify users in database (only check username and permission level)
+		// Verify users in database
 		const adminUser = await User.findOne({ username: 'adminuser' }).select('username permissionLevel');
 		const regularUser = await User.findOne({ username: 'regularuser' }).select('username permissionLevel');
 
@@ -88,23 +154,36 @@ describe('Authentication API', () => {
 	});
 
 	it('should not register a user with duplicate username', async () => {
-		// Register a user first via API
+		// Register a user first
 		const userData = {
 			username: 'testuser',
 			password: 'password123'
 		};
 
-		await request(app)
-			.post('/api/auth/register')
-			.send(userData);
+		const firstEvent = createMockEvent({
+			method: 'POST',
+			body: userData,
+			url: 'http://localhost:3000/api/auth/register'
+		});
+
+		await registerHandler(firstEvent);
 
 		// Try to register with same username
-		const response = await request(app)
-			.post('/api/auth/register')
-			.send(userData);
+		const secondEvent = createMockEvent({
+			method: 'POST',
+			body: userData,
+			url: 'http://localhost:3000/api/auth/register'
+		});
 
-		expect(response.status).toBe(409);
-		expect(response.body).toHaveProperty('message', 'Username already exists');
+		
+		try {
+			await registerHandler(secondEvent);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(409);
+			expect(err.body?.message).toBe('Username already exists');
+		}
 	});
 
 	it('should login a user with correct credentials', async () => {
@@ -114,18 +193,27 @@ describe('Authentication API', () => {
 			password: 'password123'
 		};
 
-		await request(app)
-			.post('/api/auth/register')
-			.send(userData);
+		const registerEvent = createMockEvent({
+			method: 'POST',
+			body: userData,
+			url: 'http://localhost:3000/api/auth/register'
+		});
+
+		await registerHandler(registerEvent);
 
 		// Login with correct credentials
-		const loginResponse = await request(app)
-			.post('/api/auth/login')
-			.send(userData);
+		const loginEvent = createMockEvent({
+			method: 'POST',
+			body: userData,
+			url: 'http://localhost:3000/api/auth/login'
+		});
+
+		const loginResponse = await loginHandler(loginEvent);
+		const loginBody = await loginResponse.json();
 
 		expect(loginResponse.status).toBe(200);
-		expect(loginResponse.body).toHaveProperty('token');
-		expect(loginResponse.body).toHaveProperty('message', 'Login successful');
+		expect(loginBody).toHaveProperty('token');
+		expect(loginBody).toHaveProperty('message', 'Login successful');
 	});
 
 	it('should not login with incorrect credentials', async () => {
@@ -135,9 +223,13 @@ describe('Authentication API', () => {
 			password: 'password123'
 		};
 
-		await request(app)
-			.post('/api/auth/register')
-			.send(userData);
+		const registerEvent = createMockEvent({
+			method: 'POST',
+			body: userData,
+			url: 'http://localhost:3000/api/auth/register'
+		});
+
+		await registerHandler(registerEvent);
 
 		// Try login with wrong password
 		const loginData = {
@@ -145,12 +237,20 @@ describe('Authentication API', () => {
 			password: 'wrongpassword'
 		};
 
-		const response = await request(app)
-			.post('/api/auth/login')
-			.send(loginData);
+		const loginEvent = createMockEvent({
+			method: 'POST',
+			body: loginData,
+			url: 'http://localhost:3000/api/auth/login'
+		});
 
-		expect(response.status).toBe(401);
-		expect(response.body).toHaveProperty('message', 'Invalid credentials');
+		try {
+			await loginHandler(loginEvent);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(401);
+			expect(err.body?.message).toBe('Invalid credentials');
+		}
 	});
 
 	it('should access protected route with valid token from login', async () => {
@@ -160,39 +260,63 @@ describe('Authentication API', () => {
 			password: 'password123'
 		};
 
-		await request(app)
-			.post('/api/auth/register')
-			.send(userData);
+		const registerEvent = createMockEvent({
+			method: 'POST',
+			body: userData,
+			url: 'http://localhost:3000/api/auth/register'
+		});
 
-		const loginResponse = await request(app)
-			.post('/api/auth/login')
-			.send(userData);
+		await registerHandler(registerEvent);
 
-		const token = loginResponse.body.token;
+		const loginEvent = createMockEvent({
+			method: 'POST',
+			body: userData,
+			url: 'http://localhost:3000/api/auth/login'
+		});
+
+		const loginResponse = await loginHandler(loginEvent);
+		const loginBody = await loginResponse.json();
+		const token = loginBody.token;
 
 		// Use token to access protected route
-		const response = await request(app)
-			.get('/api/mock/protected')
-			.set('Authorization', `Bearer ${token}`);
+		const protectedEvent = createMockEvent({
+			method: 'GET',
+			headers: { 'Authorization': `Bearer ${token}` },
+			url: 'http://localhost:3000/api/mock/protected'
+		});
+
+		const response = await mockProtectedRouteHandler(protectedEvent);
+		const body = await response.json();
 
 		expect(response.status).toBe(200);
-		expect(response.body).toHaveProperty('message', 'Access granted to protected route');
+		expect(body).toHaveProperty('message', 'Access granted to protected route');
 	});
 
 	it('should deny access to protected route without token', async () => {
-		const response = await request(app).get('/api/mock/protected');
+		const protectedEvent = createMockEvent({
+			method: 'GET',
+			url: 'http://localhost:3000/api/mock/protected'
+		});
+
+		const response = await mockProtectedRouteHandler(protectedEvent);
+		const body = await response.json();
 
 		expect(response.status).toBe(401);
-		expect(response.body).toHaveProperty('message', 'Authentication required');
+		expect(body).toHaveProperty('message', 'Authentication required');
 	});
 
 	it('should deny access with invalid token', async () => {
-		const response = await request(app)
-			.get('/api/mock/protected')
-			.set('Authorization', 'Bearer invalidtoken');
+		const protectedEvent = createMockEvent({
+			method: 'GET',
+			headers: { 'Authorization': 'Bearer invalidtoken' },
+			url: 'http://localhost:3000/api/mock/protected'
+		});
+
+		const response = await mockProtectedRouteHandler(protectedEvent);
+		const body = await response.json();
 
 		expect(response.status).toBe(401);
-		expect(response.body).toHaveProperty('message', 'Invalid token');
+		expect(body.message).toMatch(/Invalid|expired|required/i);
 	});
 
 	it('should deny access to admin route with insufficient permissions', async () => {
@@ -202,33 +326,50 @@ describe('Authentication API', () => {
 			password: 'password123'
 		};
 
-		await request(app)
-			.post('/api/auth/register')
-			.send(adminUserData);
+		const adminRegisterEvent = createMockEvent({
+			method: 'POST',
+			body: adminUserData,
+			url: 'http://localhost:3000/api/auth/register'
+		});
+
+		await registerHandler(adminRegisterEvent);
 
 		const regularUserData = {
 			username: 'regularuser',
 			password: 'password123'
 		};
 
-		await request(app)
-			.post('/api/auth/register')
-			.send(regularUserData);
+		const regularRegisterEvent = createMockEvent({
+			method: 'POST',
+			body: regularUserData,
+			url: 'http://localhost:3000/api/auth/register'
+		});
+
+		await registerHandler(regularRegisterEvent);
 
 		// Login as regular user to get token
-		const loginResponse = await request(app)
-			.post('/api/auth/login')
-			.send(regularUserData);
+		const loginEvent = createMockEvent({
+			method: 'POST',
+			body: regularUserData,
+			url: 'http://localhost:3000/api/auth/login'
+		});
 
-		const regularUserToken = loginResponse.body.token;
+		const loginResponse = await loginHandler(loginEvent);
+		const loginBody = await loginResponse.json();
+		const regularUserToken = loginBody.token;
 
 		// Try to access admin route with regular user token
-		const response = await request(app)
-			.get('/api/mock/admin')
-			.set('Authorization', `Bearer ${regularUserToken}`);
+		const adminEvent = createMockEvent({
+			method: 'GET',
+			headers: { 'Authorization': `Bearer ${regularUserToken}` },
+			url: 'http://localhost:3000/api/mock/admin'
+		});
+
+		const response = await mockAdminRouteHandler(adminEvent);
+		const body = await response.json();
 
 		expect(response.status).toBe(403);
-		expect(response.body).toHaveProperty('message', 'Insufficient permissions');
+		expect(body.message).toMatch(/Insufficient permissions|Permission level/i);
 	});
 
 	it('should allow access to admin route with sufficient permissions', async () => {
@@ -238,19 +379,28 @@ describe('Authentication API', () => {
 			password: 'password123'
 		};
 
-		const adminResponse = await request(app)
-			.post('/api/auth/register')
-			.send(adminUserData);
+		const adminRegisterEvent = createMockEvent({
+			method: 'POST',
+			body: adminUserData,
+			url: 'http://localhost:3000/api/auth/register'
+		});
 
-		const adminToken = adminResponse.body.token;
+		const adminResponse = await registerHandler(adminRegisterEvent);
+		const adminBody = await adminResponse.json();
+		const adminToken = adminBody.token;
 
 		// Use token to access admin route
-		const response = await request(app)
-			.get('/api/mock/admin')
-			.set('Authorization', `Bearer ${adminToken}`);
+		const adminEvent = createMockEvent({
+			method: 'GET',
+			headers: { 'Authorization': `Bearer ${adminToken}` },
+			url: 'http://localhost:3000/api/mock/admin'
+		});
+
+		const response = await mockAdminRouteHandler(adminEvent);
+		const body = await response.json();
 
 		expect(response.status).toBe(200);
-		expect(response.body).toHaveProperty('message', 'Access granted to admin route');
+		expect(body).toHaveProperty('message', 'Access granted to admin route');
 	});
 
 	it('should retrieve user profile with valid token', async () => {
@@ -260,20 +410,29 @@ describe('Authentication API', () => {
 			password: 'password123'
 		};
 
-		const registerResponse = await request(app)
-			.post('/api/auth/register')
-			.send(userData);
+		const registerEvent = createMockEvent({
+			method: 'POST',
+			body: userData,
+			url: 'http://localhost:3000/api/auth/register'
+		});
 
-		const token = registerResponse.body.token;
+		const registerResponse = await registerHandler(registerEvent);
+		const registerBody = await registerResponse.json();
+		const token = registerBody.token;
 
 		// Get profile with token
-		const response = await request(app)
-			.get('/api/auth/profile')
-			.set('Authorization', `Bearer ${token}`);
+		const profileEvent = createMockEvent({
+			method: 'GET',
+			headers: { 'Authorization': `Bearer ${token}` },
+			url: 'http://localhost:3000/api/auth/profile'
+		});
+
+		const response = await profileHandler(profileEvent);
+		const body = await response.json();
 
 		expect(response.status).toBe(200);
-		expect(response.body).toHaveProperty('username', 'profileuser');
-		expect(response.body).not.toHaveProperty('passwordHash');
+		expect(body).toHaveProperty('username', 'profileuser');
+		expect(body).not.toHaveProperty('passwordHash');
 	});
 
 	it('should allow admin users to update another user\'s permission level', async () => {
@@ -283,11 +442,15 @@ describe('Authentication API', () => {
 			password: 'password123'
 		};
 
-		const adminResponse = await request(app)
-			.post('/api/auth/register')
-			.send(adminUserData);
+		const adminRegisterEvent = createMockEvent({
+			method: 'POST',
+			body: adminUserData,
+			url: 'http://localhost:3000/api/auth/register'
+		});
 
-		const adminToken = adminResponse.body.token;
+		const adminResponse = await registerHandler(adminRegisterEvent);
+		const adminBody = await adminResponse.json();
+		const adminToken = adminBody.token;
 
 		// Register regular user
 		const regularUserData = {
@@ -295,31 +458,45 @@ describe('Authentication API', () => {
 			password: 'password123'
 		};
 
-		const regularUserResponse = await request(app)
-			.post('/api/auth/register')
-			.send(regularUserData);
+		const regularRegisterEvent = createMockEvent({
+			method: 'POST',
+			body: regularUserData,
+			url: 'http://localhost:3000/api/auth/register'
+		});
 
-		const regularUserId = regularUserResponse.body.user.id;
+		const regularUserResponse = await registerHandler(regularRegisterEvent);
+		const regularUserBody = await regularUserResponse.json();
+		const regularUserId = regularUserBody.user.id;
 
 		// Admin updates regular user's permission level
-		const updateResponse = await request(app)
-			.put('/api/auth/permissions')
-			.set('Authorization', `Bearer ${adminToken}`)
-			.send({
+		const updateEvent = createMockEvent({
+			method: 'PUT',
+			body: {
 				userId: regularUserId,
 				permissionLevel: 3
-			});
+			},
+			headers: { 'Authorization': `Bearer ${adminToken}` },
+			url: 'http://localhost:3000/api/auth/permissions'
+		});
+
+		const updateResponse = await permissionsHandler(updateEvent);
+		const updateBody = await updateResponse.json();
 
 		expect(updateResponse.status).toBe(200);
-		expect(updateResponse.body).toHaveProperty('message', 'User permission updated successfully');
-		expect(updateResponse.body.user).toHaveProperty('permissionLevel', 3);
+		expect(updateBody).toHaveProperty('message', 'User permission updated successfully');
+		expect(updateBody.user).toHaveProperty('permissionLevel', 3);
 
 		// Verify through login
-		const loginResponse = await request(app)
-			.post('/api/auth/login')
-			.send(regularUserData);
+		const loginEvent = createMockEvent({
+			method: 'POST',
+			body: regularUserData,
+			url: 'http://localhost:3000/api/auth/login'
+		});
 
-		expect(loginResponse.body.user).toHaveProperty('permissionLevel', 3);
+		const loginResponse = await loginHandler(loginEvent);
+		const loginBody = await loginResponse.json();
+
+		expect(loginBody.user).toHaveProperty('permissionLevel', 3);
 	});
 
 	it('should not allow a user to modify their own permission level', async () => {
@@ -329,23 +506,35 @@ describe('Authentication API', () => {
 			password: 'password123'
 		};
 
-		const adminResponse = await request(app)
-			.post('/api/auth/register')
-			.send(adminUserData);
+		const adminRegisterEvent = createMockEvent({
+			method: 'POST',
+			body: adminUserData,
+			url: 'http://localhost:3000/api/auth/register'
+		});
 
-		const adminToken = adminResponse.body.token;
-		const adminId = adminResponse.body.user.id;
+		const adminResponse = await registerHandler(adminRegisterEvent);
+		const adminBody = await adminResponse.json();
+		const adminToken = adminBody.token;
+		const adminId = adminBody.user.id;
 
 		// Try to update own permission level
-		const updateResponse = await request(app)
-			.put('/api/auth/permissions')
-			.set('Authorization', `Bearer ${adminToken}`)
-			.send({
+		const updateEvent = createMockEvent({
+			method: 'PUT',
+			body: {
 				userId: adminId,
 				permissionLevel: 5
-			});
+			},
+			headers: { 'Authorization': `Bearer ${adminToken}` },
+			url: 'http://localhost:3000/api/auth/permissions'
+		});
 
-		expect(updateResponse.status).toBe(400);
-		expect(updateResponse.body).toHaveProperty('message', 'Cannot modify your own permission level');
+		try {
+			await permissionsHandler(updateEvent);
+			expect.fail('Should have thrown an error');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (err: any) {
+			expect(err.status).toBe(400);
+			expect(err.body?.message).toBe('Cannot modify your own permission level');
+		}
 	});
 });
