@@ -2,7 +2,7 @@ import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import { requireAuth, getUserId } from '$lib/server/auth.js';
 import User from '$lib/server/db/models/user.js';
-import Login from '$lib/server/db/models/login.js';
+import { Login } from '$lib/server/db/models/login.js';
 
 export const GET: RequestHandler = async (event) => {
 	// Require authentication (supports both OAuth and legacy User)

@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import * as arctic from "arctic";
-import Login from '../models/login.js';
+import { Login } from '../models/login.js';
 
 // JWT secret key - should be in environment variables in production
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';

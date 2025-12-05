@@ -2,7 +2,7 @@ import { redirect, error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
 import * as arctic from 'arctic';
-import Login from '$lib/server/db/models/login.js';
+import { Login } from '$lib/server/db/models/login.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 const google_client_id = process.env.GOOGLE_CLIENT_ID || '';

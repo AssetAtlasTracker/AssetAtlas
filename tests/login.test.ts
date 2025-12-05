@@ -4,7 +4,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import type { RequestEvent, Cookies } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
-import Login from '$lib/server/db/models/login.js';
+import { Login } from '$lib/server/db/models/login.js';
 import { GET as loginGoogleHandler } from '$routes/api/oauth/loginGoogle/+server.js';
 import { GET as loginGithubHandler } from '$routes/api/oauth/loginGithub/+server.js';
 import { GET as callbackGoogleHandler } from '$routes/api/oauth/callbackGoogle/+server.js';

@@ -1,7 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import { requirePermissionLevel } from '$lib/server/auth.js';
-import Login from '$lib/server/db/models/login.js';
+import { Login } from '$lib/server/db/models/login.js';
 
 export const PUT: RequestHandler = async (event) => {
 	// Require permission level 9 or higher
