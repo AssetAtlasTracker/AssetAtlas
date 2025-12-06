@@ -6,7 +6,7 @@
 
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import { dragAndDropMode } from "$lib/stores/dragDropStore.js";
+	import { dragDropMode } from "$lib/stores/dragDropStore.js";
 	import { createEventDispatcher, onDestroy } from "svelte";
 	import Dialog from "./Dialog.svelte";
 	import ItemCardOptions from "./ItemCardOptions.svelte";
@@ -21,10 +21,10 @@
 	let multiActions: MultiActions;
 	let itemCardOptions: ItemCardOptions;
 	let numSelected = 0;
-	let currentDragAndDropMode: boolean;
+	let currentDragDropMode: boolean;
 
-	const dragAndDropUnsubscribe = dragAndDropMode.subscribe((value) => {
-		currentDragAndDropMode = value;
+	const dragDropUnsubscribe = dragDropMode.subscribe((value) => {
+		currentDragDropMode = value;
 	});
 
 	function handleSelect(item: IBasicItemPopulated) {
@@ -131,22 +131,22 @@
 	}
 
 	function handleDragStart(event: DragEvent, item: IBasicItemPopulated) {
-		if (currentDragAndDropMode) {
+		if (currentDragDropMode) {
 			draggingItem = item;
 		}
 	}
 
 	onDestroy(() => {
-		dragAndDropUnsubscribe();
+		dragDropUnsubscribe();
 	});
 </script>
 
 {#if items && items.length > 0}
 	{#if numSelected > 0}
 		<Dialog bind:dialog on:close={handleClose}
-			><MultiActions
-				on:close={handleClose}
-				bind:this={multiActions} /></Dialog>
+		><MultiActions
+			on:close={handleClose}
+			bind:this={multiActions} /></Dialog>
 		<div class="sort-flex">
 			<button
 				class="success-button font-semibold shadow mt-4 w-full block"

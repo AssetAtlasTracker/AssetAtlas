@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import { dragAndDropMode } from "$lib/stores/dragDropStore.js";
+	import { dragDropMode } from "$lib/stores/dragDropStore.js";
 	import { onDestroy, onMount } from "svelte";
 	import ItemLink from "./ItemLink.svelte";
 
@@ -16,10 +16,10 @@
 	export let targetItemId: string | undefined;
 	export let targetItemName: string | undefined;
 	export let showMoveDialog: boolean;
-	let currentDragAndDropMode: boolean;
+	let currentDragDropMode: boolean;
 
-	const dragAndDropUnsubscribe = dragAndDropMode.subscribe((value) => {
-		currentDragAndDropMode = value;
+	const dragDropUnsubscribe = dragDropMode.subscribe((value) => {
+		currentDragDropMode = value;
 	});
 
 	export function closeMoveDialog() {
@@ -123,13 +123,13 @@
 	}
 
 	function handleDragStart(e: Event, item: TreeItem) {
-		if (currentDragAndDropMode) {
+		if (currentDragDropMode) {
 			draggingItem = item as unknown as IBasicItemPopulated;
 		}
 	}
 
 	onDestroy(() => {
-		dragAndDropUnsubscribe();
+		dragDropUnsubscribe();
 	});
 </script>
 
@@ -167,7 +167,7 @@
 								? "Collapse"
 								: "Expand"}>
 							<span class="tree-icon"
-								>{expanded[item._id] ? "▾" : "▸"}</span>
+							>{expanded[item._id] ? "▾" : "▸"}</span>
 						</button>
 					{:else}
 						<span class="expand-button placeholder-icon"></span>
@@ -182,7 +182,7 @@
 							on:openItem>
 							<button
 								class="tree-item-card important-text {item._id ===
-								currentId
+									currentId
 									? 'current'
 									: ''}"
 								aria-current={item._id === currentId}>

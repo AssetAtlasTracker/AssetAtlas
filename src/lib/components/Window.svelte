@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { browser } from "$app/environment";
-	import { dragAndDropMode } from "$lib/stores/dragDropStore.js";
+	import { dragDropMode } from "$lib/stores/dragDropStore.js";
 	import { topBarHeight } from "$lib/stores/topBarStore.js";
 	import { bringToFront } from "$lib/stores/zIndexStore.js";
 	import { createEventDispatcher, onDestroy, onMount } from "svelte";
@@ -23,14 +23,14 @@
 	let currentY = initialY;
 	let zIndex = 1;
 	let currentTopBarHeight: number;
-	let currentDragAndDropMode: boolean;
+	let currentDragDropMode: boolean;
 
 	const topBarUnsubscribe = topBarHeight.subscribe((value) => {
 		currentTopBarHeight = value;
 	});
 
-	const dragAndDropUnsubscribe = dragAndDropMode.subscribe((value) => {
-		currentDragAndDropMode = value;
+	const dragDropUnsubscribe = dragDropMode.subscribe((value) => {
+		currentDragDropMode = value;
 	});
 
 	function handleMouseDown(event: MouseEvent) {
@@ -51,8 +51,7 @@
 			container.style.userSelect = "none";
 		}
 
-		console.log("currentDragAndDropMode: " + currentDragAndDropMode);
-		if (currentDragAndDropMode) {
+		if (currentDragDropMode) {
 			isDragging = true;
 		}
 
@@ -177,7 +176,7 @@
 
 	onDestroy(() => {
 		topBarUnsubscribe();
-		dragAndDropUnsubscribe();
+		dragDropUnsubscribe();
 		if (isDragging) {
 			handleEnd();
 		}
