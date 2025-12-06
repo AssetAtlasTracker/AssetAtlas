@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { Switch } from "@skeletonlabs/skeleton-svelte";
-	import { onDestroy, onMount } from "svelte";
 	import CreateItem from "$lib/components/CreateItem.svelte";
 	import Dialog from "$lib/components/Dialog.svelte";
 	import ItemContainer from "$lib/components/ItemContainer.svelte";
@@ -11,10 +9,16 @@
 	import TopBar from "$lib/components/TopBar.svelte";
 	import Window from "$lib/components/Window.svelte";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import { topBarHeight } from "$lib/stores/topBarStore.js";
-	import { login, getEditOnLogin } from "$lib/stores/loginStore.js";
+	import {
+		dragAndDropMode,
+		setDragAndDropMode,
+	} from "$lib/stores/dragDropStore.js";
 	import type { LoginState } from "$lib/stores/loginStore.js";
+	import { getEditOnLogin, login } from "$lib/stores/loginStore.js";
+	import { topBarHeight } from "$lib/stores/topBarStore.js";
 	import "$lib/styles/main.css";
+	import { Switch } from "@skeletonlabs/skeleton-svelte";
+	import { onDestroy, onMount } from "svelte";
 
 	export let searchQuery = "";
 	export let dialog: HTMLDialogElement;
@@ -197,7 +201,18 @@
 				<Switch.Label>Tree View</Switch.Label>
 				<Switch.HiddenInput />
 			</Switch>
-			<!-- TODO: add another switch here for toggling drag and drop mode -->
+
+			<Switch
+				checked={$dragAndDropMode}
+				onchange={(e) => {
+					setDragAndDropMode(!$dragAndDropMode);
+				}}>
+				<Switch.Control>
+					<Switch.Thumb />
+				</Switch.Control>
+				<Switch.Label>Drag and Drop Mode</Switch.Label>
+				<Switch.HiddenInput />
+			</Switch>
 		</div>
 	</div>
 
