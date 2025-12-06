@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Switch } from '@skeletonlabs/skeleton-svelte';
+	import { Switch } from "@skeletonlabs/skeleton-svelte";
 	import { onDestroy, onMount } from "svelte";
 	import CreateItem from "$lib/components/CreateItem.svelte";
 	import Dialog from "$lib/components/Dialog.svelte";
@@ -12,7 +12,7 @@
 	import Window from "$lib/components/Window.svelte";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { topBarHeight } from "$lib/stores/topBarStore.js";
-	import {login, getEditOnLogin} from '$lib/stores/loginStore.js';
+	import { login, getEditOnLogin } from "$lib/stores/loginStore.js";
 	import type { LoginState } from "$lib/stores/loginStore.js";
 	import "$lib/styles/main.css";
 
@@ -125,7 +125,9 @@
 	}
 
 	function handleCloseWindow(id: string) {
-		additionalItemWindows = additionalItemWindows.filter((w) => w.id !== id);
+		additionalItemWindows = additionalItemWindows.filter(
+			(w) => w.id !== id,
+		);
 	}
 
 	function openInNewTab(itemId: string) {
@@ -153,7 +155,7 @@
 	}
 </script>
 
-<TopBar 
+<TopBar
 	bind:searchQuery
 	bind:menu
 	bind:exactSearch
@@ -162,8 +164,7 @@
 	}}
 	onExactSearchChange={(value) => {
 		handleSearch(searchQuery);
-	}}
-/>
+	}} />
 
 <div class="view-layout page-with-topbar">
 	<Menu bind:menu />
@@ -184,18 +185,19 @@
 				</div>
 			{/if}
 
-			<Switch checked={showItemTree} 
+			<Switch
+				checked={showItemTree}
 				onchange={(e) => {
 					showItemTree = !showItemTree;
-					toggleView()
-				}}
-			>
+					toggleView();
+				}}>
 				<Switch.Control>
 					<Switch.Thumb />
 				</Switch.Control>
 				<Switch.Label>Tree View</Switch.Label>
 				<Switch.HiddenInput />
 			</Switch>
+			<!-- TODO: add another switch here for toggling drag and drop mode -->
 		</div>
 	</div>
 
@@ -220,8 +222,8 @@
 				</p>
 				<br />
 				<p class="text-center">
-					If you are expecting items to be here, you may need to refresh the
-					page.
+					If you are expecting items to be here, you may need to
+					refresh the page.
 				</p>
 			</div>
 		{:else}
@@ -233,8 +235,8 @@
 				<br />
 
 				<p class="text-center sub-text">
-					If loading takes longer than expected, you may need to refresh the
-					page.
+					If loading takes longer than expected, you may need to
+					refresh the page.
 				</p>
 			</div>
 		{/if}
