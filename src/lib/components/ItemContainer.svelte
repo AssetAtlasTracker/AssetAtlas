@@ -5,22 +5,27 @@
  Copyright 2025 Fonticons, Inc.-->
 
 <script lang="ts">
+	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
+	import { dragAndDropMode } from "$lib/stores/dragDropStore.js";
+	import { createEventDispatcher, onDestroy } from "svelte";
+	import Dialog from "./Dialog.svelte";
 	import ItemCardOptions from "./ItemCardOptions.svelte";
 	import MultiActions from "./MultiActions.svelte";
-	import Dialog from "./Dialog.svelte";
-	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import { createEventDispatcher } from "svelte";
 
 	export let items: IBasicItemPopulated[];
 
 	let selectedItems: IBasicItemPopulated[] = [];
-	let selected = [];
 
 	let dialog: HTMLDialogElement;
 
 	let multiActions: MultiActions;
 	let itemCardOptions: ItemCardOptions;
 	let numSelected = 0;
+	let currentDragAndDropMode: boolean;
+
+	const dragAndDropUnsubscribe = dragAndDropMode.subscribe((value) => {
+		currentDragAndDropMode = value;
+	});
 
 	function handleSelect(item: IBasicItemPopulated) {
 		if (selectedItems.includes(item)) {
@@ -126,32 +131,35 @@
 	}
 
 	function handleDragStart(event: DragEvent, item: IBasicItemPopulated) {
-		draggingItem = item;
+		if (currentDragAndDropMode) {
+			draggingItem = item;
+		}
 	}
+
+	onDestroy(() => {
+		dragAndDropUnsubscribe();
+	});
 </script>
 
 {#if items && items.length > 0}
 	{#if numSelected > 0}
 		<Dialog bind:dialog on:close={handleClose}
-		><MultiActions on:close={handleClose} bind:this={multiActions} /></Dialog
-		>
+			><MultiActions
+				on:close={handleClose}
+				bind:this={multiActions} /></Dialog>
 		<div class="sort-flex">
 			<button
 				class="success-button font-semibold shadow mt-4 w-full block"
-				on:click={selectAll}>Select All</button
-			>
+				on:click={selectAll}>Select All</button>
 			<button
 				class="success-button font-semibold shadow mt-4 w-full block"
-				on:click={deselectAll}>Deselect All</button
-			>
+				on:click={deselectAll}>Deselect All</button>
 			<button
 				class="success-button font-semibold shadow mt-4 w-full block"
-				on:click={handleMoveAll}>Move Selected</button
-			>
+				on:click={handleMoveAll}>Move Selected</button>
 			<button
 				class="warn-button font-semibold shadow mt-4 w-full block"
-				on:click={handleDeleteAll}>Delete Selected</button
-			>
+				on:click={handleDeleteAll}>Delete Selected</button>
 		</div>
 	{/if}
 	<div id="home-component" class="glass page-component">
@@ -171,26 +179,48 @@
 				}}
 				on:drop={handleDragDrop}
 				data-item-id={i._id}
-				data-item-name={i.name}
-			>
+				data-item-name={i.name}>
 				<input
 					type="checkbox"
 					style="width: 20px; height: 20px; align-self: center; margin: auto 0;"
 					on:click={() => {
 						handleSelect(i);
-					}}
-				/>
+					}} />
 				<a href={`/view/${i._id}`} class="item-card">
 					<div class="item-subcard flex">
 						<!-- Custom "draggable" icon svg-->
 						<div class="draggable-list-dot-icon">
 							<svg viewBox="0 0 200 300" role="img">
-								<circle cx="50" cy="50" r="25" style="fill: #ffffff" />
-								<circle cx="50" cy="140" r="25" style="fill: #ffffff" />
-								<circle cx="50" cy="230" r="25" style="fill: #ffffff" />
-								<circle cx="140" cy="50" r="25" style="fill: #ffffff" />
-								<circle cx="140" cy="140" r="25" style="fill: #ffffff" />
-								<circle cx="140" cy="230" r="25" style="fill: #ffffff" />
+								<circle
+									cx="50"
+									cy="50"
+									r="25"
+									style="fill: #ffffff" />
+								<circle
+									cx="50"
+									cy="140"
+									r="25"
+									style="fill: #ffffff" />
+								<circle
+									cx="50"
+									cy="230"
+									r="25"
+									style="fill: #ffffff" />
+								<circle
+									cx="140"
+									cy="50"
+									r="25"
+									style="fill: #ffffff" />
+								<circle
+									cx="140"
+									cy="140"
+									r="25"
+									style="fill: #ffffff" />
+								<circle
+									cx="140"
+									cy="230"
+									r="25"
+									style="fill: #ffffff" />
 							</svg>
 						</div>
 						<div>
@@ -210,8 +240,7 @@
 					bind:this={itemCardOptions}
 					on:mouseenter={() => console.log("mouse entered")}
 					item={i}
-					on:itemCreated={onCreated}
-				/>
+					on:itemCreated={onCreated} />
 			</div>
 			<br />
 		{/each}
