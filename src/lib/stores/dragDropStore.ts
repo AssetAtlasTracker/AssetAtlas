@@ -1,7 +1,8 @@
 import { writable } from 'svelte/store';
 
-export const dragAndDropMode = writable<boolean>(false);
+export const dragDropMode = writable<boolean>(false);
 
-export function setDragAndDropMode(enabled: boolean): void {
-	dragAndDropMode.set(enabled);
+export function setDragDropMode(enabled: boolean): void {
+	dragDropMode.set(enabled);
+	window.localStorage.setItem("dragDropMode", enabled.toString());
 }

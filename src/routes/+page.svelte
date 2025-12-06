@@ -10,8 +10,8 @@
 	import Window from "$lib/components/Window.svelte";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import {
-		dragAndDropMode,
-		setDragAndDropMode,
+		dragDropMode,
+		setDragDropMode,
 	} from "$lib/stores/dragDropStore.js";
 	import type { LoginState } from "$lib/stores/loginStore.js";
 	import { getEditOnLogin, login } from "$lib/stores/loginStore.js";
@@ -97,12 +97,19 @@
 		window.localStorage.setItem("viewMode", viewMode);
 	}
 
-	function restoreViewMode() {
+	function restoreToggleStates() {
 		const savedViewMode = window.localStorage.getItem("viewMode");
 		if (savedViewMode != null) {
 			viewMode = savedViewMode === "tree" ? "tree" : "list";
 		}
+
+		const savedDragDropMode = window.localStorage.getItem("dragDropMode");
+		if (savedDragDropMode != null) {
+			const dragDropMode = savedDragDropMode === "true" ? true : false;
+			setDragDropMode(dragDropMode);
+		}
 	}
+
 	interface ItemWindow {
 		id: string;
 		x: number;
@@ -144,7 +151,7 @@
 
 	onMount(() => {
 		document.title = "Home - AssetAtlas";
-		restoreViewMode();
+		restoreToggleStates();
 		unsubscribe = topBarHeight.subscribe((value) => {
 			currentTopBarHeight = value;
 		});
@@ -203,9 +210,9 @@
 			</Switch>
 
 			<Switch
-				checked={$dragAndDropMode}
+				checked={$dragDropMode}
 				onchange={(e) => {
-					setDragAndDropMode(!$dragAndDropMode);
+					setDragDropMode(!$dragDropMode);
 				}}>
 				<Switch.Control>
 					<Switch.Thumb />
