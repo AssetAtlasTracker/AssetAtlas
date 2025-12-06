@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { onMount, createEventDispatcher } from "svelte";
-	import ItemLink from "./ItemLink.svelte";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
+	import { dragDropMode } from "$lib/stores/dragDropStore.js";
+	import { onDestroy, onMount } from "svelte";
+	import ItemLink from "./ItemLink.svelte";
 
 	interface TreeItem {
 		_id: string;
@@ -11,12 +12,15 @@
 		hasChildren: boolean;
 	}
 
-	const dispatch = createEventDispatcher();
-
 	export let draggingItem: IBasicItemPopulated | null | undefined;
 	export let targetItemId: string | undefined;
 	export let targetItemName: string | undefined;
 	export let showMoveDialog: boolean;
+	let currentDragDropMode: boolean;
+
+	const dragDropUnsubscribe = dragDropMode.subscribe((value) => {
+		currentDragDropMode = value;
+	});
 
 	export function closeMoveDialog() {
 		showMoveDialog = false;
@@ -106,7 +110,9 @@
 		) {
 			element = element.parentElement;
 		}
-		let itemId = element?.getAttribute("data-item-id") as string | undefined;
+		let itemId = element?.getAttribute("data-item-id") as
+			| string
+			| undefined;
 		targetItemName = element?.getAttribute("data-item-name") as
 			| string
 			| undefined;
@@ -117,13 +123,14 @@
 	}
 
 	function handleDragStart(e: Event, item: TreeItem) {
-		draggingItem = item as unknown as IBasicItemPopulated;
+		if (currentDragDropMode) {
+			draggingItem = item as unknown as IBasicItemPopulated;
+		}
 	}
 
-	function resetItems() {
-		draggingItem = null;
-		targetItemId = undefined;
-	}
+	onDestroy(() => {
+		dragDropUnsubscribe();
+	});
 </script>
 
 <div class="tree-container">
@@ -131,7 +138,9 @@
 		<p>Loading tree...</p>
 	{:else}
 		{#each treeData as item, index (item._id)}
-			<div class="tree-branch" style="padding-left: {indentLevel * 0.75}rem;">
+			<div
+				class="tree-branch"
+				style="padding-left: {indentLevel * 0.75}rem;">
 				<div
 					class="flex"
 					role="navigation"
@@ -149,15 +158,16 @@
 						e.preventDefault();
 						console.log("End Drag");
 					}}
-					on:drop={doDrop}
-				>
+					on:drop={doDrop}>
 					{#if item.hasChildren}
 						<button
 							class="expand-button"
 							on:click={() => toggleExpand(item._id)}
-							aria-label={expanded[item._id] ? "Collapse" : "Expand"}
-						>
-							<span class="tree-icon">{expanded[item._id] ? "▾" : "▸"}</span>
+							aria-label={expanded[item._id]
+								? "Collapse"
+								: "Expand"}>
+							<span class="tree-icon"
+							>{expanded[item._id] ? "▾" : "▸"}</span>
 						</button>
 					{:else}
 						<span class="expand-button placeholder-icon"></span>
@@ -169,23 +179,46 @@
 							className="flex-grow"
 							itemId={ensureString(item._id)}
 							itemName={item.name}
-							on:openItem
-						>
+							on:openItem>
 							<button
-								class="tree-item-card important-text {item._id === currentId
+								class="tree-item-card important-text {item._id ===
+									currentId
 									? 'current'
 									: ''}"
-								aria-current={item._id === currentId}
-							>
+								aria-current={item._id === currentId}>
 								<div class="flex">
 									<div class="draggable-tree-dot-icon">
 										<svg viewBox="0 0 200 300" role="img">
-											<circle cx="50" cy="50" r="25" style="fill: #ffffff" />
-											<circle cx="50" cy="140" r="25" style="fill: #ffffff" />
-											<circle cx="50" cy="230" r="25" style="fill: #ffffff" />
-											<circle cx="140" cy="50" r="25" style="fill: #ffffff" />
-											<circle cx="140" cy="140" r="25" style="fill: #ffffff" />
-											<circle cx="140" cy="230" r="25" style="fill: #ffffff" />
+											<circle
+												cx="50"
+												cy="50"
+												r="25"
+												style="fill: #ffffff" />
+											<circle
+												cx="50"
+												cy="140"
+												r="25"
+												style="fill: #ffffff" />
+											<circle
+												cx="50"
+												cy="230"
+												r="25"
+												style="fill: #ffffff" />
+											<circle
+												cx="140"
+												cy="50"
+												r="25"
+												style="fill: #ffffff" />
+											<circle
+												cx="140"
+												cy="140"
+												r="25"
+												style="fill: #ffffff" />
+											<circle
+												cx="140"
+												cy="230"
+												r="25"
+												style="fill: #ffffff" />
 										</svg>
 									</div>
 									{item.name}
@@ -205,8 +238,7 @@
 						indentLevel={indentLevel + 1}
 						{currentId}
 						{useWindowView}
-						on:openItem
-					/>
+						on:openItem />
 				{/if}
 			</div>
 		{/each}

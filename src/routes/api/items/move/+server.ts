@@ -1,11 +1,11 @@
-import { json, error } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import BasicItem from '$lib/server/db/models/basicItem.js';
+import { error, json } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
-	const formData = await request.formData();
-	const itemId = formData.get('itemId') as string;
-	const newParentId = formData.get('newParentId') as string;
+	const body = await request.json();
+	const itemId = body['itemId'] as string;
+	const newParentId = body['newParentId'] as string;
 	//Treat an empty string (or only whitespace) as no parent
 	const newParent = newParentId && newParentId.trim() !== "" ? newParentId : null;
 
