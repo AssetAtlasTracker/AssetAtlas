@@ -80,7 +80,7 @@
 					<SearchBar {searchQuery} {onSearch} />
 				</div>
 			</div>
-			<div class="sort-flex"></div>
+
 
 			<Switch 
 				checked={exactSearch} 
@@ -91,14 +91,17 @@
 				</Switch.Control>
 				<Switch.Label>Exact Search</Switch.Label>
 				<Switch.HiddenInput />
-			</Switch>
-		</div>
-		<div class="loginUser" style="font-size: larger; margin-left: auto; padding-right: 2rem;">
+			</Switch> 
+			<div class="sort-flex"></div>
+
+			<div class="loginUser" style="font-size: larger; margin-left: auto; padding-right: 2rem;">
 			{#if currentLogin?.isLoggedIn}
 				User: {currentLogin?.name}
 			{:else}
 				Not Logged In
 			{/if}
 		</div>
+		</div>
+		
 	</AppBar>
 </div>
