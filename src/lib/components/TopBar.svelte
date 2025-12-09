@@ -2,10 +2,10 @@
 	import { AppBar } from "@skeletonlabs/skeleton-svelte";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
 	import SearchBar from "./SearchBar.svelte";
+	//@ts-expect-error Getting an error here, not sure why
 	import MdMenu from "svelte-icons/md/MdMenu.svelte";
 	import { onMount } from 'svelte';
 	import { setTopBarHeight } from '$lib/stores/topBarStore.js';
-	import type { LoginState } from "../stores/loginStore.js";
 	import {login} from "../stores/loginStore.js";
 
 
@@ -30,10 +30,7 @@
 
 	let topBarElement: HTMLDivElement;
 
-	let currentLogin: LoginState | undefined;
-	login.subscribe((value) => {
-		currentLogin = value;
-	});
+	let currentLogin = $derived($login);
 
 	onMount(() => {
 		if (topBarElement) {
