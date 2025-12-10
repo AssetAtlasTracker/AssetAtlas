@@ -45,6 +45,6 @@
 	>
 		Are you sure you want to {action} these items?
 	</button>
-	<Dialog bind:dialog={dialog}><DeleteItem itemId="" bind:this={deleter}/>
+	<Dialog bind:dialog={dialog} isLarge={false} create={() => {}} close={() => dialog.close()}><DeleteItem itemId="" bind:this={deleter}/>
 	</Dialog>
 {/if}

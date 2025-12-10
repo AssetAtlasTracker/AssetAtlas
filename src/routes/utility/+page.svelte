@@ -293,6 +293,6 @@
 	</div>
 </div>
 
-<Dialog bind:dialog>
+<Dialog bind:dialog isLarge={false} create={() => {}} close={() => dialog.close()}>
 	<div id="dialog-text" class="simple-dialog-spacing">Some dialog text</div>
 </Dialog>

@@ -823,7 +823,9 @@
 {#if showEditTemplateDialog}
 	<Dialog
 		bind:dialog={templateDialog}
-		on:close={() => {
+		isLarge={false}
+		create={() => {}}
+		close={() => {
 			showEditTemplateDialog = false;
 			resetForm();
 		}}

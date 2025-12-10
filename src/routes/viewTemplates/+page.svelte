@@ -91,7 +91,9 @@
 	{#if showCreateTemplateDialog}
 		<Dialog
 			bind:dialog={templateDialog}
-			on:close={closeCreateDialog}
+			isLarge={false}
+			create={() => {}}
+			close={closeCreateDialog}
 		>
 			<CreateTemplate
 				on:templateCreated={handleTemplateCreated}

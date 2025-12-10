@@ -220,7 +220,7 @@
 	}
 </script>
 
-<Dialog bind:dialog>
+<Dialog bind:dialog isLarge={false} create={() => {}} close={() => dialog.close()}>
 	<div class="small-dialog-padding">
 		Are you sure you want to duplicate "{item.name}"?
 		<div class="simple-flex pt-4">

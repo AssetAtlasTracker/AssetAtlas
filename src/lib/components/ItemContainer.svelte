@@ -143,7 +143,7 @@
 
 {#if items && items.length > 0}
 	{#if numSelected > 0}
-		<Dialog bind:dialog on:close={handleClose}
+		<Dialog bind:dialog isLarge={false} create={() => {}} close={handleClose}
 		><MultiActions
 			on:close={handleClose}
 			bind:this={multiActions} /></Dialog>

@@ -88,7 +88,7 @@
 	</div>
 {/if}
 
-<Dialog bind:dialog={editDialog} on:close={closeEdit}>
+<Dialog bind:dialog={editDialog} isLarge={false} create={() => {}} close={closeEdit}>
 	{#if editingTemplate}
 		<EditTemplate template={editingTemplate} onClose={closeEdit} />
 	{/if}
