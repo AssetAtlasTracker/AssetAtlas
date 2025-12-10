@@ -1,18 +1,15 @@
 <script lang="ts">
-	import TemplateList from "$lib/components/TemplateList.svelte";
-	import TopBar from "$lib/components/TopBar.svelte";
-	import Menu from "$lib/components/Menu.svelte";
-	import DeleteTemplate from "$lib/components/DeleteTemplate.svelte";
 	import CreateTemplate from "$lib/components/CreateTemplate.svelte";
 	import Dialog from "$lib/components/Dialog.svelte";
+	import Menu from "$lib/components/Menu.svelte";
+	import TemplateList from "$lib/components/TemplateList.svelte";
+	import TopBar from "$lib/components/TopBar.svelte";
 	import type { ITemplatePopulated } from "$lib/server/db/models/template.js";
-	import { onMount } from "svelte";
-	import {login, getEditOnLogin} from '$lib/stores/loginStore.js';
 	import type { LoginState } from "$lib/stores/loginStore.js";
-
+	import { getEditOnLogin, login } from "$lib/stores/loginStore.js";
+	import { onMount } from "svelte";
 
 	import "$lib/styles/main.css";
-
 
 	let templates: ITemplatePopulated[] = [];
 	let menu: HTMLDialogElement;
@@ -61,10 +58,6 @@
 
 	function onSearch(query: string) {}
 
-	function handleTemplateDeleted() {
-		fetchTemplates();
-	}
-
 	onMount(() => {
 		document.title = "Templates - AssetAtlas";
 		fetchTemplates();
@@ -82,23 +75,20 @@
 			class="add-button text-icon font-bold shadow"
 			on:click={() => {
 				showCreateTemplateDialog = true;
-			}}
-		>
+			}}>
 			+
 		</button>
 	{/if}
-	
+
 	{#if showCreateTemplateDialog}
 		<Dialog
 			bind:dialog={templateDialog}
 			isLarge={false}
 			create={() => {}}
-			close={closeCreateDialog}
-		>
+			close={closeCreateDialog}>
 			<CreateTemplate
 				on:templateCreated={handleTemplateCreated}
-				on:close={closeCreateDialog}
-			/>
+				on:close={closeCreateDialog} />
 		</Dialog>
 	{/if}
 </div>

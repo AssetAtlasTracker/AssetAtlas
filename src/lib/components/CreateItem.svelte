@@ -653,7 +653,7 @@
 						<Switch.Thumb />
 					</Switch.Control>
 					<Switch.Label
-					>Item is currently at its home location</Switch.Label>
+						>Item is currently at its home location</Switch.Label>
 					<Switch.HiddenInput />
 				</Switch>
 
