@@ -26,7 +26,7 @@
 		try {
 			const token = cookieStore.get('auth_token');
 			if (!token) {
-				error = 'Authentication required';
+				error = 'Authentication required for fetching users';
 				isLoading = false;
 				return;
 			}
@@ -52,13 +52,14 @@
 		updateError = '';
     
 		try {
-			const token = localStorage.getItem('token');
+			const token = cookieStore.get('auth_token');
 			if (!token) {
-				updateError = 'Authentication required';
+				error = 'Authentication required for changing permissions';
+				isLoading = false;
 				return;
 			}
 
-			const response = await fetch('/api/auth/permissions', {
+			const response = await fetch('/api/oauth/permissions', {
 				method: 'PUT',
 				headers: {
 					'Authorization': `Bearer ${token}`,
@@ -148,8 +149,6 @@
 			<div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-600 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
 		</label>
 	</div>
-
-	<div class="text-center py-4">User List WIP</div>
 
 	{#if isLoading}
 		<div class="text-center py-4">Loading users...</div>
