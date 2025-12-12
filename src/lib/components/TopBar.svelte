@@ -2,8 +2,7 @@
 	import { AppBar } from "@skeletonlabs/skeleton-svelte";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
 	import SearchBar from "./SearchBar.svelte";
-	//@ts-expect-error Getting an error here, not sure why
-	import MdMenu from "svelte-icons/md/MdMenu.svelte";
+	import { Menu } from "lucide-svelte";
 	import { onMount } from 'svelte';
 	import { setTopBarHeight } from '$lib/stores/topBarStore.js';
 	import {login} from "../stores/loginStore.js";
@@ -66,7 +65,7 @@
 		<div class="top-bar-flex">
 			<button class="mx-4" onclick={handleClickMenu}>
 				<div class="icon-small">
-					<MdMenu />
+					<Menu />
 				</div>
 			</button>
 			<div class="flex-1 m-4">
