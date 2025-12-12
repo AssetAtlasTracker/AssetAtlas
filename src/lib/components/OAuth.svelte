@@ -93,7 +93,7 @@
  </script>
 
 
-<dialog bind:this={dialog} class="glass border">
+<dialog bind:this={dialog} class="glass border fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
   <div class="flex flex-col space-y-4 p-4 relative">
     <button class="x-button absolute top-0 right-0 mt-2 mr-2" on:click={() => dialog.close()}>X</button>
     
