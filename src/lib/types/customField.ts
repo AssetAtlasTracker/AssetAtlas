@@ -9,11 +9,14 @@ export interface ICustomFieldEntry {
     fieldName: string;
     fieldId?: string;
     dataType: string;
-    value: string;
     suggestions: ICustomField[];
     isNew: boolean;
     isSearching: boolean;
     isExisting: boolean;
-    fromTemplate: boolean;
     searchTimeout?: ReturnType<typeof setTimeout>;
+}
+
+export interface ICustomFieldEntryInstance extends ICustomFieldEntry {
+    value: string;
+    fromTemplate: boolean;
 }
