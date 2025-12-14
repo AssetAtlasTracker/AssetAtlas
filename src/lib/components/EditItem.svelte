@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { addToRecents } from "$lib/utility/recentItemHelper";
+	import type { ICustomField, ICustomFieldEntryInstance } from "$lib/types/customField";
 	import InfoToolTip from "./InfoToolTip.svelte";
 	import CreateTemplate from "./CreateTemplate.svelte";
 	import CustomFieldPicker from "./CustomFieldPicker.svelte";
@@ -50,27 +52,7 @@
 	let removeExistingImage = false;
 	let sameLocations: boolean = false;
 
-	interface ICustomField {
-		_id: string;
-		fieldName: string;
-		dataType: string;
-		createdAt: string;
-	}
-
-	interface ICustomFieldEntry {
-		fieldName: string;
-		fieldId?: string;
-		dataType: string;
-		value: string;
-		suggestions: ICustomField[];
-		isNew: boolean;
-		isSearching: boolean;
-		isExisting: boolean;
-		fromTemplate: boolean;
-		searchTimeout?: NodeJS.Timeout;
-	}
-
-	let customFields: ICustomFieldEntry[] = [];
+	let customFields: ICustomFieldEntryInstance[] = [];
 	if (item.customFields?.length) {
 		//First load non-template fields
 		let nonTemplateFields = item.customFields.map((cf) => ({
@@ -190,22 +172,6 @@
 			parentItemSuggestions = data;
 		} catch (err) {
 			console.error("Error searching parent items:", err);
-		}
-	}
-
-	async function addToRecents(type: string, item: any) {
-		console.log("Adding to recents:", type, item); // Add debug logging
-		try {
-			await fetch(`/api/recentItems/add`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					type,
-					itemId: item._id,
-				}),
-			});
-		} catch (err) {
-			console.error("Error adding to recents:", err);
 		}
 	}
 

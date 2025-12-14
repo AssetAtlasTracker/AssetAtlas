@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { addToRecents } from "$lib/utility/recentItemHelper";
 	import CustomFieldPicker from "./CustomFieldPicker.svelte";
+	import type { ICustomFieldEntry } from "$lib/types/customField";
 	import type { ITemplatePopulated } from "$lib/server/db/models/template.js";
 	import type { ICustomField } from "$lib/server/db/models/customField.js";
 	import type { Mongoose } from "mongoose";
@@ -19,17 +21,6 @@
 	}));
 	let nameError = "";
 	let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
-
-	interface ICustomFieldEntry {
-		fieldName: string;
-		fieldId?: string;
-		dataType: string;
-		suggestions: ICustomField[];
-		isNew: boolean;
-		isSearching: boolean;
-		searchTimeout?: ReturnType<typeof setTimeout>;
-		isExisting: boolean;
-	}
 
 	async function handleEditTemplate() {
 		customFields = customFields.filter(
@@ -120,7 +111,7 @@
 						headers: { "Content-Type": "application/json" },
 					},
 				);
-				const data: ICustomField[] = await response.json();
+				const data: any[] = await response.json();
 				customFields[index].suggestions = data;
 			} catch (error) {
 				console.error("Error searching custom fields:", error);
@@ -150,7 +141,7 @@
 
 	function selectCustomFieldSuggestion(
 		index: number,
-		suggestion: ICustomField,
+		suggestion: any,
 	) {
 		customFields[index].fieldName = suggestion.fieldName;
 		customFields[index].fieldId = suggestion._id as string;
@@ -254,29 +245,6 @@
 		}
 	}
 
-	async function addToRecents(type: string, item: any) {
-		try {
-			const body = JSON.stringify({
-				type,
-				itemId: item._id,
-			});
-
-			const response = await fetch(`/api/recentItems/add`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: body,
-			});
-
-			const responseText = await response.text();
-
-			if (!response.ok) {
-				throw new Error(`Failed to add to recents: ${responseText}`);
-			}
-		} catch (err) {
-			console.error('Error adding to recents:', err);
-		}
-	}
-
 	async function loadRecentItems(type: string) {
 		try {
 			const response = await fetch(`/api/recentItems/${type}`, {
@@ -327,19 +295,19 @@
 					showDeleteButton={true}
 					onDelete={() => removeCustomField(index)}
 				>
-					<svelte:fragment slot="suggestions">
-						{#each field.suggestions as suggestion}
-							<button
-								class="suggestion-item"
-								type="button"
-								on:mousedown={(e) => {
-									e.preventDefault();
-									selectCustomFieldSuggestion(index, suggestion);
-								}}
-							>
-								{suggestion.fieldName} ({suggestion.dataType})
-							</button>
-						{/each}
+				<svelte:fragment slot="suggestions">
+					{#each field.suggestions as suggestion}
+						<button
+							class="suggestion-item"
+							type="button"
+							on:mousedown={(e) => {
+								e.preventDefault();
+								selectCustomFieldSuggestion(index, suggestion);
+							}}
+						>
+							{suggestion.fieldName} ({suggestion.dataType})
+						</button>
+					{/each}
 					</svelte:fragment>
 				</CustomFieldPicker>
 			{/each}

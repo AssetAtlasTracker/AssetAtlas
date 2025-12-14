@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { ICustomField, ICustomFieldEntryInstance } from "$lib/types/customField";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { ip } from "$lib/stores/ipStore.js";
 	import Dialog from "./Dialog.svelte";
@@ -69,27 +70,7 @@
 		}
 	}
 
-	interface ICustomField {
-		_id: string;
-		fieldName: string;
-		dataType: string;
-		createdAt: string;
-	}
-
-	interface ICustomFieldEntry {
-		fieldName: string;
-		fieldId?: string;
-		dataType: string;
-		value: string;
-		suggestions: ICustomField[];
-		isNew: boolean;
-		isSearching: boolean;
-		isExisting: boolean;
-		fromTemplate: boolean;
-		searchTimeout?: ReturnType<typeof setTimeout>;
-	}
-
-	let customFields: ICustomFieldEntry[] = [];
+	let customFields: ICustomFieldEntryInstance[] = [];
 	if (item.customFields?.length) {
 		//First load non-template fields
 		let nonTemplateFields = item.customFields.map((cf) => ({
