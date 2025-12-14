@@ -141,7 +141,7 @@
 			<ItemDetails {item} on:openItem={handleOpenItem} />
 
 			<div class="button-row-flex">
-				{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
+				{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 0)}
 					<!--Move button-->
 					<button
 						class="border-button center-button-icons flex-grow font-semibold shadow"
@@ -174,6 +174,7 @@
 						>
 					</button>
 
+					{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
 					<!--Edit button-->
 					<button
 						class="border-button center-button-icons flex-grow font-semibold shadow"
@@ -189,6 +190,8 @@
 						/></svg
 						>
 					</button>
+
+					{/if}
 					
 					<!-- Add Show Item Tree button when tree is hidden -->
 					{#if !showItemTree}
@@ -208,7 +211,7 @@
 						</button>
 					{/if}
 
-					{#if (currentLogin?.permissionLevel ?? 1) >= 5}
+					{#if (currentLogin?.permissionLevel ?? 1) > 2}
 					<!--Delete button-->
 					<button
 						class="warn-button center-button-icons flex-grow font-semibold shadow"

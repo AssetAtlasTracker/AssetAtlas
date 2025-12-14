@@ -150,6 +150,18 @@
 		</label>
 	</div>
 
+	<div class="text-smfont-meduim">
+		Default permission settings:
+		<ul>
+			<li>Guests can only view</li>
+			<li>1 can move</li>
+			<li>2 can create</li>
+			<li>3 can delete</li>
+			<li>9 can access admin page</li>
+			<li>10 can edit other users' permissions</li>
+		</ul>
+	</div>
+
 	{#if isLoading}
 		<div class="text-center py-4">Loading users...</div>
 	{:else if error}

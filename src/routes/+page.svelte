@@ -274,7 +274,7 @@
 		</Window>
 	{/each}
 
-	{#if !getEditOnLogin() || currentLogin?.isLoggedIn}
+	{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
 		<button
 			class="add-button text-icon font-bold shadow"
 			on:click={() => {
