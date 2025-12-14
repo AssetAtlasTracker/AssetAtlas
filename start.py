@@ -85,13 +85,14 @@ def shutdown_docker():
             command = ["docker-compose", "-f", compose_file, "stop"]
             update_command_display(command)
 
-            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            print("\n=== Stopping Docker Containers ===")
+            process = subprocess.Popen(command)
             processes.append(process)
-            _, err = process.communicate()
+            process.wait()
 
             if process.returncode != 0:
                 shutdown_button.config(state=tk.NORMAL)
-                messagebox.showerror("Error", f"Failed to stop Docker Containers:\n{err.decode()}")
+                messagebox.showerror("Error", f"Failed to stop Docker Containers. Check console for details.")
                 return
 
         label_status.config(text="Docker containers stopped")
@@ -162,17 +163,21 @@ def run_docker_compose(mode: str):
         os.chdir(os.path.join(SCRIPT_DIR, "docker"))
 
         # Run the docker-compose command
+        print("\n=== Running Docker Compose ===")
+        print(f"Command: {' '.join(command)}")
+        print("=" * 50)
+        
         containers_probably_running = True
         run_button.config(state=tk.DISABLED)
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(command)
         processes.append(process)
-        _, err = process.communicate()
+        process.wait()
 
         # Check for errors
         if process.returncode != 0:
             run_button.config(state=tk.NORMAL)
             shutdown_button.config(state=tk.NORMAL)
-            messagebox.showerror("Error", f"Failed to run Docker Compose:\n{err.decode()}")
+            messagebox.showerror("Error", f"Failed to run Docker Compose. Check console for details.")
             progressbar.stop()
             return
 

@@ -2,10 +2,9 @@
 	import { AppBar } from "@skeletonlabs/skeleton-svelte";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
 	import SearchBar from "./SearchBar.svelte";
-	import MdMenu from "svelte-icons/md/MdMenu.svelte";
+	import { Menu } from "lucide-svelte";
 	import { onMount } from 'svelte';
 	import { setTopBarHeight } from '$lib/stores/topBarStore.js';
-	import type { LoginState } from "../stores/loginStore.js";
 	import {login} from "../stores/loginStore.js";
 
 
@@ -30,10 +29,7 @@
 
 	let topBarElement: HTMLDivElement;
 
-	let currentLogin: LoginState | undefined;
-	login.subscribe((value) => {
-		currentLogin = value;
-	});
+	let currentLogin = $derived($login);
 
 	onMount(() => {
 		if (topBarElement) {
@@ -69,7 +65,7 @@
 		<div class="top-bar-flex">
 			<button class="mx-4" onclick={handleClickMenu}>
 				<div class="icon-small">
-					<MdMenu />
+					<Menu />
 				</div>
 			</button>
 			<div class="flex-1 m-4">
@@ -80,7 +76,7 @@
 					<SearchBar {searchQuery} {onSearch} />
 				</div>
 			</div>
-			<div class="sort-flex"></div>
+
 
 			<Switch 
 				checked={exactSearch} 
@@ -91,14 +87,17 @@
 				</Switch.Control>
 				<Switch.Label>Exact Search</Switch.Label>
 				<Switch.HiddenInput />
-			</Switch>
-		</div>
-		<div class="loginUser" style="font-size: larger; margin-left: auto; padding-right: 2rem;">
+			</Switch> 
+			<div class="sort-flex"></div>
+
+			<div class="loginUser" style="font-size: larger; margin-left: auto; padding-right: 2rem;">
 			{#if currentLogin?.isLoggedIn}
 				User: {currentLogin?.name}
 			{:else}
 				Not Logged In
 			{/if}
 		</div>
+		</div>
+		
 	</AppBar>
 </div>
