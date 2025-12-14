@@ -600,7 +600,15 @@
 </script>
 
 <Dialog isLarge={true} bind:dialog create={() => {}} close={resetForm}>
-	<h1 id="underline-header" class="font-bold text-center">Create New Item</h1>
+	{#if duplicate}
+		<h1 id="underline-header" class="font-bold text-center">
+			Duplicate & Edit Item
+		</h1>
+	{:else}
+		<h1 id="underline-header" class="font-bold text-center">
+			Create New Item
+		</h1>
+	{/if}
 	<div class="page-component large-dialog-internal">
 		<form on:submit|preventDefault={handleCreateItem}>
 			<div class="flex flex-col space-y-4">
