@@ -34,6 +34,11 @@
     }
   }
 
+  
+  async function handleAuthenticatorApp() {
+        throw new Error("Function not implemented.");
+  } 
+
   async function handleLoginGithub() {
     try {
       const response = await fetch('/api/oauth/loginGithub');
@@ -90,7 +95,10 @@
 		currentLogin = value;
 	});
 
- </script>
+ 
+
+    
+</script>
 
 
 <dialog bind:this={dialog} class="glass border fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -112,9 +120,14 @@
         Login with Github Account
       </button>
 
+      <button class="border-button w-full" on:click={handleAuthenticatorApp}>
+        Login with Authenticator App
+      </button>
+
       <button class="border-button w-full" on:click={handleLogout}>
         Logout
       </button>
+      
     </div>
   </div>
 </dialog>
