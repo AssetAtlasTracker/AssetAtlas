@@ -1,25 +1,25 @@
 <script lang="ts">
-    import type { ICustomFieldEntryInstance, ICustomField } from "$lib/types/customField";
+	import type { ICustomFieldEntryInstance, ICustomField } from "$lib/types/customField";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem";
 
 	import { addToRecents } from "$lib/utility/recentItemHelper";
 	import { actionStore } from "$lib/stores/actionStore.js";
 	import { createEventDispatcher } from "svelte";
 
-    import CreateTemplate from "./CreateTemplate.svelte";
+	import CreateTemplate from "./CreateTemplate.svelte";
 	import CustomFieldPicker from "./CustomFieldPicker.svelte";
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
 
-    export let dialog: HTMLDialogElement;
+	export let dialog: HTMLDialogElement;
 	export let item: IBasicItemPopulated | null;
 	export let duplicate = false;
 
 	const dispatch = createEventDispatcher();
 
-    let name = "";
+	let name = "";
 	let description = "";
 	let tags = "";
 	let parentItemName = "";
@@ -32,11 +32,11 @@
 	let templateName = "";
 	let templateId: string | null = null;
 	let templateSuggestions: any[] = [];
-    let customFields: ICustomFieldEntryInstance[] = [];
+	let customFields: ICustomFieldEntryInstance[] = [];
 	let selectedImage: File | null = null;
 
 	let templateDialog: HTMLDialogElement | undefined;
-    let showCreateTemplateDialog = false;
+	let showCreateTemplateDialog = false;
 	let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
 
 	async function handleCreateItem() {
@@ -171,7 +171,7 @@
 		selectedImage = null;
 	}
 
-    async function createCustomField(
+	async function createCustomField(
 		fieldName: string,
 		dataType: string,
 	): Promise<ICustomField> {
@@ -507,13 +507,13 @@
 		}
 	}
 
-    $: if (showCreateTemplateDialog) {
+	$: if (showCreateTemplateDialog) {
 		if (templateDialog) {
 			templateDialog.showModal();
 		}
 	}
 
-    if (item != null) {
+	if (item != null) {
 		homeItemName = item.name;
 		homeItemId = item._id.toString();
 		if (duplicate) {

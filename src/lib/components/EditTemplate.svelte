@@ -291,19 +291,19 @@
 					showDeleteButton={true}
 					onDelete={() => removeCustomField(index)}
 				>
-				<svelte:fragment slot="suggestions">
-					{#each field.suggestions as suggestion}
-						<button
-							class="suggestion-item"
-							type="button"
-							on:mousedown={(e) => {
-								e.preventDefault();
-								selectCustomFieldSuggestion(index, suggestion);
-							}}
-						>
-							{suggestion.fieldName} ({suggestion.dataType})
-						</button>
-					{/each}
+					<svelte:fragment slot="suggestions">
+						{#each field.suggestions as suggestion}
+							<button
+								class="suggestion-item"
+								type="button"
+								on:mousedown={(e) => {
+									e.preventDefault();
+									selectCustomFieldSuggestion(index, suggestion);
+								}}
+							>
+								{suggestion.fieldName} ({suggestion.dataType})
+							</button>
+						{/each}
 					</svelte:fragment>
 				</CustomFieldPicker>
 			{/each}

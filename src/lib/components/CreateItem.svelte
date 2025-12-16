@@ -5,10 +5,10 @@
 	import { createEventDispatcher } from "svelte";
 
 	import "$lib/styles/main.css";
-    import CreateItemDesktop from "./CreateItemDesktop.svelte";
-    import CreateItemMobile from "./CreateItemMobile.svelte";
+	import CreateItemDesktop from "./CreateItemDesktop.svelte";
+	import CreateItemMobile from "./CreateItemMobile.svelte";
 
-    export let dialog: HTMLDialogElement;
+	export let dialog: HTMLDialogElement;
 	export let item: IBasicItemPopulated | null;
 	export let duplicate = false;
 
@@ -17,12 +17,18 @@
 	let creator: CreateItemDesktop | CreateItemMobile;
 
 	export function changeItem(newItem: IBasicItemPopulated){
-		creator.changeItem();
+		creator.changeItem(newItem);
 	}
 </script>
 
 {#if browser && Device.isMobile}
-	<CreateItemMobile></CreateItemMobile>	
+	<CreateItemMobile
+		bind:dialog={dialog}
+		bind:this={creator}
+		item={item}
+		duplicate={duplicate}
+		on:itemCreated={() => dispatch("itemCreated")} 
+	/>
 {:else}
 	<CreateItemDesktop
 		bind:dialog={dialog}
