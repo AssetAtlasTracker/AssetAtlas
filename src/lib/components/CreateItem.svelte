@@ -38,7 +38,3 @@
 		on:itemCreated={() => dispatch("itemCreated")} 
 	/>
 {/if}
-
-
-
-
