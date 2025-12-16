@@ -324,10 +324,11 @@
 {#if draggingItem}
 	<Dialog
 		bind:dialog={moveDialog}
-		on:create={() => {
+		isLarge={false}
+		create={() => {
 			moveDialog.showModal();
 		}}
-		on:close={() => {
+		close={() => {
 			showMoveDialog = false;
 		}}>
 		<div class="important-text text-center">
