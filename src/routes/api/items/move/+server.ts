@@ -3,8 +3,9 @@ import type { RequestHandler } from './$types';
 import BasicItem from '$lib/server/db/models/basicItem.js';
 
 export const POST: RequestHandler = async ({ request }) => {
-	const formData = await request.json();
-	const {itemId, newParentId	} = formData;
+	const body = await request.json();
+	const itemId = body['itemId'] as string;
+	const newParentId = body['newParentId'] as string;
 	//Treat an empty string (or only whitespace) as no parent
 	const newParent = newParentId && newParentId.trim() !== "" ? newParentId : null;
 
