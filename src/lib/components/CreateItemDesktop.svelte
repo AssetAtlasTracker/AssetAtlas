@@ -1,511 +1,44 @@
 <script lang="ts">
-	import type { ICustomFieldEntryInstance, ICustomField } from "$lib/types/customField";
-	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem";
-
-	import { addToRecents } from "$lib/utility/recentItemHelper";
-	import { actionStore } from "$lib/stores/actionStore.js";
-	import { createEventDispatcher } from "svelte";
-
-	import CreateTemplate from "./CreateTemplate.svelte";
+    import CreateTemplate from "./CreateTemplate.svelte";
 	import CustomFieldPicker from "./CustomFieldPicker.svelte";
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
 
+    import { 
+		createItemState,
+		handleCreateItem, 
+		initializeItemEdit, 
+		resetForm, 
+		setDialog,
+		handleParentItemInput,
+		handleHomeItemInput,
+		handleTemplateInput,
+		handleParentItemFocus,
+		handleHomeItemFocus,
+		handleTemplateFocus,
+		handleCustomFieldFocus,
+		onCustomFieldNameInput,
+		selectParentItem,
+		selectHomeItem,
+		selectTemplate,
+		selectCustomFieldSuggestion,
+		addCustomFieldLine,
+		removeCustomField,
+		handleImageChange,
+
+        setOnItemCreated
+
+	} from "$lib/stores/createItemStore.svelte";
+    import { createEventDispatcher } from "svelte";
+
 	export let dialog: HTMLDialogElement;
-	export let item: IBasicItemPopulated | null;
-	export let duplicate = false;
-
-	const dispatch = createEventDispatcher();
-
-	let name = "";
-	let description = "";
-	let tags = "";
-	let parentItemName = "";
-	let parentItemId: string | null = null;
-	let sameLocations: boolean = true;
-	let parentItemSuggestions: any[] = [];
-	let homeItemName = "";
-	let homeItemId: string | null = null;
-	let homeItemSuggestions: any[] = [];
-	let templateName = "";
-	let templateId: string | null = null;
-	let templateSuggestions: any[] = [];
-	let customFields: ICustomFieldEntryInstance[] = [];
-	let selectedImage: File | null = null;
 
 	let templateDialog: HTMLDialogElement | undefined;
 	let showCreateTemplateDialog = false;
-	let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
 
-	async function handleCreateItem() {
-		try {
-			if (templateName.trim() && !templateId) {
-				alert(
-					"Please select a valid template from the list or clear the field.",
-				);
-				return;
-			}
-
-			const tagsArray = tags.split(",").map((tag) => tag.trim());
-
-			if (sameLocations) {
-				parentItemId = homeItemId;
-				parentItemName = homeItemName;
-			}
-
-			customFields = customFields.filter((field) => {
-				if (field.fromTemplate) return true;
-				return (
-					field.fieldName.trim() !== "" &&
-					field.dataType.trim() !== ""
-				);
-			});
-
-			const formattedCustomFields = await Promise.all(
-				customFields.map(async (field) => {
-					if (!field.isNew && field.fieldId) {
-						return { field: field.fieldId, value: field.value };
-					} else {
-						const createdField = await createCustomField(
-							field.fieldName,
-							field.dataType,
-						);
-						return { field: createdField._id, value: field.value };
-					}
-				}),
-			);
-
-			const formData = new FormData();
-			formData.append("name", name);
-			formData.append("description", description);
-			formData.append("tags", JSON.stringify(tagsArray));
-			if (parentItemId) formData.append("parentItem", parentItemId);
-			if (homeItemId) formData.append("homeItem", homeItemId);
-			if (templateId) formData.append("template", templateId);
-			formData.append(
-				"customFields",
-				JSON.stringify(formattedCustomFields),
-			);
-			if (selectedImage) formData.append("image", selectedImage);
-
-			console.log("Sending request with formData:");
-			for (const pair of (formData as any).entries()) {
-				console.log(pair[0], pair[1]);
-			}
-
-			const response = await fetch(`/api/items`, {
-				method: "POST",
-				body: formData,
-			});
-
-			console.log("Response status:", response.status);
-			console.log("Response headers:");
-			response.headers.forEach((value, key) => {
-				console.log(key, value);
-			});
-
-			const rawText = await response.text();
-			console.log("Raw response:", rawText);
-
-			const data = JSON.parse(rawText);
-
-			if (!response.ok) {
-				actionStore.addMessage("Error creating item");
-				throw new Error(data.message || "Error creating item");
-			}
-			console.log("Item created:", data);
-			actionStore.addMessage("Item created successfully!");
-			dialog.close();
-			dispatch("itemCreated");
-
-			resetForm();
-		} catch (err) {
-			console.error("Error creating item:", err);
-			actionStore.addMessage("Error creating item");
-		}
-	}
-
-	export function changeItem(newItem: IBasicItemPopulated){
-		item = newItem;
-		if (duplicate) {
-			name = item.name;
-			if (item.description) {
-				description = item.description;
-			}
-			tags = item.tags.toString();
-			if (item.parentItem?.name != null) {
-				parentItemName = item.parentItem?.name;
-			}
-			if (item.parentItem) {
-				parentItemId = item.parentItem._id.toString();
-			}
-			if (item.homeItem?.name != null) {
-				homeItemName = item.homeItem?.name;
-			}
-			if (item.homeItem) {
-				homeItemId = item.homeItem._id.toString();
-			}
-			if (item.template) {
-				templateName = item.template?.name;
-				templateId = item.template?._id.toString();
-			}
-		}
-	}
-
-	function resetForm() {
-		name = "";
-		description = "";
-		tags = "";
-		parentItemName = "";
-		parentItemId = null;
-		homeItemName = "";
-		homeItemId = null;
-		templateName = "";
-		templateId = null;
-		customFields = [];
-		parentItemSuggestions = [];
-		homeItemSuggestions = [];
-		templateSuggestions = [];
-		selectedImage = null;
-	}
-
-	async function createCustomField(
-		fieldName: string,
-		dataType: string,
-	): Promise<ICustomField> {
-		const response = await fetch(`/api/customFields`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ fieldName, dataType }),
-		});
-		return await response.json();
-	}
-
-	async function handleParentItemFocus() {
-		if (!parentItemName) {
-			parentItemSuggestions = await loadRecentItems("item");
-		}
-	}
-
-	async function handleHomeItemFocus() {
-		if (!homeItemName) {
-			homeItemSuggestions = await loadRecentItems("item");
-		}
-	}
-
-	async function handleTemplateFocus() {
-		if (!templateName) {
-			templateSuggestions = await loadRecentItems("template");
-		}
-	}
-
-	async function handleCustomFieldFocus(index: number) {
-		if (!customFields[index].fieldName) {
-			customFields[index].suggestions =
-				await loadRecentItems("customField");
-		}
-	}
-
-	function handleParentItemInput(event: Event) {
-		const target = event.target as HTMLInputElement;
-		parentItemName = target.value;
-		parentItemId = null;
-		if (debounceTimeout) clearTimeout(debounceTimeout);
-		debounceTimeout = setTimeout(() => {
-			searchParentItems(parentItemName);
-		}, 300);
-	}
-
-	function handleHomeItemInput(event: Event) {
-		const target = event.target as HTMLInputElement;
-		homeItemName = target.value;
-		homeItemId = null;
-		if (debounceTimeout) clearTimeout(debounceTimeout);
-		debounceTimeout = setTimeout(() => {
-			searchHomeItems(homeItemName);
-		}, 300);
-	}
-
-	function handleTemplateInput(event: Event) {
-		const target = event.target as HTMLInputElement;
-		templateName = target.value;
-		templateId = null;
-		if (debounceTimeout) clearTimeout(debounceTimeout);
-		debounceTimeout = setTimeout(() => {
-			searchTemplates(templateName);
-		}, 300);
-	}
-
-	function onCustomFieldNameInput(index: number, event: Event) {
-		const target = event.target as HTMLInputElement;
-		customFields[index].fieldName = target.value;
-		customFields[index].fieldId = undefined;
-		customFields[index].isNew = true;
-		customFields[index].isExisting = false;
-		searchForCustomFields(index);
-	}
-
-	async function searchParentItems(query: string) {
-		try {
-			const response = await fetch(
-				`/api/items/search?name=${encodeURIComponent(query)}`,
-				{
-					method: "GET",
-					headers: { "Content-Type": "application/json" },
-				},
-			);
-			const data = await response.json();
-			parentItemSuggestions = data;
-		} catch (err) {
-			console.error("Error searching parent items:", err);
-		}
-	}
-
-	async function searchHomeItems(query: string) {
-		try {
-			const response = await fetch(
-				`/api/items/search?name=${encodeURIComponent(query)}`,
-				{
-					method: "GET",
-					headers: { "Content-Type": "application/json" },
-				},
-			);
-			const data = await response.json();
-			homeItemSuggestions = data;
-		} catch (err) {
-			console.error("Error searching home items:", err);
-		}
-	}
-
-	async function searchTemplates(query: string) {
-		try {
-			const response = await fetch(
-				`/api/templates?name=${encodeURIComponent(query)}`,
-				{
-					method: "GET",
-					headers: { "Content-Type": "application/json" },
-				},
-			);
-			const data = await response.json();
-			templateSuggestions = data;
-
-			//Check for an exact match
-			const exactMatch = data.find(
-				(template: { name: string }) => template.name === templateName,
-			);
-
-			if (exactMatch) {
-				if (templateId !== exactMatch._id) {
-					templateId = exactMatch._id;
-					await loadTemplateFields(templateId);
-				}
-			} else {
-				templateId = null;
-				removeTemplateFields();
-			}
-		} catch (err) {
-			console.error("Error searching templates:", err);
-		}
-	}
-
-	function searchForCustomFields(index: number) {
-		if (customFields[index].searchTimeout)
-			clearTimeout(customFields[index].searchTimeout);
-
-		customFields[index].searchTimeout = setTimeout(async () => {
-			const query = customFields[index].fieldName.trim();
-			if (query.length === 0) {
-				customFields[index].suggestions = [];
-				return;
-			}
-
-			try {
-				const response = await fetch(
-					`/api/customFields/search?fieldName=${encodeURIComponent(query)}`,
-					{
-						method: "GET",
-						headers: { "Content-Type": "application/json" },
-					},
-				);
-				const data: ICustomField[] = await response.json();
-				customFields[index].suggestions = data;
-			} catch (error) {
-				console.error("Error searching custom fields:", error);
-			}
-		}, 300);
-	}
-
-	function selectParentItem(item: { name: string; _id: string | null }) {
-		parentItemName = item.name;
-		parentItemId = item._id;
-		parentItemSuggestions = [];
-		if (item && item._id) {
-			addToRecents("item", item);
-		}
-	}
-
-	function selectHomeItem(item: { name: string; _id: string | null }) {
-		homeItemName = item.name;
-		homeItemId = item._id;
-		homeItemSuggestions = [];
-		if (item && item._id) {
-			addToRecents("item", item);
-		}
-	}
-
-	function selectTemplate(item: { name: string; _id: string }) {
-		templateName = item.name;
-		templateId = item._id;
-		templateSuggestions = [];
-		loadTemplateFields(templateId);
-		if (item && item._id) {
-			addToRecents("template", item);
-		}
-	}
-
-	function selectCustomFieldSuggestion(
-		index: number,
-		suggestion: ICustomField,
-	) {
-		customFields[index].fieldName = suggestion.fieldName;
-		customFields[index].fieldId = suggestion._id;
-		customFields[index].dataType = suggestion.dataType;
-		customFields[index].isNew = false;
-		customFields[index].isExisting = true;
-		customFields[index].suggestions = [];
-		if (suggestion && suggestion._id) {
-			addToRecents("customField", suggestion);
-		}
-	}
-
-	async function loadTemplateFields(templateId: string | null) {
-		if (!templateId) return;
-
-		try {
-			if (!templateName || templateName.trim() === "") {
-				return;
-			}
-			const response = await fetch(`/api/templates/${templateId}`, {
-				method: "GET",
-				headers: { "Content-Type": "application/json" },
-			});
-
-			if (!response.ok) {
-				console.error(
-					`Failed to fetch template. Status: ${response.status} - ${response.statusText}`,
-				);
-				console.error(await response.text());
-				return;
-			}
-
-			const data = await response.json();
-			console.log("Template data:", data);
-
-			if (!data || !data.fields) {
-				console.warn("No fields found in template:", data);
-				return;
-			}
-
-			//Remove existing template fields before loading new ones
-			removeTemplateFields();
-
-			//Add the template fields
-			console.log(`Fetching details for ${data.fields.length} fields.`);
-			const templateFields = await Promise.all(
-				data.fields.map(async (field: { _id: string }) => {
-					const fieldId = field._id;
-					const fieldUrl = `/api/customFields/${fieldId}`;
-					console.log(`Fetching field details from: ${fieldUrl}`);
-
-					const fieldRes = await fetch(fieldUrl, {
-						method: "GET",
-						headers: { "Content-Type": "application/json" },
-					});
-
-					if (!fieldRes.ok) {
-						console.error(
-							`Failed to fetch field. Status: ${fieldRes.status} - ${fieldRes.statusText}`,
-						);
-						console.error(await fieldRes.text());
-						throw new Error(
-							`Failed to fetch field with ID: ${fieldId}`,
-						);
-					}
-
-					const fieldData: ICustomField = await fieldRes.json();
-					console.log("Field data:", fieldData);
-
-					return {
-						fieldName: fieldData.fieldName,
-						fieldId: fieldData._id,
-						dataType: fieldData.dataType,
-						value: "",
-						suggestions: [],
-						isNew: false,
-						isSearching: false,
-						isExisting: true,
-						fromTemplate: true,
-					};
-				}),
-			);
-
-			console.log("Loaded template fields:", templateFields);
-
-			//display template fields before any user-defined fields
-			customFields = [...templateFields, ...customFields];
-			console.log("Updated customFields:", customFields);
-		} catch (err) {
-			console.error("Error loading template fields:", err);
-		}
-	}
-
-	function removeTemplateFields() {
-		customFields = customFields.filter((f) => !f.fromTemplate);
-	}
-
-	function addCustomFieldLine() {
-		customFields = [
-			...customFields,
-			{
-				fieldName: "",
-				fieldId: undefined,
-				dataType: "string",
-				value: "",
-				suggestions: [],
-				isNew: true,
-				isSearching: false,
-				isExisting: false,
-				fromTemplate: false,
-			},
-		];
-	}
-
-	function removeCustomField(index: number) {
-		// Only allow removing if not from template
-		if (customFields[index].fromTemplate) return;
-		customFields = customFields.filter((_, i) => i !== index);
-	}
-
-	function handleImageChange(event: CustomEvent) {
-		const { selectedImage: newImage } = event.detail;
-		selectedImage = newImage;
-	}
-
-	async function loadRecentItems(type: string) {
-		try {
-			const response = await fetch(`/api/recentItems/${type}`, {
-				method: "GET",
-				headers: { "Content-Type": "application/json" },
-			});
-			const data = await response.json();
-			return data;
-		} catch (err) {
-			console.error("Error loading recent items:", err);
-			return [];
-		}
-	}
+    const dispatch = createEventDispatcher();
 
 	$: if (showCreateTemplateDialog) {
 		if (templateDialog) {
@@ -513,33 +46,12 @@
 		}
 	}
 
-	if (item != null) {
-		homeItemName = item.name;
-		homeItemId = item._id.toString();
-		if (duplicate) {
-			name = item.name;
-			if (item.description) {
-				description = item.description;
-			}
-			tags = item.tags.toString();
-			if (item.parentItem?.name != null) {
-				parentItemName = item.parentItem?.name;
-			}
-			if (item.parentItem) {
-				parentItemId = item.parentItem._id.toString();
-			}
-			if (item.homeItem?.name != null) {
-				homeItemName = item.homeItem?.name;
-			}
-			if (item.homeItem) {
-				homeItemId = item.homeItem._id.toString();
-			}
-			if (item.template) {
-				templateName = item.template?.name;
-				templateId = item.template?._id.toString();
-			}
-		}
+	$: if (dialog) {
+		setDialog(dialog);
 	}
+
+    setOnItemCreated(() => dispatch("itemCreated"));
+	initializeItemEdit();
 </script>
 
 <Dialog isLarge={true} bind:dialog create={() => {}} close={resetForm}>
@@ -563,7 +75,7 @@
 							class="dark-textarea py-2 px-4 w-full"
 							type="text"
 							placeholder="Toolbox"
-							bind:value={name}
+						bind:value={createItemState.name}
 							required />
 					</label>
 
@@ -574,7 +86,7 @@
 							rows="1"
 							id="resize-none-textarea"
 							class="dark-textarea py-2 px-4 w-full"
-							bind:value={tags}></textarea>
+						bind:value={createItemState.tags}></textarea>
 					</label>
 				</div>
 
@@ -586,7 +98,7 @@
 						id="resize-none-textarea"
 						class="dark-textarea py-2 px-4 w-full"
 						placeholder="My medium-sized, red toolbox"
-						bind:value={description}></textarea>
+					bind:value={createItemState.description}></textarea>
 				</label>
 
 				<br />
@@ -596,9 +108,9 @@
 				<br />
 
 				<Switch
-					checked={sameLocations}
+					checked={createItemState.sameLocations}
 					onchange={() => {
-						sameLocations = !sameLocations;
+						createItemState.sameLocations = !createItemState.sameLocations;
 					}}>
 					<Switch.Control>
 						<Switch.Thumb />
@@ -609,7 +121,7 @@
 
 				<div class="flex space-x-4">
 					<!-- Parent Item -->
-					{#if !sameLocations}
+					{#if !createItemState.sameLocations}
 						<label class="flex-column flex-grow relative">
 							<div class="flex items-center gap-2">
 								<span>Current Location:</span>
@@ -619,13 +131,13 @@
 							<input
 								type="text"
 								class="dark-textarea py-2 px-4 w-full"
-								bind:value={parentItemName}
+								bind:value={createItemState.parentItemName}
 								on:input={handleParentItemInput}
 								on:focus={handleParentItemFocus}
-								on:blur={() => (parentItemSuggestions = [])} />
-							{#if parentItemSuggestions.length > 0}
+								on:blur={() => (createItemState.parentItemSuggestions = [])} />
+							{#if createItemState.parentItemSuggestions.length > 0}
 								<ul class="suggestions suggestion-box">
-									{#each parentItemSuggestions as item (item.id)}
+									{#each createItemState.parentItemSuggestions as item (item.id)}
 										<button
 											class="suggestion-item"
 											type="button"
@@ -651,13 +163,13 @@
 						<input
 							type="text"
 							class="dark-textarea py-2 px-4 w-full"
-							bind:value={homeItemName}
+							bind:value={createItemState.homeItemName}
 							on:input={handleHomeItemInput}
 							on:focus={handleHomeItemFocus}
-							on:blur={() => (homeItemSuggestions = [])} />
-						{#if homeItemSuggestions.length > 0}
+							on:blur={() => (createItemState.homeItemSuggestions = [])} />
+						{#if createItemState.homeItemSuggestions.length > 0}
 							<ul class="suggestions suggestion-box">
-								{#each homeItemSuggestions as item (item.id)}
+								{#each createItemState.homeItemSuggestions as item (item.id)}
 									<button
 										class="suggestion-item"
 										type="button"
@@ -685,13 +197,13 @@
 						<input
 							type="text"
 							class="dark-textarea py-2 px-4 w-full"
-							bind:value={templateName}
+							bind:value={createItemState.templateName}
 							on:input={handleTemplateInput}
 							on:focus={handleTemplateFocus}
-							on:blur={() => (templateSuggestions = [])} />
-						{#if templateSuggestions.length > 0}
+							on:blur={() => (createItemState.templateSuggestions = [])} />
+						{#if createItemState.templateSuggestions.length > 0}
 							<ul class="suggestions suggestion-box">
-								{#each templateSuggestions as t (t.id)}
+								{#each createItemState.templateSuggestions as t (t.id)}
 									<button
 										class="suggestion-item"
 										type="button"
@@ -728,12 +240,12 @@
 					+
 				</button>
 			</div>
-			{#each customFields as field, index (field.fieldId)}
+			{#each createItemState.customFields as field, index (field.fieldId)}
 				<CustomFieldPicker
 					bind:field
 					onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
 					onFieldFocus={() => handleCustomFieldFocus(index)}
-					onFieldBlur={() => (customFields[index].suggestions = [])}
+					onFieldBlur={() => (createItemState.customFields[index].suggestions = [])}
 					showDeleteButton={!field.fromTemplate}
 					onDelete={() => removeCustomField(index)}>
 					<svelte:fragment slot="suggestions">

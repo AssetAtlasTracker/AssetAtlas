@@ -35,7 +35,7 @@ export default [
 		},
 	},
 	{
-		files: ["**/*.svelte"],
+		files: ["**/*.svelte", "**/*.svelte.ts", "**/*.svelte.js"],
 		languageOptions: {
 			parser: svelteParser,
 			parserOptions: {
@@ -45,6 +45,12 @@ export default [
 			},
 			globals: {
 				...globals.browser,
+				$state: "readonly",
+				$derived: "readonly",
+				$effect: "readonly",
+				$props: "readonly",
+				$bindable: "readonly",
+				$inspect: "readonly",
 			},
 		},
 		plugins: {
