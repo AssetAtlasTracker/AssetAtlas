@@ -5,8 +5,12 @@
   const dispatch = createEventDispatcher();
   
   export let dialog: HTMLDialogElement;
-   let oauthResult = "";
-
+  let oauthResult = "";
+  let showAuthenticatorLogin = false;
+  let username = "";
+  let qrCode = "";
+  let authCode = "";
+  
   let errorMessage = "";
   let successMessage = "";
 
@@ -34,10 +38,39 @@
     }
   }
 
-  
+
   async function handleAuthenticatorApp() {
-        throw new Error("Function not implemented.");
+    showAuthenticatorLogin = true;
   } 
+
+  async function fetchQRCode() {
+    try {
+      const response = await fetch(`/api/authenticator/check?username=${encodeURIComponent(username)}`);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to generate QR code');
+      }
+      
+      qrCode = data.qrCode;
+    } catch (err) {
+      oauthResult = err instanceof Error ? err.message : 'Something went wrong';
+      console.error('QR code error:', err);
+    }
+  }
+
+  async function verifyAuthCode() {
+    // TODO: Implement verification endpoint
+    console.log('Verifying code:', authCode, 'for user:', username);
+  }
+
+  function backToMain() {
+    showAuthenticatorLogin = false;
+    username = "";
+    qrCode = "";
+    authCode = "";
+    oauthResult = "";
+  }
 
   async function handleLoginGithub() {
     try {
@@ -105,6 +138,7 @@
   <div class="flex flex-col space-y-4 p-4 relative">
     <button class="x-button absolute top-0 right-0 mt-2 mr-2" on:click={() => dialog.close()}>X</button>
     
+    {#if !showAuthenticatorLogin}
     <div>
       <h2 class="important-text text-center mb-4">Login with external account</h2>
       
@@ -129,6 +163,28 @@
       </button>
       
     </div>
+    {:else}
+      <div>
+        <h2 class="important-text text-center mb-4">Login with Authenticator App</h2>
+        {#if qrCode}
+          <div class="text-center mb-4">
+            <img src={qrCode} alt="Authenticator QR Code" class="mx-auto mb-4" />
+            <input type="text" placeholder="Enter code from app" bind:value={authCode} class="border p-2 w-full mb-4" />
+            <button class="border-button w-full" on:click={verifyAuthCode}>
+              Verify Code
+            </button>
+          </div>
+        {:else}
+          <input type="text" placeholder="Enter your username" bind:value={username} class="border p-2 w-full mb-4" />
+          <button class="border-button w-full" on:click={fetchQRCode}>
+            Generate QR Code
+          </button>
+        {/if}
+        <button class="border-button w-full mt-4" on:click={backToMain}>
+          Back
+        </button>
+      </div>
+    {/if}
   </div>
 </dialog>
   
