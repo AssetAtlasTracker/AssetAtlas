@@ -599,11 +599,15 @@
 	}
 </script>
 
-<Dialog isLarge={true} bind:dialog on:close={resetForm}>
+<Dialog isLarge={true} bind:dialog create={() => {}} close={resetForm}>
 	{#if duplicate}
-		<h1 id="underline-header" class="font-bold text-center">Duplicate & Edit Item</h1>
+		<h1 id="underline-header" class="font-bold text-center">
+			Duplicate & Edit Item
+		</h1>
 	{:else}
-		<h1 id="underline-header" class="font-bold text-center">Create New Item</h1>
+		<h1 id="underline-header" class="font-bold text-center">
+			Create New Item
+		</h1>
 	{/if}
 	<div class="page-component large-dialog-internal">
 		<form on:submit|preventDefault={handleCreateItem}>
@@ -657,7 +661,7 @@
 						<Switch.Thumb />
 					</Switch.Control>
 					<Switch.Label
-					>Item is currently at its home location</Switch.Label>
+						>Item is currently at its home location</Switch.Label>
 					<Switch.HiddenInput />
 				</Switch>
 
@@ -826,7 +830,9 @@
 {#if showCreateTemplateDialog}
 	<Dialog
 		bind:dialog={templateDialog}
-		on:close={() => {
+		isLarge={false}
+		create={() => {}}
+		close={() => {
 			showCreateTemplateDialog = false;
 		}}>
 		<CreateTemplate

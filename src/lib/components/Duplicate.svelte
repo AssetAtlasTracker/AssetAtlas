@@ -1,12 +1,11 @@
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { ip } from "$lib/stores/ipStore.js";
-	import Dialog from "./Dialog.svelte";
-	import { actionStore } from "../stores/actionStore.js";
 	import { createEventDispatcher } from "svelte";
+	import { actionStore } from "../stores/actionStore.js";
+	import Dialog from "./Dialog.svelte";
 	export let dialog: HTMLDialogElement;
 	export let item: IBasicItemPopulated;
-	export let onDuplicate = () => {};
 
 	const dispatch = createEventDispatcher();
 
@@ -24,7 +23,6 @@
 	if (item.parentItem) {
 		parentItemId = item.parentItem._id.toString();
 	}
-	let parentItemSuggestions: any[] = [];
 	let homeItemName = "";
 	if (item.homeItem?.name != null) {
 		homeItemName = item.homeItem?.name;
@@ -33,14 +31,12 @@
 	if (item.homeItem) {
 		homeItemId = item.homeItem._id.toString();
 	}
-	let homeItemSuggestions: any[] = [];
 	let templateName = "";
 	let templateId: string | null = null;
 	if (item.template) {
 		templateName = item.template?.name;
 		templateId = item.template?._id.toString();
 	}
-	let templateSuggestions: any[] = [];
 	let selectedImage: File | null = null;
 
 	export function changeItem(newItem: IBasicItemPopulated) {
@@ -115,13 +111,15 @@
 			const templateFields = nonTemplateFields
 				.filter(
 					(field) =>
-						field.fieldId && templateFieldIds.has(field.fieldId.toString()),
+						field.fieldId &&
+						templateFieldIds.has(field.fieldId.toString()),
 				)
 				.map((field) => ({ ...field, fromTemplate: true }));
 
 			const remainingFields = nonTemplateFields.filter(
 				(field) =>
-					!field.fieldId || !templateFieldIds.has(field.fieldId.toString()),
+					!field.fieldId ||
+					!templateFieldIds.has(field.fieldId.toString()),
 			);
 
 			//Combine with template fields first
@@ -180,7 +178,10 @@
 			if (parentItemId) formData.append("parentItem", parentItemId);
 			if (homeItemId) formData.append("homeItem", homeItemId);
 			if (templateId) formData.append("template", templateId);
-			formData.append("customFields", JSON.stringify(formattedCustomFields));
+			formData.append(
+				"customFields",
+				JSON.stringify(formattedCustomFields),
+			);
 			if (selectedImage) formData.append("image", selectedImage);
 			console.log("Sending request with formData:");
 			for (const pair of (formData as any).entries()) {
@@ -220,11 +221,17 @@
 	}
 </script>
 
-<Dialog bind:dialog>
+<Dialog
+	bind:dialog
+	isLarge={false}
+	create={() => {}}
+	close={() => dialog.close()}>
 	<div class="small-dialog-padding">
 		Are you sure you want to duplicate "{item.name}"?
 		<div class="simple-flex pt-4">
-			<button on:click={() => dialog.close()} class="border-button flex-grow">
+			<button
+				on:click={() => dialog.close()}
+				class="border-button flex-grow">
 				Cancel
 			</button>
 			<button on:click={duplicateItem} class="success-button flex-grow">
