@@ -50,8 +50,6 @@ def show_url_popup(url: str):
     url_entry.focus()
     url_entry.configure(state="readonly")
 
-# eggs
-
     def copy_to_clipboard():
         popup.clipboard_clear()
         popup.clipboard_append(url)
