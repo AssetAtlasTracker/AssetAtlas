@@ -25,7 +25,6 @@
 	let deleteDialog = $state<HTMLDialogElement | undefined>();
 	let createDialog = $state<HTMLDialogElement | undefined>();
 	let returnDialog = $state<HTMLDialogElement | undefined>();
-	let dialog = $state<HTMLDialogElement | undefined>();
 	let moveDialog = $state<HTMLDialogElement | undefined>();
 	let menu = $state<HTMLDialogElement | undefined>();
 
@@ -40,6 +39,11 @@
 	}
 
 	let showItemTree = $state(true);
+
+	// Add state for ItemTree props
+    let draggingItem = $state<IBasicItemPopulated | null>(null);
+    let targetItemId = $state<string | undefined>(undefined);
+    let targetItemName = $state<string | undefined>(undefined);
 
 	function handleTreeClose() {
 		showItemTree = false;
@@ -69,6 +73,9 @@
 			item = null;
 		}
 	}
+
+    let availableItems = $state<IBasicItemPopulated[]>([]);
+    
 
 	function handleDelete() {
 		deleteDialog?.close();
@@ -134,7 +141,7 @@
 			<ItemDetails {item} on:openItem={handleOpenItem} />
 
 			<div class="button-row-flex">
-				{#if !getEditOnLogin() || currentLogin?.isLoggedIn}
+				{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 0)}
 					<!--Move button-->
 					<button
 						class="border-button center-button-icons flex-grow font-semibold shadow"
@@ -167,6 +174,7 @@
 						>
 					</button>
 
+					{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
 					<!--Edit button-->
 					<button
 						class="border-button center-button-icons flex-grow font-semibold shadow"
@@ -182,6 +190,8 @@
 						/></svg
 						>
 					</button>
+
+					{/if}
 					
 					<!-- Add Show Item Tree button when tree is hidden -->
 					{#if !showItemTree}
@@ -201,6 +211,7 @@
 						</button>
 					{/if}
 
+					{#if (currentLogin?.permissionLevel ?? 1) > 2}
 					<!--Delete button-->
 					<button
 						class="warn-button center-button-icons flex-grow font-semibold shadow"
@@ -216,6 +227,7 @@
 						/></svg
 						>
 					</button>
+					{/if}
 				{/if}
 			</div>
 		</Window>
@@ -233,6 +245,9 @@
 				<ItemTree
 					parentId={item._id.toString()}
 					currentId={item._id.toString()}
+					{draggingItem}
+            		{targetItemId}
+            		{targetItemName}
 					showMoveDialog={false}
 					useWindowView={true}
 					on:openItem={handleOpenItem}
@@ -320,7 +335,8 @@
 		Move "{item?.name}" to:
 	</div>
 	<MoveItem
-		itemId={data.item?._id}
+		itemId={data.item?._id.toString()}
+		items={availableItems}
 		on:close={() => {
 			moveDialog?.close();
 			if (browser) {
@@ -338,11 +354,13 @@
 </button>
 
 {#key unique}
-	<CreateItem
-		bind:dialog={createDialog}
-		{item}
-		duplicate={false}
-		on:close={() => createDialog?.close()}
-		on:itemCreated={() => data.item?._id && fetchItem(data.item._id.toString())}
-	/>
+    {#if createDialog}
+        <CreateItem
+            bind:dialog={createDialog}
+            {item}
+            duplicate={false}
+            on:close={() => createDialog?.close()}
+            on:itemCreated={() => data.item?._id && fetchItem(data.item._id.toString())}
+        />
+    {/if}
 {/key}
