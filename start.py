@@ -9,6 +9,8 @@ import time
 from typing import List
 from env_writer import set_env_variable
 
+# cspell:ignore padx pady
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # pylint: disable-next=invalid-name
@@ -92,7 +94,7 @@ def shutdown_docker():
 
             if process.returncode != 0:
                 shutdown_button.config(state=tk.NORMAL)
-                messagebox.showerror("Error", f"Failed to stop Docker Containers. Check console for details.")
+                messagebox.showerror("Error", "Failed to stop Docker Containers. Check console for details.")
                 return
 
         label_status.config(text="Docker containers stopped")
@@ -166,7 +168,7 @@ def run_docker_compose(mode: str):
         print("\n=== Running Docker Compose ===")
         print(f"Command: {' '.join(command)}")
         print("=" * 50)
-        
+
         containers_probably_running = True
         run_button.config(state=tk.DISABLED)
         process = subprocess.Popen(command)
@@ -177,7 +179,7 @@ def run_docker_compose(mode: str):
         if process.returncode != 0:
             run_button.config(state=tk.NORMAL)
             shutdown_button.config(state=tk.NORMAL)
-            messagebox.showerror("Error", f"Failed to run Docker Compose. Check console for details.")
+            messagebox.showerror("Error", "Failed to run Docker Compose. Check console for details.")
             progressbar.stop()
             return
 
