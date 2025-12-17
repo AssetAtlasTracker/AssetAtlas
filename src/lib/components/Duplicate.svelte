@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import { ip } from "$lib/stores/ipStore.js";
 	import { createEventDispatcher } from "svelte";
 	import { actionStore } from "../stores/actionStore.js";
 	import Dialog from "./Dialog.svelte";
@@ -147,7 +146,7 @@
 		fieldName: string,
 		dataType: string,
 	): Promise<ICustomField> {
-		const response = await fetch(`http://${$ip}/api/customFields`, {
+		const response = await fetch(`/api/customFields`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ fieldName, dataType }),
@@ -188,7 +187,7 @@
 				console.log(pair[0], pair[1]);
 			}
 
-			const response = await fetch(`http://${$ip}/api/items`, {
+			const response = await fetch(`/api/items`, {
 				method: "POST",
 				body: formData,
 			});
