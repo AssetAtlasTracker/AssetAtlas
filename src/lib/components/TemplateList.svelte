@@ -55,7 +55,7 @@
 				</ul>
 			</div>
 
-			{#if !getEditOnLogin() || currentLogin?.isLoggedIn}
+			{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 2)}
 				<DeleteTemplate
 					templateId={template._id.toString()}
 					onDelete={handleDelete}>
