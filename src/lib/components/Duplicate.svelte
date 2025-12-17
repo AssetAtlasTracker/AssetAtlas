@@ -89,7 +89,7 @@
 		//First load non-template fields
 		let nonTemplateFields = item.customFields.map((cf) => ({
 			fieldName: cf.field.fieldName,
-			fieldId: cf.field._id as string,
+			fieldId: cf.field._id as unknown as string,
 			dataType: cf.field.dataType,
 			value: cf.value as string,
 			suggestions: [],
@@ -183,7 +183,7 @@
 			);
 			if (selectedImage) formData.append("image", selectedImage);
 			console.log("Sending request with formData:");
-			for (const pair of (formData as any).entries()) {
+			for (const pair of formData.entries()) {
 				console.log(pair[0], pair[1]);
 			}
 
@@ -198,17 +198,15 @@
 				console.log(key, value);
 			});
 
-			// Try to get the raw text first
 			const rawText = await response.text();
 			console.log("Raw response:", rawText);
-
-			// Then parse it as JSON
 			const data = JSON.parse(rawText);
 
 			if (!response.ok) {
 				actionStore.addMessage("Error creating item");
 				throw new Error(data.message || "Error creating item");
 			}
+
 			console.log("Item created:", data);
 			actionStore.addMessage("Item created successfully!");
 			dispatch("itemCreated");
