@@ -68,8 +68,17 @@
   }
 
   async function verifyAuthCode() {
-    // TODO: Implement verification endpoint
-    console.log('Verifying code:', authCode, 'for user:', username);
+   const response = await fetch(`/api/authenticator/verify?username=${encodeURIComponent(username)}&code=${encodeURIComponent(authCode)}`);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      oauthResult = data.message || 'Verification failed';
+      return;
+    } else {
+      oauthResult = "";
+      window.location.href = data.redirect;
+    }
+    
   }
 
   function backToMain() {
@@ -179,6 +188,9 @@
           <div class="text-center mb-4">
             <img src={qrCode} alt="Authenticator QR Code" class="mx-auto mb-4" />
             <div class="border p-2 w-full mb-4">One-Time Code: {otpCode} </div>
+            {#if oauthResult}
+              <div class="text-center mb-4 text-red-500">{oauthResult}</div>
+            {/if}
             <input type="text" placeholder="Enter code from app" bind:value={authCode} class="border p-2 w-full mb-4" />
             <button class="border-button w-full" on:click={verifyAuthCode}>
               Verify Code
