@@ -1,6 +1,6 @@
 # Tech Stack Details
 
-This document details major components of this project's tech stack. This information may be incomplete or somewhat innaccurate. Please update this document accordingly. For more information about how these components connect and to get a high-evel summary of their roles, see the following image: https://imgur.com/a/ll84JCy
+This document details major components of this project's tech stack. This information may be incomplete or somewhat innaccurate. Please update this document accordingly. For more information about how these components connect and to get a high-level summary of their roles, see the following image: <https://imgur.com/a/ll84JCy>
 
 ---
 
@@ -11,6 +11,7 @@ Docker "containerizes" an environment, then allows that container to be shared a
 ---
 
 ## [Node.js](https://nodejs.org/en)
+
 Node.js allows developers to run JavaScript outside of your browser. This mostly means making command line tools or server-side scripts.
 
 ---
@@ -43,9 +44,9 @@ Tailwind is a CSS framework with the goal of allowing you to style elements with
 
 ## [MongoDB](https://www.mongodb.com/)
 
-Mongo is our database system. It is a NoSQL database, meaning you won't need to be writing stored procedures or anything like that. Instead, Mongo basically just stores a bunch of entries as JSON files. 
+Mongo is our database system. It is a NoSQL database, meaning you won't need to be writing stored procedures or anything like that. Instead, Mongo basically just stores a bunch of entries as JSON files.
 
-MongoDB was chosen since its more flexible structure (things can be stored as mroe than just a table of values) made the implementation of the tree view much simpler. However, it is much harder to perform joins (combining information from multiple tables) with MongoDB, and swapping to another database like Postgres or SQLite is being considered.
+MongoDB was chosen since its more flexible structure (things can be stored as more than just a table of values) made the implementation of the tree view much simpler. However, it is much harder to perform joins (combining information from multiple tables) with MongoDB, and swapping to another database like Postgres or SQLite is being considered.
 
 ---
 

@@ -71,4 +71,4 @@ docker compose -f docker-compose-ghcr-tailscale.yml down
 
 ## Also
 
-See ConfiguringOauthProviders.md for instructions on how to set up OAuth providers to allow users to log in and log out of their accounts
+See [ConfiguringOauthProviders.md](./ConfiguringOauthProviders.md) for instructions on how to set up OAuth providers to allow users to log in and log out of their accounts

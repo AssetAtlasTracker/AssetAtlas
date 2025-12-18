@@ -1,4 +1,4 @@
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 
 # Install OS dependencies
 RUN apk add --no-cache python3 make g++ iputils
@@ -18,7 +18,7 @@ COPY . .
 # Build the app
 RUN npm run build
 
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 
 # Install OS dependencies for Alpine
 RUN apk add --no-cache python3 make g++ iputils

@@ -1,0 +1,46 @@
+# To test that this file is actually working,
+# follow the steps here to make an image with the files: https://stackoverflow.com/a/40966234
+# then run a container from that image and look at its logs to see what's in there.
+
+**/.git
+
+**/__pycache__
+
+/build
+/node_modules
+/.svelte-kit
+
+/.github
+/.vscode
+
+/docs
+
+# We do not currently run tests from the container. Will need to uncomment this if we do that.
+/tests
+
+LICENSE
+README.md
+start.py
+cspell.json
+
+**/.classpath
+**/.dockerignore
+**/.env
+**/.gitignore
+**/.project
+**/.settings
+**/.toolstarget
+**/.vs
+**/*.*proj.user
+**/*.dbmdl
+**/*.jfm
+**/charts
+**/docker-compose*
+**/compose*
+**/Dockerfile*
+**/npm-debug.log
+**/obj
+**/secrets.dev.yaml
+**/values.dev.yaml
+**/.tests
+**/.jest.config.ts

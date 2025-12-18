@@ -1,8 +1,8 @@
 {
     "recommendations": [
-        // Code Spell Checker: Identifies misspelled words in your code
+        // Code Spell Checker: Identifies misspelled words in your code. Add exceptions via file-scoped ignore comments or by adding them to cspell.json
         "streetsidesoftware.code-spell-checker",
-        // markdownlint: Linter for markdown files
+        // markdownlint: Linter and auto-formatter for markdown files
         "davidanson.vscode-markdownlint",
         // Markdown Preview Github Styling: Changes the defalt markdown preview to match GitHub's style
         "bierner.markdown-preview-github-styles",
