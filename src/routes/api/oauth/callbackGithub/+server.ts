@@ -33,7 +33,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		const id = String(user.id);
 		const name = user.name || user.login;
 
-		let existingLogin = await Login.findOne({ login_id: id, is_google: false });
+		let existingLogin = await Login.findOne({ login_id: id, service_type: 'github' });
 
 		if (!existingLogin) {
 			const loginCount = await Login.countDocuments({});
@@ -41,7 +41,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 
 			const newLogin = new Login({
 				login_id: id,
-				is_google: false,
+				service_type: 'github',
 				name: name,
 				permissionLevel: isFirstLogin ? 10 : 1
 			});

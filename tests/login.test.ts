@@ -256,14 +256,14 @@ describe('OAuth API', () => {
 			// Verify user was created in database
 			const login = await Login.findOne({ login_id: 'google-user-123' });
 			expect(login).toBeTruthy();
-			expect(login?.is_google).toBe(true);
+			expect(login?.service_type).toBe('google');
 			expect(login?.permissionLevel).toBe(10); // First user gets admin
 		});
 
 		it('should handle existing Google user', async () => {
 			const existingLogin = new Login({
 				login_id: 'google-existing-456',
-				is_google: true,
+				service_type: 'google',
 				permissionLevel: 1,
 			});
 			await existingLogin.save();
@@ -356,14 +356,14 @@ describe('OAuth API', () => {
 			// Verify user was created in database
 			const login = await Login.findOne({ login_id: '123456789' });
 			expect(login).toBeTruthy();
-			expect(login?.is_google).toBe(false);
+			expect(login?.service_type).toBe('github');
 			expect(login?.permissionLevel).toBe(10); // First user gets admin
 		});
 
 		it('should handle existing GitHub user', async () => {
 			const existingLogin = new Login({
 				login_id: '987654321',
-				is_google: false,
+				service_type: 'github',
 				permissionLevel: 1,
 			});
 			await existingLogin.save();

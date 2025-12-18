@@ -4,7 +4,7 @@ export interface ILogin extends Document {
     _id: Types.ObjectId;
     login_id: string;
     name: string;
-    is_google: boolean;
+    service_type: string;
     permissionLevel: number;
     createdAt: Date;
     updatedAt: Date;
@@ -12,7 +12,7 @@ export interface ILogin extends Document {
 
 const LoginSchema = new Schema({
 	login_id: { type: String, required: true, unique: true },
-	is_google: { type: Boolean, required: true, default: false },
+	service_type: { type: String, required: true, default: "none" },
     name: { type: String, required: false },
 	permissionLevel: { type: Number, required: true, default: 1 },
 }, {
