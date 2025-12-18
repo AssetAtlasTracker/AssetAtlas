@@ -35,7 +35,8 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 
 		return json({
 			success: true,
-			qrCode: qrCodeDataUrl
+			qrCode: qrCodeDataUrl,
+			otpCode: secret
 		});
 	} catch (error) {
 		console.error('Error in GET /api/authenticator/check:', error);

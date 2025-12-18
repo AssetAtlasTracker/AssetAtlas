@@ -10,6 +10,7 @@
   let username = "";
   let qrCode = "";
   let authCode = "";
+  let otpCode = "";
   
   let errorMessage = "";
   let successMessage = "";
@@ -53,6 +54,7 @@
       }
       
       qrCode = data.qrCode;
+      otpCode = data.otpCode;
     } catch (err) {
       oauthResult = err instanceof Error ? err.message : 'Something went wrong';
       console.error('QR code error:', err);
@@ -70,6 +72,7 @@
     qrCode = "";
     authCode = "";
     oauthResult = "";
+    otpCode = "";
   }
 
   async function handleLoginGithub() {
@@ -169,6 +172,7 @@
         {#if qrCode}
           <div class="text-center mb-4">
             <img src={qrCode} alt="Authenticator QR Code" class="mx-auto mb-4" />
+            <div class="border p-2 w-full mb-4">One-Time Code: {otpCode} </div>
             <input type="text" placeholder="Enter code from app" bind:value={authCode} class="border p-2 w-full mb-4" />
             <button class="border-button w-full" on:click={verifyAuthCode}>
               Verify Code
