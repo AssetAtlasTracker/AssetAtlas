@@ -3,11 +3,12 @@ import { authenticator } from '@otplib/preset-default';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import { AuthenticatorAccount } from '$lib/server/db/models/authenticatorAccount';
+import { request } from 'http';
 
 
-export const GET: RequestHandler = async ({ url, locals }) => {
+export const POST: RequestHandler = async ({ request }) => {
 	try {
-		const username = url.searchParams.get('username');
+		const { username } = await request.json();
 
 		if (!username) {
 			return json({ error: 'Username is required' }, { status: 400 });
@@ -39,7 +40,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 			otpCode: secret
 		});
 	} catch (error) {
-		console.error('Error in GET /api/authenticator/check:', error);
+		console.error('Error in POST /api/authenticator/check:', error);
 		return json({ error }, { status: 500 });
 	}
 };

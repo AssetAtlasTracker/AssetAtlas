@@ -46,7 +46,13 @@
 
   async function fetchQRCode() {
     try {
-      const response = await fetch(`/api/authenticator/check?username=${encodeURIComponent(username)}`);
+      const response = await fetch('/api/authenticator/check', {
+      method: 'POST',
+      body: JSON.stringify({ username }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
       const data = await response.json();
       
       if (!response.ok) {
