@@ -298,7 +298,7 @@
 		</Window>
 	{/each}
 
-	{#if !getEditOnLogin() || currentLogin?.isLoggedIn}
+	{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
 		<button
 			class="add-button text-icon font-bold shadow"
 			on:click={() => {
@@ -327,10 +327,11 @@
 {#if draggingItem}
 	<Dialog
 		bind:dialog={moveDialog}
-		on:create={() => {
+		isLarge={false}
+		create={() => {
 			moveDialog.showModal();
 		}}
-		on:close={() => {
+		close={() => {
 			showMoveDialog = false;
 		}}>
 		<div class="important-text text-center">

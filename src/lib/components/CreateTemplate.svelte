@@ -2,9 +2,9 @@
 	import type { ICustomField, ICustomFieldEntry } from "$lib/types/customField";
 	import { addToRecents } from "$lib/utility/recentItemHelper";
 	import { actionStore } from "$lib/stores/actionStore.js";
-	import CustomFieldPicker from "./CustomFieldPicker.svelte";
 	import "$lib/styles/main.css";
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher } from "svelte";
+	import CustomFieldPicker from "./CustomFieldPicker.svelte";
 
 	const dispatch = createEventDispatcher();
 
@@ -16,7 +16,8 @@
 	async function handleCreateTemplate() {
 		//Filter out empty fields before submission
 		customFields = customFields.filter(
-			(field) => field.fieldName.trim() !== "" && field.dataType.trim() !== "",
+			(field) =>
+				field.fieldName.trim() !== "" && field.dataType.trim() !== "",
 		);
 
 		const formattedCustomFields = await Promise.all(
@@ -36,17 +37,14 @@
 		);
 
 		try {
-			const response = await fetch(
-				`/api/templates/createTemplate`,
-				{
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({
-						name,
-						fields: formattedCustomFields,
-					}),
-				},
-			);
+			const response = await fetch(`/api/templates/createTemplate`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					name,
+					fields: formattedCustomFields,
+				}),
+			});
 
 			if (!response.ok) {
 				const data = await response.json();
@@ -63,8 +61,8 @@
 
 			actionStore.addMessage("Template created successfully!");
 
-			dispatch('templateCreated');
-			dispatch('close');
+			dispatch("templateCreated");
+			dispatch("close");
 		} catch (err) {
 			console.error("Error creating template:", err);
 			actionStore.addMessage("Error creating template.");
@@ -130,7 +128,7 @@
 		customFields[index].isExisting = true;
 		customFields[index].suggestions = [];
 		if (suggestion && suggestion._id) {
-			addToRecents('customField', suggestion);
+			addToRecents("customField", suggestion);
 		}
 	}
 
@@ -174,7 +172,8 @@
 				const data = await response.json();
 				//Check if is an EXACT match
 				const exactMatch = data.some(
-					(template: { name: string }) => template.name === name.trim(),
+					(template: { name: string }) =>
+						template.name === name.trim(),
 				);
 
 				nameError = exactMatch ? "Template name already exists" : "";
@@ -188,13 +187,13 @@
 	async function loadRecentCustomFields() {
 		try {
 			const response = await fetch(`/api/recentItems/customField`, {
-				method: 'GET',
-				headers: { 'Content-Type': 'application/json' },
+				method: "GET",
+				headers: { "Content-Type": "application/json" },
 			});
 			const data = await response.json();
 			return data;
 		} catch (err) {
-			console.error('Error loading recent custom fields:', err);
+			console.error("Error loading recent custom fields:", err);
 			return [];
 		}
 	}
@@ -204,26 +203,23 @@
 			customFields[index].suggestions = await loadRecentCustomFields();
 		}
 	}
-
-	async function handleCustomFieldClick(index: number) {
-		if (!customFields[index].fieldName) {
-			customFields[index].suggestions = await loadRecentCustomFields();
-		}
-	}
 </script>
 
 <div class="template-container">
-	<h1 id="underline-header" class="font-bold text-center">Create New Template</h1>
+	<h1 id="underline-header" class="font-bold text-center">
+		Create New Template
+	</h1>
 	<form on:submit|preventDefault={handleCreateTemplate}>
 		<label class="block mb-4">
 			Name:
 			<input
 				type="text"
-				class="dark-textarea py-2 px-4 w-full {nameError ? 'error' : ''}"
+				class="dark-textarea py-2 px-4 w-full {nameError
+					? 'error'
+					: ''}"
 				bind:value={name}
 				on:input={checkNameUniqueness}
-				required
-			/>
+				required />
 			{#if nameError}
 				<p class="text-red-500 text-sm mt-1">{nameError}</p>
 			{/if}
@@ -233,14 +229,13 @@
 		<div class="space-y-4">
 			{#each customFields as field, index}
 				<CustomFieldPicker
-					bind:field={field}
+					bind:field
 					mode="template"
 					onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
 					onFieldFocus={() => handleCustomFieldFocus(index)}
 					onFieldBlur={() => (customFields[index].suggestions = [])}
 					showDeleteButton={true}
-					onDelete={() => removeCustomField(index)}
-				>
+					onDelete={() => removeCustomField(index)}>
 					<svelte:fragment slot="suggestions">
 						{#each field.suggestions as suggestion}
 							<button
@@ -248,9 +243,11 @@
 								type="button"
 								on:mousedown={(e) => {
 									e.preventDefault();
-									selectCustomFieldSuggestion(index, suggestion);
-								}}
-							>
+									selectCustomFieldSuggestion(
+										index,
+										suggestion,
+									);
+								}}>
 								{suggestion.fieldName} ({suggestion.dataType})
 							</button>
 						{/each}
@@ -262,14 +259,12 @@
 		<button
 			type="button"
 			class="border-button font-semibold shadow mt-2"
-			on:click={addCustomFieldLine}
-		>
+			on:click={addCustomFieldLine}>
 			Add Custom Field
 		</button>
 		<button
 			type="submit"
 			class="success-button font-semibold shadow mt-4 w-full block"
-			disabled={!!nameError}>Create Template</button
-		>
+			disabled={!!nameError}>Create Template</button>
 	</form>
 </div>

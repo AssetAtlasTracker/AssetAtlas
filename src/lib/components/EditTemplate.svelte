@@ -4,13 +4,12 @@
 	import type { ICustomFieldEntry } from "$lib/types/customField";
 	import type { ITemplatePopulated } from "$lib/server/db/models/template.js";
 	import type { ICustomField } from "$lib/server/db/models/customField.js";
-	import type { Mongoose } from "mongoose";
 
 	export let template: ITemplatePopulated;
 	export let onClose: () => void;
 
 	let name = template.name;
-	let customFields: ICustomFieldEntry[] = template.fields.map(field => ({
+	let customFields: ICustomFieldEntry[] = template.fields.map((field) => ({
 		fieldName: field.fieldName,
 		fieldId: field._id as string | undefined,
 		dataType: field.dataType,
@@ -24,7 +23,8 @@
 
 	async function handleEditTemplate() {
 		customFields = customFields.filter(
-			(field) => field.fieldName.trim() !== "" && field.dataType.trim() !== "",
+			(field) =>
+				field.fieldName.trim() !== "" && field.dataType.trim() !== "",
 		);
 
 		const formattedCustomFields = await Promise.all(
@@ -35,7 +35,7 @@
 					const createdField = await createCustomField(
 						field.fieldName,
 						field.dataType,
-						template._id.toString()
+						template._id.toString(),
 					);
 					return createdField._id;
 				}
@@ -73,12 +73,12 @@
 	async function createCustomField(
 		fieldName: string,
 		dataType: string,
-		templateId: string
+		templateId: string,
 	): Promise<ICustomField> {
 		const response = await fetch(`/api/customFields`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ fieldName, dataType, templateId}),
+			body: JSON.stringify({ fieldName, dataType, templateId }),
 		});
 		return await response.json();
 	}
@@ -122,13 +122,13 @@
 	async function loadRecentCustomFields() {
 		try {
 			const response = await fetch(`/api/recentItems/customField`, {
-				method: 'GET',
-				headers: { 'Content-Type': 'application/json' },
+				method: "GET",
+				headers: { "Content-Type": "application/json" },
 			});
 			const data = await response.json();
 			return data;
 		} catch (err) {
-			console.error('Error loading recent custom fields:', err);
+			console.error("Error loading recent custom fields:", err);
 			return [];
 		}
 	}
@@ -150,7 +150,7 @@
 		customFields[index].isExisting = true;
 		customFields[index].suggestions = [];
 		if (suggestion && suggestion._id) {
-			addToRecents('customField', suggestion);
+			addToRecents("customField", suggestion);
 		}
 	}
 
@@ -191,7 +191,8 @@
 				);
 				const data = await response.json();
 				const exactMatch = data.some(
-					(template: { name: string }) => template.name === name.trim(),
+					(template: { name: string }) =>
+						template.name === name.trim(),
 				);
 
 				nameError = exactMatch ? "Template name already exists" : "";
@@ -202,7 +203,7 @@
 		}, 300);
 	}
 
-	let templateName = '';
+	let templateName = "";
 	let templateId: string | null = null;
 	let templateSuggestions: any[] = [];
 
@@ -236,32 +237,26 @@
 		templateName = template.name;
 		templateId = template._id;
 		templateSuggestions = [];
-		addToRecents('template', template);
+		addToRecents("template", template);
 	}
 
 	async function handleTemplateFocus() {
 		if (!templateName) {
-			templateSuggestions = await loadRecentItems('template');
+			templateSuggestions = await loadRecentItems("template");
 		}
 	}
 
 	async function loadRecentItems(type: string) {
 		try {
 			const response = await fetch(`/api/recentItems/${type}`, {
-				method: 'GET',
-				headers: { 'Content-Type': 'application/json' },
+				method: "GET",
+				headers: { "Content-Type": "application/json" },
 			});
 			const data = await response.json();
 			return data;
 		} catch (err) {
-			console.error('Error loading recent items:', err);
+			console.error("Error loading recent items:", err);
 			return [];
-		}
-	}
-
-	async function handleCustomFieldClick(index: number) {
-		if (!customFields[index].fieldName) {
-			customFields[index].suggestions = await loadRecentItems('customField');
 		}
 	}
 </script>
@@ -273,11 +268,12 @@
 			Name:
 			<input
 				type="text"
-				class="dark-textarea py-2 px-4 w-full {nameError ? 'error' : ''}"
+				class="dark-textarea py-2 px-4 w-full {nameError
+					? 'error'
+					: ''}"
 				bind:value={name}
 				on:input={checkNameUniqueness}
-				required
-			/>
+				required />
 			{#if nameError}
 				<p class="text-red-500 text-sm mt-1">{nameError}</p>
 			{/if}
@@ -287,14 +283,13 @@
 		<div class="space-y-4">
 			{#each customFields as field, index}
 				<CustomFieldPicker
-					bind:field={field}
+					bind:field
 					mode="template"
 					onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
 					onFieldFocus={() => handleCustomFieldFocus(index)}
 					onFieldBlur={() => (customFields[index].suggestions = [])}
 					showDeleteButton={true}
-					onDelete={() => removeCustomField(index)}
-				>
+					onDelete={() => removeCustomField(index)}>
 					<svelte:fragment slot="suggestions">
 						{#each field.suggestions as suggestion}
 							<button
@@ -302,9 +297,11 @@
 								type="button"
 								on:mousedown={(e) => {
 									e.preventDefault();
-									selectCustomFieldSuggestion(index, suggestion);
-								}}
-							>
+									selectCustomFieldSuggestion(
+										index,
+										suggestion,
+									);
+								}}>
 								{suggestion.fieldName} ({suggestion.dataType})
 							</button>
 						{/each}
@@ -316,8 +313,7 @@
 		<button
 			type="button"
 			class="border-button font-semibold shadow mt-2"
-			on:click={addCustomFieldLine}
-		>
+			on:click={addCustomFieldLine}>
 			Add Custom Field
 		</button>
 		<button

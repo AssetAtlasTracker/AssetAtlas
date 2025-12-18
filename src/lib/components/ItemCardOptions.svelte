@@ -29,14 +29,14 @@
 	let unique = {};
 
 	function duplicateFunction(item: IBasicItemPopulated) {
-		if(!getEditOnLogin() || currentLogin?.isLoggedIn){
+		if(!getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)){
 			duplicator.changeItem(item);
 			duplicateDialog.showModal();
 		}    
 	}
 
 	function duplicateEditFunction(item: IBasicItemPopulated) {
-		if(!getEditOnLogin() || currentLogin?.isLoggedIn){
+		if(!getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)){
 			creator.changeItem(item);
 			createDialog.showModal();
 		}
@@ -52,7 +52,7 @@
 </script>
 
 <div class="simple-flex">
-	{#if !getEditOnLogin() || currentLogin?.isLoggedIn}
+	{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
 		<!--Duplicate button-->
 		<button
 			class="border-button hoverable"

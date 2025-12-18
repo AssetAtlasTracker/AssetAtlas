@@ -1,7 +1,15 @@
-<script>
-	export let itemId;
-	export let parentId;
-  
+<script lang="ts">
+    import type { Snippet } from 'svelte';
+    
+    let {
+        itemId,
+        parentId,
+        children
+    }: {
+        itemId: any;
+        parentId: any;
+        children?: Snippet;
+    } = $props();
 
 	async function returnItem() {
 		try {
@@ -32,3 +40,9 @@
 >
 	Submit
 </button>
+
+
+
+{#if children}
+    {@render children()}
+{/if}

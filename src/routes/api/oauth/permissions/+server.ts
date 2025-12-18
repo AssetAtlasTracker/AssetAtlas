@@ -5,7 +5,8 @@ import { Login } from '$lib/server/db/models/login.js';
 
 export const PUT: RequestHandler = async (event) => {
 	// Require permission level 9 or higher
-	requirePermissionLevel(event, 9);
+	const currentLogin = requirePermissionLevel(event, 9);
+
 
 	const { userId, permissionLevel } = await event.request.json();
 
@@ -18,21 +19,33 @@ export const PUT: RequestHandler = async (event) => {
 	}
 
 	try {
-		const login = await Login.findOneAndUpdate(
-			{ login_id: userId },
-			{ permissionLevel },
-			{ new: true }
-		);
-
-		if (!login) {
+		const targetLogin = await Login.findOne({ login_id: userId });
+		if (!targetLogin) {
 			throw error(404, 'User not found');
 		}
+
+		if('sub_id' in currentLogin && targetLogin.login_id === currentLogin.sub_id) {
+			throw error(400, 'Cannot modify your own permission level');
+		}
+
+		// Level 9 users cannot modify level 9 or 10 users
+		if (currentLogin.permissionLevel === 9 && targetLogin.permissionLevel >= 9) {
+			throw error(403, 'Level 9 cannot modify 9 or 10 users');
+		}
+
+		// Level 9 users cannot set permissions to 9 or higher
+		if (currentLogin.permissionLevel === 9 && permissionLevel >= 9) {
+			throw error(403, 'Level 9 users can only set permission levels 1-8');
+		}
+
+		targetLogin.permissionLevel = permissionLevel;
+		await targetLogin.save();
 
 		return json({
 			message: 'Permission level updated successfully',
 			user: {
-				login_id: login.login_id,
-				permissionLevel: login.permissionLevel
+				login_id: targetLogin.login_id,
+				permissionLevel: targetLogin.permissionLevel
 			}
 		});
 	} catch (err) {

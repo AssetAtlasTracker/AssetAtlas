@@ -46,6 +46,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 
 			const newLogin = new Login({
 				login_id: sub_id,
+				name: name,
 				is_google: true,
 				permissionLevel: isFirstLogin ? 10 : 1
 			});

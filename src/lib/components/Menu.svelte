@@ -31,17 +31,6 @@
 				`${height}px`,
 			);
 		}
-
-		const response = await fetch('/api/oauth/profile');
-		if (response.ok) {
-			const userData = await response.json();
-			login.set({
-				isLoggedIn: true,
-				name: userData.name,
-				sub_id: userData.sub_id,
-				permissionLevel: userData.permissionLevel
-			});
-		}
 	});
 
 	//if permission level is ever undefined (it shouldnt be but typescript seems to think it may be) we default to 0
@@ -55,22 +44,22 @@
 	on:click={handleClicked}
 >
 	<div class="block">
-		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
-			<a href="/">Home</a>
+		<nav class="menu-button text-xl">
+			<a href="/" class="block w-full pl-12 pr-12 pt-4 pb-4">Home</a>
 		</nav>
-		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
-			<button on:click={openAuthDialog} class="text-left">
+		<nav class="menu-button text-xl">
+			<button on:click={openAuthDialog} class="block w-full pl-12 pr-12 pt-4 pb-4 text-left">
 				Login/Logout
 			</button>
 		</nav>
-		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
-			<a href="/utility">Import/Export</a>
+		<nav class="menu-button text-xl">
+			<a href="/utility" class="block w-full pl-12 pr-12 pt-4 pb-4">Import/Export</a>
 		</nav>
-		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
-			<a href="/viewTemplates">Templates</a>
+		<nav class="menu-button text-xl">
+			<a href="/viewTemplates" class="block w-full pl-12 pr-12 pt-4 pb-4">Templates</a>
 		</nav>
-		<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
-			<a href={`/about`}>About</a>
+		<nav class="menu-button text-xl">
+			<a href={`/about`} class="block w-full pl-12 pr-12 pt-4 pb-4">About</a>
 		</nav>
 
 		{#if permissionLevel >= 9}

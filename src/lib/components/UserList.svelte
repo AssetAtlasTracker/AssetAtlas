@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { user } from '../stores/userStore.js';
 	import { login, getEditOnLogin, toggleEditOnLogin } from '$lib/stores/loginStore.js';
 
 	interface User {
 		id: string;
-		username: string;
+		name: string;
+		is_google: boolean;
 		permissionLevel: number;
 		createdAt: string;
 		updatedAt: string;
@@ -16,7 +16,7 @@
 	let error = '';
 	let updateError = '';
 
-	$: currentUserLevel = $user.permissionLevel;
+	$: currentUserLevel = $login.permissionLevel;
 
 	onMount(async () => {
 		await fetchUsers();
@@ -24,25 +24,22 @@
 
 	async function fetchUsers() {
 		try {
-			const token = localStorage.getItem('token');
+			const token = cookieStore.get('auth_token');
 			if (!token) {
-				error = 'Authentication required';
+				error = 'Authentication required for fetching users';
 				isLoading = false;
 				return;
 			}
 
-			const response = await fetch('/api/auth/users', {
-				headers: {
-					'Authorization': `Bearer ${token}`
-				}
-			});
+			const response = await fetch('/api/oauth/users');
 
 			if (!response.ok) {
 				const errorData = await response.json();
 				throw new Error(errorData.message || `Error: ${response.status}`);
 			}
 
-			users = await response.json();
+			const data = await response.json();
+			users = data.oauthUsers;
 			isLoading = false;
 		} catch (err) {
 			console.error('Error fetching users:', err);
@@ -55,13 +52,14 @@
 		updateError = '';
     
 		try {
-			const token = localStorage.getItem('token');
+			const token = cookieStore.get('auth_token');
 			if (!token) {
-				updateError = 'Authentication required';
+				error = 'Authentication required for changing permissions';
+				isLoading = false;
 				return;
 			}
 
-			const response = await fetch('/api/auth/permissions', {
+			const response = await fetch('/api/oauth/permissions', {
 				method: 'PUT',
 				headers: {
 					'Authorization': `Bearer ${token}`,
@@ -152,9 +150,19 @@
 		</label>
 	</div>
 
-	<div class="text-center py-4">User List WIP</div>
+	<div class="text-smfont-meduim">
+		Default permission settings:
+		<ul>
+			<li>Guests can only view</li>
+			<li>1 can move</li>
+			<li>2 can create</li>
+			<li>3 can delete</li>
+			<li>9 can access admin page</li>
+			<li>10 can edit other users' permissions</li>
+		</ul>
+	</div>
 
-	<!-- {#if isLoading}
+	{#if isLoading}
 		<div class="text-center py-4">Loading users...</div>
 	{:else if error}
 		<div class="error-message text-center py-4">{error}</div>
@@ -168,11 +176,12 @@
 				</tr>
 			</thead>
 			<tbody>
+
 				{#each users as userData}
 					<tr class="border-b border-gray-700">
-						<td class="p-2 w-1/2">{userData.username}</td>
+						<td class="p-2 w-1/2">{userData.name}</td>
 						<td class="p-2 w-1/6">
-							{#if userData.id !== $user.id && canEditUser(userData.permissionLevel)}
+							{#if userData.id !== $login.sub_id && canEditUser(userData.permissionLevel)}
 								<select 
 									class="dark-textarea py-1 px-2 w-full"
 									value={userData.permissionLevel}
@@ -191,5 +200,5 @@
 				{/each}
 			</tbody>
 		</table>
-	{/if} -->
+	{/if} 
 </div>
