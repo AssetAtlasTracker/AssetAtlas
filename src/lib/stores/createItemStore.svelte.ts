@@ -60,6 +60,10 @@ let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
 let dialog = $state<HTMLDialogElement | null>(null);
 let onItemCreated: (() => void) | null = null;
 
+export function setDuplicate(value: boolean) {
+	duplicate = value;
+}
+
 export function setDialog(dialogElement: HTMLDialogElement) {
 	dialog = dialogElement;
 }
@@ -161,6 +165,7 @@ export async function handleCreateItem() {
 }
 
 export function changeItem(newItem: IBasicItemPopulated){
+	console.log("ITEM SATTEST");
 	item = newItem;
 	if (duplicate) {
 		_name = item.name;

@@ -5,7 +5,6 @@
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
-
     import { 
 		createItemState,
 		handleCreateItem, 
@@ -27,13 +26,13 @@
 		addCustomFieldLine,
 		removeCustomField,
 		handleImageChange,
-
         setOnItemCreated
-
 	} from "$lib/stores/createItemStore.svelte";
     import { createEventDispatcher } from "svelte";
+    import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem";
 
 	export let dialog: HTMLDialogElement;
+	export let duplicate = false;
 
 	let templateDialog: HTMLDialogElement | undefined;
 	let showCreateTemplateDialog = false;
@@ -44,10 +43,6 @@
 		if (templateDialog) {
 			templateDialog.showModal();
 		}
-	}
-
-	$: if (dialog) {
-		setDialog(dialog);
 	}
 
     setOnItemCreated(() => dispatch("itemCreated"));
@@ -75,7 +70,7 @@
 							class="dark-textarea py-2 px-4 w-full"
 							type="text"
 							placeholder="Toolbox"
-						bind:value={createItemState.name}
+							bind:value={createItemState.name}
 							required />
 					</label>
 
@@ -86,7 +81,7 @@
 							rows="1"
 							id="resize-none-textarea"
 							class="dark-textarea py-2 px-4 w-full"
-						bind:value={createItemState.tags}></textarea>
+							bind:value={createItemState.tags}></textarea>
 					</label>
 				</div>
 
@@ -98,7 +93,7 @@
 						id="resize-none-textarea"
 						class="dark-textarea py-2 px-4 w-full"
 						placeholder="My medium-sized, red toolbox"
-					bind:value={createItemState.description}></textarea>
+						bind:value={createItemState.description}></textarea>
 				</label>
 
 				<br />
@@ -115,7 +110,8 @@
 					<Switch.Control>
 						<Switch.Thumb />
 					</Switch.Control>
-					<Switch.Label>Item is currently at its home location</Switch.Label>
+					<Switch.Label
+						>Item is currently at its home location</Switch.Label>
 					<Switch.HiddenInput />
 				</Switch>
 
