@@ -9,8 +9,7 @@
 		createItemState,
 		handleCreateItem, 
 		initializeItemEdit, 
-		resetForm, 
-		setDialog,
+		resetForm,
 		handleParentItemInput,
 		handleHomeItemInput,
 		handleTemplateInput,
@@ -29,8 +28,7 @@
         setOnItemCreated
 	} from "$lib/stores/createItemStore.svelte";
     import { createEventDispatcher } from "svelte";
-    import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem";
-
+    
 	export let dialog: HTMLDialogElement;
 	export let duplicate = false;
 
