@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import { ip } from "$lib/stores/ipStore.js";
 	import { createEventDispatcher } from "svelte";
 	import { actionStore } from "../stores/actionStore.js";
 	import Dialog from "./Dialog.svelte";
@@ -90,7 +89,7 @@
 		//First load non-template fields
 		let nonTemplateFields = item.customFields.map((cf) => ({
 			fieldName: cf.field.fieldName,
-			fieldId: cf.field._id as string,
+			fieldId: cf.field._id as unknown as string,
 			dataType: cf.field.dataType,
 			value: cf.value as string,
 			suggestions: [],
@@ -147,7 +146,7 @@
 		fieldName: string,
 		dataType: string,
 	): Promise<ICustomField> {
-		const response = await fetch(`http://${$ip}/api/customFields`, {
+		const response = await fetch(`/api/customFields`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ fieldName, dataType }),
@@ -184,11 +183,11 @@
 			);
 			if (selectedImage) formData.append("image", selectedImage);
 			console.log("Sending request with formData:");
-			for (const pair of (formData as any).entries()) {
+			for (const pair of formData.entries()) {
 				console.log(pair[0], pair[1]);
 			}
 
-			const response = await fetch(`http://${$ip}/api/items`, {
+			const response = await fetch(`/api/items`, {
 				method: "POST",
 				body: formData,
 			});
@@ -199,17 +198,15 @@
 				console.log(key, value);
 			});
 
-			// Try to get the raw text first
 			const rawText = await response.text();
 			console.log("Raw response:", rawText);
-
-			// Then parse it as JSON
 			const data = JSON.parse(rawText);
 
 			if (!response.ok) {
 				actionStore.addMessage("Error creating item");
 				throw new Error(data.message || "Error creating item");
 			}
+
 			console.log("Item created:", data);
 			actionStore.addMessage("Item created successfully!");
 			dispatch("itemCreated");
