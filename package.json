@@ -72,6 +72,7 @@
 		"mongoose": "^8.9.5",
 		"multer-gridfs-storage": "^5.0.2",
 		"set-cookie-parser": "^2.7.2",
-		"svelte-icons": "^2.1.0"
+		"svelte-icons": "^2.1.0",
+		"svelte-portal": "^2.2.1"
 	}
 }
