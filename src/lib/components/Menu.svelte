@@ -5,11 +5,11 @@
 	import type { LoginState } from "$lib/stores/loginStore.js";
 	import {login} from "$lib/stores/loginStore.js";
 
-	var open = false;
+	export let open = false;
 	export let menu;
 	let authDialog: HTMLDialogElement;
 
-	function handleClicked() {
+	export function handleClicked() {
 		open = !open;
 	}
 
@@ -37,6 +37,13 @@
 	$: permissionLevel = currentLogin?.permissionLevel ?? 0;
 </script>
 
+{#if open}
+    <div 
+        class="menu-backdrop"
+        on:click={handleClicked}
+    ></div>
+{/if}
+
 <div
 	class="glass slide-out-menu"
 	bind:this={menu}
@@ -63,11 +70,23 @@
 		</nav>
 
 		{#if permissionLevel >= 9}
-			<nav class="menu-button pl-12 pr-12 pt-4 pb-4 text-xl">
-				<a href="/users">User List</a>
+			<nav class="menu-button text-xl">
+				<a href="/users" class="block w-full pl-12 pr-12 pt-4 pb-4">User List</a>
 			</nav>
 		{/if}
 	</div>
 </div>
+
+<style>
+    .menu-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 40;
+    }
+</style>
 
 <OAuth bind:dialog={authDialog} />
