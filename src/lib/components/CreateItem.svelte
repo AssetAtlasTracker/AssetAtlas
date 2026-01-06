@@ -5,7 +5,6 @@
 	import { createEventDispatcher } from "svelte";
 	import { 
         changeItem as changeItemState,
-		setDialog,
         setDuplicate
 	} from "$lib/stores/createItemStore.svelte";
 
@@ -24,9 +23,6 @@
 		changeItemState(newItem);
 	}
 
-	$: if (dialog) {
-		setDialog(dialog);
-	}
 	setDuplicate(duplicate);
 </script>
 

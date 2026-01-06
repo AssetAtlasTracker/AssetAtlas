@@ -57,15 +57,10 @@ export const createItemState = {
 };
 
 let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
-let dialog = $state<HTMLDialogElement | null>(null);
 let onItemCreated: (() => void) | null = null;
 
 export function setDuplicate(value: boolean) {
 	duplicate = value;
-}
-
-export function setDialog(dialogElement: HTMLDialogElement) {
-	dialog = dialogElement;
 }
 
 export function setOnItemCreated(callback: () => void) {
@@ -123,24 +118,12 @@ export async function handleCreateItem() {
 		);
 		if (_selectedImage) formData.append("image", _selectedImage);
 
-		console.log("Sending request with formData:");
-		for (const pair of (formData as any).entries()) {
-			console.log(pair[0], pair[1]);
-		}
-
 		const response = await fetch(`/api/items`, {
 			method: "POST",
 			body: formData,
 		});
 
-		console.log("Response status:", response.status);
-		console.log("Response headers:");
-		response.headers.forEach((value, key) => {
-			console.log(key, value);
-		});
-
 		const rawText = await response.text();
-		console.log("Raw response:", rawText);
 
 		const data = JSON.parse(rawText);
 
@@ -148,11 +131,7 @@ export async function handleCreateItem() {
 			actionStore.addMessage("Error creating item");
 			throw new Error(data.message || "Error creating item");
 		}
-		console.log("Item created:", data);
 		actionStore.addMessage("Item created successfully!");
-		if (dialog) {
-			dialog.close();
-		}
 		if (onItemCreated) {
 			onItemCreated();
 		}

@@ -43,8 +43,20 @@
 		}
 	}
 
-    setOnItemCreated(() => dispatch("itemCreated"));
+	setOnItemCreated(() => {
+		if (dialog) {
+			dialog.close();
+		}
+		dispatch("itemCreated")
+	});
 	initializeItemEdit();
+
+	function submitItem() {
+		if (dialog) {
+			dialog.close();
+		}
+		handleCreateItem();
+	}
 </script>
 
 <Dialog isLarge={true} bind:dialog create={() => {}} close={resetForm}>
@@ -58,7 +70,7 @@
 		</h1>
 	{/if}
 	<div class="page-component large-dialog-internal">
-		<form on:submit|preventDefault={handleCreateItem}>
+		<form on:submit|preventDefault={submitItem}>
 			<div class="flex flex-col space-y-4">
 				<div class="flex space-x-4">
 					<!-- Name -->
