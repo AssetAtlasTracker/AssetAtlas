@@ -29,7 +29,7 @@
 </script>
 
 <div class="add-field-container">
-	<div class="simple-flex justify-between">
+	<div class="simple-flex justify-between" style="position: relative">
 		<!-- Keep name and exit button on same row-->
 		<!-- Field Name Section -->
 		<input
@@ -43,7 +43,7 @@
 			class="dark-textarea py-2 px-4"
 		/>
 		{#if field.suggestions?.length > 0}
-			<ul class="suggestions">
+			<ul class="suggestions suggestion-box">
 				<slot name="suggestions" />
 			</ul>
 		{/if}
