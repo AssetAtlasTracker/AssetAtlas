@@ -9,6 +9,7 @@
   let showAuthenticatorLogin = false;
   let username = "";
   let qrCode = "";
+  let transitionToOTP = false;
   let authCode = "";
   let otpCode = "";
   
@@ -44,6 +45,24 @@
     showAuthenticatorLogin = true;
   } 
 
+  async function checkForAccount(){
+    try {
+      const response = await fetch(`/api/authenticator/checkAccount?username=${encodeURIComponent(username)}`);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Account check failed');
+      }
+      
+      return data.exists;
+    } catch (err) {
+      oauthResult = err instanceof Error ? err.message : 'Something went wrong';
+      console.error('Account check error:', err);
+      return false;
+    }
+
+  }
+
   async function fetchQRCode() {
     try {
       const response = await fetch('/api/authenticator/check', {
@@ -58,9 +77,16 @@
       if (!response.ok) {
         throw new Error(data.message || 'Failed to generate QR code');
       }
-      
-      qrCode = data.qrCode;
+
+      if(!data.qrCode){
+        oauthResult = "Existing account found, please enter code from app";
+        console.log("did the alt path");
+        qrCode = "";
+      } else {
+        qrCode = data.qrCode;
+      }
       otpCode = data.otpCode;
+      transitionToOTP = true;
     } catch (err) {
       oauthResult = err instanceof Error ? err.message : 'Something went wrong';
       console.error('QR code error:', err);
@@ -184,10 +210,12 @@
     {:else}
       <div>
         <h2 class="important-text text-center mb-4">Login with Authenticator App</h2>
-        {#if qrCode}
+        {#if transitionToOTP}
           <div class="text-center mb-4">
+            {#if qrCode}
             <img src={qrCode} alt="Authenticator QR Code" class="mx-auto mb-4" />
             <div class="border p-2 w-full mb-4">One-Time Code: {otpCode} </div>
+            {/if}
             {#if oauthResult}
               <div class="text-center mb-4 text-red-500">{oauthResult}</div>
             {/if}
@@ -199,7 +227,7 @@
         {:else}
           <input type="text" placeholder="Enter your username" bind:value={username} class="border p-2 w-full mb-4" />
           <button class="border-button w-full" on:click={fetchQRCode}>
-            Generate QR Code
+            Login to account
           </button>
         {/if}
         <button class="border-button w-full mt-4" on:click={backToMain}>
