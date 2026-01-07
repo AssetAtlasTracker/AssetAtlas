@@ -29,31 +29,30 @@
 
 ## Project Structure
 
+For more information see the [SvelteKit docs](https://svelte.dev/docs/kit/project-structure)
+
 - `/src` - Main project files. Most of your work will be here
-  - `../controllers` - Contains code that will be executed when a route is accessed. Must be linked to a route through a routing file in the `../routes` directory
-  - `../models` - Contains information on the code representation of database objects
-  - `../routes` - Contains code related to routing. Essentially, code that says "when I go to 'example.com' this code should run"
-  - `../stores` - Contains information on Stores, a feature from Svelte
-  - `../svelteComponents` - Reusable components that can be included in other components or in pages
-  - `../sveltePages` - Actual pages a user can access
-  - `../svelteStyles` - CSS styling files for the pages and components
+  - `../lib` - Contains utilities and components. You can easily imports items from this directory using the `$lib` keyword
+    - `../components` - Svelte components
+    - `../server` - Code that should only run on the server should be placed here
+    - `../stores` - Stores and related logic
+    - `../styles` - CSS styling
+    - `../utility` - Misc. utility code
+  - `../routes` - Contains code related to routing. Essentially, code that says "when I go to 'example.com/items' this code should run". The name of the route is directly tied to the file structure.
+- `/static` - Used for assets that should be served as-is, without any processing. (ex: favicon, robots.txt, etc.)
 - `/tests` - Folder containing tests
+  - `../components` - Contains tests for frontend components
   - `../resource` - Contains resource files used in testing.
 - `/docs` - Folder containing documentation related to the project. No code should be here unless it's for the sake of documentation
   - `24-25` - Folder containing documentation from the 2024-2025 team of Asset Atlas
 - `/docker` - Folder containing Docker stuff
-  - `secrets.env` - OAuth tokens for the login system go here
+  - `secrets.env` - This is a .env village that holds secrets necessary for user to log in. You can either go to the pinned messages in #general in discord to find our current local dev secrets, or configure your own in a manner similar to the doc in the .github/assetatlas folder
 
 ## Troubleshooting
 
 - Restart docker engine
-
 - Delete docker images and containers (sometimes cache issues)
-
 - Can take like ~3 minutes to build containers with no cache on Rose laptops
-
 - Delete repo and clone again from github
-
 - Restart PC
-
 - Run VS code/docker as administrator
