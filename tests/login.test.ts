@@ -11,6 +11,7 @@ import { GET as callbackGoogleHandler } from '$routes/api/oauth/callbackGoogle/+
 import { GET as callbackGithubHandler } from '$routes/api/oauth/callbackGithub/+server.js';
 import { GET as profileHandler } from '$routes/api/oauth/profile/+server.js';
 import { POST as logoutHandler } from '$routes/api/oauth/logout/+server.js';
+import { POST as authenticatorCheckHandler } from '$routes/api/authenticator/check/+server.js';
 
 vi.hoisted(() => {
 	process.env.JWT_SECRET = 'test-jwt-secret';
@@ -32,6 +33,32 @@ const {
 	mockValidateAuthorizationCode: vi.fn(),
 	mockGenerateState: vi.fn(() => 'mock-state'),
 	mockGenerateCodeVerifier: vi.fn(() => 'mock-code-verifier')
+}));
+
+const {
+	mockGenerateSecret,
+	mockKeyuri
+} = vi.hoisted(() => ({
+	mockGenerateSecret: vi.fn(() => 'mock-secret-12345'),
+	mockKeyuri: vi.fn((user: string, service: string, secret: string) => 
+		`otpauth://totp/${service}:${user}?secret=${secret}&issuer=${service}`)
+}));
+
+const { mockToDataURL } = vi.hoisted(() => ({
+	mockToDataURL: vi.fn(() => Promise.resolve('data:image/png;base64,mock-qr-code-data'))
+}));
+
+vi.mock('qrcode', () => ({
+	default: {
+		toDataURL: mockToDataURL
+	}
+}));
+
+vi.mock('@otplib/preset-default', () => ({
+	authenticator: {
+		generateSecret: mockGenerateSecret,
+		keyuri: mockKeyuri
+	}
 }));
 
 vi.mock('arctic', () => ({
@@ -408,6 +435,48 @@ describe('OAuth API', () => {
 			// Verify no duplicate was created
 			const logins = await Login.find({ login_id: '987654321' });
 			expect(logins).toHaveLength(1);
+		});
+	});
+
+
+	//check, verify,
+
+	describe('POST /api/authenticator/check', () => {
+		it('should create new authenticator account and return QR code', async () => {
+			const username = 'testuser';
+
+			const event = createMockEvent({
+				method: 'POST',
+				url: 'http://localhost/api/authenticator/check'
+			});
+
+			// Mock the request body
+			event.request = new Request('http://localhost/api/authenticator/check', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ username })
+			});
+
+			const response = await authenticatorCheckHandler(event);
+			expect(response.status).toBe(200);
+
+			const body = await response.json();
+			expect(body.success).toBe(true);
+			expect(body.qrCode).toBe('data:image/png;base64,mock-qr-code-data');
+			expect(body.otpCode).toBe('mock-secret-12345');
+
+			// Verify mocks were called correctly
+			expect(mockGenerateSecret).toHaveBeenCalled();
+			expect(mockKeyuri).toHaveBeenCalledWith(username, 'AssetAtlas', 'mock-secret-12345');
+			expect(mockToDataURL).toHaveBeenCalledWith(
+				`otpauth://totp/AssetAtlas:${username}?secret=mock-secret-12345&issuer=AssetAtlas`
+			);
+
+			// Verify account was created in database
+			const login = await Login.findOne({ name: username, service_type: 'authenticator' });
+			expect(login).toBeTruthy();
+			expect(login?.login_id).toBe('mock-secret-12345');
+			expect(login?.service_type).toBe('authenticator');
 		});
 	});
 
