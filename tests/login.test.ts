@@ -512,6 +512,30 @@ describe('OAuth API', () => {
 				`otpauth://totp/AssetAtlas:${username}?secret=mock-secret-exists&issuer=AssetAtlas`
 			);
 		});
+
+		it('should return error for missing username', async () => {
+			const event = createMockEvent({
+				method: 'POST',
+				url: 'http://localhost/api/authenticator/check'
+			});
+
+			// Mock the request body
+			event.request = new Request('http://localhost/api/authenticator/check', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ username: null })
+			});
+
+			const response = await authenticatorCheckHandler(event);
+			expect(response.status).toBe(400);
+
+			const body = await response.json();
+			expect(body.error).toBe('Username is required');
+
+			expect(mockKeyuri).not.toHaveBeenCalled();
+			expect(mockToDataURL).not.toHaveBeenCalled();
+		});
+			
 	});
 
 	describe('GET /api/oauth/profile', () => {
