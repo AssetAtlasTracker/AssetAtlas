@@ -172,6 +172,7 @@ afterAll(async () => {
 	await mongoose.connection.dropDatabase();
 	await mongoose.connection.close();
 	await mongoServer.stop();
+	vi.restoreAllMocks();
 });
 
 beforeEach(async () => {
