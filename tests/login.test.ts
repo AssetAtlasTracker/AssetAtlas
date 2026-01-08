@@ -438,9 +438,6 @@ describe('OAuth API', () => {
 		});
 	});
 
-
-	//check, verify,
-
 	describe('POST /api/authenticator/check', () => {
 		it('should create new authenticator account and return QR code', async () => {
 			const username = 'testuser';
@@ -477,6 +474,43 @@ describe('OAuth API', () => {
 			expect(login).toBeTruthy();
 			expect(login?.login_id).toBe('mock-secret-12345');
 			expect(login?.service_type).toBe('authenticator');
+		});
+
+		it('should see existing authenticator account and only return otpCode', async () => {
+			const username = 'testuser_existing';
+			const existingLogin = new Login({
+				login_id: 'mock-secret-exists',
+				name: username,
+				service_type: 'authenticator',
+				permissionLevel: 1,
+			});
+			await existingLogin.save();
+
+			const event = createMockEvent({
+				method: 'POST',
+				url: 'http://localhost/api/authenticator/check'
+			});
+
+			// Mock the request body
+			event.request = new Request('http://localhost/api/authenticator/check', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ username })
+			});
+
+			const response = await authenticatorCheckHandler(event);
+			expect(response.status).toBe(200);
+
+			const body = await response.json();
+			expect(body.success).toBe(true);
+			expect(body.qrCode).toBeUndefined();
+			expect(body.otpCode).toBe('mock-secret-exists');
+
+			// Verify mocks were called correctly
+			expect(mockKeyuri).toHaveBeenCalledWith(username, 'AssetAtlas', 'mock-secret-exists');
+			expect(mockToDataURL).toHaveBeenCalledWith(
+				`otpauth://totp/AssetAtlas:${username}?secret=mock-secret-exists&issuer=AssetAtlas`
+			);
 		});
 	});
 

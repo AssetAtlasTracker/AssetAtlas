@@ -15,7 +15,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		}
 
 		let account = await Login.findOne({ name:username, service_type: 'authenticator' });
-		console.log("tried to find account:", username, "thing: ",  account);
+		console.log("tried to find account:", username, " with login: ",  account);
 		if (!account) {
 			accountExisted = false;
 			let permLevel = Login.length > 0 ? 1 : 10; // Default to basic level, unless first user
