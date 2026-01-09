@@ -108,11 +108,12 @@
   }
 
   function backToMain() {
+    oauthResult = "";
     showAuthenticatorLogin = false;
     username = "";
     qrCode = "";
+    transitionToOTP = false;
     authCode = "";
-    oauthResult = "";
     otpCode = "";
   }
 
