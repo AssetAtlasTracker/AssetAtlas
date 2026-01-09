@@ -1,13 +1,13 @@
 <script lang="ts">
-	import Dialog from "./Dialog.svelte";
-	import InfoToolTip from "./InfoToolTip.svelte";
-	import CreateTemplate from "./CreateTemplate.svelte";
+	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { actionStore } from "$lib/stores/actionStore.js";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
+	import { createEventDispatcher } from "svelte";
+	import CreateTemplate from "./CreateTemplate.svelte";
 	import CustomFieldPicker from "./CustomFieldPicker.svelte";
+	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
-	import { createEventDispatcher } from 'svelte';
-	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
+	import InfoToolTip from "./InfoToolTip.svelte";
 
 	import "$lib/styles/main.css";
 
@@ -36,7 +36,7 @@
 
 	const dispatch = createEventDispatcher();
 
-	export function changeItem(newItem: IBasicItemPopulated){
+	export function changeItem(newItem: IBasicItemPopulated) {
 		console.log("item changed");
 		item = newItem;
 		if (duplicate) {
@@ -160,7 +160,10 @@
 			//Filter out empty fields not from the template
 			customFields = customFields.filter((field) => {
 				if (field.fromTemplate) return true; //Always keep template fields that were loaded
-				return field.fieldName.trim() !== "" && field.dataType.trim() !== "";
+				return (
+					field.fieldName.trim() !== "" &&
+					field.dataType.trim() !== ""
+				);
 			});
 
 			const formattedCustomFields = await Promise.all(
@@ -184,7 +187,10 @@
 			if (parentItemId) formData.append("parentItem", parentItemId);
 			if (homeItemId) formData.append("homeItem", homeItemId);
 			if (templateId) formData.append("template", templateId);
-			formData.append("customFields", JSON.stringify(formattedCustomFields));
+			formData.append(
+				"customFields",
+				JSON.stringify(formattedCustomFields),
+			);
 			if (selectedImage) formData.append("image", selectedImage);
 
 			console.log("Sending request with formData:");
@@ -217,7 +223,7 @@
 			console.log("Item created:", data);
 			actionStore.addMessage("Item created successfully!");
 			dialog.close();
-			dispatch('itemCreated'); //triggers action display stuff
+			dispatch("itemCreated"); //triggers action display stuff
 
 			//Reset the form after successful creation
 			resetForm();
@@ -368,7 +374,9 @@
 							`Failed to fetch field. Status: ${fieldRes.status} - ${fieldRes.statusText}`,
 						);
 						console.error(await fieldRes.text());
-						throw new Error(`Failed to fetch field with ID: ${fieldId}`);
+						throw new Error(
+							`Failed to fetch field with ID: ${fieldId}`,
+						);
 					}
 
 					const fieldData: ICustomField = await fieldRes.json();
@@ -479,8 +487,7 @@
 	}
 
 	function handleImageChange(event: CustomEvent) {
-		const { selectedImage: newImage } =
-			event.detail;
+		const { selectedImage: newImage } = event.detail;
 		selectedImage = newImage;
 	}
 
@@ -518,7 +525,8 @@
 
 	async function handleCustomFieldFocus(index: number) {
 		if (!customFields[index].fieldName) {
-			customFields[index].suggestions = await loadRecentItems("customField");
+			customFields[index].suggestions =
+				await loadRecentItems("customField");
 		}
 	}
 
@@ -591,8 +599,16 @@
 	}
 </script>
 
-<Dialog isLarge={true} bind:dialog on:close={resetForm}>
-	<h1 id="underline-header" class="font-bold text-center">Create New Item</h1>
+<Dialog isLarge={true} bind:dialog create={() => {}} close={resetForm}>
+	{#if duplicate}
+		<h1 id="underline-header" class="font-bold text-center">
+			Duplicate & Edit Item
+		</h1>
+	{:else}
+		<h1 id="underline-header" class="font-bold text-center">
+			Create New Item
+		</h1>
+	{/if}
 	<div class="page-component large-dialog-internal">
 		<form on:submit|preventDefault={handleCreateItem}>
 			<div class="flex flex-col space-y-4">
@@ -605,8 +621,7 @@
 							type="text"
 							placeholder="Toolbox"
 							bind:value={name}
-							required
-						/>
+							required />
 					</label>
 
 					<!-- Tags -->
@@ -616,8 +631,7 @@
 							rows="1"
 							id="resize-none-textarea"
 							class="dark-textarea py-2 px-4 w-full"
-							bind:value={tags}
-						></textarea>
+							bind:value={tags}></textarea>
 					</label>
 				</div>
 
@@ -629,8 +643,7 @@
 						id="resize-none-textarea"
 						class="dark-textarea py-2 px-4 w-full"
 						placeholder="My medium-sized, red toolbox"
-						bind:value={description}
-					></textarea>
+						bind:value={description}></textarea>
 				</label>
 
 				<br />
@@ -639,16 +652,16 @@
 				</div>
 				<br />
 
-				<Switch 
-					checked={sameLocations} 
+				<Switch
+					checked={sameLocations}
 					onchange={() => {
 						sameLocations = !sameLocations;
-					}}
-				>
+					}}>
 					<Switch.Control>
 						<Switch.Thumb />
 					</Switch.Control>
-					<Switch.Label>Item is currently at its home location</Switch.Label>
+					<Switch.Label
+						>Item is currently at its home location</Switch.Label>
 					<Switch.HiddenInput />
 				</Switch>
 
@@ -659,8 +672,7 @@
 							<div class="flex items-center gap-2">
 								<span>Current Location:</span>
 								<InfoToolTip
-									message="Where an item currently is, e.g. a shirt's parent item may be a suitcase."
-								/>
+									message="Where an item currently is, e.g. a shirt's parent item may be a suitcase." />
 							</div>
 							<input
 								type="text"
@@ -668,8 +680,7 @@
 								bind:value={parentItemName}
 								on:input={handleParentItemInput}
 								on:focus={handleParentItemFocus}
-								on:blur={() => (parentItemSuggestions = [])}
-							/>
+								on:blur={() => (parentItemSuggestions = [])} />
 							{#if parentItemSuggestions.length > 0}
 								<ul class="suggestions suggestion-box">
 									{#each parentItemSuggestions as item (item.id)}
@@ -679,8 +690,7 @@
 											on:mousedown={(e) => {
 												e.preventDefault();
 												selectParentItem(item);
-											}}
-										>
+											}}>
 											{item.name}
 										</button>
 									{/each}
@@ -694,8 +704,7 @@
 						<div class="flex items-center gap-2">
 							<span>Home Location:</span>
 							<InfoToolTip
-								message="Where an item should normally be, e.g a shirt's home item may be a drawer."
-							/>
+								message="Where an item should normally be, e.g a shirt's home item may be a drawer." />
 						</div>
 						<input
 							type="text"
@@ -703,8 +712,7 @@
 							bind:value={homeItemName}
 							on:input={handleHomeItemInput}
 							on:focus={handleHomeItemFocus}
-							on:blur={() => (homeItemSuggestions = [])}
-						/>
+							on:blur={() => (homeItemSuggestions = [])} />
 						{#if homeItemSuggestions.length > 0}
 							<ul class="suggestions suggestion-box">
 								{#each homeItemSuggestions as item (item.id)}
@@ -714,8 +722,7 @@
 										on:mousedown={(e) => {
 											e.preventDefault();
 											selectHomeItem(item);
-										}}
-									>
+										}}>
 										{item.name}
 									</button>
 								{/each}
@@ -731,8 +738,7 @@
 						<div class="flex items-center gap-2">
 							<span>Template:</span>
 							<InfoToolTip
-								message="A template is a more narrow category of similar items that share common fields. Select an existing template or create a new one."
-							/>
+								message="A template is a more narrow category of similar items that share common fields. Select an existing template or create a new one." />
 						</div>
 						<input
 							type="text"
@@ -740,8 +746,7 @@
 							bind:value={templateName}
 							on:input={handleTemplateInput}
 							on:focus={handleTemplateFocus}
-							on:blur={() => (templateSuggestions = [])}
-						/>
+							on:blur={() => (templateSuggestions = [])} />
 						{#if templateSuggestions.length > 0}
 							<ul class="suggestions suggestion-box">
 								{#each templateSuggestions as t (t.id)}
@@ -751,8 +756,7 @@
 										on:mousedown={(e) => {
 											e.preventDefault();
 											selectTemplate(t);
-										}}
-									>
+										}}>
 										{t.name}
 									</button>
 								{/each}
@@ -764,8 +768,7 @@
 						<button
 							type="button"
 							class="border-button font-semibold shadow"
-							on:click={() => (showCreateTemplateDialog = true)}
-						>
+							on:click={() => (showCreateTemplateDialog = true)}>
 							Create New Template
 						</button>
 					</div>
@@ -779,8 +782,7 @@
 				<button
 					type="button"
 					class="border-button font-semibold shadow small-add-button"
-					on:click={addCustomFieldLine}
-				>
+					on:click={addCustomFieldLine}>
 					+
 				</button>
 			</div>
@@ -791,8 +793,7 @@
 					onFieldFocus={() => handleCustomFieldFocus(index)}
 					onFieldBlur={() => (customFields[index].suggestions = [])}
 					showDeleteButton={!field.fromTemplate}
-					onDelete={() => removeCustomField(index)}
-				>
+					onDelete={() => removeCustomField(index)}>
 					<svelte:fragment slot="suggestions">
 						{#each field.suggestions as suggestion (suggestion._id)}
 							<button
@@ -800,9 +801,11 @@
 								type="button"
 								on:mousedown={(e) => {
 									e.preventDefault();
-									selectCustomFieldSuggestion(index, suggestion);
-								}}
-							>
+									selectCustomFieldSuggestion(
+										index,
+										suggestion,
+									);
+								}}>
 								{suggestion.fieldName} ({suggestion.dataType})
 							</button>
 						{/each}
@@ -815,8 +818,7 @@
 			<div class="flex justify-end">
 				<button
 					class="success-button font-semibold shadow mt-4 w-full block"
-					type="submit"
-				>
+					type="submit">
 					Create Item
 				</button>
 			</div>
@@ -828,14 +830,14 @@
 {#if showCreateTemplateDialog}
 	<Dialog
 		bind:dialog={templateDialog}
-		on:close={() => {
+		isLarge={false}
+		create={() => {}}
+		close={() => {
 			showCreateTemplateDialog = false;
-		}}
-	>
+		}}>
 		<CreateTemplate
 			on:close={() => {
 				showCreateTemplateDialog = false;
-			}}
-		/>
+			}} />
 	</Dialog>
 {/if}

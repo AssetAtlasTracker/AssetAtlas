@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { actionStore } from "$lib/stores/actionStore.js";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
+	import { actionStore } from "$lib/stores/actionStore.js";
 	import { createEventDispatcher } from "svelte";
 
 	export let itemId: string | undefined;
@@ -12,8 +12,7 @@
 
 	const dispatch = createEventDispatcher();
 
-
-	export function setItems(newItems: IBasicItemPopulated[]){
+	export function setItems(newItems: IBasicItemPopulated[]) {
 		items = newItems;
 	}
 
@@ -24,18 +23,24 @@
 	export async function handleMove() {
 		if (items && items.length > 0) {
 			moveItems();
-		}
-		else {
+		} else {
 			moveItem();
 		}
 	}
 
+	async function moveItems() {
+		console.log("trying to move items");
 
-	async function moveItems(){
-		console.log("trying to log items");
-		for (let i = 0; i < items?.length; i ++){
+		if (!items) {
+			return;
+		}
+
+		for (let i = 0; i < items.length; i++) {
 			itemId = items[i]._id.toString();
-			if (!parentItemId || !itemId) return;
+			if (!parentItemId || !itemId) {
+				return;
+			}
+
 			try {
 				const response = await fetch(`/api/items/move`, {
 					method: "POST",
@@ -45,6 +50,7 @@
 						newParentId: parentItemId,
 					}),
 				});
+				console.log("Response from moving item: " + response.status);
 				if (!response.ok) {
 					const errorData = await response.json();
 					throw new Error(errorData.message || "Failed to move item");
@@ -60,7 +66,7 @@
 	}
 
 	async function moveItem() {
-		console.log("trying to log item");
+		console.log("trying to move item");
 		if (!parentItemId || !itemId) return;
 
 		try {
@@ -120,12 +126,13 @@
 			type="text"
 			class="dark-textarea py-2 px-4 w-full"
 			bind:value={parentItemName}
-			on:input={handleInput}
-		/>
+			on:input={handleInput} />
 		{#if suggestions.length > 0}
 			<ul class="small-dialog-suggestions">
 				{#each suggestions as item}
-					<button class="suggestion-item" on:click={() => selectItem(item)}>
+					<button
+						class="suggestion-item"
+						on:click={() => selectItem(item)}>
 						{item.name}
 					</button>
 				{/each}
@@ -136,8 +143,7 @@
 	<button
 		class="success-button font-semibold shadow mt-4 w-full block"
 		disabled={!parentItemId}
-		on:click={handleMove}
-	>
+		on:click={handleMove}>
 		Move Item
 	</button>
 </div>

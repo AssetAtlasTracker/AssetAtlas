@@ -1,18 +1,18 @@
 <script lang="ts">
-	import JSZip from "jszip";
-	import { onMount } from "svelte";
-	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import type { ITemplatePopulated } from "$lib/server/db/models/template.js";
-	import { ip } from "$lib/stores/ipStore.js";
 	import Dialog from "$lib/components/Dialog.svelte";
 	import Menu from "$lib/components/Menu.svelte";
 	import TopBar from "$lib/components/TopBar.svelte";
+	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
+	import type { ITemplatePopulated } from "$lib/server/db/models/template.js";
+	import { ip } from "$lib/stores/ipStore.js";
 	import "$lib/styles/main.css";
 	import {
 		downloadDataFile,
 		downloadFile,
 	} from "$lib/utility/file/FileDownloader.js";
 	import { CSVFormatterPopulated } from "$lib/utility/formating/CSVFormatterPopulated.js";
+	import JSZip from "jszip";
+	import { onMount } from "svelte";
 
 	let files: FileList;
 	let dialog: HTMLDialogElement;
@@ -43,7 +43,9 @@
 				await handleImportZip(file, last);
 				break;
 			default:
-				throw new Error("Error: Unexpected Type of File Inputted: " + type);
+				throw new Error(
+					"Error: Unexpected Type of File Inputted: " + type,
+				);
 		}
 	}
 
@@ -66,7 +68,10 @@
 					if (i == files.length - 1) last = true;
 					await handleFile(item, last);
 				}
-				if (images.length + csvData.length == files.length + addedLength) {
+				if (
+					images.length + csvData.length ==
+					files.length + addedLength
+				) {
 					// done -- last to finish was not a csv, so continue.
 					handleCallImport();
 				}
@@ -245,8 +250,8 @@
 		class="glass page-component util-component"
 		style="background:rgba(200, 60, 70, 0.4) !important; width:95%;">
 		<p class="important-text">
-			Notice: Import and Export features are under construction and functionality is
-			currently disabled.
+			Notice: Import and Export features are under construction and
+			functionality is currently disabled.
 		</p>
 	</div>
 
@@ -278,7 +283,8 @@
 				placeholder="assetatlas-inventory"
 				id="itemCSVName"
 				bind:value={itemInput} />
-			<label for="templateCSVName">Name for exported template .csv file:</label>
+			<label for="templateCSVName"
+				>Name for exported template .csv file:</label>
 			<input
 				class="dark-textarea py-2 px-4 my-4"
 				type="text"
@@ -293,6 +299,10 @@
 	</div>
 </div>
 
-<Dialog bind:dialog>
+<Dialog
+	bind:dialog
+	isLarge={false}
+	create={() => {}}
+	close={() => dialog.close()}>
 	<div id="dialog-text" class="simple-dialog-spacing">Some dialog text</div>
 </Dialog>

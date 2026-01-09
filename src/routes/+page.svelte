@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { Switch } from '@skeletonlabs/skeleton-svelte';
-	import { onDestroy, onMount } from "svelte";
 	import CreateItem from "$lib/components/CreateItem.svelte";
 	import Dialog from "$lib/components/Dialog.svelte";
 	import ItemContainer from "$lib/components/ItemContainer.svelte";
@@ -11,10 +9,16 @@
 	import TopBar from "$lib/components/TopBar.svelte";
 	import Window from "$lib/components/Window.svelte";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import { topBarHeight } from "$lib/stores/topBarStore.js";
-	import {login, getEditOnLogin} from '$lib/stores/loginStore.js';
+	import {
+		dragDropMode,
+		setDragDropMode,
+	} from "$lib/stores/dragDropStore.js";
 	import type { LoginState } from "$lib/stores/loginStore.js";
+	import { getEditOnLogin, login } from "$lib/stores/loginStore.js";
+	import { topBarHeight } from "$lib/stores/topBarStore.js";
 	import "$lib/styles/main.css";
+	import { Switch } from "@skeletonlabs/skeleton-svelte";
+	import { onDestroy, onMount } from "svelte";
 
 	export let searchQuery = "";
 	export let dialog: HTMLDialogElement;
@@ -93,12 +97,19 @@
 		window.localStorage.setItem("viewMode", viewMode);
 	}
 
-	function restoreViewMode() {
+	function restoreToggleStates() {
 		const savedViewMode = window.localStorage.getItem("viewMode");
 		if (savedViewMode != null) {
 			viewMode = savedViewMode === "tree" ? "tree" : "list";
 		}
+
+		const savedDragDropMode = window.localStorage.getItem("dragDropMode");
+		if (savedDragDropMode != null) {
+			const dragDropMode = savedDragDropMode === "true" ? true : false;
+			setDragDropMode(dragDropMode);
+		}
 	}
+
 	interface ItemWindow {
 		id: string;
 		x: number;
@@ -125,7 +136,9 @@
 	}
 
 	function handleCloseWindow(id: string) {
-		additionalItemWindows = additionalItemWindows.filter((w) => w.id !== id);
+		additionalItemWindows = additionalItemWindows.filter(
+			(w) => w.id !== id,
+		);
 	}
 
 	function openInNewTab(itemId: string) {
@@ -138,7 +151,7 @@
 
 	onMount(() => {
 		document.title = "Home - AssetAtlas";
-		restoreViewMode();
+		restoreToggleStates();
 		unsubscribe = topBarHeight.subscribe((value) => {
 			currentTopBarHeight = value;
 		});
@@ -153,7 +166,7 @@
 	}
 </script>
 
-<TopBar 
+<TopBar
 	bind:searchQuery
 	bind:menu
 	bind:exactSearch
@@ -162,8 +175,7 @@
 	}}
 	onExactSearchChange={(value) => {
 		handleSearch(searchQuery);
-	}}
-/>
+	}} />
 
 <div class="view-layout page-with-topbar">
 	<Menu bind:menu />
@@ -184,16 +196,28 @@
 				</div>
 			{/if}
 
-			<Switch checked={showItemTree} 
+			<Switch
+				checked={showItemTree}
 				onchange={(e) => {
 					showItemTree = !showItemTree;
-					toggleView()
-				}}
-			>
+					toggleView();
+				}}>
 				<Switch.Control>
 					<Switch.Thumb />
 				</Switch.Control>
 				<Switch.Label>Tree View</Switch.Label>
+				<Switch.HiddenInput />
+			</Switch>
+
+			<Switch
+				checked={$dragDropMode}
+				onchange={(e) => {
+					setDragDropMode(!$dragDropMode);
+				}}>
+				<Switch.Control>
+					<Switch.Thumb />
+				</Switch.Control>
+				<Switch.Label>Drag and Drop Mode</Switch.Label>
 				<Switch.HiddenInput />
 			</Switch>
 		</div>
@@ -220,8 +244,8 @@
 				</p>
 				<br />
 				<p class="text-center">
-					If you are expecting items to be here, you may need to refresh the
-					page.
+					If you are expecting items to be here, you may need to
+					refresh the page.
 				</p>
 			</div>
 		{:else}
@@ -233,8 +257,8 @@
 				<br />
 
 				<p class="text-center sub-text">
-					If loading takes longer than expected, you may need to refresh the
-					page.
+					If loading takes longer than expected, you may need to
+					refresh the page.
 				</p>
 			</div>
 		{/if}
@@ -300,10 +324,11 @@
 {#if draggingItem}
 	<Dialog
 		bind:dialog={moveDialog}
-		on:create={() => {
+		isLarge={false}
+		create={() => {
 			moveDialog.showModal();
 		}}
-		on:close={() => {
+		close={() => {
 			showMoveDialog = false;
 		}}>
 		<div class="important-text text-center">

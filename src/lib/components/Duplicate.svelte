@@ -1,12 +1,10 @@
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import { ip } from "$lib/stores/ipStore.js";
-	import Dialog from "./Dialog.svelte";
-	import { actionStore } from "../stores/actionStore.js";
 	import { createEventDispatcher } from "svelte";
+	import { actionStore } from "../stores/actionStore.js";
+	import Dialog from "./Dialog.svelte";
 	export let dialog: HTMLDialogElement;
 	export let item: IBasicItemPopulated;
-	export let onDuplicate = () => {};
 
 	const dispatch = createEventDispatcher();
 
@@ -24,7 +22,6 @@
 	if (item.parentItem) {
 		parentItemId = item.parentItem._id.toString();
 	}
-	let parentItemSuggestions: any[] = [];
 	let homeItemName = "";
 	if (item.homeItem?.name != null) {
 		homeItemName = item.homeItem?.name;
@@ -33,14 +30,12 @@
 	if (item.homeItem) {
 		homeItemId = item.homeItem._id.toString();
 	}
-	let homeItemSuggestions: any[] = [];
 	let templateName = "";
 	let templateId: string | null = null;
 	if (item.template) {
 		templateName = item.template?.name;
 		templateId = item.template?._id.toString();
 	}
-	let templateSuggestions: any[] = [];
 	let selectedImage: File | null = null;
 
 	export function changeItem(newItem: IBasicItemPopulated) {
@@ -94,7 +89,7 @@
 		//First load non-template fields
 		let nonTemplateFields = item.customFields.map((cf) => ({
 			fieldName: cf.field.fieldName,
-			fieldId: cf.field._id as string,
+			fieldId: cf.field._id as unknown as string,
 			dataType: cf.field.dataType,
 			value: cf.value as string,
 			suggestions: [],
@@ -115,13 +110,15 @@
 			const templateFields = nonTemplateFields
 				.filter(
 					(field) =>
-						field.fieldId && templateFieldIds.has(field.fieldId.toString()),
+						field.fieldId &&
+						templateFieldIds.has(field.fieldId.toString()),
 				)
 				.map((field) => ({ ...field, fromTemplate: true }));
 
 			const remainingFields = nonTemplateFields.filter(
 				(field) =>
-					!field.fieldId || !templateFieldIds.has(field.fieldId.toString()),
+					!field.fieldId ||
+					!templateFieldIds.has(field.fieldId.toString()),
 			);
 
 			//Combine with template fields first
@@ -149,7 +146,7 @@
 		fieldName: string,
 		dataType: string,
 	): Promise<ICustomField> {
-		const response = await fetch(`http://${$ip}/api/customFields`, {
+		const response = await fetch(`/api/customFields`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ fieldName, dataType }),
@@ -180,14 +177,17 @@
 			if (parentItemId) formData.append("parentItem", parentItemId);
 			if (homeItemId) formData.append("homeItem", homeItemId);
 			if (templateId) formData.append("template", templateId);
-			formData.append("customFields", JSON.stringify(formattedCustomFields));
+			formData.append(
+				"customFields",
+				JSON.stringify(formattedCustomFields),
+			);
 			if (selectedImage) formData.append("image", selectedImage);
 			console.log("Sending request with formData:");
-			for (const pair of (formData as any).entries()) {
+			for (const pair of formData.entries()) {
 				console.log(pair[0], pair[1]);
 			}
 
-			const response = await fetch(`http://${$ip}/api/items`, {
+			const response = await fetch(`/api/items`, {
 				method: "POST",
 				body: formData,
 			});
@@ -198,17 +198,15 @@
 				console.log(key, value);
 			});
 
-			// Try to get the raw text first
 			const rawText = await response.text();
 			console.log("Raw response:", rawText);
-
-			// Then parse it as JSON
 			const data = JSON.parse(rawText);
 
 			if (!response.ok) {
 				actionStore.addMessage("Error creating item");
 				throw new Error(data.message || "Error creating item");
 			}
+
 			console.log("Item created:", data);
 			actionStore.addMessage("Item created successfully!");
 			dispatch("itemCreated");
@@ -220,11 +218,17 @@
 	}
 </script>
 
-<Dialog bind:dialog>
+<Dialog
+	bind:dialog
+	isLarge={false}
+	create={() => {}}
+	close={() => dialog.close()}>
 	<div class="small-dialog-padding">
 		Are you sure you want to duplicate "{item.name}"?
 		<div class="simple-flex pt-4">
-			<button on:click={() => dialog.close()} class="border-button flex-grow">
+			<button
+				on:click={() => dialog.close()}
+				class="border-button flex-grow">
 				Cancel
 			</button>
 			<button on:click={duplicateItem} class="success-button flex-grow">

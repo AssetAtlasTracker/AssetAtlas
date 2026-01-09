@@ -1,11 +1,10 @@
 <script lang="ts">
-	import DeleteTemplate from "./DeleteTemplate.svelte";
-	import EditTemplate from "./EditTemplate.svelte";
-	import Dialog from "./Dialog.svelte";
 	import type { ITemplatePopulated } from "$lib/server/db/models/template.js";
-	import {login, getEditOnLogin} from '../stores/loginStore.js';
 	import type { LoginState } from "../stores/loginStore.js";
-
+	import { getEditOnLogin, login } from "../stores/loginStore.js";
+	import DeleteTemplate from "./DeleteTemplate.svelte";
+	import Dialog from "./Dialog.svelte";
+	import EditTemplate from "./EditTemplate.svelte";
 
 	export let templates: ITemplatePopulated[] = [];
 
@@ -49,7 +48,9 @@
 				<strong class="indented">Fields:</strong>
 				<ul>
 					{#each template.fields as field}
-						<li class="indented">{field.fieldName} ({field.dataType})</li>
+						<li class="indented">
+							{field.fieldName} ({field.dataType})
+						</li>
 					{/each}
 				</ul>
 			</div>
@@ -57,14 +58,12 @@
 			{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 2)}
 				<DeleteTemplate
 					templateId={template._id.toString()}
-					onDelete={handleDelete}
-				>
+					onDelete={handleDelete}>
 					Delete
 				</DeleteTemplate>
 				<button
 					class="border-button font-semibold shadow ml-2"
-					on:click={() => handleEdit(template)}
-				>
+					on:click={() => handleEdit(template)}>
 					Edit
 				</button>
 			{/if}
@@ -83,12 +82,17 @@
 		</p>
 		<br />
 		<p class="text-center">
-			If you are expecting templates to be here, you may need to refresh the page.
+			If you are expecting templates to be here, you may need to refresh
+			the page.
 		</p>
 	</div>
 {/if}
 
-<Dialog bind:dialog={editDialog} on:close={closeEdit}>
+<Dialog
+	bind:dialog={editDialog}
+	isLarge={false}
+	create={() => {}}
+	close={closeEdit}>
 	{#if editingTemplate}
 		<EditTemplate template={editingTemplate} onClose={closeEdit} />
 	{/if}
