@@ -4,8 +4,8 @@
 	import Device from 'svelte-device-info'
 	import { createEventDispatcher } from "svelte";
 	import { 
-        changeItem as changeItemState,
-        setDuplicate
+		changeItem as changeItemState,
+		setDuplicate
 	} from "$lib/stores/createItemStore.svelte";
 
 	import "$lib/styles/main.css";
@@ -34,10 +34,10 @@
 		on:itemCreated={() => dispatch("itemCreated")} 
 	/>
 {:else} -->
-	<CreateItemDesktop
-		bind:dialog={dialog}
-		bind:this={creator}
-		duplicate={duplicate}
-		on:itemCreated={() => dispatch("itemCreated")} 
-	/>
+<CreateItemDesktop
+	bind:dialog={dialog}
+	bind:this={creator}
+	duplicate={duplicate}
+	on:itemCreated={() => dispatch("itemCreated")} 
+/>
 <!-- {/if} -->

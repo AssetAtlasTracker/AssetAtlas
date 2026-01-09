@@ -1,5 +1,5 @@
 <script lang="ts">
-    import CreateTemplate from "./CreateTemplate.svelte";
+	import CreateTemplate from "./CreateTemplate.svelte";
 	import CustomFieldPicker from "./CustomFieldPicker.svelte";
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
@@ -7,7 +7,7 @@
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
 	import { CameraIcon } from '@lucide/svelte';
 	import { FileUpload } from '@skeletonlabs/skeleton-svelte';
-    import { 
+	import { 
 		createItemState,
 		handleCreateItem, 
 		initializeItemEdit, 
@@ -27,9 +27,9 @@
 		addCustomFieldLine,
 		removeCustomField,
 		handleImageChange,
-        setOnItemCreated
+		setOnItemCreated
 	} from "$lib/stores/createItemStore.svelte";
-    import { createEventDispatcher } from "svelte";
+	import { createEventDispatcher } from "svelte";
 
 	export let dialog: HTMLDialogElement;
 	export let duplicate = false;
@@ -37,7 +37,7 @@
 	let templateDialog: HTMLDialogElement | undefined;
 	let showCreateTemplateDialog = false;
 
-    const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
 	$: if (showCreateTemplateDialog) {
 		if (templateDialog) {
@@ -45,7 +45,7 @@
 		}
 	}
 
-    setOnItemCreated(() => {
+	setOnItemCreated(() => {
 		dispatch("itemCreated")
 	});
 	initializeItemEdit();
@@ -131,7 +131,7 @@
 						<Switch.Thumb />
 					</Switch.Control>
 					<Switch.Label
-						>Item is currently at its home location</Switch.Label>
+					>Item is currently at its home location</Switch.Label>
 					<Switch.HiddenInput />
 				</Switch>
 
@@ -263,10 +263,10 @@
 			<h2 class="font-bold text-lg">Custom Fields</h2>
 				
 			<button
-					type="button"
-					class="border-button font-semibold shadow small-add-button"
-					on:click={addCustomFieldLine}>
-					+
+				type="button"
+				class="border-button font-semibold shadow small-add-button"
+				on:click={addCustomFieldLine}>
+				+
 			</button>
 			{#each createItemState.customFields as field, index (field.fieldId)}
 				<CustomFieldPicker

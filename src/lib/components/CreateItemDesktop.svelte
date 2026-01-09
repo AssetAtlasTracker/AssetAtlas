@@ -1,11 +1,11 @@
 <script lang="ts">
-    import CreateTemplate from "./CreateTemplate.svelte";
+	import CreateTemplate from "./CreateTemplate.svelte";
 	import CustomFieldPicker from "./CustomFieldPicker.svelte";
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
-    import { 
+	import { 
 		createItemState,
 		handleCreateItem, 
 		initializeItemEdit, 
@@ -25,9 +25,9 @@
 		addCustomFieldLine,
 		removeCustomField,
 		handleImageChange,
-        setOnItemCreated
+		setOnItemCreated
 	} from "$lib/stores/createItemStore.svelte";
-    import { createEventDispatcher } from "svelte";
+	import { createEventDispatcher } from "svelte";
     
 	export let dialog: HTMLDialogElement;
 	export let duplicate = false;
@@ -35,7 +35,7 @@
 	let templateDialog: HTMLDialogElement | undefined;
 	let showCreateTemplateDialog = false;
 
-    const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
 	$: if (showCreateTemplateDialog) {
 		if (templateDialog) {
@@ -121,7 +121,7 @@
 						<Switch.Thumb />
 					</Switch.Control>
 					<Switch.Label
-						>Item is currently at its home location</Switch.Label>
+					>Item is currently at its home location</Switch.Label>
 					<Switch.HiddenInput />
 				</Switch>
 

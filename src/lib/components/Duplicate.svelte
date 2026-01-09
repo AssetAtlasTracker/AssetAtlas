@@ -92,14 +92,14 @@
 				.filter(
 					(field) =>
 						field.fieldId &&
-						templateFieldIds.has(field.fieldId.toString()),
+							templateFieldIds.has(field.fieldId.toString()),
 				)
 				.map((field) => ({ ...field, fromTemplate: true }));
 
 			const remainingFields = nonTemplateFields.filter(
 				(field) =>
 					!field.fieldId ||
-					!templateFieldIds.has(field.fieldId.toString()),
+						!templateFieldIds.has(field.fieldId.toString()),
 			);
 
 			//Combine with template fields first

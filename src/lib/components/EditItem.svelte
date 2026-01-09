@@ -79,14 +79,14 @@
 				.filter(
 					(field) =>
 						field.fieldId &&
-						templateFieldIds.has(field.fieldId.toString()),
+							templateFieldIds.has(field.fieldId.toString()),
 				)
 				.map((field) => ({ ...field, fromTemplate: true }));
 
 			const remainingFields = nonTemplateFields.filter(
 				(field) =>
 					!field.fieldId ||
-					!templateFieldIds.has(field.fieldId.toString()),
+						!templateFieldIds.has(field.fieldId.toString()),
 			);
 
 			//Combine with template fields first
@@ -735,7 +735,7 @@
 							onCustomFieldNameInput(index, e)}
 						onFieldFocus={() => handleCustomFieldFocus(index)}
 						onFieldBlur={() =>
-							(customFields[index].suggestions = [])}
+						(customFields[index].suggestions = [])}
 						showDeleteButton={!field.fromTemplate}
 						onDelete={() => removeCustomField(index)}>
 						<svelte:fragment slot="suggestions">
