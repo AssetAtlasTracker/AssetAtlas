@@ -35,7 +35,7 @@ function createMockEvent(options: {
 	const isItemsRoute = options.url?.includes('/api/items') && !options.url?.includes('/api/items/move');
 	let requestInit;
 	if (options.body && (options.method === 'POST' || options.method === 'PUT' || options.method === 'PATCH')) {
-		if (isItemsRoute && !isMoveRoute) {
+		if (isItemsRoute) {
 			const formData = new FormData();
 			for (const [key, value] of Object.entries(options.body)) {
 				if (value !== undefined && value !== null) {
