@@ -5,7 +5,7 @@
 	interface User {
 		id: string;
 		name: string;
-		is_google: boolean;
+		serviceType: string;
 		permissionLevel: number;
 		createdAt: string;
 		updatedAt: string;

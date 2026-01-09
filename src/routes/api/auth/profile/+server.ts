@@ -18,7 +18,7 @@ export const GET: RequestHandler = async (event) => {
 		return json({
 			sub_id: login.login_id,
 			name: authUser.name,
-			is_google: login.is_google,
+			serviceType: login.service_type,
 			permissionLevel: login.permissionLevel,
 			createdAt: login.createdAt,
 			updatedAt: login.updatedAt

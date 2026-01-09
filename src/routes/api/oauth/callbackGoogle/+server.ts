@@ -38,7 +38,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		const sub_id = user.sub;
 		const name = user.name;
 
-		let existingLogin = await Login.findOne({ login_id: sub_id, is_google: true });
+		let existingLogin = await Login.findOne({ login_id: sub_id, service_type: 'google' });
 
 		if (!existingLogin) {
 			const loginCount = await Login.countDocuments({});
@@ -47,7 +47,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 			const newLogin = new Login({
 				login_id: sub_id,
 				name: name,
-				is_google: true,
+				service_type: 'google',
 				permissionLevel: isFirstLogin ? 10 : 1
 			});
 

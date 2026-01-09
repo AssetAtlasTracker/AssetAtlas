@@ -25,7 +25,7 @@ export const GET: RequestHandler = async (event) => {
 			oauthUsers: logins.map(login => ({
 				id: login.login_id,
 				name: login.login_id,
-				is_google: login.is_google,
+				serviceType: login.service_type,
 				permissionLevel: login.permissionLevel,
 				type: 'oauth',
 				createdAt: login.createdAt,
