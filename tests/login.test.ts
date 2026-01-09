@@ -12,6 +12,9 @@ import { GET as callbackGithubHandler } from '$routes/api/oauth/callbackGithub/+
 import { GET as profileHandler } from '$routes/api/oauth/profile/+server.js';
 import { POST as logoutHandler } from '$routes/api/oauth/logout/+server.js';
 import { POST as authenticatorCheckHandler } from '$routes/api/authenticator/check/+server.js';
+import { GET as authenticatorVerifyHandler } from '$routes/api/authenticator/verify/+server.js';
+import type { mock } from 'node:test';
+
 
 vi.hoisted(() => {
 	process.env.JWT_SECRET = 'test-jwt-secret';
@@ -37,11 +40,13 @@ const {
 
 const {
 	mockGenerateSecret,
-	mockKeyuri
+	mockKeyuri,
+	mockCheck
 } = vi.hoisted(() => ({
 	mockGenerateSecret: vi.fn(() => 'mock-secret-12345'),
 	mockKeyuri: vi.fn((user: string, service: string, secret: string) => 
-		`otpauth://totp/${service}:${user}?secret=${secret}&issuer=${service}`)
+		`otpauth://totp/${service}:${user}?secret=${secret}&issuer=${service}`),
+	mockCheck: vi.fn()
 }));
 
 const { mockToDataURL } = vi.hoisted(() => ({
@@ -57,7 +62,8 @@ vi.mock('qrcode', () => ({
 vi.mock('@otplib/preset-default', () => ({
 	authenticator: {
 		generateSecret: mockGenerateSecret,
-		keyuri: mockKeyuri
+		keyuri: mockKeyuri,
+		check: mockCheck
 	}
 }));
 
@@ -537,6 +543,130 @@ describe('OAuth API', () => {
 			expect(mockToDataURL).not.toHaveBeenCalled();
 		});
 			
+	});
+
+	describe('GET /api/authenticator/verify', () => {
+
+		it('should verify valid OTP code', async () => {
+			const username = 'testuser_existing';
+			const code = '123456';
+			
+			const existingLogin = new Login({
+				login_id: 'mock-secret-exists',
+				name: username,
+				service_type: 'authenticator',
+				permissionLevel: 1,
+			});
+			await existingLogin.save();
+
+			mockCheck.mockReturnValue(true);
+			
+			const event = createMockEvent({
+				method: 'GET',
+				url: `http://localhost/api/authenticator/verify?username=${username}&code=${code}`,
+				cookies: {}
+			});
+
+			const response = await authenticatorVerifyHandler(event);
+			expect(response.status).toBe(200);
+
+			const body = await response.json();
+			expect(body.success).toBe(true);
+			expect(body.redirect).toBe('/');
+
+			const authToken = event.cookies.get('auth_token');
+			expect(authToken).toBeDefined();
+
+			expect(mockCheck).toHaveBeenCalledWith(code, 'mock-secret-exists');
+
+		});
+
+		it('should return 400 error for missing username', async () => {
+			const code = '123456';
+			
+			const event = createMockEvent({
+				method: 'GET',
+				url: `http://localhost/api/authenticator/verify?username=&code=${code}`,
+				cookies: {}
+			});
+
+			const response = await authenticatorVerifyHandler(event);
+			expect(response.status).toBe(400);
+			
+			const body = await response.json();
+			expect(body.error).toBe('Username and code are required');
+
+			expect(mockCheck).not.toHaveBeenCalled();
+
+		});
+
+		it('should return 400 error for missing code', async () => {
+			const username = 'user';
+			
+			const event = createMockEvent({
+				method: 'GET',
+				url: `http://localhost/api/authenticator/verify?username=${username}&code=`,
+				cookies: {}
+			});
+
+			const response = await authenticatorVerifyHandler(event);
+			expect(response.status).toBe(400);
+			
+			const body = await response.json();
+			expect(body.error).toBe('Username and code are required');
+
+			expect(mockCheck).not.toHaveBeenCalled();
+
+		});
+
+		it('should return 404 error for non-existent account', async () => {
+			const username = 'nonexistentuser';
+			const code = '123';
+
+			const event = createMockEvent({
+				method: 'GET',
+				url: `http://localhost/api/authenticator/verify?username=${username}&code=${code}`,
+				cookies: {}
+			});
+
+			const response = await authenticatorVerifyHandler(event);
+			expect(response.status).toBe(404);
+			const body = await response.json();
+			expect(body.error).toBe('Account not found');
+
+			expect(mockCheck).not.toHaveBeenCalled();
+		});
+
+		it('should return error for invalid OTP code', async () => {
+			const username = 'testuser_existing';
+			const code = 'wrongcode';
+			const existingLogin = new Login({
+				login_id: 'mock-secret-exists',
+				name: username,
+				service_type: 'authenticator',
+				permissionLevel: 1,
+			});
+			await existingLogin.save();
+
+			mockCheck.mockReturnValue(false);
+
+			const event = createMockEvent({
+				method: 'GET',
+				url: `http://localhost/api/authenticator/verify?username=${username}&code=${code}`,
+				cookies: {}
+			});
+
+			const response = await authenticatorVerifyHandler(event);
+			expect(response.status).toBe(200);
+
+			const body = await response.json();
+			expect(body.success).toBe(false);
+
+			expect(body.error).toBe('Invalid authentication code');
+			expect(mockCheck).toHaveBeenCalledWith(code, 'mock-secret-exists');
+		});
+
+
 	});
 
 	describe('GET /api/oauth/profile', () => {
