@@ -38,10 +38,10 @@
 </script>
 
 {#if open}
-    <div 
-        class="menu-backdrop"
-        on:click={handleClicked}
-    ></div>
+	<div 
+		class="menu-backdrop"
+		on:click={handleClicked}
+	></div>
 {/if}
 
 <div

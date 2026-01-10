@@ -284,7 +284,7 @@
 				id="itemCSVName"
 				bind:value={itemInput} />
 			<label for="templateCSVName"
-				>Name for exported template .csv file:</label>
+			>Name for exported template .csv file:</label>
 			<input
 				class="dark-textarea py-2 px-4 my-4"
 				type="text"

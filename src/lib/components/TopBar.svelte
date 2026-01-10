@@ -91,12 +91,12 @@
 			<div class="sort-flex"></div>
 
 			<div class="loginUser" style="font-size: larger; margin-left: auto; padding-right: 2rem;">
-			{#if currentLogin?.isLoggedIn}
-				User: {currentLogin?.name}
-			{:else}
-				Not Logged In
-			{/if}
-		</div>
+				{#if currentLogin?.isLoggedIn}
+					User: {currentLogin?.name}
+				{:else}
+					Not Logged In
+				{/if}
+			</div>
 		</div>
 		
 	</AppBar>

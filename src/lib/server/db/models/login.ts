@@ -13,7 +13,7 @@ export interface ILogin extends Document {
 const LoginSchema = new Schema({
 	login_id: { type: String, required: true, unique: true },
 	is_google: { type: Boolean, required: true, default: false },
-    name: { type: String, required: false },
+	name: { type: String, required: false },
 	permissionLevel: { type: Number, required: true, default: 1 },
 }, {
 	timestamps: true

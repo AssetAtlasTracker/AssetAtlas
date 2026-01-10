@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { ICustomField, ICustomFieldEntry } from "$lib/types/customField";
+	import { addToRecents } from "$lib/utility/recentItemHelper";
 	import { actionStore } from "$lib/stores/actionStore.js";
 	import "$lib/styles/main.css";
 	import { createEventDispatcher } from "svelte";
@@ -10,24 +12,6 @@
 	let customFields: ICustomFieldEntry[] = [];
 	let nameError = "";
 	let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
-
-	interface ICustomField {
-		_id: string;
-		fieldName: string;
-		dataType: string;
-		createdAt: string;
-	}
-
-	interface ICustomFieldEntry {
-		fieldName: string;
-		fieldId?: string;
-		dataType: string;
-		suggestions: ICustomField[];
-		isNew: boolean;
-		isSearching: boolean;
-		searchTimeout?: ReturnType<typeof setTimeout>;
-		isExisting: boolean;
-	}
 
 	async function handleCreateTemplate() {
 		//Filter out empty fields before submission
@@ -133,29 +117,6 @@
 		}, 300);
 	}
 
-	async function addToRecents(type: string, item: any) {
-		try {
-			const body = JSON.stringify({
-				type,
-				itemId: item._id,
-			});
-
-			const response = await fetch(`/api/recentItems/add`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: body,
-			});
-
-			const responseText = await response.text();
-
-			if (!response.ok) {
-				throw new Error(`Failed to add to recents: ${responseText}`);
-			}
-		} catch (err) {
-			console.error("Error adding to recents:", err);
-		}
-	}
-
 	function selectCustomFieldSuggestion(
 		index: number,
 		suggestion: ICustomField,
@@ -178,10 +139,12 @@
 				fieldName: "",
 				fieldId: undefined,
 				dataType: "string",
+				value: "",
 				suggestions: [],
 				isNew: true,
 				isSearching: false,
 				isExisting: false,
+				fromTemplate: false
 			},
 		];
 	}

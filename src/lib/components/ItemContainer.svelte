@@ -146,9 +146,9 @@
 			isLarge={false}
 			create={() => {}}
 			close={handleClose}
-			><MultiActions
-				on:close={handleClose}
-				bind:this={multiActions} /></Dialog>
+		><MultiActions
+			on:close={handleClose}
+			bind:this={multiActions} /></Dialog>
 		<div class="sort-flex">
 			<button
 				class="success-button font-semibold shadow mt-4 w-full block"

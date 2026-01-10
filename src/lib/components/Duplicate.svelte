@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { ICustomField, ICustomFieldEntryInstance } from "$lib/types/customField";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { createEventDispatcher } from "svelte";
 	import { actionStore } from "../stores/actionStore.js";
@@ -64,27 +65,7 @@
 		}
 	}
 
-	interface ICustomField {
-		_id: string;
-		fieldName: string;
-		dataType: string;
-		createdAt: string;
-	}
-
-	interface ICustomFieldEntry {
-		fieldName: string;
-		fieldId?: string;
-		dataType: string;
-		value: string;
-		suggestions: ICustomField[];
-		isNew: boolean;
-		isSearching: boolean;
-		isExisting: boolean;
-		fromTemplate: boolean;
-		searchTimeout?: ReturnType<typeof setTimeout>;
-	}
-
-	let customFields: ICustomFieldEntry[] = [];
+	let customFields: ICustomFieldEntryInstance[] = [];
 	if (item.customFields?.length) {
 		//First load non-template fields
 		let nonTemplateFields = item.customFields.map((cf) => ({
@@ -111,14 +92,14 @@
 				.filter(
 					(field) =>
 						field.fieldId &&
-						templateFieldIds.has(field.fieldId.toString()),
+							templateFieldIds.has(field.fieldId.toString()),
 				)
 				.map((field) => ({ ...field, fromTemplate: true }));
 
 			const remainingFields = nonTemplateFields.filter(
 				(field) =>
 					!field.fieldId ||
-					!templateFieldIds.has(field.fieldId.toString()),
+						!templateFieldIds.has(field.fieldId.toString()),
 			);
 
 			//Combine with template fields first
