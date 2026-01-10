@@ -205,7 +205,7 @@
 			<br />
 
 			<!-- Description -->
-			<label class="min-w-[400px]">
+			<label>
 				Description:
 				<textarea
 					rows="4"
