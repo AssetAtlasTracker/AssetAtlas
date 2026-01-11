@@ -22,7 +22,7 @@ jobs:
       - name: Set up directory structure
         run: |
           mkdir -p release-files
-          cp .github/assetatlas/README.md release-files/
+          cp .github/assetatlas/README.release.md release-files/README.md
           cp .github/assetatlas/ConfiguringOauthProviders.md release-files/
           cp .github/assetatlas/docker-compose-ghcr.yml release-files/
           cp .github/assetatlas/docker-compose-ghcr-tailscale.yml release-files/
