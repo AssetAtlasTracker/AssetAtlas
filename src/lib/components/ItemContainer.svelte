@@ -124,16 +124,14 @@
 		}
 		targetItemId = currentTarget!.getAttribute("data-item-id");
 		targetItemName = currentTarget!.getAttribute("data-item-name");
-		if (targetItemId && targetItemName && draggingItem) {
+		if (currentDragDropMode && targetItemId && targetItemName && draggingItem) {
 			showMoveDialog = true;
 			console.log("Successful Drop");
 		}
 	}
 
 	function handleDragStart(event: DragEvent, item: IBasicItemPopulated) {
-		if (currentDragDropMode) {
-			draggingItem = item;
-		}
+		draggingItem = item;
 	}
 
 	onDestroy(() => {

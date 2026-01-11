@@ -90,6 +90,7 @@
 
 	function checkIfSwap() {
 		if (
+			currentDragDropMode &&
 			targetItemId &&
 			draggingItem &&
 			targetItemId != (draggingItem._id as unknown as string)
@@ -123,9 +124,7 @@
 	}
 
 	function handleDragStart(e: Event, item: TreeItem) {
-		if (currentDragDropMode) {
-			draggingItem = item as unknown as IBasicItemPopulated;
-		}
+		draggingItem = item as unknown as IBasicItemPopulated;
 	}
 
 	onDestroy(() => {
@@ -166,8 +165,9 @@
 							aria-label={expanded[item._id]
 								? "Collapse"
 								: "Expand"}>
-							<span class="tree-icon"
-							>{expanded[item._id] ? "▾" : "▸"}</span>
+							<span class="tree-icon">
+								{expanded[item._id] ? "▾" : "▸"}
+							</span>
 						</button>
 					{:else}
 						<span class="expand-button placeholder-icon"></span>
@@ -181,10 +181,8 @@
 							itemName={item.name}
 							on:openItem>
 							<button
-								class="tree-item-card important-text {item._id ===
-									currentId
-									? 'current'
-									: ''}"
+								class="tree-item-card important-text
+								{item._id === currentId ? 'current' : ''}"
 								aria-current={item._id === currentId}>
 								<div class="flex">
 									<div class="draggable-tree-dot-icon">
