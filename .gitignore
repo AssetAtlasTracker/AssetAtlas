@@ -1,7 +1,26 @@
-#this can be changed a lot or deleted depending on what we want to do
-# Node.js
-node_modules/
-npm-debug.log
+# cspell:disable - Disable spellchecker in this file
+
+# Env files contain private/secret local data. Still allow example env files.
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+
+# Secrets File
+/docker/secrets.env
+
+# Temporary file used by a test
+tests/resource/test-csv-item-perf.csv
 
 # Docker
 docker-compose.override.yml
@@ -16,10 +35,7 @@ docker-compose.override.yml.*
 /.svelte-kit
 /build
 
-# Environment variables
-*.env
-
-# OS specific filesgi
+# OS specific files
 .DS_Store
 Thumbs.db
 
@@ -32,13 +48,10 @@ yarn-error.log*
 
 # Coverage files
 coverage/
-*.lcov
 
 # Temporary files
 tmp/
 temp/
-tests/resource/test-csv-item-perf.csv
-
 
 ########################### Begin https://github.com/github/gitignore/blob/main/Node.gitignore ###########################
 
@@ -343,25 +356,4 @@ cython_debug/
 
 ########################### End https://github.com/github/gitignore/blob/main/Python.gitignore ###########################
 
-
-
-
-## Anything below here should have been categorized and explained with a comment above
-
-.env.*
-!.env.example
-!.env.test
-
-# Vite
-vite.config.js.timestamp-*
-vite.config.ts.timestamp-*
-
-# Playwright
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-/playwright/.auth/
-
-# Secrets File
-/docker/secrets.env
+## Anything below here should have been categorized and explained with a comment at the top of the file!

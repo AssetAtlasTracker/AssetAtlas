@@ -23,18 +23,20 @@
 			<p class="text-center">
 				AssetAtlas is a self hosted asset management tool designed to help you organize your belongings.
 			</p>
+			<br />
 			<p class="text-center">
-				Current Version: {version}
+				Current Version: <span class="font-mono">{version}</span>
 			</p>
 			<p class="text-center">
-				Past versions can be found <a href="https://github.com/AssetAtlasTracker/AssetAtlas/pkgs/container/assetatlas" style="text-decoration: underline;">here</a>
+				Past versions can be found
+				<a href="https://github.com/AssetAtlasTracker/AssetAtlas/pkgs/container/assetatlas" target="_blank" style="text-decoration: underline;">on GitHub Packages</a>.
 			</p>
 			<br />
 			<p class ="text-center important-text">Report a Bug or Request a Feature</p>
 			<br />
 			<p class="text-center">
-				If you wish to report a bug or request a feature you can follow 
-				<a href = "https://github.com/AssetAtlasTracker/AssetAtlas/issues" style="text-decoration: underline">this</a> link.
+				If you wish to report a bug or request a feature you can do so
+				<a href="https://github.com/AssetAtlasTracker/AssetAtlas/issues" target="_blank" style="text-decoration: underline">on the GitHub repository</a>.
 			</p>
 		</div>
 	</div>
