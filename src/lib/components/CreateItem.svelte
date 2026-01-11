@@ -2,12 +2,13 @@
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { actionStore } from "$lib/stores/actionStore.js";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
-	import { createEventDispatcher } from "svelte";
+	import { createEventDispatcher, onMount } from "svelte";
 	import CreateTemplate from "./CreateTemplate.svelte";
 	import CustomFieldPicker from "./CustomFieldPicker.svelte";
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
+	
 
 	import "$lib/styles/main.css";
 
@@ -30,11 +31,15 @@
 	let homeItemSuggestions: any[] = [];
 	let templateName = "";
 	let templateId: string | null = null;
-	let templateSuggestions: any[] = [];
 	let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
 	let selectedImage: File | null = null;
+	let allTemplates: any[] = [];
 
 	const dispatch = createEventDispatcher();
+		
+	onMount(() => {
+		loadAllTemplates();
+	});
 
 	export function changeItem(newItem: IBasicItemPopulated) {
 		console.log("item changed");
@@ -136,7 +141,6 @@
 		customFields = [];
 		parentItemSuggestions = [];
 		homeItemSuggestions = [];
-		templateSuggestions = [];
 		selectedImage = null;
 	}
 
@@ -318,7 +322,6 @@
 	function selectTemplate(item: { name: string; _id: string }) {
 		templateName = item.name;
 		templateId = item._id;
-		templateSuggestions = [];
 		loadTemplateFields(templateId);
 		if (item && item._id) {
 			addToRecents("template", item);
@@ -517,12 +520,6 @@
 		}
 	}
 
-	async function handleTemplateFocus() {
-		if (!templateName) {
-			templateSuggestions = await loadRecentItems("template");
-		}
-	}
-
 	async function handleCustomFieldFocus(index: number) {
 		if (!customFields[index].fieldName) {
 			customFields[index].suggestions =
@@ -541,14 +538,35 @@
 		}, 300);
 	}
 
-	function handleTemplateInput(event: Event) {
-		const target = event.target as HTMLInputElement;
+	async function loadAllTemplates() {
+		try {
+			const response = await fetch(`/api/templates`, {
+				method: "GET",
+				headers: { "Content-Type": "application/json" },
+			});
+			const data = await response.json();
+			allTemplates = data;
+		} catch (err) {
+			console.error("Error loading templates:", err);
+		}
+	}
+
+
+	function handleTemplateChange(event: Event) {
+		const target = event.target as HTMLSelectElement;
 		templateName = target.value;
-		templateId = null;
-		if (debounceTimeout) clearTimeout(debounceTimeout);
-		debounceTimeout = setTimeout(() => {
-			searchTemplates(templateName);
-		}, 300);
+
+		const selectedTemplate = allTemplates.find(
+			(t) => t.name === templateName,
+		);
+		
+		if(selectedTemplate) {
+			templateId = selectedTemplate._id;
+			loadTemplateFields(templateId);
+		} else {
+			templateId = null;
+			removeTemplateFields();
+		}
 	}
 
 	async function searchHomeItems(query: string) {
@@ -567,36 +585,6 @@
 		}
 	}
 
-	async function searchTemplates(query: string) {
-		try {
-			const response = await fetch(
-				`/api/templates?name=${encodeURIComponent(query)}`,
-				{
-					method: "GET",
-					headers: { "Content-Type": "application/json" },
-				},
-			);
-			const data = await response.json();
-			templateSuggestions = data;
-
-			//Check for an exact match
-			const exactMatch = data.find(
-				(template: { name: string }) => template.name === templateName,
-			);
-
-			if (exactMatch) {
-				if (templateId !== exactMatch._id) {
-					templateId = exactMatch._id;
-					await loadTemplateFields(templateId);
-				}
-			} else {
-				templateId = null;
-				removeTemplateFields();
-			}
-		} catch (err) {
-			console.error("Error searching templates:", err);
-		}
-	}
 </script>
 
 <Dialog isLarge={true} bind:dialog create={() => {}} close={resetForm}>
@@ -740,28 +728,15 @@
 							<InfoToolTip
 								message="A template is a more narrow category of similar items that share common fields. Select an existing template or create a new one." />
 						</div>
-						<input
-							type="text"
+						<select
 							class="dark-textarea py-2 px-4 w-full"
 							bind:value={templateName}
-							on:input={handleTemplateInput}
-							on:focus={handleTemplateFocus}
-							on:blur={() => (templateSuggestions = [])} />
-						{#if templateSuggestions.length > 0}
-							<ul class="suggestions suggestion-box">
-								{#each templateSuggestions as t (t.id)}
-									<button
-										class="suggestion-item"
-										type="button"
-										on:mousedown={(e) => {
-											e.preventDefault();
-											selectTemplate(t);
-										}}>
-										{t.name}
-									</button>
-								{/each}
-							</ul>
-						{/if}
+							on:change={handleTemplateChange}>
+							<option value="">Select a template...</option>
+							{#each allTemplates as t (t._id)}
+								<option value={t.name}>{t.name}</option>
+							{/each}
+						</select>
 					</label>
 					<div>
 						<br />
