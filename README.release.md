@@ -28,7 +28,7 @@ docker compose -f docker-compose-ghcr.yml up -d
 Enables using Tailscale to connect from other devices without additional network configuration.
 Replace `your-tailscale-auth-key` with your actual Tailscale auth key.
 
-TODO how to get a tailscale auth key?
+If you aren't familiar with how to get your tailscale auth key, an introduction can be found [here](https://tailscale.com/kb/1085/auth-keys).
 
 For Windows (PowerShell):
 
