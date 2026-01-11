@@ -9,4 +9,17 @@
         height: 100vh;
         max-height: 100vh;
     }
+
+    #tooltip-icon {
+        width: 2em;
+        height: 2em;
+    }
+
+    #create-custom-field-button {
+        font-size: 1.5em;
+    }
+
+    #submit-button-container {
+        border-top: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
+    }
 }

@@ -138,7 +138,7 @@
 			<div class="flex space-x-4">
 				<!-- Home Item -->
 				<label class="flex-column flex-grow relative">
-					<div class="flex items-center gap-2">
+					<div class="flex items-center gap-2 mb-1">
 						<span>Home Location:</span>
 						<InfoToolTip
 							message="Where an item should normally be, e.g a shirt's home item may be a drawer." />
@@ -172,7 +172,7 @@
 				<!-- Parent Item -->
 				{#if !createItemState.sameLocations}
 					<label class="flex-column flex-grow relative">
-						<div class="flex items-center gap-2">
+						<div class="flex items-center gap-2 mb-1">
 							<span>Current Location:</span>
 							<InfoToolTip
 								message="Where an item currently is, e.g. a shirt's parent item may be a suitcase." />
@@ -218,7 +218,7 @@
 			<!-- Template Field and Create Template Button -->
 			<div class="flex space-x-4 items-center">
 				<label class="flex-column flex-grow relative">
-					<div class="flex items-center justify-between w-full">
+					<div class="flex items-end justify-between w-full mb-1">
 						<div class="flex items-center gap-2">
 							<span>Template:</span>
 							<InfoToolTip
@@ -227,7 +227,7 @@
 						
 						<button
 							type="button"
-							class="border-button font-semibold shadow"
+							class="border-button shadow m-1"
 							on:click={() => (showCreateTemplateDialog = true)}>
 							Create New Template
 						</button>
@@ -260,11 +260,12 @@
 		<br />
 
 		<!-- Custom Fields -->
-		<h2 class="font-bold text-lg">Custom Fields</h2>
+		<span>Custom Fields:</span>
 			
 		<button
 			type="button"
-			class="border-button font-semibold shadow small-add-button"
+			id="create-custom-field-button"
+			class="border-button font-semibold shadow small-add-button w-full"
 			on:click={addCustomFieldLine}>
 			+
 		</button>
@@ -297,11 +298,15 @@
 
 		<br />
 		<!-- Submit -->
-		<div class="flex justify-end">
+		<div id="submit-button-container" class="flex justify-end mt-4">
 			<button
-				class="success-button font-semibold shadow mt-4 w-full block"
+			class="border-button font-semibold shadow mt-4 mr-2 w-full block">
+				Save and Add Another
+			</button>
+			<button
+				class="success-button font-semibold shadow mt-4 ml-2 w-full block"
 				type="submit">
-				Create Item
+				Save and Exit
 			</button>
 		</div>
 	</form>
