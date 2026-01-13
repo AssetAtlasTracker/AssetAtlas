@@ -6,6 +6,7 @@ services:
     volumes:
       - ./.env:/usr/src/app/docker/.env
       - tsbuild-cache:/usr/src/app/.tsbuildcache
+      - image-uploads:/usr/src/app/uploads
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
@@ -72,3 +73,5 @@ volumes:
   mongo-data:
   tsbuild-cache:
     name: assetatlas-tsbuild-cache
+  image-uploads:
+    name: assetatlas-image-uploads

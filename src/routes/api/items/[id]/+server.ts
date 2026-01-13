@@ -2,7 +2,7 @@ import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import mongoose from 'mongoose';
 import BasicItem from '$lib/server/db/models/basicItem.js';
-import { uploadToGridFS, UploadsFiles } from '$lib/server/db/gridfs';
+import { uploadImage } from '$lib/utility/imageStorage.js';
 
 export const GET: RequestHandler = async ({ params }) => {
 	const { id } = params;
@@ -19,10 +19,6 @@ export const GET: RequestHandler = async ({ params }) => {
 		.populate('containedItems')
 		.populate('customFields.field')
 		.populate('itemHistory.location')
-		.populate({
-			path: 'image',
-			model: UploadsFiles
-		})
 		.exec();
 
 	if (!item) {
@@ -81,9 +77,9 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 		item.image = undefined;
 	} else if (file) {
 		console.log('Processing uploaded file:', file);
-		const fileId = await uploadToGridFS(file);
-		if (fileId) {
-			item.image = new mongoose.Types.ObjectId(fileId);
+		const filename = await uploadImage(file);
+		if (filename) {
+			item.image = filename;
 		}
 	}
 

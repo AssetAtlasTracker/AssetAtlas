@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import BasicItem from '$lib/server/db/models/basicItem.js';
-import { uploadToGridFS } from '$lib/server/db/gridfs';
+import { uploadImage } from '$lib/utility/imageStorage.js';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const formData = await request.formData();
@@ -39,8 +39,8 @@ export const POST: RequestHandler = async ({ request }) => {
 			type: file.type
 		});
 
-		const gridFSFileId = await uploadToGridFS(file);
-		itemData.image = gridFSFileId;
+		const filename = await uploadImage(file);
+		itemData.image = filename;
 	}
 
 	console.log('Creating item with data:', itemData);

@@ -72,8 +72,8 @@
 	<form on:submit|preventDefault={submitItem}>
 		<div class="flex flex-col space-y-4">
 			<div class="flex flex-col space-y-2">
-				<!-- <ImageSelector on:imageChange={handleImageChange} /> -->
-				<FileUpload>
+				<ImageSelector on:imageChange={handleImageChange} />
+				<!-- <FileUpload>
 					<FileUpload.Dropzone>
 						<CameraIcon class="size-32" />
 						<span>Upload Image</span>
@@ -94,7 +94,7 @@
 						</FileUpload.Context>
 					</FileUpload.ItemGroup>
 					<FileUpload.ClearTrigger>Clear Files</FileUpload.ClearTrigger>
-				</FileUpload>
+				</FileUpload> -->
 			</div>
 
 			<div class="flex space-x-4">
@@ -300,7 +300,7 @@
 		<!-- Submit -->
 		<div id="submit-button-container" class="flex justify-end mt-4">
 			<button
-			class="border-button font-semibold shadow mt-4 mr-2 w-full block">
+				class="border-button font-semibold shadow mt-4 mr-2 w-full block">
 				Save and Add Another
 			</button>
 			<button

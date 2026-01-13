@@ -7,20 +7,6 @@ import CustomField from '$lib/server/db/models/customField.js';
 import { RecentItems } from '$lib/server/db/models/recentItems.js';
 import Template from '$lib/server/db/models/template.js';
 
-// Mock the GridFS module
-vi.mock('$lib/server/db/gridfs.js', () => {
-	return {
-		bucketReady: Promise.resolve(),
-		initGridFS: vi.fn(),
-		getGridFSBucket: vi.fn(),
-		uploadToGridFS: vi.fn().mockImplementation(async (file: File) => {
-			// Return the filename as the ID for testing
-			return Promise.resolve(file.name);
-		}),
-		UploadsFiles: {}
-	};
-});
-
 import { POST as uploadImagesHandler } from '$routes/api/images/+server.js';
 
 let mongoServer: MongoMemoryServer;
