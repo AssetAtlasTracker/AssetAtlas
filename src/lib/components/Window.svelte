@@ -236,7 +236,9 @@
 						on:click|stopPropagation={toggleCollapsed}
 						on:mousedown|stopPropagation
 						on:pointerdown|stopPropagation
-						aria-label="Collapse or expand window">
+						title="{isCollapsed
+							? 'Expand'
+							: 'Collapse'} this window">
 						{#if !isCollapsed}
 							<svg
 								viewBox="0 0 14 14"
@@ -290,7 +292,7 @@
 						on:click|stopPropagation={openInNewTab}
 						on:mousedown|stopPropagation
 						on:pointerdown|stopPropagation
-						aria-label="Open in new tab">
+						title="Open this window in a new tab">
 						<svg
 							width="14"
 							height="14"
@@ -325,7 +327,7 @@
 						on:click|stopPropagation={closeWindow}
 						on:mousedown|stopPropagation
 						on:pointerdown|stopPropagation
-						aria-label="Close window">
+						title="Close this window">
 						X
 					</button>
 				{/if}
