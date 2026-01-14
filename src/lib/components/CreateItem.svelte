@@ -28,6 +28,9 @@
 	let homeItemName = "";
 	let homeItemId: string | null = null;
 	let homeItemSuggestions: any[] = [];
+	let fieldItemName = "";
+	let fieldItemId: string | null = null;
+	let fieldItemSuggestions: any[] = [];
 	let templateName = "";
 	let templateId: string | null = null;
 	let templateSuggestions: any[] = [];
@@ -517,6 +520,12 @@
 		}
 	}
 
+	async function handleFieldItemFocus() {
+		if (!fieldItemName) {
+			fieldItemSuggestions = await loadRecentItems("item");
+		}
+	}
+
 	async function handleTemplateFocus() {
 		if (!templateName) {
 			templateSuggestions = await loadRecentItems("template");
@@ -541,6 +550,16 @@
 		}, 300);
 	}
 
+	function handleFieldItemInput(event: Event) {
+		const target = event.target as HTMLInputElement;
+		fieldItemName = target.value;
+		fieldItemId = null;
+		if (debounceTimeout) clearTimeout(debounceTimeout);
+		debounceTimeout = setTimeout(() => {
+			searchFieldItems(fieldItemName);
+		}, 300);
+	}
+
 	function handleTemplateInput(event: Event) {
 		const target = event.target as HTMLInputElement;
 		templateName = target.value;
@@ -562,6 +581,22 @@
 			);
 			const data = await response.json();
 			homeItemSuggestions = data;
+		} catch (err) {
+			console.error("Error searching home items:", err);
+		}
+	}
+
+	async function searchFieldItems(query: string) {
+		try {
+			const response = await fetch(
+				`/api/items/search?name=${encodeURIComponent(query)}`,
+				{
+					method: "GET",
+					headers: { "Content-Type": "application/json" },
+				},
+			);
+			const data = await response.json();
+			fieldItemSuggestions = data;
 		} catch (err) {
 			console.error("Error searching home items:", err);
 		}
@@ -792,6 +827,23 @@
 					onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
 					onFieldFocus={() => handleCustomFieldFocus(index)}
 					onFieldBlur={() => (customFields[index].suggestions = [])}
+					onFieldValueInput={(e) => {
+						const target = e.target as HTMLInputElement;
+						customFields[index].value = target.value;
+						if (field.dataType === 'item') {
+							handleFieldItemInput(e);
+						}
+					}}
+					onFieldValueFocus={() => {
+						if (field.dataType === 'item') {
+							handleFieldItemFocus();
+						}
+					}}
+					onFieldValueBlur={() => {
+						if (field.dataType === 'item') {
+							fieldItemSuggestions = [];
+						}
+					}}
 					showDeleteButton={!field.fromTemplate}
 					onDelete={() => removeCustomField(index)}>
 					<svelte:fragment slot="suggestions">
@@ -801,14 +853,31 @@
 								type="button"
 								on:mousedown={(e) => {
 									e.preventDefault();
-									selectCustomFieldSuggestion(
-										index,
-										suggestion,
-									);
+									selectCustomFieldSuggestion(index, suggestion);
 								}}>
 								{suggestion.fieldName} ({suggestion.dataType})
 							</button>
 						{/each}
+					</svelte:fragment>
+					
+					<svelte:fragment slot="itemSuggestions">
+						{#if field.dataType === 'item' && fieldItemSuggestions.length > 0}
+							<ul class="suggestions suggestion-box">
+								{#each fieldItemSuggestions as item (item._id)}
+									<button
+										class="suggestion-item"
+										type="button"
+										on:mousedown={(e) => {
+											e.preventDefault();
+											customFields[index].value = item._id;
+											fieldItemSuggestions = [];
+											addToRecents('item', item);
+										}}>
+										{item.name}
+									</button>
+								{/each}
+							</ul>
+						{/if}
 					</svelte:fragment>
 				</CustomFieldPicker>
 			{/each}

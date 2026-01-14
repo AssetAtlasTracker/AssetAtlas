@@ -4,11 +4,14 @@
 	export let onFieldNameInput: (event: Event) => void;
 	export let onFieldFocus: () => void;
 	export let onFieldBlur: () => void;
+	export let onFieldValueInput: ((event: Event) => void) | undefined = undefined;
+	export let onFieldValueFocus: (() => void) | undefined = undefined;
+	export let onFieldValueBlur: (() => void) | undefined = undefined;
 	export let showDeleteButton = true;
 	export let onDelete: () => void;
 	export let mode: "template" | "item" = "item";
 
-	const dataTypes = ["string", "number", "boolean", "date"];
+	const dataTypes = ["string", "number", "boolean", "date", "item"];
 
 	$: if (!field.dataType) {
 		field.dataType = "string";
@@ -74,33 +77,46 @@
 
 		<!-- Value Section (only in item mode) -->
 		{#if mode === "item"}
-			{#if field.dataType === "boolean"}
-				<div class="custom-dropdown flex-grow">
-					<select bind:value={field.value} class="dropdown-box">
-						<option value="true">Yes</option>
-						<option value="false">No</option>
-					</select>
-				</div>
-			{:else if field.dataType === "number"}
-				<input
-					type="number"
-					bind:value={field.value}
-					on:input={validateNumberInput}
-					class="dark-textarea py-2 px-4 flex-grow"
-				/>
-			{:else if field.dataType === "date"}
-				<input
-					type="date"
-					bind:value={field.value}
-					class="dark-textarea px-4 flex-grow"
-				/>
-			{:else}
-				<input
-					type="text"
-					bind:value={field.value}
-					class="dark-textarea py-2 px-4 flex-grow"
-				/>
-			{/if}
+			<div class="flex-grow" style="position: relative">
+				{#if field.dataType === "boolean"}
+					<div class="custom-dropdown flex-grow">
+						<select bind:value={field.value} class="dropdown-box">
+							<option value="true">Yes</option>
+							<option value="false">No</option>
+						</select>
+					</div>
+				{:else if field.dataType === "number"}
+					<input
+						type="number"
+						bind:value={field.value}
+						on:input={validateNumberInput}
+						class="dark-textarea py-2 px-4 flex-grow"
+					/>
+				{:else if field.dataType === "date"}
+					<input
+						type="date"
+						bind:value={field.value}
+						class="dark-textarea px-4 flex-grow"
+					/>
+				{:else if field.dataType === "item"}
+					<input
+						type="text"
+						bind:value={field.value}
+						on:input={onFieldValueInput}
+						on:focus={onFieldValueFocus}
+						on:blur={onFieldValueBlur}
+						class="dark-textarea py-2 px-4 flex-grow"
+						placeholder="Search for item..."
+					/>
+					<slot name="itemSuggestions" />
+				{:else}
+					<input
+						type="text"
+						bind:value={field.value}
+						class="dark-textarea py-2 px-4 flex-grow"
+					/>
+				{/if}
+			</div>
 		{/if}
 	</div>
 </div>
