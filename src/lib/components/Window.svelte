@@ -51,9 +51,7 @@
 			container.style.userSelect = "none";
 		}
 
-		if (currentDragDropMode) {
-			isDragging = true;
-		}
+		isDragging = true;
 
 		startX = event.clientX - currentX;
 		startY = event.clientY - currentY;

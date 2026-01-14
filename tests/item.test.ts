@@ -30,13 +30,12 @@ function createMockEvent(options: {
 }): RequestEvent {
 	const headers = new Headers(options.headers || {});
 	
-	// Convert body to FormData only for /api/items POST/PUT/PATCH requests (except /api/items/move)
-	// Other routes (like /api/customFields, /api/templates) use JSON
-	const isItemsRoute = options.url?.includes('/api/items');
-	const isMoveRoute = options.url?.includes('/api/items/move');
+	// Convert body to FormData only for /api/items POST/PUT/PATCH requests
+	// Other routes (like /api/customFields, /api/templates, /api/items/move) use JSON
+	const isItemsRoute = options.url?.includes('/api/items') && !options.url?.includes('/api/items/move');
 	let requestInit;
 	if (options.body && (options.method === 'POST' || options.method === 'PUT' || options.method === 'PATCH')) {
-		if (isItemsRoute && !isMoveRoute) {
+		if (isItemsRoute) {
 			const formData = new FormData();
 			for (const [key, value] of Object.entries(options.body)) {
 				if (value !== undefined && value !== null) {

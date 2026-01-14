@@ -1,10 +1,17 @@
 import mongoose, { Schema, model, Document, Types } from 'mongoose';
 
+export enum ServiceType {
+    GOOGLE = "google",
+    GITHUB = "github",
+    AUTHENTICATOR = "authenticator",
+    NONE = "none"
+}
+
 export interface ILogin extends Document {
     _id: Types.ObjectId;
     login_id: string;
     name: string;
-    is_google: boolean;
+    service_type: ServiceType;
     permissionLevel: number;
     createdAt: Date;
     updatedAt: Date;
@@ -12,7 +19,12 @@ export interface ILogin extends Document {
 
 const LoginSchema = new Schema({
 	login_id: { type: String, required: true, unique: true },
-	is_google: { type: Boolean, required: true, default: false },
+	service_type: {
+		type: String,
+		enum: Object.values(ServiceType),
+		required: true,
+		default: ServiceType.NONE
+	},
 	name: { type: String, required: false },
 	permissionLevel: { type: Number, required: true, default: 1 },
 }, {
