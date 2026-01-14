@@ -137,6 +137,7 @@
 			windowClass="page-component"
 			showClose={false}
 			showOpenInNewTab={false}
+			showCollapse={true}
 		>
 			<ItemDetails {item} on:openItem={handleOpenItem} />
 
@@ -240,6 +241,7 @@
 				windowClass="page-component"
 				showClose={true}
 				showOpenInNewTab={false}
+				showCollapse={true}
 				on:close={handleTreeClose}
 			>
 				<ItemTree
@@ -263,6 +265,7 @@
 				windowClass="page-component"
 				showClose={true}
 				showOpenInNewTab={true}
+				showCollapse={true}
 				on:close={() => handleCloseWindow(itemWindow.id)}
 				on:openNewTab={() => openInNewTab(itemWindow.id)}
 			>

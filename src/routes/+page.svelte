@@ -270,6 +270,7 @@
 			windowClass="page-component"
 			showClose={true}
 			showOpenInNewTab={false}
+			showCollapse={true}
 			on:close={handleTreeClose}>
 			<ItemTree
 				bind:draggingItem
@@ -289,6 +290,7 @@
 			windowClass="page-component"
 			showClose={true}
 			showOpenInNewTab={true}
+			showCollapse={true}
 			on:close={() => handleCloseWindow(window.id)}
 			on:openNewTab={() => openInNewTab(window.id)}>
 			<ItemDetails

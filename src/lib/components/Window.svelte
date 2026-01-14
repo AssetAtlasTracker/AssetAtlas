@@ -11,6 +11,7 @@
 	export let windowClass = "";
 	export let showClose = false;
 	export let showOpenInNewTab = false;
+	export let showCollapse = false;
 
 	const dispatch = createEventDispatcher();
 
@@ -24,6 +25,7 @@
 	let zIndex = 1;
 	let currentTopBarHeight: number;
 	let currentDragDropMode: boolean;
+	let isCollapsed: boolean = false;
 
 	const topBarUnsubscribe = topBarHeight.subscribe((value) => {
 		currentTopBarHeight = value;
@@ -142,6 +144,15 @@
 		dispatch("openNewTab");
 	}
 
+	function toggleCollapsed() {
+		isCollapsed = !isCollapsed;
+
+		const windowContent = container?.querySelector(".window-content");
+		if (windowContent) {
+			(windowContent as HTMLElement).hidden = isCollapsed;
+		}
+	}
+
 	//Initialize with a starting z-index and set up the window
 	onMount(() => {
 		bringWindowToFront();
@@ -219,6 +230,17 @@
 			{/if}
 
 			<div class="window-controls">
+				{#if showCollapse}
+					<button
+						class="window-control-button collapse-button"
+						on:click|stopPropagation={toggleCollapsed}
+						on:mousedown|stopPropagation
+						on:pointerdown|stopPropagation
+						aria-label="Collapse or expand window">
+						+
+					</button>
+				{/if}
+
 				{#if showOpenInNewTab}
 					<button
 						class="window-control-button external-link-button"
