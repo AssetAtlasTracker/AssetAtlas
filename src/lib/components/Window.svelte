@@ -151,6 +151,8 @@
 		if (windowContent) {
 			(windowContent as HTMLElement).hidden = isCollapsed;
 		}
+
+		bringWindowToFront();
 	}
 
 	//Initialize with a starting z-index and set up the window
