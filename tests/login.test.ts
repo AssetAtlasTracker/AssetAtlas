@@ -4,7 +4,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import type { RequestEvent, Cookies } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
-import { Login } from '$lib/server/db/models/login.js';
+import { Login, ServiceType } from '$lib/server/db/models/login.js';
 import { GET as loginGoogleHandler } from '$routes/api/oauth/loginGoogle/+server.js';
 import { GET as loginGithubHandler } from '$routes/api/oauth/loginGithub/+server.js';
 import { GET as callbackGoogleHandler } from '$routes/api/oauth/callbackGoogle/+server.js';
@@ -290,14 +290,14 @@ describe('OAuth API', () => {
 			// Verify user was created in database
 			const login = await Login.findOne({ login_id: 'google-user-123' });
 			expect(login).toBeTruthy();
-			expect(login?.service_type).toBe('google');
+			expect(login?.service_type).toBe(ServiceType.GOOGLE);
 			expect(login?.permissionLevel).toBe(10); // First user gets admin
 		});
 
 		it('should handle existing Google user', async () => {
 			const existingLogin = new Login({
 				login_id: 'google-existing-456',
-				service_type: 'google',
+				service_type: ServiceType.GOOGLE,
 				permissionLevel: 1,
 			});
 			await existingLogin.save();
@@ -390,14 +390,14 @@ describe('OAuth API', () => {
 			// Verify user was created in database
 			const login = await Login.findOne({ login_id: '123456789' });
 			expect(login).toBeTruthy();
-			expect(login?.service_type).toBe('github');
+			expect(login?.service_type).toBe(ServiceType.GITHUB);
 			expect(login?.permissionLevel).toBe(10); // First user gets admin
 		});
 
 		it('should handle existing GitHub user', async () => {
 			const existingLogin = new Login({
 				login_id: '987654321',
-				service_type: 'github',
+				service_type: ServiceType.GITHUB,
 				permissionLevel: 1,
 			});
 			await existingLogin.save();
@@ -477,10 +477,10 @@ describe('OAuth API', () => {
 			);
 
 			// Verify account was created in database
-			const login = await Login.findOne({ name: username, service_type: 'authenticator' });
+			const login = await Login.findOne({ name: username, service_type: ServiceType.AUTHENTICATOR });
 			expect(login).toBeTruthy();
 			expect(login?.login_id).toBe('mock-secret-12345');
-			expect(login?.service_type).toBe('authenticator');
+			expect(login?.service_type).toBe(ServiceType.AUTHENTICATOR);
 		});
 
 		it('should see existing authenticator account and only return otpCode', async () => {
@@ -488,7 +488,7 @@ describe('OAuth API', () => {
 			const existingLogin = new Login({
 				login_id: 'mock-secret-exists',
 				name: username,
-				service_type: 'authenticator',
+				service_type: ServiceType.AUTHENTICATOR,
 				permissionLevel: 1,
 			});
 			await existingLogin.save();
@@ -554,7 +554,7 @@ describe('OAuth API', () => {
 			const existingLogin = new Login({
 				login_id: 'mock-secret-exists',
 				name: username,
-				service_type: 'authenticator',
+				service_type: ServiceType.AUTHENTICATOR,
 				permissionLevel: 1,
 			});
 			await existingLogin.save();
@@ -643,7 +643,7 @@ describe('OAuth API', () => {
 			const existingLogin = new Login({
 				login_id: 'mock-secret-exists',
 				name: username,
-				service_type: 'authenticator',
+				service_type: ServiceType.AUTHENTICATOR,
 				permissionLevel: 1,
 			});
 			await existingLogin.save();

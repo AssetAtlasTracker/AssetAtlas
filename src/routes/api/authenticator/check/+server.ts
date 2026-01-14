@@ -2,7 +2,7 @@ import qrcode from 'qrcode';
 import { authenticator } from '@otplib/preset-default';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { Login } from '$lib/server/db/models/login';
+import { Login, ServiceType } from '$lib/server/db/models/login';
 
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -14,7 +14,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			return json({ error: 'Username is required' }, { status: 400 });
 		}
 
-		let account = await Login.findOne({ name:username, service_type: 'authenticator' });
+		let account = await Login.findOne({ name:username, service_type: ServiceType.AUTHENTICATOR });
 		console.log("tried to find account:", username, " with login: ",  account);
 		if (!account) {
 			accountExisted = false;
@@ -24,7 +24,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			const newAccount = new Login({
 				login_id: newSecret,
     			name: username,
-    			service_type: "authenticator",
+    			service_type: ServiceType.AUTHENTICATOR,
     			permissionLevel: permLevel
 			});
 			await newAccount.save();

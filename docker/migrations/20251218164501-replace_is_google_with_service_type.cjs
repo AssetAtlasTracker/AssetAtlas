@@ -1,3 +1,8 @@
+const ServiceType = {
+    GITHUB: 'github',
+    GOOGLE: 'google'
+};
+
 module.exports = {
 	/**
    * @param db {import('mongodb').Db}
@@ -5,7 +10,6 @@ module.exports = {
    * @returns {Promise<void>}
    */
 	async up(db, client) {
-	
 		await db.collection('logins').updateMany(
 			{ is_google: { $exists: true } },
 			[
@@ -14,9 +18,9 @@ module.exports = {
 						service_type: {
 							$cond: {
 								if: { $eq: ["$is_google", true] },
-								then: "google",
+								then: ServiceType.GOOGLE,
 								else: {
-									$ifNull: ["$rollback_type", "github"]
+									$ifNull: ["$rollback_type", ServiceType.GITHUB]
 								}
 							}
 						}
@@ -43,14 +47,21 @@ module.exports = {
 					$set: {
 						 is_google: {
 							$cond: {
-								if: { $eq: ["$service_type", "google"] },
+								
+								if: { $or: [
+									{ $eq: ["$service_type", ServiceType.GOOGLE] },
+									{ $eq: ["$service_type", "google"] }
+								]},
 								then: true,
 								else: false
 							}
 						},
 						rollback_type: {
 							$cond: {
-								if: { $ne: ["$service_type", "google"] },
+								if: { $or: [
+									{ $ne: ["$service_type", ServiceType.GOOGLE] },
+									{ $ne: ["$service_type", "google"] }
+								]},
 								then: "$service_type",
 								else: "$$REMOVE"
 							}

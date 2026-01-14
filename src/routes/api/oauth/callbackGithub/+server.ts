@@ -2,7 +2,7 @@ import { redirect, error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
 import * as arctic from 'arctic';
-import { Login } from '$lib/server/db/models/login.js';
+import { Login, ServiceType } from '$lib/server/db/models/login.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 const github_client_id = process.env.GITHUB_CLIENT_ID || '';
@@ -33,7 +33,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		const id = String(user.id);
 		const name = user.name || user.login;
 
-		let existingLogin = await Login.findOne({ login_id: id, service_type: 'github' });
+		let existingLogin = await Login.findOne({ login_id: id, service_type: ServiceType.GITHUB });
 
 		if (!existingLogin) {
 			const loginCount = await Login.countDocuments({});
@@ -41,7 +41,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 
 			const newLogin = new Login({
 				login_id: id,
-				service_type: 'github',
+				service_type: ServiceType.GITHUB,
 				name: name,
 				permissionLevel: isFirstLogin ? 10 : 1
 			});

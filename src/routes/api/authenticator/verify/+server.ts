@@ -1,7 +1,7 @@
 import { authenticator } from '@otplib/preset-default';
 import { redirect, json, error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { Login } from '$lib/server/db/models/login';
+import { Login, ServiceType } from '$lib/server/db/models/login';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
@@ -15,7 +15,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 			return json({ error: 'Username and code are required' }, { status: 400 });
 		}
         
-		let account = await Login.findOne({ name: username, service_type: 'authenticator' });
+		let account = await Login.findOne({ name: username, service_type: ServiceType.AUTHENTICATOR });
 
 		if (!account) {
 			return json({ error: 'Account not found' }, { status: 404 });
