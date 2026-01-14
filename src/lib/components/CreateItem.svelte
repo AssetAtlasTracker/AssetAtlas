@@ -107,6 +107,7 @@
 		fieldId?: string;
 		dataType: string;
 		value: string;
+		displayValue?: string; // ← Add this for displaying item names
 		suggestions: ICustomField[];
 		isNew: boolean;
 		isSearching: boolean;
@@ -829,9 +830,12 @@
 					onFieldBlur={() => (customFields[index].suggestions = [])}
 					onFieldValueInput={(e) => {
 						const target = e.target as HTMLInputElement;
-						customFields[index].value = target.value;
 						if (field.dataType === 'item') {
+							customFields[index].displayValue = target.value;
+							customFields[index].value = ''; // Clear the ID when typing
 							handleFieldItemInput(e);
+						} else {
+							customFields[index].value = target.value;
 						}
 					}}
 					onFieldValueFocus={() => {
@@ -869,7 +873,8 @@
 										type="button"
 										on:mousedown={(e) => {
 											e.preventDefault();
-											customFields[index].value = item._id;
+											customFields[index].value = item._id; // Store ID
+											customFields[index].displayValue = item.name; // Display name
 											fieldItemSuggestions = [];
 											addToRecents('item', item);
 										}}>

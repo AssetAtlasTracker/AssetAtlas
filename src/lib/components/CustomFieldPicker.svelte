@@ -101,7 +101,7 @@
 				{:else if field.dataType === "item"}
 					<input
 						type="text"
-						bind:value={field.value}
+						bind:value={field.displayValue}
 						on:input={onFieldValueInput}
 						on:focus={onFieldValueFocus}
 						on:blur={onFieldValueBlur}
