@@ -112,6 +112,7 @@
 
 	interface ItemWindow {
 		id: string;
+		name: string;
 		x: number;
 		y: number;
 	}
@@ -131,8 +132,15 @@
 
 		additionalItemWindows = [
 			...additionalItemWindows,
-			{ id, x: offsetX, y: offsetY },
+			{ id, name: "Loading...", x: offsetX, y: offsetY },
 		];
+	}
+
+	function handleUpdateTitle(windowId: string, event: CustomEvent) {
+		const { name } = event.detail;
+		additionalItemWindows = additionalItemWindows.map(w => 
+			w.id === windowId ? { ...w, name } : w
+		);
 	}
 
 	function handleCloseWindow(id: string) {
@@ -286,7 +294,7 @@
 		<Window
 			initialX={window.x}
 			initialY={window.y}
-			windowTitle="Item View"
+			windowTitle="Item View: {window.name}"
 			windowClass="page-component"
 			showClose={true}
 			showOpenInNewTab={true}
@@ -296,7 +304,8 @@
 			<ItemDetails
 				item={null}
 				itemId={window.id}
-				on:openItem={handleOpenItem} />
+				on:openItem={handleOpenItem}
+				on:updateTitle={(e) => handleUpdateTitle(window.id, e)} />
 		</Window>
 	{/each}
 

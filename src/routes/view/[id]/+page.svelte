@@ -87,6 +87,7 @@
 	//Track additional item windows
 	interface ItemWindow {
 		id: string;
+		name: string;
 		x: number;
 		y: number;
 	}
@@ -110,7 +111,14 @@
 		const offsetX = 50 + additionalWindows.length * 30;
 		const offsetY = 50 + additionalWindows.length * 30;
 
-		additionalWindows = [...additionalWindows, { id, x: offsetX, y: offsetY }];
+		additionalWindows = [...additionalWindows, { id, name: "Loading...", x: offsetX, y: offsetY }];
+	}
+
+	function handleUpdateTitle(windowId: string, event: CustomEvent) {
+		const { name } = event.detail;
+		additionalWindows = additionalWindows.map(w => 
+			w.id === windowId ? { ...w, name } : w
+		);
 	}
 
 	function handleCloseWindow(id: string) {
@@ -133,7 +141,7 @@
 		<Window
 			initialX={32}
 			initialY={32}
-			windowTitle="Item Details"
+			windowTitle={item ? `Item Details: ${item.name}` : "Item Details"}
 			windowClass="page-component"
 			showClose={false}
 			showOpenInNewTab={false}
@@ -261,7 +269,7 @@
 			<Window
 				initialX={itemWindow.x}
 				initialY={itemWindow.y}
-				windowTitle="Item View"
+				windowTitle="Item View: {itemWindow.name}"
 				windowClass="page-component"
 				showClose={true}
 				showOpenInNewTab={true}
@@ -273,6 +281,7 @@
 					item={null}
 					itemId={itemWindow.id}
 					on:openItem={handleOpenItem}
+				on:updateTitle={(e) => handleUpdateTitle(itemWindow.id, e)}
 				/>
 			</Window>
 		{/each}
