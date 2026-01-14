@@ -203,9 +203,9 @@
 			on:mousedown={handleMouseDown}
 			on:keydown={(e) =>
 				e.key === "Enter" &&
-				handleMouseDown(
-					new MouseEvent("mousedown", { clientX: 0, clientY: 0 }),
-				)}
+					handleMouseDown(
+						new MouseEvent("mousedown", { clientX: 0, clientY: 0 }),
+					)}
 			role="button"
 			tabindex="0"
 			aria-label="Drag to move window"

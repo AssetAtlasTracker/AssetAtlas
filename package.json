@@ -59,6 +59,7 @@
 		"vitest-browser-svelte": "^1.1.0"
 	},
 	"dependencies": {
+		"@lucide/svelte": "^0.562.0",
 		"arctic": "^3.7.0",
 		"bcryptjs": "^3.0.2",
 		"cookie-parser": "^1.4.7",
@@ -77,6 +78,7 @@
 		"qrcode": "^1.5.4",
 		"set-cookie-parser": "^2.7.2",
 		"svelte-icons": "^2.1.0",
-		"svelte-portal": "^2.2.1"
+		"svelte-portal": "^2.2.1",
+		"svelte-device-info": "^1.0.6"
 	}
 }
