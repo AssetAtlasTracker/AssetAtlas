@@ -25,7 +25,7 @@ export async function uploadImage(file: File) {
 }
 
 export async function retrieveImage(filename: string): Promise<Buffer> {
-    console.log("GOT NAME:" + filename);
+	console.log("GOT NAME:" + filename);
 	const filePath = path.join(UPLOAD_DIR, filename);
 	const buffer = await fs.readFile(filePath);
 	return buffer;

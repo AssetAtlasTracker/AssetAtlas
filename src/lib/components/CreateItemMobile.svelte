@@ -5,8 +5,6 @@
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
-	import { CameraIcon } from '@lucide/svelte';
-	import { FileUpload } from '@skeletonlabs/skeleton-svelte';
 	import { 
 		createItemState,
 		handleCreateItem, 
@@ -73,28 +71,6 @@
 		<div class="flex flex-col space-y-4">
 			<div class="flex flex-col space-y-2">
 				<ImageSelector on:imageChange={handleImageChange} />
-				<!-- <FileUpload>
-					<FileUpload.Dropzone>
-						<CameraIcon class="size-32" />
-						<span>Upload Image</span>
-						<FileUpload.Trigger>Browse Files</FileUpload.Trigger>
-						<FileUpload.HiddenInput />
-					</FileUpload.Dropzone>
-					<FileUpload.ItemGroup>
-						<FileUpload.Context>
-							{#snippet children(fileUpload)}
-								{#each fileUpload().acceptedFiles as file (file.name)}
-									<FileUpload.Item {file}>
-										<FileUpload.ItemName>{file.name}</FileUpload.ItemName>
-										<FileUpload.ItemSizeText>{file.size} bytes</FileUpload.ItemSizeText>
-										<FileUpload.ItemDeleteTrigger />
-									</FileUpload.Item>
-								{/each}
-							{/snippet}
-						</FileUpload.Context>
-					</FileUpload.ItemGroup>
-					<FileUpload.ClearTrigger>Clear Files</FileUpload.ClearTrigger>
-				</FileUpload> -->
 			</div>
 
 			<div class="flex space-x-4">
@@ -300,7 +276,8 @@
 		<!-- Submit -->
 		<div id="submit-button-container" class="flex justify-end mt-4">
 			<button
-				class="border-button font-semibold shadow mt-4 mr-2 w-full block">
+				class="border-button font-semibold shadow mt-4 mr-2 w-full block"
+				type="button">
 				Save and Add Another
 			</button>
 			<button

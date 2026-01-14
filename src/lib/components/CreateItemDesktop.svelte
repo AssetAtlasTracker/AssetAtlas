@@ -106,6 +106,7 @@
 						bind:value={createItemState.description}></textarea>
 				</label>
 
+				<!-- Image -->
 				<br />
 				<div class="flex flex-col space-y-2">
 					<ImageSelector on:imageChange={handleImageChange} />
