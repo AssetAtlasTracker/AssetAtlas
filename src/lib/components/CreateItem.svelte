@@ -36,6 +36,7 @@
 	let templateSuggestions: any[] = [];
 	let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
 	let selectedImage: File | null = null;
+	let placeholder: string = "Search for item...";
 
 	const dispatch = createEventDispatcher();
 
@@ -639,6 +640,27 @@
 			console.error("Error searching templates:", err);
 		}
 	}
+
+	async function checkIfItemExists(itemName: string) {
+		if(itemName.trim() === "") return false;
+		try {
+			const response = await fetch(
+				`/api/customFields/checkItemName?itemName=${encodeURIComponent(itemName)}`,
+				{
+					method: "GET",
+					headers: { "Content-Type": "application/json" },
+				},
+			);
+			const data = await response.json();
+			return data.id;
+		} catch
+		(err) {
+			console.error("Error checking item name:", err);
+			return false;
+		}
+			
+	}
+
 </script>
 
 <Dialog isLarge={true} bind:dialog create={() => {}} close={resetForm}>
@@ -834,6 +856,7 @@
 					onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
 					onFieldFocus={() => handleCustomFieldFocus(index)}
 					onFieldBlur={() => (customFields[index].suggestions = [])}
+					placeholder={placeholder}
 					onFieldValueInput={(e) => {
 						const target = e.target as HTMLInputElement;
 						if (field.dataType === 'item') {
@@ -850,8 +873,20 @@
 						}
 					}}
 					onFieldValueBlur={() => {
+						console.log("Field value blur - clearing suggestions");
 						if (field.dataType === 'item') {
 							fieldItemSuggestions = [];
+							//here for check item field value
+							checkIfItemExists(field.displayValue || '').then((itemId) => {
+								if (itemId) {
+									customFields[index].value = itemId;
+								} else {
+									customFields[index].value = '';
+									customFields[index].displayValue = '';
+									placeholder = "Item not found";
+								}
+							});
+
 						}
 					}}
 					showDeleteButton={!field.fromTemplate}

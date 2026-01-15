@@ -4,6 +4,7 @@
 	export let onFieldNameInput: (event: Event) => void;
 	export let onFieldFocus: () => void;
 	export let onFieldBlur: () => void;
+	export let placeholder: string = "Search for item...";
 	export let onFieldValueInput: ((event: Event) => void) | undefined = undefined;
 	export let onFieldValueFocus: (() => void) | undefined = undefined;
 	export let onFieldValueBlur: (() => void) | undefined = undefined;
@@ -106,7 +107,7 @@
 						on:focus={onFieldValueFocus}
 						on:blur={onFieldValueBlur}
 						class="dark-textarea py-2 px-4 flex-grow"
-						placeholder="Search for item..."
+						placeholder={placeholder}
 					/>
 					<slot name="itemSuggestions" />
 				{:else}
