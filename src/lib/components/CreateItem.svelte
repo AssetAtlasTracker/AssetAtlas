@@ -175,6 +175,7 @@
 					if (!field.isNew && field.fieldId) {
 						return { field: field.fieldId, value: field.value };
 					} else {
+						console.log("doing create for field:", field);
 						const createdField = await createCustomField(
 							field.fieldName,
 							field.dataType,
@@ -183,6 +184,8 @@
 					}
 				}),
 			);
+
+			console.log("Formatted custom fields:", formattedCustomFields);
 
 			const formData = new FormData();
 			formData.append("name", name);
@@ -241,6 +244,9 @@
 		fieldName: string,
 		dataType: string,
 	): Promise<ICustomField> {
+		console.log(
+			`Creating custom field with name: ${fieldName}, dataType: ${dataType}`,
+		);
 		const response = await fetch(`/api/customFields`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
