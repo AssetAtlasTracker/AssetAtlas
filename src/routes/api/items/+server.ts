@@ -8,9 +8,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	const itemData: any = {};
   
 	for (const [key, value] of formData.entries()) {
-		if (key !== 'file' && key !== 'image') {
-			itemData[key] = value;
-		}
+		itemData[key] = value;
 	}
   
 	if (typeof itemData.tags === 'string') {

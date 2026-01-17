@@ -18,10 +18,6 @@ export const GET: RequestHandler = async ({ params }) => {
 			throw error(404, 'No image found');
 		}
 
-		console.log("ITEM IMAGE: " + item.image);
-		console.log("ITEM ID: " + item._id);
-		console.log("ITEM ID: " + id);
-
 		const buffer = await retrieveImage(item.image);
 
 		return new Response(buffer, {
