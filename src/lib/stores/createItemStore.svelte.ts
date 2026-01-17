@@ -3,6 +3,8 @@ import type { ICustomField, ICustomFieldEntryInstance } from "$lib/types/customF
 
 import { addToRecents } from "$lib/utility/recentItemHelper";
 import { actionStore } from "$lib/stores/actionStore";
+import { uploadImage } from '$lib/utility/imageUpload.js';
+
 
 let item = $state<IBasicItemPopulated | null>(null);
 let duplicate = $state(false);
@@ -112,11 +114,14 @@ export async function handleCreateItem() {
 		if (_parentItemId) formData.append("parentItem", _parentItemId);
 		if (_homeItemId) formData.append("homeItem", _homeItemId);
 		if (_templateId) formData.append("template", _templateId);
+		if (_selectedImage) {
+			const filename = await uploadImage(_selectedImage);
+			formData.append("image", filename);
+		}
 		formData.append(
 			"customFields",
 			JSON.stringify(formattedCustomFields),
 		);
-		if (_selectedImage) formData.append("image", _selectedImage);
 
 		const response = await fetch(`/api/items`, {
 			method: "POST",
@@ -131,6 +136,7 @@ export async function handleCreateItem() {
 			actionStore.addMessage("Error creating item");
 			throw new Error(data.message || "Error creating item");
 		}
+
 		actionStore.addMessage("Item created successfully!");
 		if (onItemCreated) {
 			onItemCreated();

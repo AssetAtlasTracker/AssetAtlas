@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import mongoose from 'mongoose';
 import BasicItem from '$lib/server/db/models/basicItem.js';
-import { retrieveImage } from '$lib/utility/imageStorage';
+import { retrieveImage } from '$lib/server/imageRetrieve';
 
 export const GET: RequestHandler = async ({ params }) => {
 	try {

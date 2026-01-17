@@ -6,11 +6,7 @@ const config = {
   preprocess: vitePreprocess(),
   
   kit: {
-    adapter: adapter({
-      out: 'build',
-      envPrefix: '',
-      bodySize: '10mb'
-    }),
+    adapter: adapter(),
     alias: {
       $routes: 'src/routes'
     },

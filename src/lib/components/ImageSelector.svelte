@@ -3,7 +3,7 @@
 	import { CameraIcon } from '@lucide/svelte';
 	import { FileUpload } from '@skeletonlabs/skeleton-svelte';
 
-	import type { FileAcceptDetails, FileRejectDetails } from '@skeletonlabs/skeleton';
+	import type { FileUploadDetails, FileRejectDetails } from '@skeletonlabs/skeleton';
     import { actionStore } from '$lib/stores/actionStore';
 
 	export let itemId: string | undefined = undefined;
@@ -12,10 +12,8 @@
 	let imagePreview: string | null = null;
 	let selectedImage: File | null = null;
 	let removeExistingImage = false;
-	let errorMessage: string = '';
-	let isUploading: boolean = false;
   
-	const maxImageSize = 5 * 1024 * 1024;
+	const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 5MB in bytes
 	const allowedFileTypes = ['.jpg', '.jpeg', '.jfif', '.pjpeg', '.pjp', '.png', '.gif'];
 	const dispatch = createEventDispatcher();
 
@@ -46,13 +44,9 @@
 		}
 	}
 
-	function handleImageChange(details: FileAcceptDetails) {
+	function handleImageChange(details: FileUploadDetails) {
 		if (details.files?.length) {
 			const file = details.files[0];
-			if (file.size > maxImageSize) {
-				console.log(`File size exceeds 5MB limit. Selected file is ${(file.size / (1024 * 1024)).toFixed(2)}MB.`);
-				return;
-			}
 			
 			selectedImage = file;
 			if (selectedImage) {
@@ -69,9 +63,9 @@
 
 	function handleImageReject(details: FileRejectDetails) {
 		if (details.files?.length) {
-			const file = details.files[0];
-			if (file.errors[0] === "FILE_TOO_LARGE") {
-				actionStore.addMessage("File exceeds 5MB size limit!")
+			if (details.files[0].errors[0] === "FILE_TOO_LARGE") {
+				console.log("BIG");
+				actionStore.addMessage("File exceeds max size. Must be <50MB");
 			}
 		}
 	}
@@ -92,11 +86,7 @@
 
 <div class="flex flex-col space-y-2">
 
-	<FileUpload onFileAccept={handleImageChange} 
-		onFileReject={handleImageReject}
-		accept={allowedFileTypes} 
-		maxFileSize={maxImageSize}
-		>
+	<FileUpload onFileAccept={handleImageChange} onFileReject={handleImageReject} maxFileSize={MAX_IMAGE_SIZE} accept={allowedFileTypes}>
 		<FileUpload.Dropzone>
 			{#if imagePreview}
 				<div class="relative w-48 h-48">

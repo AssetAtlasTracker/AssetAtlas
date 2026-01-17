@@ -64,6 +64,20 @@ services:
     networks:
       - default
 
+  tusd:
+    image: tusproject/tusd:latest
+    command:
+      - "-upload-dir=/data"
+      - "-port=1080"
+      - "-verbose"
+    ports:
+      - "1080:1080"
+    volumes:
+      - image-uploads:/data
+    networks:
+      - default
+
+
 networks:
   default:
     driver: bridge

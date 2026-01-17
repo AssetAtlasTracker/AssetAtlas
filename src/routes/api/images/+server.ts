@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { uploadImage } from '$lib/utility/imageStorage';
+import { uploadImage } from '$lib/utility/imageUpload';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const formData = await request.formData();
@@ -17,10 +17,12 @@ export const POST: RequestHandler = async ({ request }) => {
 		throw error(400, 'No files provided');
 	}
 
-	let uploadedFilenames = files.map((file) => {
-		uploadImage(file);
-		return file.name;
-	});
+	const uploadedFilenames = await Promise.all(
+		files.map(async (file) => {
+			const filename = await uploadImage(file);
+			return filename;
+		})
+	);
 
 	return json({ ids: uploadedFilenames }, { status: 201 });
 };
