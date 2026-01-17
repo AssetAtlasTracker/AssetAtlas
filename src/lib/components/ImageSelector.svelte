@@ -4,7 +4,7 @@
 	import { FileUpload } from '@skeletonlabs/skeleton-svelte';
 
 	import type { FileUploadDetails, FileRejectDetails } from '@skeletonlabs/skeleton';
-    import { actionStore } from '$lib/stores/actionStore';
+	import { actionStore } from '$lib/stores/actionStore';
 
 	export let itemId: string | undefined = undefined;
 	export let existingImage: boolean = false;
