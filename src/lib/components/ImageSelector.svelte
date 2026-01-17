@@ -64,7 +64,6 @@
 	function handleImageReject(details: FileRejectDetails) {
 		if (details.files?.length) {
 			if (details.files[0].errors[0] === "FILE_TOO_LARGE") {
-				console.log("BIG");
 				actionStore.addMessage("File exceeds max size. Must be <50MB");
 			}
 		}

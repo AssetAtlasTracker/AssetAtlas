@@ -123,8 +123,6 @@ export async function handleCreateItem() {
 			JSON.stringify(formattedCustomFields),
 		);
 
-		console.log(formData);
-
 		const response = await fetch(`/api/items`, {
 			method: "POST",
 			body: formData,
@@ -152,7 +150,6 @@ export async function handleCreateItem() {
 }
 
 export function changeItem(newItem: IBasicItemPopulated){
-	console.log("ITEM SATTEST");
 	item = newItem;
 	if (duplicate) {
 		_name = item.name;

@@ -9,6 +9,14 @@ import Template from '$lib/server/db/models/template.js';
 
 import { POST as uploadImagesHandler } from '$routes/api/images/+server.js';
 
+let uploadCounter = 0;
+vi.mock('$lib/utility/imageUpload', () => ({
+	uploadImage: vi.fn(async (file: File) => {
+		const id = `${Date.now()}-${uploadCounter++}-${file.name}`;
+		return id;
+	})
+}));
+
 let mongoServer: MongoMemoryServer;
 
 function createMockEvent(options: {
@@ -97,7 +105,9 @@ describe('Images API', () => {
 		const body = await uploadResponse.json();
 
 		expect(uploadResponse.status).toBe(201);
-		expect(body.ids).toEqual(['fake-image.jpg', 'fake-image2.jpg']);
+		expect(body.ids).toHaveLength(2);
+		expect(body.ids[0]).toMatch(/^\d+-\d+-fake-image\.jpg$/);
+		expect(body.ids[1]).toMatch(/^\d+-\d+-fake-image2\.jpg$/);
 	});
 
 	it('Should fail to upload images when no images are provided', async () => {
