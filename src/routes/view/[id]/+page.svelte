@@ -1,23 +1,23 @@
 <script lang="ts">
-	import ItemDetails from "$lib/components/ItemDetails.svelte";
-	import DeleteItem from "$lib/components/DeleteItem.svelte";
-	import TopBar from "$lib/components/TopBar.svelte";
-	import Dialog from "$lib/components/Dialog.svelte";
-	import Menu from "$lib/components/Menu.svelte";
-	import ItemTree from "$lib/components/ItemTree.svelte";
-	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import ReturnItem from "$lib/components/ReturnItem.svelte";
-	import CreateItem from "$lib/components/CreateItem.svelte";
-	import EditItem from "$lib/components/EditItem.svelte";
-	import MoveItem from "$lib/components/MoveItem.svelte";
-	import Window from "$lib/components/Window.svelte";
-	import { goto } from '$app/navigation';
-	import { browser } from '$app/environment';
-	import type { PageData } from './$types';
+	import { browser } from "$app/environment";
+	import { goto } from "$app/navigation";
 	import { resolve } from "$app/paths";
-  
+	import CreateItem from "$lib/components/CreateItem.svelte";
+	import DeleteItem from "$lib/components/DeleteItem.svelte";
+	import Dialog from "$lib/components/Dialog.svelte";
+	import EditItem from "$lib/components/EditItem.svelte";
+	import ItemDetails from "$lib/components/ItemDetails.svelte";
+	import ItemTree from "$lib/components/ItemTree.svelte";
+	import Menu from "$lib/components/Menu.svelte";
+	import MoveItem from "$lib/components/MoveItem.svelte";
+	import ReturnItem from "$lib/components/ReturnItem.svelte";
+	import TopBar from "$lib/components/TopBar.svelte";
+	import Window from "$lib/components/Window.svelte";
+	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
+	import type { PageData } from "./$types";
+
 	let { data }: { data: PageData } = $props();
-	let item = $state(data.item);
+	let item = $derived(data.item);
 
 	let editDialog = $state<HTMLDialogElement | undefined>();
 	let deleteDialog = $state<HTMLDialogElement | undefined>();
@@ -68,11 +68,10 @@
 	}
 
 	let availableItems = $state<IBasicItemPopulated[]>([]);
-    
 
 	function handleDelete() {
 		deleteDialog?.close();
-		goto(resolve('/'));
+		goto(resolve("/"));
 	}
 
 	function onSearch(query: string) {}
@@ -103,7 +102,10 @@
 		const offsetX = 50 + additionalWindows.length * 30;
 		const offsetY = 50 + additionalWindows.length * 30;
 
-		additionalWindows = [...additionalWindows, { id, x: offsetX, y: offsetY }];
+		additionalWindows = [
+			...additionalWindows,
+			{ id, x: offsetX, y: offsetY },
+		];
 	}
 
 	function handleCloseWindow(id: string) {
@@ -129,19 +131,15 @@
 			windowTitle="Item Details"
 			windowClass="page-component"
 			showClose={false}
-			showOpenInNewTab={false}
-		>
-			<ItemDetails 
-				{item} 
+			showOpenInNewTab={false}>
+			<ItemDetails
+				{item}
 				bind:moveDialog
 				bind:returnDialog
 				bind:editDialog
 				bind:deleteDialog
 				bind:showItemTree
-				on:openItem={handleOpenItem} 
-			/>
-
-			
+				on:openItem={handleOpenItem} />
 		</Window>
 
 		{#if showItemTree && item}
@@ -152,8 +150,7 @@
 				windowClass="page-component"
 				showClose={true}
 				showOpenInNewTab={false}
-				on:close={handleTreeClose}
-			>
+				on:close={handleTreeClose}>
 				<ItemTree
 					parentId={item._id.toString()}
 					currentId={item._id.toString()}
@@ -162,8 +159,7 @@
 					{targetItemName}
 					showMoveDialog={false}
 					useWindowView={true}
-					on:openItem={handleOpenItem}
-				/>
+					on:openItem={handleOpenItem} />
 			</Window>
 		{/if}
 
@@ -176,13 +172,11 @@
 				showClose={true}
 				showOpenInNewTab={true}
 				on:close={() => handleCloseWindow(itemWindow.id)}
-				on:openNewTab={() => openInNewTab(itemWindow.id)}
-			>
+				on:openNewTab={() => openInNewTab(itemWindow.id)}>
 				<ItemDetails
 					item={null}
 					itemId={itemWindow.id}
-					on:openItem={handleOpenItem}
-				/>
+					on:openItem={handleOpenItem} />
 			</Window>
 		{/each}
 	</div>
@@ -192,22 +186,25 @@
 
 <Dialog
 	bind:dialog={deleteDialog}
-	on:close={() => {
+	isLarge={false}
+	create={() => {}}
+	close={() => {
 		deleteDialog?.close();
-	}}
->
+	}}>
 	<div class="simple-dialog-spacing">
 		Are you sure you want to delete {item?.name}?
 	</div>
-	<DeleteItem itemId={data.item?._id} onDelete={handleDelete}>Delete</DeleteItem>
+	<DeleteItem itemId={data.item?._id} onDelete={handleDelete}
+		>Delete</DeleteItem>
 </Dialog>
 
 <Dialog
 	bind:dialog={returnDialog}
-	on:close={() => {
+	isLarge={false}
+	create={() => {}}
+	close={() => {
 		returnDialog?.close();
-	}}
->
+	}}>
 	<div class="simple-dialog-spacing">
 		Are you sure you want to return {item?.name} to its home location?
 	</div>
@@ -219,10 +216,11 @@
 {#if item}
 	<Dialog
 		bind:dialog={editDialog}
-		on:close={() => {
+		isLarge={false}
+		create={() => {}}
+		close={() => {
 			editDialog?.close();
-		}}
-	>
+		}}>
 		<EditItem
 			{item}
 			on:close={() => {
@@ -232,17 +230,17 @@
 				if (data.item?._id) {
 					fetchItem(data.item._id.toString());
 				}
-			}}
-		/>
+			}} />
 	</Dialog>
 {/if}
 
 <Dialog
 	bind:dialog={moveDialog}
-	on:close={() => {
+	isLarge={false}
+	create={() => {}}
+	close={() => {
 		moveDialog?.close();
-	}}
->
+	}}>
 	<div class="important-text text-center">
 		Move "{item?.name}" to:
 	</div>
@@ -254,14 +252,12 @@
 			if (browser) {
 				location.reload();
 			}
-		}}
-	/>
+		}} />
 </Dialog>
 
 <button
 	class="add-button text-icon font-bold shadow"
-	on:click={() => createDialog?.showModal()}
->
+	onclick={() => createDialog?.showModal()}>
 	+
 </button>
 
@@ -269,10 +265,9 @@
 	{#if createDialog}
 		<CreateItem
 			bind:dialog={createDialog}
-			{item}
 			duplicate={false}
 			on:close={() => createDialog?.close()}
-			on:itemCreated={() => data.item?._id && fetchItem(data.item._id.toString())}
-		/>
+			on:itemCreated={() =>
+				data.item?._id && fetchItem(data.item._id.toString())} />
 	{/if}
 {/key}
