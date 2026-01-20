@@ -9,7 +9,6 @@
 		createItemState,
 		handleCreateItem, 
 		initializeItemEdit, 
-		resetForm,
 		handleParentItemInput,
 		handleHomeItemInput,
 		handleTemplateInput,
@@ -25,7 +24,9 @@
 		addCustomFieldLine,
 		removeCustomField,
 		handleImageChange,
-		setOnItemCreated
+		setOnItemCreated,
+        resetAllFields,
+		partialResetFields
 	} from "$lib/stores/createItemStore.svelte";
 	import { createEventDispatcher } from "svelte";
 	import "$lib/styles/mobile.css";
@@ -35,6 +36,7 @@
 
 	let templateDialog: HTMLDialogElement | undefined;
 	let showCreateTemplateDialog = false;
+	let formElement: HTMLFormElement;
 
 	const dispatch = createEventDispatcher();
 
@@ -49,15 +51,25 @@
 	});
 	initializeItemEdit();
 
-	function submitItem() {
+	async function submitAndClose() {
 		if (dialog) {
 			dialog.close();
 		}
-		handleCreateItem();
+		await handleCreateItem();
+		resetAllFields();
+	}
+
+	async function submitAndAddAnother() {
+		if (!formElement.checkValidity()) {
+			formElement.reportValidity();
+			return;
+		}
+		await handleCreateItem();
+		partialResetFields();
 	}
 </script>
 
-<Dialog bind:dialog create={() => {}} close={resetForm}>
+<Dialog bind:dialog create={() => {}} close={resetAllFields}>
 	{#if duplicate}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
@@ -67,7 +79,7 @@
 			Create New Item
 		</h1>
 	{/if}
-	<form on:submit|preventDefault={submitItem}>
+	<form bind:this={formElement} on:submit|preventDefault={submitAndClose}>
 		<div class="flex flex-col space-y-4">
 			<div class="flex flex-col space-y-2">
 				<ImageSelector on:imageChange={handleImageChange} />
@@ -275,7 +287,7 @@
 		<br />
 		<!-- Submit -->
 		<div id="submit-button-container" class="flex justify-end mt-4">
-			<button
+			<button on:click={submitAndAddAnother}
 				class="border-button font-semibold shadow mt-4 mr-2 w-full block"
 				type="button">
 				Save and Add Another

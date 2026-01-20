@@ -141,8 +141,6 @@ export async function handleCreateItem() {
 		if (onItemCreated) {
 			onItemCreated();
 		}
-
-		resetForm();
 	} catch (err) {
 		console.error("Error creating item:", err);
 		actionStore.addMessage("Error creating item");
@@ -206,7 +204,7 @@ export function initializeItemEdit() {
 	}
 }
 
-export function resetForm() {
+export function resetAllFields() {
 	_name = "";
 	_description = "";
 	_tags = "";
@@ -220,6 +218,12 @@ export function resetForm() {
 	_parentItemSuggestions = [];
 	_homeItemSuggestions = [];
 	_templateSuggestions = [];
+	_selectedImage = null;
+}
+
+export function partialResetFields() {
+	_name = "";
+	_description = "";
 	_selectedImage = null;
 }
 

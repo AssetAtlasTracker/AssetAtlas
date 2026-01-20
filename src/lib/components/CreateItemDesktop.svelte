@@ -9,7 +9,6 @@
 		createItemState,
 		handleCreateItem, 
 		initializeItemEdit, 
-		resetForm,
 		handleParentItemInput,
 		handleHomeItemInput,
 		handleTemplateInput,
@@ -25,7 +24,8 @@
 		addCustomFieldLine,
 		removeCustomField,
 		handleImageChange,
-		setOnItemCreated
+		setOnItemCreated,
+        resetAllFields
 	} from "$lib/stores/createItemStore.svelte";
 	import { createEventDispatcher } from "svelte";
     
@@ -51,15 +51,16 @@
 	});
 	initializeItemEdit();
 
-	function submitItem() {
+	async function submitItem() {
 		if (dialog) {
 			dialog.close();
 		}
-		handleCreateItem();
+		await handleCreateItem();
+		resetAllFields();
 	}
 </script>
 
-<Dialog isLarge={true} bind:dialog create={() => {}} close={resetForm}>
+<Dialog isLarge={true} bind:dialog create={() => {}} close={resetAllFields}>
 	{#if duplicate}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
