@@ -329,7 +329,10 @@
 		on:close={() => {
 			topLevel = true;
 		}}
-		on:itemCreated={() => handleSearch(searchQuery)} />
+		on:itemCreated={() => {
+			console.log("ITEM CREATED!");
+			handleSearch(searchQuery);
+		}} />
 </div>
 
 {#if draggingItem}

@@ -46,6 +46,6 @@
 		isLarge={false}
 		create={() => {}}
 		close={() => dialog.close()}
-		><DeleteItem itemId="" bind:this={deleter} />
+	><DeleteItem itemId="" bind:this={deleter} />
 	</Dialog>
 {/if}

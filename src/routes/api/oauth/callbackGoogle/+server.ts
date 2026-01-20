@@ -2,7 +2,7 @@ import { redirect, error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
 import * as arctic from 'arctic';
-import { Login } from '$lib/server/db/models/login.js';
+import { Login, ServiceType } from '$lib/server/db/models/login.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 const google_client_id = process.env.GOOGLE_CLIENT_ID || '';
@@ -38,7 +38,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		const sub_id = user.sub;
 		const name = user.name;
 
-		let existingLogin = await Login.findOne({ login_id: sub_id, is_google: true });
+		let existingLogin = await Login.findOne({ login_id: sub_id, service_type: ServiceType.GOOGLE });
 
 		if (!existingLogin) {
 			const loginCount = await Login.countDocuments({});
@@ -47,7 +47,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 			const newLogin = new Login({
 				login_id: sub_id,
 				name: name,
-				is_google: true,
+				service_type: ServiceType.GOOGLE,
 				permissionLevel: isFirstLogin ? 10 : 1
 			});
 

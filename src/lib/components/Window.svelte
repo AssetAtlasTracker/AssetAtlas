@@ -133,6 +133,7 @@
 		zIndex = bringToFront();
 		if (container) {
 			container.style.zIndex = String(zIndex);
+			container.focus();
 		}
 	}
 
@@ -153,6 +154,16 @@
 		}
 
 		bringWindowToFront();
+  }
+  
+	function handleKeyDown(event: KeyboardEvent) {
+		if (
+			event.key === "Escape" &&
+			container &&
+			document.activeElement === container
+		) {
+			closeWindow();
+		}
 	}
 
 	//Initialize with a starting z-index and set up the window
@@ -165,6 +176,8 @@
 				container.style.top = `${currentY}px`;
 			}
 		}
+
+		window.addEventListener("keydown", handleKeyDown);
 
 		const safetyInterval = setInterval(() => {
 			if (isDragging) {
@@ -188,6 +201,7 @@
 	onDestroy(() => {
 		topBarUnsubscribe();
 		dragDropUnsubscribe();
+		window.removeEventListener("keydown", handleKeyDown);
 		if (isDragging) {
 			handleEnd();
 		}
@@ -216,9 +230,9 @@
 			on:mousedown={handleMouseDown}
 			on:keydown={(e) =>
 				e.key === "Enter" &&
-				handleMouseDown(
-					new MouseEvent("mousedown", { clientX: 0, clientY: 0 }),
-				)}
+					handleMouseDown(
+						new MouseEvent("mousedown", { clientX: 0, clientY: 0 }),
+					)}
 			role="button"
 			tabindex="0"
 			aria-label="Drag to move window"

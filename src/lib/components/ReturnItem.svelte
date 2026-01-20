@@ -1,15 +1,15 @@
 <script lang="ts">
-    import type { Snippet } from 'svelte';
+	import type { Snippet } from 'svelte';
     
-    let {
-        itemId,
-        parentId,
-        children
-    }: {
-        itemId: any;
-        parentId: any;
-        children?: Snippet;
-    } = $props();
+	let {
+		itemId,
+		parentId,
+		children
+	}: {
+		itemId: any;
+		parentId: any;
+		children?: Snippet;
+	} = $props();
 
 	async function returnItem() {
 		try {
@@ -44,5 +44,5 @@
 
 
 {#if children}
-    {@render children()}
+	{@render children()}
 {/if}
