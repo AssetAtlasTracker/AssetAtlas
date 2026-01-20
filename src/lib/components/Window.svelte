@@ -131,6 +131,7 @@
 		zIndex = bringToFront();
 		if (container) {
 			container.style.zIndex = String(zIndex);
+			container.focus();
 		}
 	}
 
@@ -140,6 +141,16 @@
 
 	function openInNewTab() {
 		dispatch("openNewTab");
+	}
+
+	function handleKeyDown(event: KeyboardEvent) {
+		if (
+			event.key === "Escape" &&
+			container &&
+			document.activeElement === container
+		) {
+			closeWindow();
+		}
 	}
 
 	//Initialize with a starting z-index and set up the window
@@ -152,6 +163,8 @@
 				container.style.top = `${currentY}px`;
 			}
 		}
+
+		window.addEventListener("keydown", handleKeyDown);
 
 		const safetyInterval = setInterval(() => {
 			if (isDragging) {
@@ -175,6 +188,7 @@
 	onDestroy(() => {
 		topBarUnsubscribe();
 		dragDropUnsubscribe();
+		window.removeEventListener("keydown", handleKeyDown);
 		if (isDragging) {
 			handleEnd();
 		}
