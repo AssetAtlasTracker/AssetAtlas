@@ -25,7 +25,7 @@
 		removeCustomField,
 		handleImageChange,
 		setOnItemCreated,
-        resetAllFields,
+		resetAllFields,
 		partialResetFields
 	} from "$lib/stores/createItemStore.svelte";
 	import { createEventDispatcher } from "svelte";
