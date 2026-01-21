@@ -319,7 +319,6 @@
 			topLevel = true;
 		}}
 		on:itemCreated={() => {
-			console.log("ITEM CREATED!");
 			handleSearch(searchQuery);
 		}} />
 </div>

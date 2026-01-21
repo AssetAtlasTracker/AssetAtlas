@@ -5,11 +5,10 @@
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
-	import { 
+	import {
 		createItemState,
 		handleCreateItem, 
 		initializeItemEdit, 
-		resetForm,
 		handleParentItemInput,
 		handleHomeItemInput,
 		handleTemplateInput,
@@ -25,7 +24,8 @@
 		addCustomFieldLine,
 		removeCustomField,
 		handleImageChange,
-		setOnItemCreated
+		setOnItemCreated,
+        resetAllFields
 	} from "$lib/stores/createItemStore.svelte";
 	import { createEventDispatcher } from "svelte";
     
@@ -34,6 +34,7 @@
 
 	let templateDialog: HTMLDialogElement | undefined;
 	let showCreateTemplateDialog = false;
+	let imageSelector: ImageSelector;
 
 	const dispatch = createEventDispatcher();
 
@@ -51,15 +52,17 @@
 	});
 	initializeItemEdit();
 
-	function submitItem() {
+	async function submitItem() {
 		if (dialog) {
 			dialog.close();
 		}
-		handleCreateItem();
+		await handleCreateItem();
+		imageSelector.resetImage();
+		resetAllFields();
 	}
 </script>
 
-<Dialog isLarge={true} bind:dialog create={() => {}} close={resetForm}>
+<Dialog isLarge={true} bind:dialog create={() => {}} close={resetAllFields}>
 	{#if duplicate}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
@@ -106,9 +109,10 @@
 						bind:value={createItemState.description}></textarea>
 				</label>
 
+				<!-- Image -->
 				<br />
 				<div class="flex flex-col space-y-2">
-					<ImageSelector on:imageChange={handleImageChange} />
+					<ImageSelector bind:this={imageSelector} on:imageChange={handleImageChange} />
 				</div>
 				<br />
 

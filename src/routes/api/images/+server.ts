@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { uploadToGridFS } from '$lib/server/db/gridfs.js';
+import { uploadImage } from '$lib/utility/imageUpload';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const formData = await request.formData();
@@ -17,13 +17,12 @@ export const POST: RequestHandler = async ({ request }) => {
 		throw error(400, 'No files provided');
 	}
 
-	console.log('Got', files.length, 'files');
+	const uploadedFilenames = await Promise.all(
+		files.map(async (file) => {
+			const filename = await uploadImage(file);
+			return filename;
+		})
+	);
 
-	// Upload all files to GridFS
-	const uploadPromises = files.map(file => uploadToGridFS(file));
-	const ids = await Promise.all(uploadPromises);
-
-	console.log('Uploaded IDs:', ids);
-
-	return json({ ids }, { status: 201 });
+	return json({ ids: uploadedFilenames }, { status: 201 });
 };
