@@ -3,6 +3,8 @@ import type { ICustomField, ICustomFieldEntryInstance } from "$lib/types/customF
 
 import { addToRecents } from "$lib/utility/recentItemHelper";
 import { actionStore } from "$lib/stores/actionStore";
+import { uploadImage } from '$lib/utility/imageUpload.js';
+
 
 let item = $state<IBasicItemPopulated | null>(null);
 let duplicate = $state(false);
@@ -112,11 +114,14 @@ export async function handleCreateItem() {
 		if (_parentItemId) formData.append("parentItem", _parentItemId);
 		if (_homeItemId) formData.append("homeItem", _homeItemId);
 		if (_templateId) formData.append("template", _templateId);
+		if (_selectedImage) {
+			const filename = await uploadImage(_selectedImage);
+			formData.append("image", filename);
+		}
 		formData.append(
 			"customFields",
 			JSON.stringify(formattedCustomFields),
 		);
-		if (_selectedImage) formData.append("image", _selectedImage);
 
 		const response = await fetch(`/api/items`, {
 			method: "POST",
@@ -131,12 +136,11 @@ export async function handleCreateItem() {
 			actionStore.addMessage("Error creating item");
 			throw new Error(data.message || "Error creating item");
 		}
+
 		actionStore.addMessage("Item created successfully!");
 		if (onItemCreated) {
 			onItemCreated();
 		}
-
-		resetForm();
 	} catch (err) {
 		console.error("Error creating item:", err);
 		actionStore.addMessage("Error creating item");
@@ -144,7 +148,6 @@ export async function handleCreateItem() {
 }
 
 export function changeItem(newItem: IBasicItemPopulated){
-	console.log("ITEM SATTEST");
 	item = newItem;
 	if (duplicate) {
 		_name = item.name;
@@ -201,7 +204,7 @@ export function initializeItemEdit() {
 	}
 }
 
-export function resetForm() {
+export function resetAllFields() {
 	_name = "";
 	_description = "";
 	_tags = "";
@@ -215,6 +218,12 @@ export function resetForm() {
 	_parentItemSuggestions = [];
 	_homeItemSuggestions = [];
 	_templateSuggestions = [];
+	_selectedImage = null;
+}
+
+export function partialResetFields() {
+	_name = "";
+	_description = "";
 	_selectedImage = null;
 }
 
@@ -447,7 +456,6 @@ async function loadTemplateFields(templateId: string | null) {
 		}
 
 		const data = await response.json();
-		console.log("Template data:", data);
 
 		if (!data || !data.fields) {
 			console.warn("No fields found in template:", data);
@@ -458,12 +466,10 @@ async function loadTemplateFields(templateId: string | null) {
 		removeTemplateFields();
 
 		//Add the template fields
-		console.log(`Fetching details for ${data.fields.length} fields.`);
 		const templateFields = await Promise.all(
 			data.fields.map(async (field: { _id: string }) => {
 				const fieldId = field._id;
 				const fieldUrl = `/api/customFields/${fieldId}`;
-				console.log(`Fetching field details from: ${fieldUrl}`);
 
 				const fieldRes = await fetch(fieldUrl, {
 					method: "GET",
@@ -481,7 +487,6 @@ async function loadTemplateFields(templateId: string | null) {
 				}
 
 				const fieldData: ICustomField = await fieldRes.json();
-				console.log("Field data:", fieldData);
 
 				return {
 					fieldName: fieldData.fieldName,
@@ -497,11 +502,8 @@ async function loadTemplateFields(templateId: string | null) {
 			}),
 		);
 
-		console.log("Loaded template fields:", templateFields);
-
 		//display template fields before any user-defined fields
 		_customFields = [...templateFields, ..._customFields];
-		console.log("Updated customFields:", _customFields);
 	} catch (err) {
 		console.error("Error loading template fields:", err);
 	}

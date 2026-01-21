@@ -126,6 +126,7 @@
 
 	interface ItemWindow {
 		id: string;
+		name: string;
 		x: number;
 		y: number;
 	}
@@ -145,8 +146,15 @@
 
 		additionalItemWindows = [
 			...additionalItemWindows,
-			{ id, x: offsetX, y: offsetY },
+			{ id, name: "Loading...", x: offsetX, y: offsetY },
 		];
+	}
+
+	function handleUpdateTitle(windowId: string, event: CustomEvent) {
+		const { name } = event.detail;
+		additionalItemWindows = additionalItemWindows.map((w) =>
+			w.id === windowId ? { ...w, name } : w,
+		);
 	}
 
 	function handleCloseWindow(id: string) {
@@ -303,6 +311,7 @@
 			windowClass="page-component"
 			showClose={true}
 			showOpenInNewTab={false}
+			showCollapse={true}
 			on:close={handleTreeClose}>
 			<ItemTree
 				bind:draggingItem
@@ -318,10 +327,11 @@
 		<Window
 			initialX={window.x}
 			initialY={window.y}
-			windowTitle="Item View"
+			windowTitle="Item View: {window.name}"
 			windowClass="page-component"
 			showClose={true}
 			showOpenInNewTab={true}
+			showCollapse={true}
 			on:close={() => handleCloseWindow(window.id)}
 			on:openNewTab={() => openInNewTab(window.id)}>
 			<ItemDetails
@@ -335,7 +345,8 @@
 					handleShowActionDialog(detail, actionEditDialog)}
 				onDelete={(detail) =>
 					handleShowActionDialog(detail, actionDeleteDialog)}
-				on:openItem={handleOpenItem} />
+				on:openItem={handleOpenItem}
+				on:updateTitle={(e) => handleUpdateTitle(window.id, e)} />
 		</Window>
 	{/each}
 
