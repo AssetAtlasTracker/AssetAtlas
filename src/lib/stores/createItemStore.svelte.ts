@@ -456,7 +456,6 @@ async function loadTemplateFields(templateId: string | null) {
 		}
 
 		const data = await response.json();
-		console.log("Template data:", data);
 
 		if (!data || !data.fields) {
 			console.warn("No fields found in template:", data);
@@ -467,12 +466,10 @@ async function loadTemplateFields(templateId: string | null) {
 		removeTemplateFields();
 
 		//Add the template fields
-		console.log(`Fetching details for ${data.fields.length} fields.`);
 		const templateFields = await Promise.all(
 			data.fields.map(async (field: { _id: string }) => {
 				const fieldId = field._id;
 				const fieldUrl = `/api/customFields/${fieldId}`;
-				console.log(`Fetching field details from: ${fieldUrl}`);
 
 				const fieldRes = await fetch(fieldUrl, {
 					method: "GET",
@@ -490,7 +487,6 @@ async function loadTemplateFields(templateId: string | null) {
 				}
 
 				const fieldData: ICustomField = await fieldRes.json();
-				console.log("Field data:", fieldData);
 
 				return {
 					fieldName: fieldData.fieldName,
@@ -506,11 +502,8 @@ async function loadTemplateFields(templateId: string | null) {
 			}),
 		);
 
-		console.log("Loaded template fields:", templateFields);
-
 		//display template fields before any user-defined fields
 		_customFields = [...templateFields, ..._customFields];
-		console.log("Updated customFields:", _customFields);
 	} catch (err) {
 		console.error("Error loading template fields:", err);
 	}
