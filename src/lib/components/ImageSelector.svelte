@@ -29,7 +29,7 @@
 		try {
 			const response = await fetch(`/api/items/${itemId}/image`);
 			if (response.ok) {
-				imagePreview = `/api/items/${itemId}/image?t=${Date.now()}`;
+				imagePreview = `/api/items/${itemId}/image`;
 				removeExistingImage = false;
 				dispatch('imageChange', { 
 					selectedImage: null,

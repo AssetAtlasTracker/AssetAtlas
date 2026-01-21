@@ -34,20 +34,13 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 	const contentType = request.headers.get('content-type');
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let bodyData: any;
-	let file: File | null = null;
 
 	if (contentType?.includes('multipart/form-data')) {
 		const formData = await request.formData();
 		bodyData = {};
     
 		for (const [key, value] of formData.entries()) {
-			if (key === 'file' || key === 'image') {
-				if (value instanceof File && value.size > 0) {
-					file = value;
-				}
-			} else {
-				bodyData[key] = value;
-			}
+			bodyData[key] = value;
 		}
 	} else {
 		try {
@@ -75,12 +68,6 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 
 	if (bodyData.removeImage === 'true' || bodyData.removeImage === true) {
 		item.image = undefined;
-	} else if (file) {
-		console.log('Processing uploaded file:', file);
-		const filename = await uploadImage(file);
-		if (filename) {
-			item.image = filename;
-		}
 	}
 
 	Object.assign(item, bodyData);
