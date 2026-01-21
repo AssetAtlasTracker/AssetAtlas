@@ -59,17 +59,25 @@
 		}
 	}
 
+	async function updateTitle() {
+		if (item) {
+			dispatch("updateTitle", { name: item.name });
+		}
+	}
+
 	onMount(async () => {
 		if (itemId && !item) {
 			await loadItemById(itemId);
 		}
 		if (item) {
 			loadParentChain();
+			updateTitle();
 		}
 	});
   
 	$: if (item?._id) {
 		loadParentChain();
+		updateTitle();
 	}
   
 	$: if (itemId && !item) {
