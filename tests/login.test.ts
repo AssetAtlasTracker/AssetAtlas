@@ -1,20 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
-import type { RequestEvent, Cookies } from '@sveltejs/kit';
-import jwt from 'jsonwebtoken';
 import { Login, ServiceType } from '$lib/server/db/models/login.js';
-import { GET as loginGoogleHandler } from '$routes/api/oauth/loginGoogle/+server.js';
-import { GET as loginGithubHandler } from '$routes/api/oauth/loginGithub/+server.js';
-import { GET as callbackGoogleHandler } from '$routes/api/oauth/callbackGoogle/+server.js';
-import { GET as callbackGithubHandler } from '$routes/api/oauth/callbackGithub/+server.js';
-import { GET as profileHandler } from '$routes/api/oauth/profile/+server.js';
-import { POST as logoutHandler } from '$routes/api/oauth/logout/+server.js';
+import { load } from '$routes/+layout.server.js';
 import { POST as authenticatorCheckHandler } from '$routes/api/authenticator/check/+server.js';
 import { GET as authenticatorVerifyHandler } from '$routes/api/authenticator/verify/+server.js';
-import type { mock } from 'node:test';
-
+import { GET as callbackGithubHandler } from '$routes/api/oauth/callbackGithub/+server.js';
+import { GET as callbackGoogleHandler } from '$routes/api/oauth/callbackGoogle/+server.js';
+import { GET as loginGithubHandler } from '$routes/api/oauth/loginGithub/+server.js';
+import { GET as loginGoogleHandler } from '$routes/api/oauth/loginGoogle/+server.js';
+import { POST as logoutHandler } from '$routes/api/oauth/logout/+server.js';
+import type { Cookies, RequestEvent } from '@sveltejs/kit';
+import jwt from 'jsonwebtoken';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import mongoose from 'mongoose';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.hoisted(() => {
 	process.env.JWT_SECRET = 'test-jwt-secret';
@@ -546,7 +544,6 @@ describe('OAuth API', () => {
 	});
 
 	describe('GET /api/authenticator/verify', () => {
-
 		it('should verify valid OTP code', async () => {
 			const username = 'testuser_existing';
 			const code = '123456';
@@ -665,12 +662,10 @@ describe('OAuth API', () => {
 			expect(body.error).toBe('Invalid authentication code');
 			expect(mockCheck).toHaveBeenCalledWith(code, 'mock-secret-exists');
 		});
-
-
 	});
 
-	describe('GET /api/oauth/profile', () => {
-		it('should return user profile for logged in user', async () => {
+	describe('+layout.server load', () => {
+		it('should return user data for authenticated request', async () => {
 			const token = jwt.sign(
 				{
 					sub_id: 'github-user-456',
@@ -683,31 +678,49 @@ describe('OAuth API', () => {
 
 			const event = createMockEvent({
 				method: 'GET',
-				url: 'http://localhost/api/oauth/profile',
+				url: 'http://localhost',
 				cookies: { auth_token: token }
 			});
+			
+			const result = await load({
+				cookies: event.cookies,
+				request: event.request,
+				params: {},
+				url: event.url,
+				locals: {},
+				parent: async () => ({}),
+				depends: () => {},
+				untrack: (fn: any) => fn(),
+				tracing: { fetchStart: () => {} },
+				platform: undefined
+			} as any);
 
-			const response = await profileHandler(event);
-			expect(response.status).toBe(200);
-
-			const body = await response.json();
-			expect(body.sub_id).toBe('github-user-456');
-			expect(body.name).toBe('Test User');
-			expect(body.permissionLevel).toBe(1);
+			expect(result?.user).toBeDefined();
+			expect(result?.user?.sub_id).toBe('github-user-456');
+			expect(result?.user?.name).toBe('Test User');
+			expect(result?.user?.permissionLevel).toBe(1);
 		});
 
-		it('should return 401 for unauthenticated user', async () => {
+		it('should return null user for unauthenticated request', async () => {
 			const event = createMockEvent({
 				method: 'GET',
-				url: 'http://localhost/api/oauth/profile'
+				url: 'http://localhost'
 			});
 
-			try {
-				await profileHandler(event);
-				expect.fail('Should have thrown 401 error');
-			} catch (error: any) {
-				expect(error.status).toBe(401);
-			}
+			const result = await load({
+				cookies: event.cookies,
+				request: event.request,
+				params: {},
+				url: event.url,
+				locals: {},
+				parent: async () => ({}),
+				depends: () => {},
+				untrack: (fn: any) => fn(),
+				tracing: { fetchStart: () => {} },
+				platform: undefined
+			} as any);
+
+			expect(result?.user).toBeNull();
 		});
 	});
 
@@ -730,4 +743,3 @@ describe('OAuth API', () => {
 		});
 	});
 });
-
