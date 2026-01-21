@@ -281,7 +281,7 @@
 					item={null}
 					itemId={itemWindow.id}
 					on:openItem={handleOpenItem}
-				on:updateTitle={(e) => handleUpdateTitle(itemWindow.id, e)}
+					on:updateTitle={(e) => handleUpdateTitle(itemWindow.id, e)}
 				/>
 			</Window>
 		{/each}
