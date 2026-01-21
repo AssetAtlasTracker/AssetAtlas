@@ -18,7 +18,6 @@
 
 	let { data }: { data: PageData } = $props();
 	let item = $derived(data.item);
-
 	let editDialog = $state<HTMLDialogElement | undefined>();
 	let deleteDialog = $state<HTMLDialogElement | undefined>();
 	let createDialog = $state<HTMLDialogElement | undefined>();
@@ -33,7 +32,6 @@
 
 	let showItemTree = $state(true);
 
-	// Add state for ItemTree props
 	let draggingItem = $state<IBasicItemPopulated | null>(null);
 	let targetItemId = $state<string | undefined>(undefined);
 	let targetItemName = $state<string | undefined>(undefined);
@@ -42,7 +40,6 @@
 		showItemTree = false;
 	}
 
-	// Update document title when item changes
 	$effect(() => {
 		if (browser && item) {
 			document.title = item.name + " - AssetAtlas";
@@ -117,6 +114,23 @@
 			window.open(`/view/${itemId}`, "_blank");
 		}
 	}
+
+	const showMoveDialog = () => {
+		if (!moveDialog) return;
+		moveDialog.showModal();
+	};
+	const showReturnDialog = () => {
+		if (!returnDialog) return;
+		returnDialog.showModal();
+	};
+	const showEditDialog = () => {
+		if (!editDialog) return;
+		editDialog.showModal();
+	};
+	const showDeleteDialog = () => {
+		if (!deleteDialog) return;
+		deleteDialog.showModal();
+	};
 </script>
 
 <!-- Rest of your template stays the same -->
@@ -134,11 +148,11 @@
 			showOpenInNewTab={false}>
 			<ItemDetails
 				{item}
-				bind:moveDialog
-				bind:returnDialog
-				bind:editDialog
-				bind:deleteDialog
-				bind:showItemTree
+				{showItemTree}
+				onMove={showMoveDialog}
+				onReturn={showReturnDialog}
+				onEdit={showEditDialog}
+				onDelete={showDeleteDialog}
 				on:openItem={handleOpenItem} />
 		</Window>
 
@@ -176,6 +190,11 @@
 				<ItemDetails
 					item={null}
 					itemId={itemWindow.id}
+					{showItemTree}
+					onMove={showMoveDialog}
+					onReturn={showReturnDialog}
+					onEdit={showEditDialog}
+					onDelete={showDeleteDialog}
 					on:openItem={handleOpenItem} />
 			</Window>
 		{/each}

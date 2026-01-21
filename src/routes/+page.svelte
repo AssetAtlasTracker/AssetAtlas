@@ -1,11 +1,14 @@
 <script lang="ts">
 	import CreateItem from "$lib/components/CreateItem.svelte";
+	import DeleteItem from "$lib/components/DeleteItem.svelte";
 	import Dialog from "$lib/components/Dialog.svelte";
+	import EditItem from "$lib/components/EditItem.svelte";
 	import ItemContainer from "$lib/components/ItemContainer.svelte";
 	import ItemDetails from "$lib/components/ItemDetails.svelte";
 	import ItemTree from "$lib/components/ItemTree.svelte";
 	import Menu from "$lib/components/Menu.svelte";
 	import MoveItem from "$lib/components/MoveItem.svelte";
+	import ReturnItem from "$lib/components/ReturnItem.svelte";
 	import TopBar from "$lib/components/TopBar.svelte";
 	import Window from "$lib/components/Window.svelte";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
@@ -38,6 +41,17 @@
 	let targetItemName: string | undefined = undefined;
 	let showMoveDialog: boolean = false;
 	let moveDialog: HTMLDialogElement;
+
+	let actionMoveDialog: HTMLDialogElement | undefined;
+	let actionReturnDialog: HTMLDialogElement | undefined;
+	let actionEditDialog: HTMLDialogElement | undefined;
+	let actionDeleteDialog: HTMLDialogElement | undefined;
+
+	let actionItem: IBasicItemPopulated | null = null;
+	let actionItemId: string | null = null;
+	let actionHomeItemId: string | null = null;
+	let actionParentItemId: string | null = null;
+	let actionItemName = "";
 
 	let currentLogin: LoginState | undefined;
 	login.subscribe((value) => {
@@ -140,6 +154,25 @@
 			(w) => w.id !== id,
 		);
 	}
+
+	const handleShowActionDialog = (
+		detail: {
+			item: IBasicItemPopulated | null;
+			itemId: string | null;
+			homeItemId: string | null;
+			parentItemId: string | null;
+			itemName: string;
+		},
+		dialog: HTMLDialogElement | undefined,
+	) => {
+		actionItem = detail.item;
+		actionItemId = detail.itemId;
+		actionHomeItemId = detail.homeItemId;
+		actionParentItemId = detail.parentItemId;
+		actionItemName = detail.itemName;
+
+		dialog?.showModal();
+	};
 
 	function openInNewTab(itemId: string) {
 		window.open(`/view/${itemId}`, "_blank");
@@ -294,6 +327,14 @@
 			<ItemDetails
 				item={null}
 				itemId={window.id}
+				onMove={(detail) =>
+					handleShowActionDialog(detail, actionMoveDialog)}
+				onReturn={(detail) =>
+					handleShowActionDialog(detail, actionReturnDialog)}
+				onEdit={(detail) =>
+					handleShowActionDialog(detail, actionEditDialog)}
+				onDelete={(detail) =>
+					handleShowActionDialog(detail, actionDeleteDialog)}
 				on:openItem={handleOpenItem} />
 		</Window>
 	{/each}
@@ -310,7 +351,6 @@
 	{/if}
 	<CreateItem
 		bind:dialog
-		item={null}
 		duplicate={false}
 		on:open={() => {
 			topLevel = false;
@@ -319,7 +359,6 @@
 			topLevel = true;
 		}}
 		on:itemCreated={() => {
-			console.log("ITEM CREATED!");
 			handleSearch(searchQuery);
 		}} />
 </div>
@@ -347,3 +386,63 @@
 			}} />
 	</Dialog>
 {/if}
+
+<Dialog
+	bind:dialog={actionDeleteDialog}
+	isLarge={false}
+	create={() => {}}
+	close={() => actionDeleteDialog?.close()}>
+	<div class="simple-dialog-spacing">
+		Are you sure you want to delete {actionItemName || "this item"}?
+	</div>
+	<DeleteItem
+		itemId={actionItemId ?? undefined}
+		onDelete={() => actionDeleteDialog?.close()}>Delete</DeleteItem>
+</Dialog>
+
+<Dialog
+	bind:dialog={actionReturnDialog}
+	isLarge={false}
+	create={() => {}}
+	close={() => actionReturnDialog?.close()}>
+	<div class="simple-dialog-spacing">
+		Are you sure you want to return {actionItemName || "this item"} to its home
+		location?
+	</div>
+	<ReturnItem
+		itemId={actionItemId ?? undefined}
+		parentId={actionHomeItemId ?? undefined}>
+		Return to home
+	</ReturnItem>
+</Dialog>
+
+<Dialog
+	bind:dialog={actionEditDialog}
+	isLarge={false}
+	create={() => {}}
+	close={() => actionEditDialog?.close()}>
+	{#if actionItem}
+		<EditItem
+			item={actionItem}
+			on:close={() => actionEditDialog?.close()}
+			on:itemUpdated={() => {}} />
+	{:else}
+		<div class="simple-dialog-spacing">Loading item data...</div>
+	{/if}
+</Dialog>
+
+<Dialog
+	bind:dialog={actionMoveDialog}
+	isLarge={false}
+	create={() => {}}
+	close={() => actionMoveDialog?.close()}>
+	<div class="important-text text-center">
+		Move "{actionItemName || "this item"}" to:
+	</div>
+	<MoveItem
+		itemId={actionItemId ?? undefined}
+		parentItemName={undefined}
+		parentItemId={undefined}
+		items={undefined}
+		on:close={() => actionMoveDialog?.close()} />
+</Dialog>

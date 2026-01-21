@@ -13,15 +13,23 @@
 		};
 	}
 
-	// Add optional itemId prop
 	export let item: IBasicItemPopulated | null = null;
 	export let itemId: string | null = null;
 
-	export let moveDialog: HTMLDialogElement | undefined = undefined;
-	export let returnDialog: HTMLDialogElement | undefined = undefined;
-	export let editDialog: HTMLDialogElement | undefined = undefined;
-	export let deleteDialog: HTMLDialogElement | undefined = undefined;
 	export let showItemTree: boolean = true;
+
+	interface ActionDetail {
+		item: IBasicItemPopulated | null;
+		itemId: string | null;
+		homeItemId: string | null;
+		parentItemId: string | null;
+		itemName: string;
+	}
+
+	export let onMove: ((detail: ActionDetail) => void) | undefined;
+	export let onReturn: ((detail: ActionDetail) => void) | undefined;
+	export let onEdit: ((detail: ActionDetail) => void) | undefined;
+	export let onDelete: ((detail: ActionDetail) => void) | undefined;
 
 	let parentChain: { _id: string; name: string }[] = [];
 	let loading = !!itemId && !item;
@@ -117,14 +125,12 @@
 		}
 	}
 
-	//Handle updates from EditItem
 	function handleItemUpdated(event: ItemUpdateEvent) {
 		if (event.detail.imageChanged) {
 			setTimeout(reloadImage, 500);
 		}
 	}
 
-	//Add event listener on mount and clean up on destroy
 	onMount(() => {
 		window.addEventListener(
 			"itemUpdated",
@@ -156,11 +162,23 @@
 		return typeof id === "string" ? id : id.toString();
 	}
 
-	//Forward the openItem event from ItemLink
-	const dispatch = createEventDispatcher();
+	const buildDetail = (): ActionDetail => ({
+		item,
+		itemId,
+		homeItemId: item?.homeItem ? ensureString(item.homeItem._id) : null,
+		parentItemId: item?.parentItem
+			? ensureString(item.parentItem._id)
+			: null,
+		itemName: item?.name ?? "",
+	});
 
+	const requestMove = () => onMove?.(buildDetail());
+	const requestReturn = () => onReturn?.(buildDetail());
+	const requestEdit = () => onEdit?.(buildDetail());
+	const requestDelete = () => onDelete?.(buildDetail());
+
+	const dispatch = createEventDispatcher();
 	function handleItemLinkClick(event: CustomEvent) {
-		//Forward the event to parent
 		dispatch("openItem", event.detail);
 	}
 </script>
@@ -197,11 +215,10 @@
 
 	<div class="button-row-flex">
 		{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 0)}
-			<!--Move button-->
 			<button
 				title="Move"
 				class="border-button center-button-icons flex-grow font-semibold shadow"
-				on:click={() => moveDialog?.showModal()}>
+				on:click={requestMove}>
 				<svg
 					class="icon-small"
 					xmlns="http://www.w3.org/2000/svg"
@@ -211,11 +228,10 @@
 						d="M512 160c0 35.3-28.7 64-64 64l-168 0 0 64 46.1 0c21.4 0 32.1 25.9 17 41L273 399c-9.4 9.4-24.6 9.4-33.9 0L169 329c-15.1-15.1-4.4-41 17-41l46.1 0 0-64L64 224c-35.3 0-64-28.7-64-64L0 96C0 60.7 28.7 32 64 32l384 0c35.3 0 64 28.7 64 64l0 64zM448 416l0-64-82.7 0 .4-.4c18.4-18.4 20.4-43.7 11-63.6l71.3 0c35.3 0 64 28.7 64 64l0 64c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64l0-64c0-35.3 28.7-64 64-64l71.3 0c-9.4 19.9-7.4 45.2 11 63.6l.4 .4L64 352l0 64 146.7 0 5.7 5.7c21.9 21.9 57.3 21.9 79.2 0l5.7-5.7L448 416z" /></svg>
 			</button>
 
-			<!--Return to home button-->
 			<button
 				title="Return to Home"
 				class="border-button center-button-icons flex-grow font-semibold shadow"
-				on:click={() => returnDialog?.showModal()}>
+				on:click={requestReturn}>
 				<svg
 					class="icon-small"
 					xmlns="http://www.w3.org/2000/svg"
@@ -226,11 +242,10 @@
 			</button>
 
 			{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
-				<!--Edit button-->
 				<button
 					title="Edit"
 					class="border-button center-button-icons flex-grow font-semibold shadow"
-					on:click={() => editDialog?.showModal()}>
+					on:click={requestEdit}>
 					<svg
 						class="icon-small"
 						xmlns="http://www.w3.org/2000/svg"
@@ -241,7 +256,6 @@
 				</button>
 			{/if}
 
-			<!-- Add Show Item Tree button when tree is hidden -->
 			{#if !showItemTree}
 				<button
 					title="Show Item Tree"
@@ -258,11 +272,10 @@
 			{/if}
 
 			{#if (currentLogin?.permissionLevel ?? 1) > 2}
-				<!--Delete button-->
 				<button
 					title="Delete"
 					class="warn-button center-button-icons flex-grow font-semibold shadow"
-					on:click={() => deleteDialog?.showModal()}>
+					on:click={requestDelete}>
 					<svg
 						class="icon-small"
 						xmlns="http://www.w3.org/2000/svg"
