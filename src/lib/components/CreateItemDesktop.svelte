@@ -5,7 +5,7 @@
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
-	import { 
+	import {
 		createItemState,
 		handleCreateItem, 
 		initializeItemEdit, 
@@ -34,6 +34,7 @@
 
 	let templateDialog: HTMLDialogElement | undefined;
 	let showCreateTemplateDialog = false;
+	let imageSelector: ImageSelector;
 
 	const dispatch = createEventDispatcher();
 
@@ -56,6 +57,7 @@
 			dialog.close();
 		}
 		await handleCreateItem();
+		imageSelector.resetImage();
 		resetAllFields();
 	}
 </script>
@@ -110,7 +112,7 @@
 				<!-- Image -->
 				<br />
 				<div class="flex flex-col space-y-2">
-					<ImageSelector on:imageChange={handleImageChange} />
+					<ImageSelector bind:this={imageSelector} on:imageChange={handleImageChange} />
 				</div>
 				<br />
 

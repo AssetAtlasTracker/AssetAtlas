@@ -69,7 +69,7 @@
 		}
 	}
 
-	function resetImage() {
+	export function resetImage() {
 		if (imagePreview) {
 			URL.revokeObjectURL(imagePreview);
 		}
@@ -108,6 +108,5 @@
 			<FileUpload.Trigger>Upload Image</FileUpload.Trigger>
 			<FileUpload.HiddenInput />
 		</FileUpload.Dropzone>
-		<!-- <FileUpload.ClearTrigger>Clear Files</FileUpload.ClearTrigger> -->
 	</FileUpload>
 </div>

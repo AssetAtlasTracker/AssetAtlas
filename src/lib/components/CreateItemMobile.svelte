@@ -37,6 +37,7 @@
 	let templateDialog: HTMLDialogElement | undefined;
 	let showCreateTemplateDialog = false;
 	let formElement: HTMLFormElement;
+	let imageSelector: ImageSelector;
 
 	const dispatch = createEventDispatcher();
 
@@ -56,6 +57,7 @@
 			dialog.close();
 		}
 		await handleCreateItem();
+		imageSelector.resetImage();
 		resetAllFields();
 	}
 
@@ -65,6 +67,7 @@
 			return;
 		}
 		await handleCreateItem();
+		imageSelector.resetImage();
 		partialResetFields();
 	}
 </script>
@@ -82,7 +85,7 @@
 	<form bind:this={formElement} on:submit|preventDefault={submitAndClose}>
 		<div class="flex flex-col space-y-4">
 			<div class="flex flex-col space-y-2">
-				<ImageSelector on:imageChange={handleImageChange} />
+				<ImageSelector bind:this={imageSelector} on:imageChange={handleImageChange} />
 			</div>
 
 			<div class="flex space-x-4">
