@@ -31,7 +31,15 @@ export default [
 				{ "varsIgnorePattern": "^_", "argsIgnorePattern": "^_" }
 			],
 			"@typescript-eslint/no-explicit-any": "warn",
-			"indent": ["warn", "tab"]
+			"indent": ["warn", "tab", {
+				"SwitchCase": 1,
+				"ignoredNodes": [
+					"TSTypeParameterInstantiation",
+					"TSTypeParameterDeclaration",
+					"TSUnionType",
+					"TSIntersectionType"
+				]
+			}]
 		},
 	},
 	{
@@ -65,6 +73,19 @@ export default [
 				{ "varsIgnorePattern": "^_", "argsIgnorePattern": "^_" }
 			],
 			"@typescript-eslint/no-explicit-any": "warn",
+			"indent": [
+				"warn",
+				"tab",
+				{
+					"SwitchCase": 1,
+					"ignoredNodes": [
+						"TSTypeParameterInstantiation",
+						"TSTypeParameterDeclaration",
+						"TSUnionType",
+						"TSIntersectionType"
+					]
+				}
+			],			
 			"svelte/indent": ["warn", { "indent": "tab" }]
 		},
 	},
