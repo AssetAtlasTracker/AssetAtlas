@@ -12,9 +12,6 @@
 		hasChildren: boolean;
 	}
 
-	export let searchQuery: string = "";
-	export let exactSearch: boolean = false;
-
 	export let draggingItem: IBasicItemPopulated | null | undefined;
 	export let targetItemId: string | undefined;
 	export let targetItemName: string | undefined;
@@ -42,13 +39,7 @@
 	async function fetchTree(id?: string) {
 		try {
 			const url = id ? `/api/items/tree/${id}` : `/api/items/tree/all`;
-			const params = new URLSearchParams();
-			if (searchQuery && searchQuery.trim() !== "") {
-				params.set("name", searchQuery);
-				params.set("exact", exactSearch.toString());
-			}
-			const fullUrl = params.toString() ? `${url}?${params}` : url;
-			const res = await fetch(fullUrl);
+			const res = await fetch(url);
 			if (!res.ok) throw new Error("Failed to fetch tree data");
 			const data = await res.json();
 			return Array.isArray(data) ? data : [data];
