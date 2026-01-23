@@ -324,37 +324,39 @@
 				bind:targetItemId
 				bind:targetItemName
 				bind:showMoveDialog
+				{searchQuery}
+				{exactSearch}
 				useWindowView={true}
 				on:openItem={handleOpenItem} />
 		</Window>
-	{/if}
 
-	{#each additionalItemWindows as window (window.id)}
-		<Window
-			initialX={window.x}
-			initialY={window.y}
-			windowTitle="Item View: {window.name}"
-			windowClass="page-component"
-			showClose={true}
-			showOpenInNewTab={true}
-			showCollapse={true}
-			on:close={() => handleCloseWindow(window.id)}
-			on:openNewTab={() => openInNewTab(window.id)}>
-			<ItemDetails
-				item={null}
-				itemId={window.id}
-				onMove={(detail) =>
-					handleShowActionDialog(detail, actionMoveDialog)}
-				onReturn={(detail) =>
-					handleShowActionDialog(detail, actionReturnDialog)}
-				onEdit={(detail) =>
-					handleShowActionDialog(detail, actionEditDialog)}
-				onDelete={(detail) =>
-					handleShowActionDialog(detail, actionDeleteDialog)}
-				on:openItem={handleOpenItem}
-				on:updateTitle={(e) => handleUpdateTitle(window.id, e)} />
-		</Window>
-	{/each}
+		{#each additionalItemWindows as window (window.id)}
+			<Window
+				initialX={window.x}
+				initialY={window.y}
+				windowTitle="Item View: {window.name}"
+				windowClass="page-component"
+				showClose={true}
+				showOpenInNewTab={true}
+				showCollapse={true}
+				on:close={() => handleCloseWindow(window.id)}
+				on:openNewTab={() => openInNewTab(window.id)}>
+				<ItemDetails
+					item={null}
+					itemId={window.id}
+					onMove={(detail) =>
+						handleShowActionDialog(detail, actionMoveDialog)}
+					onReturn={(detail) =>
+						handleShowActionDialog(detail, actionReturnDialog)}
+					onEdit={(detail) =>
+						handleShowActionDialog(detail, actionEditDialog)}
+					onDelete={(detail) =>
+						handleShowActionDialog(detail, actionDeleteDialog)}
+					on:openItem={handleOpenItem}
+					on:updateTitle={(e) => handleUpdateTitle(window.id, e)} />
+			</Window>
+		{/each}
+	{/if}
 
 	{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
 		<button
