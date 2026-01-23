@@ -573,6 +573,8 @@
 		if (item?._id && item.image) {
 			checkImageExists();
 		}
+
+		loadItemDisplayNames();
 	});
 
 	async function checkIfItemExists(itemName: string) {
@@ -594,6 +596,41 @@
 		}
 			
 	}
+
+	async function checkIfItemExistsById(itemId: string) {
+		if(itemId === "") return false;
+		try {
+			const response = await fetch(
+				`/api/customFields/checkItemId?itemID=${itemId}`,
+				{
+					method: "GET",
+					headers: { "Content-Type": "application/json" },
+				},
+			);
+			const data = await response.json();
+			return data.name;
+		} catch
+		(err) {
+			console.error("Error checking item name:", err);
+			return false;
+		}
+			
+	}
+
+	async function loadItemDisplayNames() {
+    for (let i = 0; i < customFields.length; i++) {
+        const field = customFields[i];
+        if (field.dataType === 'item' && field.value && field.value !== '') {
+
+			const itemId = String(field.value);
+			
+            const itemName = await checkIfItemExistsById(itemId);
+            if (itemName) {
+                customFields[i].displayValue = itemName;
+            }
+        }
+    }
+}
 
 	export async function handleEditItem() {
 		try {
@@ -844,22 +881,24 @@
 						}
 					}}
 					onFieldValueBlur={() => {
-						console.log("Field value blur - clearing suggestions");
-						if (field.dataType === 'item') {
-							fieldItemSuggestions = [];
-							//here for check item field value
-							checkIfItemExists(field.displayValue || '').then((itemId) => {
-								if (itemId) {
-									customFields[index].value = itemId;
-								} else {
-									customFields[index].value = '';
-									customFields[index].displayValue = '';
-									placeholder = "Item not found";
-								}
-							});
-
-						}
-					}}
+                console.log("Field value blur - clearing suggestions");
+                if (field.dataType === 'item') {
+                    fieldItemSuggestions = [];
+                    // Only validate if user actually typed something
+                    if (customFields[index].displayValue && customFields[index].displayValue.trim() !== '') {
+                        checkIfItemExists(customFields[index].displayValue || '').then((itemId) => {
+                            if (itemId) {
+                                customFields[index].value = itemId;
+                            } else {
+                                // Only clear if user typed something invalid
+                                customFields[index].value = '';
+                                customFields[index].displayValue = '';
+                                placeholder = "Item not found";
+                            }
+                        });
+                    }
+                }
+            }}
 					showDeleteButton={!field.fromTemplate}
 					onDelete={() => removeCustomField(index)}>
 					<svelte:fragment slot="suggestions">

@@ -256,7 +256,11 @@
 				<ul>
 					{#each item.customFields as customField}
 						<li>
-							{customField.field.fieldName}: {customField.value}
+							{#if customField.field.dataType === "item"}
+								{customField.field.fieldName}: {customField.value}
+							{:else}
+								{customField.field.fieldName}: {customField.value}
+							{/if}
 						</li>
 					{/each}
 				</ul>

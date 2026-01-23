@@ -15,5 +15,5 @@ export const GET: RequestHandler = async ({ url }) => {
 		return json({ id: null });
 	}
 
-	return json({ id: itemId });
+	return json({ id: itemId._id.toString() });
 };
