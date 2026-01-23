@@ -49,10 +49,6 @@
 		}
 	}
 
-	export async function reload() {
-		await loadTree();
-	}
-
 	async function loadTree() {
 		loading = true;
 		if (rootData) {

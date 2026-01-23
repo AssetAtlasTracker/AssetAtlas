@@ -53,8 +53,6 @@
 	let actionParentItemId: string | null = null;
 	let actionItemName = "";
 
-	let itemTreeRef: { reload: () => Promise<void> } | null = null;
-
 	let currentLogin: LoginState | undefined;
 	login.subscribe((value) => {
 		currentLogin = value;
@@ -99,9 +97,6 @@
 			const data = await response.json();
 			searchResults = data as IBasicItemPopulated[];
 			itemCount = searchResults.length;
-			if(showItemTree && itemTreeRef) {
-				await itemTreeRef.reload();
-			}
 		} catch (err) {
 			console.error("Home: Error searching items:", err);
 		}
@@ -319,7 +314,6 @@
 			showCollapse={true}
 			on:close={handleTreeClose}>
 			<ItemTree
-				bind:this={itemTreeRef}
 				bind:draggingItem
 				bind:targetItemId
 				bind:targetItemName
