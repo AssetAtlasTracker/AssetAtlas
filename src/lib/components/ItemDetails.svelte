@@ -1,9 +1,17 @@
 <script lang="ts">
-	import { onMount, onDestroy } from "svelte";
+	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
+	import type { LoginState } from "$lib/stores/loginStore.js";
+	import { getEditOnLogin, login } from "$lib/stores/loginStore.js";
+	import {
+		FolderTreeIcon,
+		HouseIcon,
+		MoveIcon,
+		PencilIcon,
+		TrashIcon,
+	} from "@lucide/svelte";
+	import { createEventDispatcher, onDestroy, onMount } from "svelte";
 	import EditItem from "./EditItem.svelte";
 	import ItemLink from "./ItemLink.svelte";
-	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import { createEventDispatcher } from "svelte";
 
 	interface ItemUpdateEvent extends CustomEvent {
 		detail: {
@@ -12,16 +20,35 @@
 		};
 	}
 
-	// Add optional itemId prop
 	export let item: IBasicItemPopulated | null = null;
 	export let itemId: string | null = null;
-  
+
+	export let showItemTree: boolean = true;
+
+	interface ActionDetail {
+		item: IBasicItemPopulated | null;
+		itemId: string | null;
+		homeItemId: string | null;
+		parentItemId: string | null;
+		itemName: string;
+	}
+
+	export let onMove: ((detail: ActionDetail) => void) | undefined;
+	export let onReturn: ((detail: ActionDetail) => void) | undefined;
+	export let onEdit: ((detail: ActionDetail) => void) | undefined;
+	export let onDelete: ((detail: ActionDetail) => void) | undefined;
+
 	let parentChain: { _id: string; name: string }[] = [];
 	let loading = !!itemId && !item;
 
 	let imageElement: HTMLImageElement;
 	//each image gets a random ID. trust the process
 	const instanceId = Math.random().toString(36).substring(2, 15);
+
+	let currentLogin: LoginState | undefined;
+	login.subscribe((value) => {
+		currentLogin = value;
+	});
 
 	// Load item by ID if needed
 	async function loadItemById(id: string) {
@@ -43,16 +70,17 @@
 	async function loadParentChain() {
 		// Only proceed if we have an item
 		if (!item) return;
-    
+
 		parentChain = [];
 		try {
-			const response = await fetch(
-				`/api/items/parentChain/${item._id}`,
-			);
+			const response = await fetch(`/api/items/parentChain/${item._id}`);
 			if (response.ok) {
 				parentChain = await response.json();
 			} else {
-				console.error("Failed to fetch parent chain:", await response.text());
+				console.error(
+					"Failed to fetch parent chain:",
+					await response.text(),
+				);
 			}
 		} catch (error) {
 			console.error("Error fetching parent chain:", error);
@@ -74,12 +102,12 @@
 			updateTitle();
 		}
 	});
-  
+
 	$: if (item?._id) {
 		loadParentChain();
 		updateTitle();
 	}
-  
+
 	$: if (itemId && !item) {
 		loadItemById(itemId);
 	}
@@ -100,9 +128,7 @@
 	async function reloadImage() {
 		if (item?.image) {
 			try {
-				const response = await fetch(
-					`/api/items/${item._id}/image`,
-				);
+				const response = await fetch(`/api/items/${item._id}/image`);
 				if (response.ok) {
 					if (imageElement) {
 						imageElement.src = `/api/items/${item._id}/image?t=${Date.now()}`;
@@ -114,16 +140,17 @@
 		}
 	}
 
-	//Handle updates from EditItem
 	function handleItemUpdated(event: ItemUpdateEvent) {
 		if (event.detail.imageChanged) {
 			setTimeout(reloadImage, 500);
 		}
 	}
 
-	//Add event listener on mount and clean up on destroy
 	onMount(() => {
-		window.addEventListener("itemUpdated", handleItemUpdated as EventListener);
+		window.addEventListener(
+			"itemUpdated",
+			handleItemUpdated as EventListener,
+		);
 	});
 
 	onDestroy(() => {
@@ -139,11 +166,6 @@
 
 	let showEditDialog = false;
 
-	function openEditDialog() {
-		console.log("Opening edit dialog");
-		showEditDialog = true;
-	}
-
 	let isHistoryExpanded = false;
 
 	function toggleHistory() {
@@ -152,14 +174,26 @@
 
 	function ensureString(id: any): string {
 		if (!id) return "";
-		return typeof id === 'string' ? id : id.toString();
+		return typeof id === "string" ? id : id.toString();
 	}
 
-	//Forward the openItem event from ItemLink
+	const buildDetail = (): ActionDetail => ({
+		item,
+		itemId,
+		homeItemId: item?.homeItem ? ensureString(item.homeItem._id) : null,
+		parentItemId: item?.parentItem
+			? ensureString(item.parentItem._id)
+			: null,
+		itemName: item?.name ?? "",
+	});
+
+	const requestMove = () => onMove?.(buildDetail());
+	const requestReturn = () => onReturn?.(buildDetail());
+	const requestEdit = () => onEdit?.(buildDetail());
+	const requestDelete = () => onDelete?.(buildDetail());
+
 	const dispatch = createEventDispatcher();
-  
 	function handleItemLinkClick(event: CustomEvent) {
-		//Forward the event to parent
 		dispatch("openItem", event.detail);
 	}
 </script>
@@ -173,7 +207,11 @@
 			{#each parentChain as parent, index}
 				{#if index < parentChain.length - 1}
 					<span class="clickable-text">
-						<ItemLink className="" itemId={ensureString(parent._id)} itemName={parent.name} on:openItem={handleItemLinkClick} />
+						<ItemLink
+							className=""
+							itemId={ensureString(parent._id)}
+							itemName={parent.name}
+							on:openItem={handleItemLinkClick} />
 					</span>
 					<span class="separator"> &gt; </span>
 				{:else}
@@ -190,6 +228,51 @@
 		{item.name}
 	</h1>
 
+	<div class="button-row-flex">
+		{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 0)}
+			<button
+				title="Move"
+				class="border-button center-button-icons flex-grow font-semibold shadow"
+				on:click={requestMove}>
+				<MoveIcon class="icon-small" />
+			</button>
+
+			<button
+				title="Return to Home"
+				class="border-button center-button-icons flex-grow font-semibold shadow"
+				on:click={requestReturn}>
+				<HouseIcon class="icon-small" />
+			</button>
+
+			{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
+				<button
+					title="Edit"
+					class="border-button center-button-icons flex-grow font-semibold shadow"
+					on:click={requestEdit}>
+					<PencilIcon class="icon-small" />
+				</button>
+			{/if}
+
+			{#if !showItemTree}
+				<button
+					title="Show Item Tree"
+					class="border-button center-button-icons flex-grow font-semibold shadow"
+					on:click={() => (showItemTree = true)}>
+					<FolderTreeIcon class="icon-small" />
+				</button>
+			{/if}
+
+			{#if (currentLogin?.permissionLevel ?? 1) > 2}
+				<button
+					title="Delete"
+					class="warn-button center-button-icons flex-grow font-semibold shadow"
+					on:click={requestDelete}>
+					<TrashIcon class="icon-small" />
+				</button>
+			{/if}
+		{/if}
+	</div>
+
 	{#if item.image}
 		<button
 			type="button"
@@ -197,15 +280,13 @@
 			class:expanded={isImageExpanded}
 			on:click={toggleImage}
 			on:keydown={handleKeydown}
-			aria-label="Toggle image size"
-		>
+			aria-label="Toggle image size">
 			<img
 				bind:this={imageElement}
 				src={`/api/items/${item._id}/image?instance=${instanceId}`}
 				alt={item.name}
 				class="item-image"
-				id={`item-image-${instanceId}`}
-			/>
+				id={`item-image-${instanceId}`} />
 		</button>
 	{/if}
 
@@ -225,7 +306,11 @@
 			<li>
 				<strong>Current Location:</strong>
 				<span class="clickable-text">
-					<ItemLink className="" itemId={ensureString(item.parentItem._id)} itemName={item.parentItem.name} on:openItem={handleItemLinkClick} />
+					<ItemLink
+						className=""
+						itemId={ensureString(item.parentItem._id)}
+						itemName={item.parentItem.name}
+						on:openItem={handleItemLinkClick} />
 				</span>
 			</li>
 		{:else}
@@ -236,7 +321,11 @@
 			<li>
 				<strong>Home Location:</strong>
 				<span class="clickable-text">
-					<ItemLink className="" itemId={ensureString(item.homeItem._id)} itemName={item.homeItem.name} on:openItem={handleItemLinkClick} />
+					<ItemLink
+						className=""
+						itemId={ensureString(item.homeItem._id)}
+						itemName={item.homeItem.name}
+						on:openItem={handleItemLinkClick} />
 				</span>
 			</li>
 		{:else}
@@ -250,7 +339,11 @@
 					{#each item.containedItems as containedItem}
 						<li>
 							<span class="clickable-text">
-								<ItemLink className="" itemId={ensureString(containedItem._id)} itemName={containedItem.name} on:openItem={handleItemLinkClick} />
+								<ItemLink
+									className=""
+									itemId={ensureString(containedItem._id)}
+									itemName={containedItem.name}
+									on:openItem={handleItemLinkClick} />
 							</span>
 						</li>
 					{/each}
@@ -274,7 +367,9 @@
 		{#if item.itemHistory && item.itemHistory.length > 0}
 			<li>
 				<!-- TODO: Get rid of style= -->
-				<div class="tree-container" style="display: flex; align-items: center; gap: 4px;">
+				<div
+					class="tree-container"
+					style="display: flex; align-items: center; gap: 4px;">
 					<strong>History Entries:</strong>
 					<button class="expand-button" on:click={toggleHistory}>
 						{isHistoryExpanded ? "▼" : "▶"}
@@ -287,7 +382,13 @@
 								{#if history.location}
 									<strong> Location:</strong>
 									<span class="clickable-text">
-										<ItemLink className="" itemId={ensureString(history.location._id)} itemName={history.location.name} on:openItem={handleItemLinkClick} />
+										<ItemLink
+											className=""
+											itemId={ensureString(
+												history.location._id,
+											)}
+											itemName={history.location.name}
+											on:openItem={handleItemLinkClick} />
 									</span>
 								{:else}
 									<strong> Location:</strong> None
@@ -316,10 +417,9 @@
 
 {#if showEditDialog && item}
 	<EditItem
-		item={item}
+		{item}
 		on:close={() => {
 			showEditDialog = false;
 			location.reload();
-		}}
-	/>
+		}} />
 {/if}
