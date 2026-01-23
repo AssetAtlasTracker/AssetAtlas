@@ -106,6 +106,26 @@
 		}
 	}
 
+	async function checkIfItemExistsById(itemId: string) {
+		if(itemId === "") return false;
+		try {
+			const response = await fetch(
+				`/api/customFields/checkItemId?itemID=${itemId}`,
+				{
+					method: "GET",
+					headers: { "Content-Type": "application/json" },
+				},
+			);
+			const data = await response.json();
+			return data.name;
+		} catch
+		(err) {
+			console.error("Error checking item name:", err);
+			return false;
+		}
+			
+	}
+
 	//Handle updates from EditItem
 	function handleItemUpdated(event: ItemUpdateEvent) {
 		if (event.detail.imageChanged) {
@@ -257,7 +277,17 @@
 					{#each item.customFields as customField}
 						<li>
 							{#if customField.field.dataType === "item"}
-								{customField.field.fieldName}: {customField.value}
+									{#await checkIfItemExistsById(String(customField.value)) then itemName}
+										{#if itemName}
+											<span class="clickable-text">
+												<ItemLink className="" itemId={String(customField.value)} itemName={itemName} on:openItem={handleItemLinkClick} />
+											</span>
+										{:else}
+											<span>(Item does not exist)</span>
+										{/if}
+									{:catch error}
+										<span>(Error loading item)</span>
+									{/await}
 							{:else}
 								{customField.field.fieldName}: {customField.value}
 							{/if}
