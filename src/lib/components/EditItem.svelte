@@ -50,6 +50,12 @@
 	let removeExistingImage = false;
 	let sameLocations: boolean = false;
 
+	let fieldItemName = "";
+	let fieldItemId: string | null = null;
+	let fieldItemSuggestions: any[] = [];
+	let placeholder = "Search for item...";
+
+
 	interface ICustomField {
 		_id: string;
 		fieldName: string;
@@ -62,12 +68,13 @@
 		fieldId?: string;
 		dataType: string;
 		value: string;
+		displayValue?: string;
 		suggestions: ICustomField[];
 		isNew: boolean;
 		isSearching: boolean;
 		isExisting: boolean;
 		fromTemplate: boolean;
-		searchTimeout?: NodeJS.Timeout;
+		searchTimeout?: ReturnType<typeof setTimeout>;
 	}
 
 	let customFields: ICustomFieldEntry[] = [];
@@ -471,6 +478,32 @@
 		removeExistingImage = remove;
 	}
 
+	async function searchFieldItems(query: string) {
+		try {
+			const response = await fetch(
+				`/api/items/search?name=${encodeURIComponent(query)}`,
+				{
+					method: "GET",
+					headers: { "Content-Type": "application/json" },
+				},
+			);
+			const data = await response.json();
+			fieldItemSuggestions = data;
+		} catch (err) {
+			console.error("Error searching field items:", err);
+		}
+	}
+
+	function handleFieldItemInput(event: Event) {
+		const target = event.target as HTMLInputElement;
+		fieldItemName = target.value;
+		fieldItemId = null;
+		if (debounceTimeout) clearTimeout(debounceTimeout);
+		debounceTimeout = setTimeout(() => {
+			searchFieldItems(fieldItemName);
+		}, 300);
+	}
+
 	async function loadRecentItems(type: string) {
 		try {
 			const response = await fetch(`/api/recentItems/${type}`, {
@@ -494,6 +527,12 @@
 	async function handleHomeItemFocus() {
 		if (!homeItemName) {
 			homeItemSuggestions = await loadRecentItems("item");
+		}
+	}
+
+	export async function handleFieldItemFocus() {
+		if (!fieldItemName) {
+			fieldItemSuggestions = await loadRecentItems("item");
 		}
 	}
 
@@ -535,6 +574,26 @@
 			checkImageExists();
 		}
 	});
+
+	async function checkIfItemExists(itemName: string) {
+		if(itemName.trim() === "") return false;
+		try {
+			const response = await fetch(
+				`/api/customFields/checkItemName?itemName=${encodeURIComponent(itemName)}`,
+				{
+					method: "GET",
+					headers: { "Content-Type": "application/json" },
+				},
+			);
+			const data = await response.json();
+			return data.id;
+		} catch
+		(err) {
+			console.error("Error checking item name:", err);
+			return false;
+		}
+			
+	}
 
 	export async function handleEditItem() {
 		try {
@@ -764,31 +823,80 @@
 			{#each customFields as field, index}
 				<div class="field-row">
 					<CustomFieldPicker
-						bind:field
-						onFieldNameInput={(e) =>
-							onCustomFieldNameInput(index, e)}
-						onFieldFocus={() => handleCustomFieldFocus(index)}
-						onFieldBlur={() =>
-							(customFields[index].suggestions = [])}
-						showDeleteButton={!field.fromTemplate}
-						onDelete={() => removeCustomField(index)}>
-						<svelte:fragment slot="suggestions">
-							{#each field.suggestions as suggestion}
-								<button
-									class="suggestion-item"
-									type="button"
-									on:mousedown={(e) => {
-										e.preventDefault();
-										selectCustomFieldSuggestion(
-											index,
-											suggestion,
-										);
-									}}>
-									{suggestion.fieldName} ({suggestion.dataType})
-								</button>
-							{/each}
-						</svelte:fragment>
-					</CustomFieldPicker>
+					bind:field
+					onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
+					onFieldFocus={() => handleCustomFieldFocus(index)}
+					onFieldBlur={() => (customFields[index].suggestions = [])}
+					placeholder={placeholder}
+					onFieldValueInput={(e) => {
+						const target = e.target as HTMLInputElement;
+						if (field.dataType === 'item') {
+							customFields[index].displayValue = target.value;
+							customFields[index].value = ''; // Clear the ID when typing
+							handleFieldItemInput(e);
+						} else {
+							customFields[index].value = target.value;
+						}
+					}}
+					onFieldValueFocus={() => {
+						if (field.dataType === 'item') {
+							handleFieldItemFocus();
+						}
+					}}
+					onFieldValueBlur={() => {
+						console.log("Field value blur - clearing suggestions");
+						if (field.dataType === 'item') {
+							fieldItemSuggestions = [];
+							//here for check item field value
+							checkIfItemExists(field.displayValue || '').then((itemId) => {
+								if (itemId) {
+									customFields[index].value = itemId;
+								} else {
+									customFields[index].value = '';
+									customFields[index].displayValue = '';
+									placeholder = "Item not found";
+								}
+							});
+
+						}
+					}}
+					showDeleteButton={!field.fromTemplate}
+					onDelete={() => removeCustomField(index)}>
+					<svelte:fragment slot="suggestions">
+						{#each field.suggestions as suggestion (suggestion._id)}
+							<button
+								class="suggestion-item"
+								type="button"
+								on:mousedown={(e) => {
+									e.preventDefault();
+									selectCustomFieldSuggestion(index, suggestion);
+								}}>
+								{suggestion.fieldName} ({suggestion.dataType})
+							</button>
+						{/each}
+					</svelte:fragment>
+					
+					<svelte:fragment slot="itemSuggestions">
+						{#if field.dataType === 'item' && fieldItemSuggestions.length > 0}
+							<ul class="suggestions suggestion-box">
+								{#each fieldItemSuggestions as item (item._id)}
+									<button
+										class="suggestion-item"
+										type="button"
+										on:mousedown={(e) => {
+											e.preventDefault();
+											customFields[index].value = item._id; // Store ID
+											customFields[index].displayValue = item.name; // Display name
+											fieldItemSuggestions = [];
+											addToRecents('item', item);
+										}}>
+										{item.name}
+									</button>
+								{/each}
+							</ul>
+						{/if}
+					</svelte:fragment>
+				</CustomFieldPicker>
 				</div>
 			{/each}
 		</div>

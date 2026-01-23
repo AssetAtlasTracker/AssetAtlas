@@ -108,7 +108,7 @@
 		fieldId?: string;
 		dataType: string;
 		value: string;
-		displayValue?: string; // ← Add this for displaying item names
+		displayValue?: string;
 		suggestions: ICustomField[];
 		isNew: boolean;
 		isSearching: boolean;
@@ -528,7 +528,7 @@
 		}
 	}
 
-	async function handleFieldItemFocus() {
+	export async function handleFieldItemFocus() {
 		if (!fieldItemName) {
 			fieldItemSuggestions = await loadRecentItems("item");
 		}
@@ -606,7 +606,7 @@
 			const data = await response.json();
 			fieldItemSuggestions = data;
 		} catch (err) {
-			console.error("Error searching home items:", err);
+			console.error("Error searching field items:", err);
 		}
 	}
 
