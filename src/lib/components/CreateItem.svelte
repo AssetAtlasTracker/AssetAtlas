@@ -26,18 +26,18 @@
 	setDuplicate(duplicate);
 </script>
 
-{#if browser && Device.isMobile}
+<!-- {#if browser && Device.isMobile}
 	<CreateItemMobile
 		bind:dialog={dialog}
 		bind:this={creator}
 		duplicate={duplicate}
 		on:itemCreated={() => dispatch("itemCreated")} 
 	/>
-{:else}
-	<CreateItemDesktop
-		bind:dialog={dialog}
-		bind:this={creator}
-		duplicate={duplicate}
-		on:itemCreated={() => dispatch("itemCreated")} 
-	/>
-{/if}
+{:else} -->
+<CreateItemDesktop
+	bind:dialog={dialog}
+	bind:this={creator}
+	duplicate={duplicate}
+	on:itemCreated={() => dispatch("itemCreated")} 
+/>
+<!-- {/if} -->

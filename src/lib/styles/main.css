@@ -352,7 +352,6 @@
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   min-width: 200px;
-  max-width: 40vw;
   display: flex;
   flex-direction: column;
   padding: 0;
@@ -394,10 +393,6 @@
   font-weight: bold;
   margin-left: 8px;
   pointer-events: none; /* Prevents text selection when dragging */
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .window-content {
@@ -960,25 +955,6 @@ Text styles
 
 .item-chain span {
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-  display: inline-block;
-  min-width: 0;
-}
-
-.item-chain .clickable-text button {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
-  display: inline-block;
-  min-width: 0;
-  background: none;
-  border: none;
-  padding: 0;
-  font: inherit;
-  color: inherit;
 }
 
 .indented {

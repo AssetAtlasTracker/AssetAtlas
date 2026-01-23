@@ -182,7 +182,7 @@
 							on:openItem>
 							<button
 								class="tree-item-card important-text
-									{item._id === currentId ? 'current' : ''}"
+								{item._id === currentId ? 'current' : ''}"
 								aria-current={item._id === currentId}>
 								<div class="flex">
 									<div class="draggable-tree-dot-icon">

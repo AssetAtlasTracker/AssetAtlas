@@ -2,7 +2,7 @@ import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import mongoose from 'mongoose';
 import BasicItem from '$lib/server/db/models/basicItem.js';
-import { uploadImage } from '$lib/utility/imageUpload.js';
+import { uploadToGridFS, UploadsFiles } from '$lib/server/db/gridfs';
 
 export const GET: RequestHandler = async ({ params }) => {
 	const { id } = params;
@@ -19,6 +19,10 @@ export const GET: RequestHandler = async ({ params }) => {
 		.populate('containedItems')
 		.populate('customFields.field')
 		.populate('itemHistory.location')
+		.populate({
+			path: 'image',
+			model: UploadsFiles
+		})
 		.exec();
 
 	if (!item) {
@@ -34,13 +38,20 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 	const contentType = request.headers.get('content-type');
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let bodyData: any;
+	let file: File | null = null;
 
 	if (contentType?.includes('multipart/form-data')) {
 		const formData = await request.formData();
 		bodyData = {};
     
 		for (const [key, value] of formData.entries()) {
-			bodyData[key] = value;
+			if (key === 'file' || key === 'image') {
+				if (value instanceof File && value.size > 0) {
+					file = value;
+				}
+			} else {
+				bodyData[key] = value;
+			}
 		}
 	} else {
 		try {
@@ -68,6 +79,12 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 
 	if (bodyData.removeImage === 'true' || bodyData.removeImage === true) {
 		item.image = undefined;
+	} else if (file) {
+		console.log('Processing uploaded file:', file);
+		const fileId = await uploadToGridFS(file);
+		if (fileId) {
+			item.image = new mongoose.Types.ObjectId(fileId);
+		}
 	}
 
 	Object.assign(item, bodyData);

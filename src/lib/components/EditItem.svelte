@@ -2,7 +2,6 @@
 	import { addToRecents } from "$lib/utility/recentItemHelper";
 	import type { ICustomField, ICustomFieldEntryInstance } from "$lib/types/customField";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import { uploadImage } from '$lib/utility/imageUpload.js';
 	import { actionStore } from "$lib/stores/actionStore.js";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
 	import { createEventDispatcher, onMount } from "svelte";
@@ -125,6 +124,8 @@
 	}
 
 	const dispatch = createEventDispatcher();
+
+	function resetForm() {}
 
 	async function getImage() {
 		try {
@@ -542,8 +543,7 @@
 			if (removeExistingImage) {
 				formData.append("removeImage", "true");
 			} else if (selectedImage) {
-				const filename = await uploadImage(selectedImage);
-				formData.append("image", filename);
+				formData.append("image", selectedImage);
 			}
 
 			const response = await fetch(`/api/items/${item._id}`, {
@@ -781,10 +781,12 @@
 		create={() => {}}
 		close={() => {
 			showEditTemplateDialog = false;
+			resetForm();
 		}}>
 		<CreateTemplate
 			on:close={() => {
 				showEditTemplateDialog = false;
+				resetForm();
 			}} />
 	</Dialog>
 {/if}

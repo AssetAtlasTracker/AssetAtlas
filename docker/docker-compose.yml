@@ -6,7 +6,6 @@ services:
     volumes:
       - ./.env:/usr/src/app/docker/.env
       - tsbuild-cache:/usr/src/app/.tsbuildcache
-      - image-uploads:/usr/src/app/uploads
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
@@ -64,20 +63,6 @@ services:
     networks:
       - default
 
-  tusd:
-    image: tusproject/tusd:latest
-    command:
-      - "-upload-dir=/data"
-      - "-port=1080"
-      - "-verbose"
-    ports:
-      - "1080:1080"
-    volumes:
-      - image-uploads:/data
-    networks:
-      - default
-
-
 networks:
   default:
     driver: bridge
@@ -87,5 +72,3 @@ volumes:
   mongo-data:
   tsbuild-cache:
     name: assetatlas-tsbuild-cache
-  image-uploads:
-    name: assetatlas-image-uploads

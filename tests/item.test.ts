@@ -1,6 +1,6 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
-import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import type { RequestEvent } from '@sveltejs/kit';
 import BasicItem from '$lib/server/db/models/basicItem.js';
 import type { ICustomField } from '$lib/server/db/models/customField.js';
@@ -17,14 +17,6 @@ import { GET as getTreeHandler } from '$routes/api/items/tree/[id]/+server.js';
 import { POST as createCustomFieldHandler } from '$routes/api/customFields/+server.js';
 import { DELETE as deleteTemplateHandler } from '$routes/api/templates/[id]/+server.js';
 import { PUT as editTemplateHandler } from '$routes/api/templates/editTemplate/[id]/+server.js';
-
-let uploadCounter = 0;
-vi.mock('$lib/utility/imageUpload', () => ({
-	uploadImage: vi.fn(async (file: File) => {
-		const id = `${Date.now()}-${uploadCounter++}-${file.name}`;
-		return id;
-	})
-}));
 
 let mongoServer: MongoMemoryServer;
 

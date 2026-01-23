@@ -32,6 +32,10 @@ export const GET: RequestHandler = async ( {url} ) => {
 			.populate('containedItems')
 			.populate('customFields.field')
 			.populate('itemHistory.location')
+			.populate({
+				path: 'image',
+				model: 'uploads.files'
+			})
 			.lean<IBasicItemPopulated[]>()
 			.exec();
 

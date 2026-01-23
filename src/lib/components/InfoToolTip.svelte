@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { Info } from '@lucide/svelte';
-
 	export let message = "";
 
 	let tooltipContainer: HTMLDivElement;
@@ -23,7 +21,7 @@
 	<span
 		class="text-gray-600 hover:text-gray-800 cursor-pointer select-none"
 		aria-label="info">
-		<Info id="tooltip-icon"/>
+		🛈
 	</span>
 
 	<div

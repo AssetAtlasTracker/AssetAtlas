@@ -1,9 +1,11 @@
 import { connectDB } from '$lib/server/db/mongo.js';
+import { bucketReady } from '$lib/server/db/gridfs.js';
 import type { Handle } from '@sveltejs/kit';
 import { error } from '@sveltejs/kit';
 
 await connectDB();
-console.log('MongoDB ready');
+await bucketReady;
+console.log('MongoDB and GridFS ready');
 
 function isTrustedOrigin(origin: string | null, host: string): boolean {
 	// No origin header means same-origin request (relative fetch calls)

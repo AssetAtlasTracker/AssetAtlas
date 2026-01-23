@@ -37,9 +37,6 @@ COPY --from=build /usr/src/app/package.json ./package.json
 COPY --from=build /usr/src/app/docker/migrate-mongo-docker-config.cjs ./
 COPY --from=build /usr/src/app/docker/migrations ./migrations
 
-# Create uploads directory with proper permissions
-RUN mkdir -p /usr/src/app/uploads && chown -R node:node /usr/src/app/uploads
-
 USER node
 
 EXPOSE 3000

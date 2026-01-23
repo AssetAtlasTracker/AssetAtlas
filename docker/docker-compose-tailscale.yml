@@ -3,21 +3,5 @@ services:
     environment:
       IP: ${TAILSCALE_IP:-localhost:3000}
 
-  tailscale:
-    image: tailscale/tailscale:stable
-    container_name: tailscale
-    hostname: assetAtlas-ts
-    environment:
-      - TS_AUTHKEY=${TS_AUTH_KEY}
-      - TS_USERSPACE=true
-    volumes:
-      - /dev/net/tun
-      - tailscale-state:/var/lib/tailscale
-    cap_add:
-      - NET_ADMIN
-      - SYS_MODULE
-    restart: unless-stopped
-    network_mode: host
-
 volumes:
   tailscale-state:
