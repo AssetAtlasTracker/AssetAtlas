@@ -880,10 +880,12 @@
 							checkIfItemExists(field.displayValue || '').then((itemId) => {
 								if (itemId) {
 									customFields[index].value = itemId;
+									return true;
 								} else {
 									customFields[index].value = '';
 									customFields[index].displayValue = '';
 									placeholder = "Item not found";
+									return false;
 								}
 							});
 

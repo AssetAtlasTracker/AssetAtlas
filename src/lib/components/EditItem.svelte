@@ -889,11 +889,13 @@
                         checkIfItemExists(customFields[index].displayValue || '').then((itemId) => {
                             if (itemId) {
                                 customFields[index].value = itemId;
+								return true;
                             } else {
                                 // Only clear if user typed something invalid
                                 customFields[index].value = '';
                                 customFields[index].displayValue = '';
                                 placeholder = "Item not found";
+								return false;
                             }
                         });
                     }
