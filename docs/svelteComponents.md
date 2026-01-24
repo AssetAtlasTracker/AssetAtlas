@@ -18,6 +18,6 @@ While far from complicated, this is perhaps the most used component as it create
 
 This component fetches an item and all of its information including its "relations" such as parent items.
 
-## Window.client.svelte
+## Window.svelte
 
 This component is rather self-explanatory, it's the window. While not flashy it is incredibly important and allows for dynamic resizing of the window and all default arrow key functionality.
