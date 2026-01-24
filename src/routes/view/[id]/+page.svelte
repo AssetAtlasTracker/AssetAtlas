@@ -12,7 +12,7 @@
 	import MoveItem from "$lib/components/MoveItem.svelte";
 	import ReturnItem from "$lib/components/ReturnItem.svelte";
 	import TopBar from "$lib/components/TopBar.svelte";
-	import Window from "$lib/components/Window.svelte";
+	import Window from "$lib/components/Window.client.svelte";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import type { PageData } from "./$types";
 

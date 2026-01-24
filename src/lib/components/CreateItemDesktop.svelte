@@ -16,6 +16,8 @@
 		handleHomeItemFocus,
 		handleTemplateFocus,
 		handleCustomFieldFocus,
+		handleFieldItemInput,
+		handleFieldItemFocus,
 		onCustomFieldNameInput,
 		selectParentItem,
 		selectHomeItem,
@@ -25,7 +27,8 @@
 		removeCustomField,
 		handleImageChange,
 		setOnItemCreated,
-		resetAllFields
+		resetAllFields,
+		checkIfItemExists
 	} from "$lib/stores/createItemStore.svelte";
 	import { createEventDispatcher } from "svelte";
     
@@ -256,6 +259,40 @@
 					onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
 					onFieldFocus={() => handleCustomFieldFocus(index)}
 					onFieldBlur={() => (createItemState.customFields[index].suggestions = [])}
+					placeholder={createItemState.placeholder}
+					onFieldValueInput={(e) => {
+						const target = e.target as HTMLInputElement;
+						if (field.dataType === 'item') {
+							createItemState.customFields[index].displayValue = target.value;
+							createItemState.customFields[index].value = ''; // Clear the ID when typing
+							handleFieldItemInput(e);
+						} else {
+							createItemState.customFields[index].value = target.value;
+						}
+					}}
+					onFieldValueFocus={() => {
+						if (field.dataType === 'item') {
+							handleFieldItemFocus();
+						}
+					}}
+					onFieldValueBlur={() => {
+						console.log("Field value blur - clearing suggestions");
+						if (field.dataType === 'item') {
+							createItemState.fieldItemSuggestions = [];
+							//here for check item field value
+							checkIfItemExists(field.displayValue || '').then((itemId) => {
+								if (itemId) {
+									createItemState.customFields[index].value = itemId;
+									return true;
+								} else {
+									createItemState.customFields[index].value = '';
+									createItemState.customFields[index].displayValue = '';
+									createItemState.placeholder = "Item not found";
+									return false;
+								}
+							});
+						}
+					}}
 					showDeleteButton={!field.fromTemplate}
 					onDelete={() => removeCustomField(index)}>
 					<svelte:fragment slot="suggestions">
@@ -273,6 +310,26 @@
 								{suggestion.fieldName} ({suggestion.dataType})
 							</button>
 						{/each}
+					</svelte:fragment>
+					
+					<svelte:fragment slot="itemSuggestions">
+						{#if field.dataType === 'item' && createItemState.fieldItemSuggestions.length > 0}
+							<ul class="suggestions suggestion-box">
+								{#each createItemState.fieldItemSuggestions as item (item._id)}
+									<button
+										class="suggestion-item"
+										type="button"
+										on:mousedown={(e) => {
+											e.preventDefault();
+											createItemState.customFields[index].value = item._id; // Store ID
+											createItemState.customFields[index].displayValue = item.name; // Display name
+											createItemState.fieldItemSuggestions = [];
+										}}>
+										{item.name}
+									</button>
+								{/each}
+							</ul>
+						{/if}
 					</svelte:fragment>
 				</CustomFieldPicker>
 			{/each}

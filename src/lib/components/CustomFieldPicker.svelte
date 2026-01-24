@@ -1,6 +1,7 @@
 <script lang="ts">
     import InfoToolTip from "./InfoToolTip.svelte";
     export let field;
+	import { browser } from '$app/environment';
     export let onFieldNameInput: (event: Event) => void;
     export let onFieldFocus: () => void;
     export let onFieldBlur: () => void;
@@ -28,6 +29,10 @@
     let isItemValueValid = false;
 
 	async function redirectToItem(itemId: string) {
+		if (!browser) {
+			console.log('redirectToItem called during SSR 😬');
+			return;
+		}			
 		window.open(`/view/${itemId}`, "_blank");
 	}
     
