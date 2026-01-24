@@ -177,7 +177,7 @@
 
 	//Initialize with a starting z-index and set up the window
 	onMount(() => {
-		if (typeof window === "undefined") return;
+		if (browser) return;
 		
 		bringWindowToFront();
 
@@ -192,10 +192,7 @@
 
 		const safetyInterval = setInterval(() => {
 			if (isDragging) {
-				if (
-					typeof window !== "undefined" &&
-					!window.navigator.userActivation?.hasBeenActive
-				) {
+				if (browser && !window.navigator.userActivation?.hasBeenActive) {
 					handleEnd();
 				}
 			}
@@ -212,7 +209,7 @@
 	onDestroy(() => {
 		topBarUnsubscribe();
 		dragDropUnsubscribe();
-		if (typeof window !== "undefined") {
+		if (browser) {
 			window.removeEventListener("keydown", handleKeyDown);
 		}
 		if (isDragging) {
