@@ -223,7 +223,6 @@ export function resetAllFields() {
 
 export function partialResetFields() {
 	_name = "";
-	_description = "";
 	_selectedImage = null;
 }
 
