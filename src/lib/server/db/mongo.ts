@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { initGridFS } from './gridfs.js';
 
 const MONGODB_URI = process.env.MONGO_URI || 'mongodb://localhost:27017';
 
@@ -22,7 +21,6 @@ export async function connectDB() {
 		});
     
 		console.log('MongoDB connected:', db.connection.db?.databaseName);
-		initGridFS();
 		await import('./models/index.js');
 		return db.connection;
 	} catch (error) {

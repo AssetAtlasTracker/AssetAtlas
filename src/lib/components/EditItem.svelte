@@ -1,5 +1,8 @@
 <script lang="ts">
+	import { addToRecents } from "$lib/utility/recentItemHelper";
+	import type { ICustomField, ICustomFieldEntryInstance } from "$lib/types/customField";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
+	import { uploadImage } from '$lib/utility/imageUpload.js';
 	import { actionStore } from "$lib/stores/actionStore.js";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
 	import { createEventDispatcher, onMount } from "svelte";
@@ -55,29 +58,7 @@
 	let fieldItemSuggestions: any[] = [];
 	let placeholder = "Search for item...";
 
-
-	interface ICustomField {
-		_id: string;
-		fieldName: string;
-		dataType: string;
-		createdAt: string;
-	}
-
-	interface ICustomFieldEntry {
-		fieldName: string;
-		fieldId?: string;
-		dataType: string;
-		value: string;
-		displayValue?: string;
-		suggestions: ICustomField[];
-		isNew: boolean;
-		isSearching: boolean;
-		isExisting: boolean;
-		fromTemplate: boolean;
-		searchTimeout?: ReturnType<typeof setTimeout>;
-	}
-
-	let customFields: ICustomFieldEntry[] = [];
+	let customFields: ICustomFieldEntryInstance[] = [];
 	if (item.customFields?.length) {
 		//First load non-template fields
 		let nonTemplateFields = item.customFields.map((cf) => ({
@@ -104,14 +85,14 @@
 				.filter(
 					(field) =>
 						field.fieldId &&
-						templateFieldIds.has(field.fieldId.toString()),
+							templateFieldIds.has(field.fieldId.toString()),
 				)
 				.map((field) => ({ ...field, fromTemplate: true }));
 
 			const remainingFields = nonTemplateFields.filter(
 				(field) =>
 					!field.fieldId ||
-					!templateFieldIds.has(field.fieldId.toString()),
+						!templateFieldIds.has(field.fieldId.toString()),
 			);
 
 			//Combine with template fields first
@@ -149,8 +130,6 @@
 	}
 
 	const dispatch = createEventDispatcher();
-
-	function resetForm() {}
 
 	async function getImage() {
 		try {
@@ -199,22 +178,6 @@
 			parentItemSuggestions = data;
 		} catch (err) {
 			console.error("Error searching parent items:", err);
-		}
-	}
-
-	async function addToRecents(type: string, item: any) {
-		console.log("Adding to recents:", type, item); // Add debug logging
-		try {
-			await fetch(`/api/recentItems/add`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					type,
-					itemId: item._id,
-				}),
-			});
-		} catch (err) {
-			console.error("Error adding to recents:", err);
 		}
 	}
 
@@ -673,7 +636,8 @@
 			if (removeExistingImage) {
 				formData.append("removeImage", "true");
 			} else if (selectedImage) {
-				formData.append("image", selectedImage);
+				const filename = await uploadImage(selectedImage);
+				formData.append("image", filename);
 			}
 
 			const response = await fetch(`/api/items/${item._id}`, {
@@ -964,12 +928,10 @@
 		create={() => {}}
 		close={() => {
 			showEditTemplateDialog = false;
-			resetForm();
 		}}>
 		<CreateTemplate
 			on:close={() => {
 				showEditTemplateDialog = false;
-				resetForm();
 			}} />
 	</Dialog>
 {/if}
