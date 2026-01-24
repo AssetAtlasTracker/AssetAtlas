@@ -63,15 +63,17 @@
 		startX = event.clientX - currentX;
 		startY = event.clientY - currentY;
 
-		window.addEventListener("pointermove", handlePointerMove);
-		window.addEventListener("pointerup", handlePointerUp);
+		if (browser) {
+			window.addEventListener("pointermove", handlePointerMove);
+			window.addEventListener("pointerup", handlePointerUp);
 
-		//backup
-		window.addEventListener("mousemove", handleMouseMove);
-		window.addEventListener("mouseup", handleMouseUp);
+			//backup
+			window.addEventListener("mousemove", handleMouseMove);
+			window.addEventListener("mouseup", handleMouseUp);
 
-		document.addEventListener("mouseleave", handleMouseUp);
-		document.addEventListener("pointercancel", handlePointerUp);
+			document.addEventListener("mouseleave", handleMouseUp);
+			document.addEventListener("pointercancel", handlePointerUp);
+		}
 
 		bringWindowToFront();
 	}
@@ -126,12 +128,14 @@
 		isDragging = false;
 
 		// Remove all event listeners we added
-		window.removeEventListener("pointermove", handlePointerMove);
-		window.removeEventListener("pointerup", handlePointerUp);
-		window.removeEventListener("mousemove", handleMouseMove);
-		window.removeEventListener("mouseup", handleMouseUp);
-		document.removeEventListener("mouseleave", handleMouseUp);
-		document.removeEventListener("pointercancel", handlePointerUp);
+		if (browser) {
+			window.removeEventListener("pointermove", handlePointerMove);
+			window.removeEventListener("pointerup", handlePointerUp);
+			window.removeEventListener("mousemove", handleMouseMove);
+			window.removeEventListener("mouseup", handleMouseUp);
+			document.removeEventListener("mouseleave", handleMouseUp);
+			document.removeEventListener("pointercancel", handlePointerUp);
+		}
 	}
 
 	function bringWindowToFront() {
@@ -173,6 +177,8 @@
 
 	//Initialize with a starting z-index and set up the window
 	onMount(() => {
+		if (browser) return;
+		
 		bringWindowToFront();
 
 		if (currentTopBarHeight && initialY < currentTopBarHeight) {
@@ -186,10 +192,7 @@
 
 		const safetyInterval = setInterval(() => {
 			if (isDragging) {
-				if (
-					typeof window !== "undefined" &&
-					!window.navigator.userActivation?.hasBeenActive
-				) {
+				if (browser && !window.navigator.userActivation?.hasBeenActive) {
 					handleEnd();
 				}
 			}
@@ -206,7 +209,9 @@
 	onDestroy(() => {
 		topBarUnsubscribe();
 		dragDropUnsubscribe();
-		window.removeEventListener("keydown", handleKeyDown);
+		if (browser) {
+			window.removeEventListener("keydown", handleKeyDown);
+		}
 		if (isDragging) {
 			handleEnd();
 		}
