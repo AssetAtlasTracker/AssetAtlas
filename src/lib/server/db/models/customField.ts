@@ -12,7 +12,7 @@ const CustomFieldSchema = new Schema<ICustomField>({
 	dataType: { 
 		type: String, 
 		required: true,
-		enum: ['string', 'number', 'boolean', 'date'] 
+		enum: ['string', 'number', 'boolean', 'date', 'item'] 
 	},
 	createdAt: { type: Date, default: Date.now },
 });
