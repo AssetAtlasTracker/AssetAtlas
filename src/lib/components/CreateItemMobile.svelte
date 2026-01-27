@@ -274,7 +274,7 @@
 					const target = e.target as HTMLInputElement;
 					if (field.dataType === 'item') {
 						createItemState.customFields[index].displayValue = target.value;
-						createItemState.customFields[index].value = ''; // Clear the ID when typing
+						createItemState.customFields[index].value = '';
 						handleFieldItemInput(e);
 					} else {
 						createItemState.customFields[index].value = target.value;
@@ -286,10 +286,8 @@
 					}
 				}}
 				onFieldValueBlur={() => {
-					console.log("Field value blur - clearing suggestions");
 					if (field.dataType === 'item') {
 						createItemState.fieldItemSuggestions = [];
-						//here for check item field value
 						checkIfItemExists(field.displayValue || '').then((itemId) => {
 							if (itemId) {
 								createItemState.customFields[index].value = itemId;

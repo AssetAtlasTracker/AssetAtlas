@@ -30,7 +30,6 @@
 
 	async function redirectToItem(itemId: string) {
 		if (!browser) {
-			console.log('redirectToItem called during SSR 😬');
 			return;
 		}			
 		window.open(`/view/${itemId}`, "_blank");

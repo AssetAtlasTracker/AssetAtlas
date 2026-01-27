@@ -553,7 +553,7 @@
 			const data = await response.json();
 			return data.id;
 		} catch
-		(err) {
+			(err) {
 			console.error("Error checking item name:", err);
 			return false;
 		}
@@ -573,7 +573,7 @@
 			const data = await response.json();
 			return data.name;
 		} catch
-		(err) {
+			(err) {
 			console.error("Error checking item name:", err);
 			return false;
 		}
@@ -581,19 +581,19 @@
 	}
 
 	async function loadItemDisplayNames() {
-    for (let i = 0; i < customFields.length; i++) {
-        const field = customFields[i];
-        if (field.dataType === 'item' && field.value && field.value !== '') {
+		for (let i = 0; i < customFields.length; i++) {
+			const field = customFields[i];
+			if (field.dataType === 'item' && field.value && field.value !== '') {
 
-			const itemId = String(field.value);
+				const itemId = String(field.value);
 			
-            const itemName = await checkIfItemExistsById(itemId);
-            if (itemName) {
-                customFields[i].displayValue = itemName;
-            }
-        }
-    }
-}
+				const itemName = await checkIfItemExistsById(itemId);
+				if (itemName) {
+					customFields[i].displayValue = itemName;
+				}
+			}
+		}
+	}
 
 	export async function handleEditItem() {
 		try {
@@ -824,84 +824,84 @@
 			{#each customFields as field, index}
 				<div class="field-row">
 					<CustomFieldPicker
-					bind:field
-					onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
-					onFieldFocus={() => handleCustomFieldFocus(index)}
-					onFieldBlur={() => (customFields[index].suggestions = [])}
-					placeholder={placeholder}
-					onFieldValueInput={(e) => {
-						const target = e.target as HTMLInputElement;
-						if (field.dataType === 'item') {
-							customFields[index].displayValue = target.value;
-							customFields[index].value = ''; // Clear the ID when typing
-							handleFieldItemInput(e);
-						} else {
-							customFields[index].value = target.value;
-						}
-					}}
-					onFieldValueFocus={() => {
-						if (field.dataType === 'item') {
-							handleFieldItemFocus();
-						}
-					}}
-					onFieldValueBlur={() => {
-                console.log("Field value blur - clearing suggestions");
-                if (field.dataType === 'item') {
-                    fieldItemSuggestions = [];
-                    // Only validate if user actually typed something
-                    if (customFields[index].displayValue && customFields[index].displayValue.trim() !== '') {
-                        checkIfItemExists(customFields[index].displayValue || '').then((itemId) => {
-                            if (itemId) {
-                                customFields[index].value = itemId;
-								return true;
-                            } else {
-                                // Only clear if user typed something invalid
-                                customFields[index].value = '';
-                                customFields[index].displayValue = '';
-                                placeholder = "Item not found";
-								return false;
-                            }
-                        });
-                    }
-                }
-            }}
-					showDeleteButton={!field.fromTemplate}
-					onDelete={() => removeCustomField(index)}>
-					<svelte:fragment slot="suggestions">
-						{#each field.suggestions as suggestion (suggestion._id)}
-							<button
-								class="suggestion-item"
-								type="button"
-								on:mousedown={(e) => {
-									e.preventDefault();
-									selectCustomFieldSuggestion(index, suggestion);
-								}}>
-								{suggestion.fieldName} ({suggestion.dataType})
-							</button>
-						{/each}
-					</svelte:fragment>
+						bind:field
+						onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
+						onFieldFocus={() => handleCustomFieldFocus(index)}
+						onFieldBlur={() => (customFields[index].suggestions = [])}
+						placeholder={placeholder}
+						onFieldValueInput={(e) => {
+							const target = e.target as HTMLInputElement;
+							if (field.dataType === 'item') {
+								customFields[index].displayValue = target.value;
+								customFields[index].value = ''; // Clear the ID when typing
+								handleFieldItemInput(e);
+							} else {
+								customFields[index].value = target.value;
+							}
+						}}
+						onFieldValueFocus={() => {
+							if (field.dataType === 'item') {
+								handleFieldItemFocus();
+							}
+						}}
+						onFieldValueBlur={() => {
+							console.log("Field value blur - clearing suggestions");
+							if (field.dataType === 'item') {
+								fieldItemSuggestions = [];
+								// Only validate if user actually typed something
+								if (customFields[index].displayValue && customFields[index].displayValue.trim() !== '') {
+									checkIfItemExists(customFields[index].displayValue || '').then((itemId) => {
+										if (itemId) {
+											customFields[index].value = itemId;
+											return true;
+										} else {
+											// Only clear if user typed something invalid
+											customFields[index].value = '';
+											customFields[index].displayValue = '';
+											placeholder = "Item not found";
+											return false;
+										}
+									});
+								}
+							}
+						}}
+						showDeleteButton={!field.fromTemplate}
+						onDelete={() => removeCustomField(index)}>
+						<svelte:fragment slot="suggestions">
+							{#each field.suggestions as suggestion (suggestion._id)}
+								<button
+									class="suggestion-item"
+									type="button"
+									on:mousedown={(e) => {
+										e.preventDefault();
+										selectCustomFieldSuggestion(index, suggestion);
+									}}>
+									{suggestion.fieldName} ({suggestion.dataType})
+								</button>
+							{/each}
+						</svelte:fragment>
 					
-					<svelte:fragment slot="itemSuggestions">
-						{#if field.dataType === 'item' && fieldItemSuggestions.length > 0}
-							<ul class="suggestions suggestion-box">
-								{#each fieldItemSuggestions as item (item._id)}
-									<button
-										class="suggestion-item"
-										type="button"
-										on:mousedown={(e) => {
-											e.preventDefault();
-											customFields[index].value = item._id; // Store ID
-											customFields[index].displayValue = item.name; // Display name
-											fieldItemSuggestions = [];
-											addToRecents('item', item);
-										}}>
-										{item.name}
-									</button>
-								{/each}
-							</ul>
-						{/if}
-					</svelte:fragment>
-				</CustomFieldPicker>
+						<svelte:fragment slot="itemSuggestions">
+							{#if field.dataType === 'item' && fieldItemSuggestions.length > 0}
+								<ul class="suggestions suggestion-box">
+									{#each fieldItemSuggestions as item (item._id)}
+										<button
+											class="suggestion-item"
+											type="button"
+											on:mousedown={(e) => {
+												e.preventDefault();
+												customFields[index].value = item._id; // Store ID
+												customFields[index].displayValue = item.name; // Display name
+												fieldItemSuggestions = [];
+												addToRecents('item', item);
+											}}>
+											{item.name}
+										</button>
+									{/each}
+								</ul>
+							{/if}
+						</svelte:fragment>
+					</CustomFieldPicker>
 				</div>
 			{/each}
 		</div>

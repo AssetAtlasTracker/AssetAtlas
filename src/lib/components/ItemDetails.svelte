@@ -153,7 +153,7 @@
 			const data = await response.json();
 			return data.name;
 		} catch
-		(err) {
+			(err) {
 			console.error("Error checking item name:", err);
 			return false;
 		}
@@ -379,17 +379,17 @@
 					{#each item.customFields as customField}
 						<li>
 							{#if customField.field.dataType === "item"}
-									{#await checkIfItemExistsById(String(customField.value)) then itemName}
-										{#if itemName}
-											<span class="clickable-text">
-												<ItemLink className="" itemId={String(customField.value)} itemName={itemName} on:openItem={handleItemLinkClick} />
-											</span>
-										{:else}
-											<span>(Item does not exist)</span>
-										{/if}
-									{:catch error}
-										<span>(Error loading item)</span>
-									{/await}
+								{#await checkIfItemExistsById(String(customField.value)) then itemName}
+									{#if itemName}
+										<span class="clickable-text">
+											<ItemLink className="" itemId={String(customField.value)} itemName={itemName} on:openItem={handleItemLinkClick} />
+										</span>
+									{:else}
+										<span>(Item does not exist)</span>
+									{/if}
+								{:catch error}
+									<span>(Error loading item)</span>
+								{/await}
 							{:else}
 								{customField.field.fieldName}: {customField.value}
 							{/if}
