@@ -132,81 +132,79 @@
 					<Switch.HiddenInput />
 				</Switch>
 
-				<div class="flex space-x-4">
-					<!-- Parent Item -->
+				<!-- Parent Item -->
+				<div class="flex-column flex-grow relative">
 					{#if !createItemState.sameLocations}
-						<label class="flex-column flex-grow relative">
-							<div class="flex items-center gap-2">
-								<span>Current Location:</span>
-								<InfoToolTip
-									message="Where an item currently is, e.g. a shirt's parent item may be a suitcase." />
-							</div>
-							<input
-								type="text"
-								class="dark-textarea py-2 px-4 w-full"
-								bind:value={createItemState.parentItemName}
-								on:input={handleParentItemInput}
-								on:focus={handleParentItemFocus}
-								on:blur={() => (createItemState.parentItemSuggestions = [])} />
-							{#if createItemState.parentItemSuggestions.length > 0}
-								<ul class="suggestions suggestion-box">
-									{#each createItemState.parentItemSuggestions as item (item.id)}
-										<button
-											class="suggestion-item"
-											type="button"
-											on:mousedown={(e) => {
-												e.preventDefault();
-												selectParentItem(item);
-											}}>
-											{item.name}
-										</button>
-									{/each}
-								</ul>
-							{/if}
-						</label>
-					{/if}
-
-					<!-- Home Item -->
-					<label class="flex-column flex-grow relative">
 						<div class="flex items-center gap-2">
-							<span>Home Location:</span>
+							<span>Current Location:</span>
 							<InfoToolTip
-								message="Where an item should normally be, e.g a shirt's home item may be a drawer." />
+								message="Where an item currently is, e.g. a shirt's parent item may be a suitcase." />
 						</div>
 						<input
 							type="text"
 							class="dark-textarea py-2 px-4 w-full"
-							bind:value={createItemState.homeItemName}
-							on:input={handleHomeItemInput}
-							on:focus={handleHomeItemFocus}
-							on:blur={() => (createItemState.homeItemSuggestions = [])} />
-						{#if createItemState.homeItemSuggestions.length > 0}
+							bind:value={createItemState.parentItemName}
+							on:input={handleParentItemInput}
+							on:focus={handleParentItemFocus}
+							on:blur={() => (createItemState.parentItemSuggestions = [])} />
+						{#if createItemState.parentItemSuggestions.length > 0}
 							<ul class="suggestions suggestion-box">
-								{#each createItemState.homeItemSuggestions as item (item.id)}
+								{#each createItemState.parentItemSuggestions as item (item.id)}
 									<button
 										class="suggestion-item"
 										type="button"
 										on:mousedown={(e) => {
 											e.preventDefault();
-											selectHomeItem(item);
+											selectParentItem(item);
 										}}>
 										{item.name}
 									</button>
 								{/each}
 							</ul>
 						{/if}
-					</label>
+					{/if}
+				</div>
+
+				<!-- Home Item -->
+				<div class="flex-column flex-grow relative">
+					<div class="flex items-center gap-2">
+						<span>Home Location:</span>
+						<InfoToolTip
+							message="Where an item should normally be, e.g a shirt's home item may be a drawer." />
+					</div>
+					<input
+						type="text"
+						class="dark-textarea py-2 px-4 w-full"
+						bind:value={createItemState.homeItemName}
+						on:input={handleHomeItemInput}
+						on:focus={handleHomeItemFocus}
+						on:blur={() => (createItemState.homeItemSuggestions = [])} />
+					{#if createItemState.homeItemSuggestions.length > 0}
+						<ul class="suggestions suggestion-box">
+							{#each createItemState.homeItemSuggestions as item (item.id)}
+								<button
+									class="suggestion-item"
+									type="button"
+									on:mousedown={(e) => {
+										e.preventDefault();
+										selectHomeItem(item);
+									}}>
+									{item.name}
+								</button>
+							{/each}
+						</ul>
+					{/if}
 				</div>
 				<br />
 
 				<!-- Template Field and Create Template Button -->
-				<div class="flex space-x-4 items-center">
-					<label class="flex-column flex-grow relative">
-						<div class="flex items-center gap-2">
-							<span>Template:</span>
-							<InfoToolTip
-								message="A template is a more narrow category of similar items that share common fields. Select an existing template or create a new one." />
-						</div>
+				<div class="flex-column flex-grow relative">
+					<div class="flex items-center gap-2">
+						<span>Template:</span>
+						<InfoToolTip
+							message="A template is a more narrow category of similar items that share common fields. Select an existing template or create a new one." />
+					</div>
+					<div class="flex items-center gap-2">
 						<input
 							type="text"
 							class="dark-textarea py-2 px-4 w-full"
@@ -229,12 +227,9 @@
 								{/each}
 							</ul>
 						{/if}
-					</label>
-					<div>
-						<br />
 						<button
 							type="button"
-							class="border-button font-semibold shadow"
+							class="border-button font-semibold shadow whitespace-nowrap"
 							on:click={() => (showCreateTemplateDialog = true)}>
 							Create New Template
 						</button>
