@@ -1,4 +1,4 @@
- <script lang="ts">
+<script lang="ts">
 	import { createEventDispatcher, onMount } from "svelte";
 	import { login, type LoginState } from "../stores/loginStore.js";
 
@@ -32,7 +32,7 @@
 				throw new Error(data.message || 'OAuth failed');
 			}
       
-			window.open(data.url, "_blank", "noopener,noreferrer");
+			openOAuthWindow(data.url);
       
 		} catch (err) {
 			oauthResult = err instanceof Error ? err.message : 'Something went wrong';
@@ -127,7 +127,7 @@
 				throw new Error(data.message || 'OAuth failed');
 			}
       
-			window.open(data.url, "_blank", "noopener,noreferrer");
+			openOAuthWindow(data.url);
       
 		} catch (err) {
 			oauthResult = err instanceof Error ? err.message : 'Something went wrong';
@@ -165,6 +165,19 @@
 		}
 	}
 
+	function openOAuthWindow(url: string) {
+		const width = 600;
+		const height = 700;
+		const left = window.screenX + (window.outerWidth - width) / 2;
+		const top = window.screenY + (window.outerHeight - height) / 2;
+		
+		window.open(
+			url,
+			'oauth',
+			`width=${width},height=${height},left=${left},top=${top}`
+		);
+	}
+
 
 
   
@@ -174,8 +187,16 @@
 	});
 
  
+	onMount(() => {
+		window.addEventListener('message', (event) => {
+			if (event.origin !== window.location.origin) return;
+			
+			if (event.data.type === 'oauth_success') {
+				window.location.reload();
+			}
+		});
+	});
 
-    
 </script>
 
 
@@ -238,4 +259,3 @@
 		{/if}
 	</div>
 </dialog>
-  
