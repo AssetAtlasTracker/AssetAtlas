@@ -39,6 +39,21 @@ export default defineConfig({
 						$routes: '/src/routes'
 					}
 				}
+			},
+			{
+				test: {
+					name: 'performance',
+					include: ['tests/performance.test.ts'],
+					environment: 'node',
+					globals: true
+				},
+				plugins: [sveltekit()],
+				resolve: {
+					alias: {
+						$lib: '/src/lib',
+						$routes: '/src/routes'
+					}
+				}
 			}
 		]
 	},
