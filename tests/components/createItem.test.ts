@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { describe, it, beforeEach, expect, vi } from 'vitest';
-import { render } from '@testing-library/svelte';
 import CreateItem from '$lib/components/CreateItem.svelte';
+import { render } from '@testing-library/svelte';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 if (typeof HTMLDialogElement !== 'undefined') {
 	if (!HTMLDialogElement.prototype.close) {
@@ -20,7 +20,7 @@ if (typeof HTMLDialogElement !== 'undefined') {
 }
 
 function renderComponent(props = {}) {
-	return render(CreateItem, { props });
+	return render(CreateItem, { props: { dialog: document.createElement('dialog') as HTMLDialogElement, ...props } });
 }
 
 describe('CreateItem.svelte', () => {
