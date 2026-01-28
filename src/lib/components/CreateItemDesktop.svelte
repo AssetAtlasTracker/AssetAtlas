@@ -253,63 +253,68 @@
 				<br />
 
 				<!-- Template Field and Create Template Button -->
-				<div class="flex-column flex-grow relative">
-					<div class="flex items-center gap-2">
-						<span>Template:</span>
-						<InfoToolTip
-							message="A template is a more narrow category of similar items that share common fields. Select an existing template or create a new one."
-						/>
-					</div>
-					{#if browser}
-						<Combobox
-							collection={templateCollection}
-							openOnClick={true}
-							inputValue={createItemState.templateName}
-							onInputValueChange={onTemplateInputValueChange}
-							onSelect={onTemplateSelect}
-						>
-							<Combobox.Control class="w-full">
-								<Combobox.Input
-									class="dark-textarea py-2 px-4 w-full"
-									on:focus={handleTemplateFocus}
-								/>
-								<Combobox.Trigger
-									aria-label="Open templates"
-								/>
-							</Combobox.Control>
+				<div class="flex space-x-4 items-center">
+					<div class="flex-column flex-grow relative">
+						<div class="flex items-center gap-2">
+							<span>Template:</span>
+							<InfoToolTip
+								message="A template is a more narrow category of similar items that share common fields. Select an existing template or create a new one."
+							/>
+						</div>
+						{#if browser}
+							<Combobox
+								collection={templateCollection}
+								openOnClick={true}
+								inputValue={createItemState.templateName}
+								onInputValueChange={onTemplateInputValueChange}
+								onSelect={onTemplateSelect}
+							>
+								<Combobox.Control class="w-full">
+									<Combobox.Input
+										class="dark-textarea py-2 px-4 w-full"
+										on:focus={handleTemplateFocus}
+									/>
+									<Combobox.Trigger
+										aria-label="Open templates"
+									/>
+								</Combobox.Control>
 
-							<Combobox.Positioner>
-								<Combobox.Content
-									class="bg-surface-3 text-white shadow-lg rounded-md mt-1 max-h-60 overflow-auto z-50"
-								>
-									{#each filteredTemplates as t (t._id)}
-										<Combobox.Item
-											item={t}
-											class="text-black"
-										>
-											<Combobox.ItemText
-												>{t.name}</Combobox.ItemText
+								<Combobox.Positioner>
+									<Combobox.Content
+										class="bg-surface-3 text-white shadow-lg rounded-md mt-1 max-h-60 overflow-auto z-50"
+									>
+										{#each filteredTemplates as t (t._id)}
+											<Combobox.Item
+												item={t}
+												class="text-black"
 											>
-										</Combobox.Item>
-									{/each}
-								</Combobox.Content>
-							</Combobox.Positioner>
-						</Combobox>
-					{:else}
-						<select
-							class="dark-textarea py-2 px-4 w-full"
-							disabled
+												<Combobox.ItemText
+													>{t.name}</Combobox.ItemText
+												>
+											</Combobox.Item>
+										{/each}
+									</Combobox.Content>
+								</Combobox.Positioner>
+							</Combobox>
+						{:else}
+							<select
+								class="dark-textarea py-2 px-4 w-full"
+								disabled
+							>
+								<option>Loading templates…</option>
+							</select>
+						{/if}
+					</div>
+					<div>
+						<br />
+						<button
+							type="button"
+							class="border-button font-semibold shadow"
+							on:click={() => (showCreateTemplateDialog = true)}
 						>
-							<option>Loading templates…</option>
-						</select>
-					{/if}
-					<button
-						type="button"
-						class="border-button font-semibold shadow"
-						on:click={() => (showCreateTemplateDialog = true)}
-					>
-						Create New Template
-					</button>
+							Create New Template
+						</button>
+					</div>
 				</div>
 			</div>
 			<br />
