@@ -183,6 +183,41 @@ export function changeItem(newItem: IBasicItemPopulated){
 			_templateName = item.template?.name;
 			_templateId = item.template?._id.toString();
 		}
+
+		if (item.customFields?.length) {
+			let nonTemplateFields = item.customFields.map((cf) => ({
+				fieldName: cf.field.fieldName,
+				fieldId: cf.field._id as unknown as string,
+				dataType: cf.field.dataType,
+				value: cf.value as string,
+				suggestions: [],
+				isNew: false,
+				isSearching: false,
+				isExisting: true,
+				fromTemplate: false,
+				searchTimeout: undefined,
+			}));
+
+			if (item.template && item.template.fields?.length) {
+				const templateFieldIds = new Set(
+					item.template.fields.map((tid: any) =>
+						typeof tid === "string" ? tid : tid._id.toString(),
+					),
+				);
+
+				const templateFields = nonTemplateFields
+					.filter((field) => field.fieldId && templateFieldIds.has(field.fieldId.toString()))
+					.map((field) => ({ ...field, fromTemplate: true }));
+
+				const remainingFields = nonTemplateFields.filter(
+					(field) => !field.fieldId || !templateFieldIds.has(field.fieldId.toString())
+				);
+
+				_customFields = [...templateFields, ...remainingFields];
+			} else {
+				_customFields = nonTemplateFields;
+			}
+		}
 	}
 }
 
