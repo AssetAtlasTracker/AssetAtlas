@@ -1,4 +1,6 @@
-import mongoose, { Schema, model, Document, Types } from 'mongoose';
+import mongoose from 'mongoose';
+import type { Document } from 'mongoose';
+const { Schema, model, Types } = mongoose;
 import bcrypt from 'bcryptjs';
 
 export interface IUser extends Document {
