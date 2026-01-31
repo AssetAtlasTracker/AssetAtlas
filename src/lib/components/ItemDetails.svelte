@@ -381,6 +381,7 @@
 							{#if customField.field.dataType === "item"}
 								{#await checkIfItemExistsById(String(customField.value)) then itemName}
 									{#if itemName}
+										{customField.field.fieldName}:
 										<span class="clickable-text">
 											<ItemLink className="" itemId={String(customField.value)} itemName={itemName} on:openItem={handleItemLinkClick} />
 										</span>
