@@ -48,7 +48,7 @@
 	</button>
 
 	<div
-		class="absolute bottom-full {tooltipAlignment}-0 mb-2 w-max max-w-xs px-2 py-1 text-sm text-white bg-gray-800 rounded-md pointer-events-none transition-opacity {tooltipActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}">
+		class="absolute bottom-full {tooltipAlignment}-0 mb-2 min-w-48 max-w-xs px-2 py-1 text-sm text-white bg-gray-800 rounded-md pointer-events-none transition-opacity {tooltipActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} break-words">
 		{message}
 	</div>
 </div>
