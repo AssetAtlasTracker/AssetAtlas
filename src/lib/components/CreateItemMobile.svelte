@@ -131,33 +131,33 @@
 
 			<!-- Home Item -->
 			<div class="flex-column flex-grow relative">
-					<div class="flex items-center gap-2 mb-1">
-						<span>Home Location:</span>
-						<InfoToolTip
-							message="Where an item should normally be, e.g a shirt's home item may be a drawer." />
-					</div>
-					<input
-						type="text"
-						class="dark-textarea py-2 px-4 w-full"
-						bind:value={createItemState.homeItemName}
-						on:input={handleHomeItemInput}
-						on:focus={handleHomeItemFocus}
-						on:blur={() => (createItemState.homeItemSuggestions = [])} />
-					{#if createItemState.homeItemSuggestions.length > 0}
-						<ul class="suggestions suggestion-box">
-							{#each createItemState.homeItemSuggestions as item (item.id)}
-								<button
-									class="suggestion-item"
-									type="button"
-									on:mousedown={(e) => {
-										e.preventDefault();
-										selectHomeItem(item);
-									}}>
-									{item.name}
-								</button>
-							{/each}
-						</ul>
-					{/if}
+				<div class="flex items-center gap-2 mb-1">
+					<span>Home Location:</span>
+					<InfoToolTip
+						message="Where an item should normally be, e.g a shirt's home item may be a drawer." />
+				</div>
+				<input
+					type="text"
+					class="dark-textarea py-2 px-4 w-full"
+					bind:value={createItemState.homeItemName}
+					on:input={handleHomeItemInput}
+					on:focus={handleHomeItemFocus}
+					on:blur={() => (createItemState.homeItemSuggestions = [])} />
+				{#if createItemState.homeItemSuggestions.length > 0}
+					<ul class="suggestions suggestion-box">
+						{#each createItemState.homeItemSuggestions as item (item.id)}
+							<button
+								class="suggestion-item"
+								type="button"
+								on:mousedown={(e) => {
+									e.preventDefault();
+									selectHomeItem(item);
+								}}>
+								{item.name}
+							</button>
+						{/each}
+					</ul>
+				{/if}
 			</div>
 
 			<!-- Parent Item -->
