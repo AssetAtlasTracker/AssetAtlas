@@ -6,10 +6,9 @@
 	"scripts": {
 		"build": "vite build",
 		"start": "node build/index.js",
-		"dev": "vite dev",
-		"dev:docker": "cd docker && docker-compose -f docker-compose.dev.yml up",
-		"dev:docker:build": "cd docker && docker-compose -f docker-compose.dev.yml up --build",
-		"dev:docker:down": "cd docker && docker-compose -f docker-compose.dev.yml down",
+		"dev": "cd docker && docker-compose -f docker-compose.dev.yml up",
+		"dev:build": "cd docker && docker-compose -f docker-compose.dev.yml up --build",
+		"dev:down": "cd docker && docker-compose -f docker-compose.dev.yml down",
 		"test": "vitest run --exclude=tests/performance.test.ts --reporter verbose --silent",
 		"test:ui": "vitest --ui --exclude=tests/performance.test.ts",
 		"test:perf": "vitest run tests/performance.test.ts --reporter verbose --silent",

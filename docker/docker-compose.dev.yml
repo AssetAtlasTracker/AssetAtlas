@@ -4,7 +4,7 @@ services:
   dev:
     image: node:22-alpine
     working_dir: /app
-    command: sh -c "npm install && npm run dev"
+    command: sh -c "npm install && npx vite dev"
     volumes:
       - ..:/app
       - node_modules:/app/node_modules
@@ -70,10 +70,12 @@ services:
 
   tusd:
     image: tusproject/tusd:latest
+    user: "0:0"
     command:
       - "-upload-dir=/data"
       - "-port=1080"
       - "-verbose"
+      - "-behind-proxy"
     ports:
       - "1080:1080"
     volumes:
