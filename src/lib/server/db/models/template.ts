@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
+import mongoose, { Types, Schema } from 'mongoose';
 import type { Document, CallbackError } from 'mongoose';
-const { Schema, model, Types } = mongoose;
+const { model } = mongoose;
 import BasicItem from './basicItem.js';
 import type { ICustomField } from './customField.js';
 import { addToRecents, removeFromRecents } from './recentItems.js';

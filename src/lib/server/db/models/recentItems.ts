@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import type { Document } from 'mongoose';
-const { Schema, model, models, Types } = mongoose;
+const { Schema, model, models } = mongoose;
 
 const MAX_ITEMS: number = 5;
 
