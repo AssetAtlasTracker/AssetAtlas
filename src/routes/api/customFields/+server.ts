@@ -15,26 +15,28 @@ export const POST: RequestHandler = async ({ request }) => {
 		}
 
 		// Validate data type
-		const validTypes = ['string', 'number', 'boolean', 'date'];
+		const validTypes = ['string', 'number', 'boolean', 'date', 'item'];
 		if (!validTypes.includes(dataType)) {
 			return json({
 				message: `Invalid data type. Must be one of: ${validTypes.join(', ')}`
 			}, { status: 400 });
 		}
 
-		// Check if the field already exists
-		const templateFields = await Template.findById(templateId)
-			.populate<{ fields: ICustomField[] }>('fields')
-			.exec();
+		if (templateId){
+			// Check if the field already exists
+			const templateFields = await Template.findById(templateId)
+				.populate<{ fields: ICustomField[] }>('fields')
+				.exec();
     
-		console.log(templateFields);
+			console.log(templateFields);
     
-		if (templateFields?.fields.some((field) => field.fieldName === fieldName)) {
-			return json({ 
-				message: 'Field with this name already exists in the template.' 
-			}, { status: 409 });
-		}
+			if (templateFields?.fields.some((field) => field.fieldName === fieldName)) {
+				return json({ 
+					message: 'Field with this name already exists in the template.' 
+				}, { status: 409 });
+			}
 
+		}
 		const newField = new CustomField({
 			fieldName,
 			dataType,
