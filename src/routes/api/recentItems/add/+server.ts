@@ -1,6 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { Types } from 'mongoose';
+import mongoose from 'mongoose';
+const { Types } = mongoose;
 import { addToRecents } from '$lib/server/db/models/recentItems.js';
 
 const validTypes = ['item', 'template', 'customField'];

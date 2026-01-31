@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import './models/index.js';
 
 const MONGODB_URI = process.env.MONGO_URI || 'mongodb://localhost:27017';
 
@@ -21,7 +22,6 @@ export async function connectDB() {
 		});
     
 		console.log('MongoDB connected:', db.connection.db?.databaseName);
-		await import('./models/index.js');
 		return db.connection;
 	} catch (error) {
 		console.error('MongoDB connection error:', error);

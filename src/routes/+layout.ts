@@ -2,6 +2,8 @@ import { browser } from '$app/environment';
 import { login } from '$lib/stores/loginStore.js';
 import type { LayoutLoad } from './$types';
 
+export const ssr = false;
+
 export const load: LayoutLoad = async ({ data }) => {
 	if (browser) {
 		const user = data.user;
