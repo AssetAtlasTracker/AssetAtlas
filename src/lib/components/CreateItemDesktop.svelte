@@ -77,7 +77,10 @@
 		const selected = allTemplates.find(
 			(t) => String(t._id) === details.itemValue,
 		);
-		if (selected) selectTemplate(selected);
+		if (selected) {
+			selectTemplate(selected);
+			filteredTemplates = allTemplates; 
+		}
 	}
 
 	setOnItemCreated(() => {

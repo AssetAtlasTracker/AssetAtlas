@@ -29,13 +29,33 @@ describe('CreateItem.svelte', () => {
 	beforeEach(() => {
 		vi.restoreAllMocks();
 
-		fetchMock = vi.fn(async () => ({
-			ok: true,
-			json: async () => ({ _id: '123', name: 'New Item' }),
-			text: async () => JSON.stringify({ _id: '123', name: 'New Item' }),
-			headers: new Map(),
-		}));
-		vi.stubGlobal('fetch', fetchMock);
+		fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+			const url = typeof input === "string" ? input : input.toString();
+
+			if (url.includes("/api/templates")) {
+				return {
+					ok: true,
+					json: async () => [
+						{ _id: "t1", name: "Template One" },
+						{ _id: "t2", name: "Template Two" },
+					],
+					text: async () =>
+						JSON.stringify([
+							{ _id: "t1", name: "Template One" },
+							{ _id: "t2", name: "Template Two" },
+						]),
+					headers: new Map(),
+				};
+			}
+
+			return {
+				ok: true,
+				json: async () => ({ _id: "123", name: "New Item" }),
+				text: async () => JSON.stringify({ _id: "123", name: "New Item" }),
+				headers: new Map(),
+			};
+		});
+		vi.stubGlobal("fetch", fetchMock);
 	});
 
 	it('renders the form', () => {
