@@ -17,6 +17,8 @@
 		handleHomeItemFocus,
 		handleTemplateFocus,
 		handleCustomFieldFocus,
+		handleFieldItemInput,
+		handleFieldItemFocus,
 		onCustomFieldNameInput,
 		selectParentItem,
 		selectHomeItem,
@@ -28,6 +30,7 @@
 		setOnItemCreated,
 		resetAllFields,
 		loadAllTemplates,
+		checkIfItemExists
 	} from "$lib/stores/createItemStore.svelte";
 	import { createEventDispatcher, onMount } from "svelte";
 
@@ -357,6 +360,26 @@
 								{suggestion.fieldName} ({suggestion.dataType})
 							</button>
 						{/each}
+					</svelte:fragment>
+					
+					<svelte:fragment slot="itemSuggestions">
+						{#if field.dataType === 'item' && createItemState.fieldItemSuggestions.length > 0}
+							<ul class="suggestions suggestion-box">
+								{#each createItemState.fieldItemSuggestions as item (item._id)}
+									<button
+										class="suggestion-item"
+										type="button"
+										on:mousedown={(e) => {
+											e.preventDefault();
+											createItemState.customFields[index].value = item._id; // Store ID
+											createItemState.customFields[index].displayValue = item.name; // Display name
+											createItemState.fieldItemSuggestions = [];
+										}}>
+										{item.name}
+									</button>
+								{/each}
+							</ul>
+						{/if}
 					</svelte:fragment>
 				</CustomFieldPicker>
 			{/each}

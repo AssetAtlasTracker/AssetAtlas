@@ -18,5 +18,6 @@ export interface ICustomFieldEntry {
 
 export interface ICustomFieldEntryInstance extends ICustomFieldEntry {
     value: string;
+    displayValue?: string;
     fromTemplate: boolean;
 }

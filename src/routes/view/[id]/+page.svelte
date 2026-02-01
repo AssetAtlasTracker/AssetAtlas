@@ -227,7 +227,7 @@
 		Are you sure you want to delete {item?.name}?
 	</div>
 	<DeleteItem itemId={data.item?._id} onDelete={handleDelete}
-		>Delete</DeleteItem>
+	>Delete</DeleteItem>
 </Dialog>
 
 <Dialog

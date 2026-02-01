@@ -1,6 +1,11 @@
+import { browser } from "$app/environment";
 import * as tus from "tus-js-client";
 
 export async function uploadImage(file: File): Promise<string> {
+	if (!browser) {
+		throw new Error("uploadImage can only be called in the browser");
+	}
+
 	const protocol = window.location.protocol;
 	const hostname = window.location.hostname;
 	const endpoint = `${protocol}//${hostname}:1080/files/`;
