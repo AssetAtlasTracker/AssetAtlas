@@ -29,7 +29,7 @@ describe('CreateItem.svelte', () => {
 	beforeEach(() => {
 		vi.restoreAllMocks();
 
-		fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+		fetchMock = vi.fn(async (input: string | URL) => {
 			const url = typeof input === "string" ? input : input.toString();
 
 			if (url.includes("/api/templates")) {
