@@ -582,6 +582,7 @@ e.g. buttons, lists, textareas, etc.
   position: fixed;
   bottom: 1rem;
   right: 1rem;
+  z-index: 9000;
 }
 
 .inactive-button {
