@@ -274,7 +274,7 @@ describe('OAuth API', () => {
 				expect.fail('Should have thrown redirect');
 			} catch (error: any) {
 				expect(error.status).toBe(302);
-				expect(error.location).toBe('/');
+				expect(error.location).toBe('/oauth/success');
 			}
 
 			// Check auth token was set
@@ -329,7 +329,7 @@ describe('OAuth API', () => {
 				expect.fail('Should have thrown redirect');
 			} catch (error: any) {
 				expect(error.status).toBe(302);
-				expect(error.location).toBe('/');
+				expect(error.location).toBe('/oauth/success');
 			}
 
 			// Check auth token was set
@@ -374,7 +374,7 @@ describe('OAuth API', () => {
 				expect.fail('Should have thrown redirect');
 			} catch (error: any) {
 				expect(error.status).toBe(302);
-				expect(error.location).toBe('/');
+				expect(error.location).toBe('/oauth/success');
 			}
 
 			// Check auth token was set
@@ -427,7 +427,7 @@ describe('OAuth API', () => {
 				expect.fail('Should have thrown redirect');
 			} catch (error: any) {
 				expect(error.status).toBe(302);
-				expect(error.location).toBe('/');
+				expect(error.location).toBe('/oauth/success');
 			}
 
 			// Check auth token was set
