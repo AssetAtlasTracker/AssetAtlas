@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { describe, it, beforeEach, expect, vi } from 'vitest';
-import { render, fireEvent } from '@testing-library/svelte';
 import CreateTemplate from '$lib/components/CreateTemplate.svelte';
+import { fireEvent, render } from '@testing-library/svelte';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 if (typeof HTMLDialogElement !== 'undefined') {
 	if (!HTMLDialogElement.prototype.close) {

@@ -4,16 +4,19 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import type { RequestEvent } from '@sveltejs/kit';
 import type { ICustomField } from '$lib/server/db/models/customField.js';
 import { RecentItems } from '$lib/server/db/models/recentItems.js';
+import { POST as createItemHandler } from '$routes/api/items/+server.js';
 import { POST as createCustomFieldHandler } from '$routes/api/customFields/+server.js';
 import { GET as searchCustomFieldsHandler } from '$routes/api/customFields/search/+server.js';
 import { GET as getCustomFieldByIdHandler } from '$routes/api/customFields/[id]/+server.js';
+import { GET as checkItemNameHandler } from '$routes/api/customFields/checkItemName/+server.js';
+import { GET as checkItemIdHandler } from '$routes/api/customFields/checkItemId/+server.js';
 
 let mongoServer: MongoMemoryServer;
 
 // Helper function to create a mock RequestEvent for SvelteKit
 function createMockEvent(options: {
 	method?: string;
-	body?: Record<string, unknown>;
+	body?: string | Record<string, unknown>;
 	headers?: Record<string, string>;
 	url?: string;
 	params?: Record<string, string>;
@@ -48,6 +51,84 @@ function createMockEvent(options: {
 		isRemoteRequest: false
 	} as RequestEvent;
 }
+
+//for item-type custom field tests
+function createMockItemEvent(options: {
+	method?: string;
+	body?: Record<string, unknown>;
+	headers?: Record<string, string>;
+	url?: string;
+	params?: Record<string, string>;
+}): RequestEvent {
+	const headers = new Headers(options.headers || {});
+	
+	// Convert body to FormData only for /api/items POST/PUT/PATCH requests
+	// Other routes (like /api/customFields, /api/templates, /api/items/move) use JSON
+	const isItemsRoute = options.url?.includes('/api/items') && !options.url?.includes('/api/items/move');
+	let requestInit;
+	if (options.body && (options.method === 'POST' || options.method === 'PUT' || options.method === 'PATCH')) {
+		if (isItemsRoute) {
+			const formData = new FormData();
+			for (const [key, value] of Object.entries(options.body)) {
+				if (value !== undefined && value !== null) {
+					if (typeof value === 'object' && !Array.isArray(value)) {
+						formData.append(key, value.toString());
+					} else if (Array.isArray(value)) {
+						formData.append(key, JSON.stringify(value));
+					} else {
+						formData.append(key, String(value));
+					}
+				}
+			}
+			requestInit = {
+				method: options.method || 'GET',
+				headers,
+				body: formData
+			};
+		} else {
+			// Use JSON for non-items routes
+			headers.set('Content-Type', 'application/json');
+			requestInit = {
+				method: options.method || 'GET',
+				headers,
+				body: JSON.stringify(options.body)
+			};
+		}
+	} else {
+		requestInit = {
+			method: options.method || 'GET',
+			headers,
+			body: options.body ? JSON.stringify(options.body) : undefined
+		};
+	}
+	
+	const request = new Request(options.url || 'http://localhost:3000/api/test', requestInit);
+
+	return {
+		request,
+		params: options.params || {},
+		url: new URL(options.url || 'http://localhost:3000/api/test'),
+		locals: {},
+		cookies: {
+			get: () => undefined,
+			set: () => {},
+			delete: () => {},
+			getAll: () => [],
+			serialize: () => ''
+		},
+		fetch: global.fetch,
+		getClientAddress: () => '127.0.0.1',
+		platform: undefined,
+		route: { id: null },
+		setHeaders: () => {},
+		isDataRequest: false,
+		isSubRequest: false,
+		tracing: {} as never,
+		isRemoteRequest: false
+	} as RequestEvent;
+}
+
+
 
 beforeAll(async () => {
 	mongoServer = await MongoMemoryServer.create();
@@ -208,6 +289,72 @@ describe('CustomField API', () => {
 			expect(err.status).toBe(404);
 			expect(err.body?.message).toBe('Custom field not found');
 		}
+	});
+
+	it('should find an item based on name and return its ID', async () => {
+		
+		const itemData = {
+			name: 'Test Item',
+			description: 'A sample item for testing',
+			tags: ['tag1', 'tag2']
+		};
+
+		const createEvent = createMockItemEvent({
+			method: 'POST',
+			body: itemData,
+			url: 'http://localhost:3000/api/items'
+		});
+
+		const creationResponse = await createItemHandler(createEvent);
+		const createdBody = await creationResponse.json();
+
+		expect(creationResponse.status).toBe(201);
+		const itemId = createdBody._id;
+
+
+		const checkNameEvent = createMockEvent({
+			method: 'GET',
+			url: `http://localhost:3000/api/customFields/checkItemName?itemName=${encodeURIComponent(itemData.name)}`
+		});
+
+		const checkNameResponse = await checkItemNameHandler(checkNameEvent);
+		const checkNameBody = await checkNameResponse.json();
+		expect(checkNameResponse.status).toBe(200);
+		expect(checkNameBody.id).toBe(itemId);
+
+	});
+
+	it('should find an item based on ID and return its name', async () => {
+		
+		const itemData = {
+			name: 'Test Item',
+			description: 'A sample item for testing',
+			tags: ['tag1', 'tag2']
+		};
+
+		const createEvent = createMockItemEvent({
+			method: 'POST',
+			body: itemData,
+			url: 'http://localhost:3000/api/items'
+		});
+
+		const creationResponse = await createItemHandler(createEvent);
+		const createdBody = await creationResponse.json();
+
+		expect(creationResponse.status).toBe(201);
+		const itemId = createdBody._id;
+
+
+		const checkNameEvent = createMockEvent({
+			method: 'GET',
+			url: `http://localhost:3000/api/customFields/checkItemId?itemID=${encodeURIComponent(itemId)}`
+		});
+
+		const checkNameResponse = await checkItemIdHandler(checkNameEvent);
+		const checkNameBody = await checkNameResponse.json();
+		expect(checkNameResponse.status).toBe(200);
+		expect(checkNameBody.name).toBe(itemData.name);
+
 	});
 
 });

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { describe, it, beforeEach, expect, vi } from 'vitest';
-import { render } from '@testing-library/svelte';
 import CreateItem from '$lib/components/CreateItem.svelte';
+import { render } from '@testing-library/svelte';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 if (typeof HTMLDialogElement !== 'undefined') {
 	if (!HTMLDialogElement.prototype.close) {
@@ -20,7 +20,7 @@ if (typeof HTMLDialogElement !== 'undefined') {
 }
 
 function renderComponent(props = {}) {
-	return render(CreateItem, { props });
+	return render(CreateItem, { props: { dialog: document.createElement('dialog') as HTMLDialogElement, ...props } });
 }
 
 describe('CreateItem.svelte', () => {
@@ -29,13 +29,33 @@ describe('CreateItem.svelte', () => {
 	beforeEach(() => {
 		vi.restoreAllMocks();
 
-		fetchMock = vi.fn(async () => ({
-			ok: true,
-			json: async () => ({ _id: '123', name: 'New Item' }),
-			text: async () => JSON.stringify({ _id: '123', name: 'New Item' }),
-			headers: new Map(),
-		}));
-		vi.stubGlobal('fetch', fetchMock);
+		fetchMock = vi.fn(async (input: string | URL) => {
+			const url = typeof input === "string" ? input : input.toString();
+
+			if (url.includes("/api/templates")) {
+				return {
+					ok: true,
+					json: async () => [
+						{ _id: "t1", name: "Template One" },
+						{ _id: "t2", name: "Template Two" },
+					],
+					text: async () =>
+						JSON.stringify([
+							{ _id: "t1", name: "Template One" },
+							{ _id: "t2", name: "Template Two" },
+						]),
+					headers: new Map(),
+				};
+			}
+
+			return {
+				ok: true,
+				json: async () => ({ _id: "123", name: "New Item" }),
+				text: async () => JSON.stringify({ _id: "123", name: "New Item" }),
+				headers: new Map(),
+			};
+		});
+		vi.stubGlobal("fetch", fetchMock);
 	});
 
 	it('renders the form', () => {

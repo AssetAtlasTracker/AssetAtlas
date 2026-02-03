@@ -19,11 +19,15 @@ let _parentItemSuggestions = $state<any[]>([]);
 let _homeItemName = $state("");
 let _homeItemId = $state<string | null>(null);
 let _homeItemSuggestions = $state<any[]>([]);
+let _fieldItemName = $state("");
+let _fieldItemId = $state<string | null>(null);
+let _fieldItemSuggestions = $state<any[]>([]);
 let _templateName = $state("");
 let _templateId = $state<string | null>(null);
 let _templateSuggestions = $state<any[]>([]);
 let _customFields = $state<ICustomFieldEntryInstance[]>([]);
 let _selectedImage = $state<File | null>(null);
+let _placeholder = $state("Search for item...");
 
 export const createItemState = {
 	get name() { return _name; },
@@ -46,6 +50,12 @@ export const createItemState = {
 	set homeItemId(v) { _homeItemId = v; },
 	get homeItemSuggestions() { return _homeItemSuggestions; },
 	set homeItemSuggestions(v) { _homeItemSuggestions = v; },
+	get fieldItemName() { return _fieldItemName; },
+	set fieldItemName(v) { _fieldItemName = v; },
+	get fieldItemId() { return _fieldItemId; },
+	set fieldItemId(v) { _fieldItemId = v; },
+	get fieldItemSuggestions() { return _fieldItemSuggestions; },
+	set fieldItemSuggestions(v) { _fieldItemSuggestions = v; },
 	get templateName() { return _templateName; },
 	set templateName(v) { _templateName = v; },
 	get templateId() { return _templateId; },
@@ -56,6 +66,8 @@ export const createItemState = {
 	set customFields(v) { _customFields = v; },
 	get selectedImage() { return _selectedImage; },
 	set selectedImage(v) { _selectedImage = v; },
+	get placeholder() { return _placeholder; },
+	set placeholder(v) { _placeholder = v; },
 };
 
 let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -212,18 +224,21 @@ export function resetAllFields() {
 	_parentItemId = null;
 	_homeItemName = "";
 	_homeItemId = null;
+	_fieldItemName = "";
+	_fieldItemId = null;
 	_templateName = "";
 	_templateId = null;
 	_customFields = [];
 	_parentItemSuggestions = [];
 	_homeItemSuggestions = [];
+	_fieldItemSuggestions = [];
 	_templateSuggestions = [];
 	_selectedImage = null;
+	_placeholder = "Search for item...";
 }
 
 export function partialResetFields() {
 	_name = "";
-	_description = "";
 	_selectedImage = null;
 }
 
@@ -253,7 +268,7 @@ export async function handleHomeItemFocus() {
 
 export async function handleTemplateFocus() {
 	if (!_templateName) {
-		_templateSuggestions = await loadRecentItems("template");
+		_templateSuggestions = await loadAllTemplates();
 	}
 }
 
@@ -262,6 +277,22 @@ export async function handleCustomFieldFocus(index: number) {
 		_customFields[index].suggestions =
             await loadRecentItems("customField");
 	}
+}
+
+export async function handleFieldItemFocus() {
+	if (!_fieldItemName) {
+		_fieldItemSuggestions = await loadRecentItems("item");
+	}
+}
+
+export function handleFieldItemInput(event: Event) {
+	const target = event.target as HTMLInputElement;
+	_fieldItemName = target.value;
+	_fieldItemId = null;
+	if (debounceTimeout) clearTimeout(debounceTimeout);
+	debounceTimeout = setTimeout(() => {
+		searchFieldItems(_fieldItemName);
+	}, 300);
 }
 
 export function handleParentItemInput(event: Event) {
@@ -290,7 +321,11 @@ export function handleTemplateInput(event: Event) {
 	_templateId = null;
 	if (debounceTimeout) clearTimeout(debounceTimeout);
 	debounceTimeout = setTimeout(() => {
-		searchTemplates(_templateName);
+		if (_templateName.trim() === "") {
+			loadAllTemplates();
+		} else {
+			searchTemplates(_templateName);
+		}
 	}, 300);
 }
 
@@ -302,6 +337,20 @@ export function onCustomFieldNameInput(index: number, event: Event) {
 	_customFields[index].isExisting = false;
 	searchForCustomFields(index);
 }
+
+export async function loadAllTemplates(): Promise<any[]> {
+	try {
+		const response = await fetch(`/api/templates`, {
+			method: "GET",
+			headers: { "Content-Type": "application/json" },
+		});
+		return await response.json();
+	} catch (err) {
+		console.error("Error loading templates:", err);
+		return [];
+	}
+}
+
 
 async function searchParentItems(query: string) {
 	try {
@@ -332,6 +381,22 @@ async function searchHomeItems(query: string) {
 		_homeItemSuggestions = data;
 	} catch (err) {
 		console.error("Error searching home items:", err);
+	}
+}
+
+async function searchFieldItems(query: string) {
+	try {
+		const response = await fetch(
+			`/api/items/search?name=${encodeURIComponent(query)}`,
+			{
+				method: "GET",
+				headers: { "Content-Type": "application/json" },
+			},
+		);
+		const data = await response.json();
+		_fieldItemSuggestions = data;
+	} catch (err) {
+		console.error("Error searching field items:", err);
 	}
 }
 
@@ -552,5 +617,23 @@ async function loadRecentItems(type: string) {
 	} catch (err) {
 		console.error("Error loading recent items:", err);
 		return [];
+	}
+}
+
+export async function checkIfItemExists(itemName: string) {
+	if (itemName.trim() === "") return false;
+	try {
+		const response = await fetch(
+			`/api/customFields/checkItemName?itemName=${encodeURIComponent(itemName)}`,
+			{
+				method: "GET",
+				headers: { "Content-Type": "application/json" },
+			},
+		);
+		const data = await response.json();
+		return data.id;
+	} catch (err) {
+		console.error("Error checking item name:", err);
+		return false;
 	}
 }
