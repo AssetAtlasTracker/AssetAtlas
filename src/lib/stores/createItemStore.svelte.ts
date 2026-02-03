@@ -189,6 +189,7 @@ export function changeItem(newItem: IBasicItemPopulated){
 				fieldName: cf.field.fieldName,
 				fieldId: cf.field._id as unknown as string,
 				dataType: cf.field.dataType,
+				displayValue: cf.field.dataType === "item" ? (cf.value as IBasicItemPopulated)?.name || "" : cf.value as string,
 				value: cf.value as string,
 				suggestions: [],
 				isNew: false,
@@ -653,4 +654,24 @@ export async function checkIfItemExists(itemName: string) {
 		console.error("Error checking item name:", err);
 		return false;
 	}
+}
+
+export async function checkIfItemExistsById(itemId: string) {
+	if(itemId === "") return false;
+	try {
+		const response = await fetch(
+			`/api/customFields/checkItemId?itemID=${itemId}`,
+			{
+				method: "GET",
+				headers: { "Content-Type": "application/json" },
+			},
+		);
+		const data = await response.json();
+		return data.name;
+	} catch
+	(err) {
+		console.error("Error checking item name:", err);
+		return false;
+	}
+			
 }

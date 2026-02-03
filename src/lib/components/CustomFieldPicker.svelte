@@ -1,7 +1,11 @@
 <script lang="ts">
     import InfoToolTip from "./InfoToolTip.svelte";
+    import { onMount } from "svelte";
     export let field;
 	import { browser } from '$app/environment';
+    import {checkIfItemExistsById} from "../stores/createItemStore.svelte";
+    import type { fromAction } from "svelte/attachments";
+    import { on } from "events";
     export let onFieldNameInput: (event: Event) => void;
     export let onFieldFocus: () => void;
     export let onFieldBlur: () => void;
@@ -10,6 +14,7 @@
     export let onFieldValueFocus: (() => void) | undefined = undefined;
     export let onFieldValueBlur: (() => void) | undefined = undefined;
     export let showDeleteButton = true;
+    export let onDuplicateAndEdit: boolean = false;
     export let onDelete: () => void;
     export let mode: "template" | "item" = "item";
 
@@ -27,6 +32,13 @@
     }
     
     let isItemValueValid = false;
+
+    onMount(async () => {
+        if (field.dataType === "item" && onDuplicateAndEdit && !field.displayValue && field.value) {
+            const itemName = await checkIfItemExistsById(field.value);
+            field.displayValue = itemName || '';
+        }
+    });
 
 	async function redirectToItem(itemId: string) {
 		if (!browser) {
