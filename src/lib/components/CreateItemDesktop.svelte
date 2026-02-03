@@ -164,7 +164,7 @@
 						<Switch.Thumb />
 					</Switch.Control>
 					<Switch.Label
-						>Item is currently at its home location</Switch.Label
+					>Item is currently at its home location</Switch.Label
 					>
 					<Switch.HiddenInput />
 				</Switch>
@@ -282,7 +282,7 @@
 												class="text-black"
 											>
 												<Combobox.ItemText
-													>{t.name}</Combobox.ItemText
+												>{t.name}</Combobox.ItemText
 												>
 											</Combobox.Item>
 										{/each}
