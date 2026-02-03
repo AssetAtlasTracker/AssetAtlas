@@ -39,24 +39,16 @@
 
 	export let dialog: HTMLDialogElement;
 	export let duplicate = false;
+	export let filteredTemplates: any[] = [];
+	export let onTemplateInputValueChange: (details: { inputValue: string }) => void;
+	export let onTemplateSelect: (details: { itemValue?: string }) => void;
 
 	let templateDialog: HTMLDialogElement | undefined;
 	let showCreateTemplateDialog = false;
 	let formElement: HTMLFormElement;
 	let imageSelector: ImageSelector;
-	let allTemplates: any[] = [];
-	let filteredTemplates: any[] = [];
 
 	const dispatch = createEventDispatcher();
-
-	onMount(async () => {
-		const raw = await loadAllTemplates();
-		console.log(raw);
-		allTemplates = raw
-			.map((t) => ({ ...t, _id: t?._id ?? t?.id }))
-			.filter((t) => t?._id);
-		filteredTemplates = allTemplates;
-	});
 
 	$: if (showCreateTemplateDialog) {
 		if (templateDialog) {
@@ -69,25 +61,6 @@
 		itemToString: (item) => item?.name ?? "",
 		itemToValue: (item) => String(item?._id ?? ""),
 	});
-
-	function onTemplateInputValueChange(details: { inputValue: string }) {
-		createItemState.templateName = details.inputValue;
-		const query = details.inputValue.trim().toLowerCase();
-		filteredTemplates = query
-			? allTemplates.filter((t) => t?.name?.toLowerCase().includes(query))
-			: allTemplates;
-	}
-
-	function onTemplateSelect(details: { itemValue?: string }) {
-		if (!details.itemValue) return;
-		const selected = allTemplates.find(
-			(t) => String(t._id) === details.itemValue,
-		);
-		if (selected) {
-			selectTemplate(selected);
-			filteredTemplates = allTemplates; 
-		}
-	}
 
 	setOnItemCreated(() => {
 		dispatch("itemCreated")
