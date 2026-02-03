@@ -12,13 +12,10 @@
 		initializeItemEdit,
 		handleParentItemInput,
 		handleHomeItemInput,
-		handleTemplateInput,
 		handleParentItemFocus,
 		handleHomeItemFocus,
 		handleTemplateFocus,
 		handleCustomFieldFocus,
-		handleFieldItemInput,
-		handleFieldItemFocus,
 		onCustomFieldNameInput,
 		selectParentItem,
 		selectHomeItem,
@@ -29,9 +26,7 @@
 		handleImageChange,
 		setOnItemCreated,
 		resetAllFields,
-		loadAllTemplates,
-		checkIfItemExists
-	} from "$lib/stores/createItemStore.svelte";
+		loadAllTemplates	} from "$lib/stores/createItemStore.svelte";
 	import { createEventDispatcher, onMount } from "svelte";
 
 	import { collection } from "@zag-js/combobox";
@@ -61,6 +56,7 @@
 			templateDialog.showModal();
 		}
 	}
+	
 	$: templateCollection = collection({
 		items: filteredTemplates,
 		itemToString: (item) => item?.name ?? "",
