@@ -141,7 +141,7 @@
 						<Switch.Thumb />
 					</Switch.Control>
 					<Switch.Label
-						>Item is currently at its home location</Switch.Label
+					>Item is currently at its home location</Switch.Label
 					>
 					<Switch.HiddenInput />
 				</Switch>
@@ -259,7 +259,7 @@
 												class="text-black"
 											>
 												<Combobox.ItemText
-													>{t.name}</Combobox.ItemText
+												>{t.name}</Combobox.ItemText
 												>
 											</Combobox.Item>
 										{/each}
@@ -306,7 +306,7 @@
 					onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
 					onFieldFocus={() => handleCustomFieldFocus(index)}
 					onFieldBlur={() =>
-						(createItemState.customFields[index].suggestions = [])}
+					(createItemState.customFields[index].suggestions = [])}
 					showDeleteButton={!field.fromTemplate}
 					onDelete={() => removeCustomField(index)}
 				>
