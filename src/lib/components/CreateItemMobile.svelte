@@ -56,12 +56,14 @@
 	initializeItemEdit();
 
 	async function submitAndClose() {
-		if (dialog) {
-			dialog.close();
+		let success = await handleCreateItem();
+		if (success) {
+			if (dialog) {
+				dialog.close();
+			}
+			imageSelector.resetImage();
+			resetAllFields();
 		}
-		await handleCreateItem();
-		imageSelector.resetImage();
-		resetAllFields();
 	}
 
 	async function submitAndAddAnother() {
@@ -69,9 +71,11 @@
 			formElement.reportValidity();
 			return;
 		}
-		await handleCreateItem();
-		imageSelector.resetImage();
-		partialResetFields();
+		let success = await handleCreateItem();
+		if (success) {
+			imageSelector.resetImage();
+			partialResetFields();
+		}
 	}
 </script>
 

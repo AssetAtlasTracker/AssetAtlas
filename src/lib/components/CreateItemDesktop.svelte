@@ -95,12 +95,14 @@
 	initializeItemEdit();
 
 	async function submitItem() {
-		if (dialog) {
-			dialog.close();
+		let success = await handleCreateItem();
+		if (success) {
+			if (dialog) {
+				dialog.close();
+				imageSelector.resetImage();
+				resetAllFields();
+			}
 		}
-		await handleCreateItem();
-		imageSelector.resetImage();
-		resetAllFields();
 	}
 </script>
 

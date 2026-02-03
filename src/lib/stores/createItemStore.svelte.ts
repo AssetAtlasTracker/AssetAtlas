@@ -150,12 +150,16 @@ export async function handleCreateItem() {
 		}
 
 		actionStore.addMessage("Item created successfully!");
+
 		if (onItemCreated) {
 			onItemCreated();
 		}
+
+		return true;
 	} catch (err) {
 		console.error("Error creating item:", err);
 		actionStore.addMessage("Error creating item");
+		return false;
 	}
 }
 
