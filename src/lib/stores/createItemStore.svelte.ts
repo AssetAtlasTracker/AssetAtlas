@@ -641,3 +641,18 @@ export async function checkIfItemExists(itemName: string) {
 		return false;
 	}
 }
+
+export async function submitAndCloseItem(
+	dialog: HTMLDialogElement | undefined,
+	imageSelector: { resetImage: () => void }
+) {
+	let success = await handleCreateItem();
+	if (success) {
+		if (dialog) {
+			dialog.close();
+		}
+		imageSelector.resetImage();
+		resetAllFields();
+	}
+	return success;
+}

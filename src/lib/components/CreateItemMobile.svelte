@@ -29,7 +29,8 @@
 		setOnItemCreated,
 		resetAllFields,
 		partialResetFields,
-		checkIfItemExists
+		checkIfItemExists,
+		submitAndCloseItem
 	} from "$lib/stores/createItemStore.svelte";
 	import { createEventDispatcher } from "svelte";
 	import "$lib/styles/mobile.css";
@@ -55,17 +56,6 @@
 	});
 	initializeItemEdit();
 
-	async function submitAndClose() {
-		let success = await handleCreateItem();
-		if (success) {
-			if (dialog) {
-				dialog.close();
-			}
-			imageSelector.resetImage();
-			resetAllFields();
-		}
-	}
-
 	async function submitAndAddAnother() {
 		if (!formElement.checkValidity()) {
 			formElement.reportValidity();
@@ -89,7 +79,7 @@
 			Create New Item
 		</h1>
 	{/if}
-	<form bind:this={formElement} on:submit|preventDefault={submitAndClose}>
+	<form bind:this={formElement} on:submit|preventDefault={() => submitAndCloseItem(dialog, imageSelector)}>
 		<div class="flex flex-col space-y-4">
 			<div class="flex flex-col space-y-2">
 				<ImageSelector bind:this={imageSelector} on:imageChange={handleImageChange} />
