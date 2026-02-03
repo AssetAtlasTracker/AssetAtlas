@@ -690,12 +690,12 @@ export async function checkIfItemExistsById(itemId: string) {
 		);
 		const data = await response.json();
 		return data.name;
-	} catch
-	(err) {
+	} catch (err) {
 		console.error("Error checking item name:", err);
 		return false;
 	}
-			
+}
+
 export async function submitAndCloseItem(
 	dialog: HTMLDialogElement | undefined,
 	imageSelector: { resetImage: () => void }
