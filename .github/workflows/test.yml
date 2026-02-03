@@ -35,3 +35,13 @@ jobs:
           name: Coverage Report
           path: coverage/
           if-no-files-found: error
+      
+      - name: Run component tests with coverage
+        run: npm run coverage:comp
+
+      - name: Upload Components Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Components Coverage Report
+          path: coverage/
+          if-no-files-found: error

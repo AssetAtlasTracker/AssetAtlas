@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { describe, it, vi, expect, beforeEach } from "vitest";
-import { render } from '@testing-library/svelte';
 import EditItem from "$lib/components/EditItem.svelte";
+import { render } from '@testing-library/svelte';
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 function renderComponent(props: any = {}) {
 	return render(EditItem, { props });

@@ -150,12 +150,16 @@ export async function handleCreateItem() {
 		}
 
 		actionStore.addMessage("Item created successfully!");
+
 		if (onItemCreated) {
 			onItemCreated();
 		}
+
+		return true;
 	} catch (err) {
 		console.error("Error creating item:", err);
 		actionStore.addMessage("Error creating item");
+		return false;
 	}
 }
 
@@ -304,7 +308,7 @@ export async function handleHomeItemFocus() {
 
 export async function handleTemplateFocus() {
 	if (!_templateName) {
-		_templateSuggestions = await loadRecentItems("template");
+		_templateSuggestions = await loadAllTemplates();
 	}
 }
 
@@ -357,7 +361,11 @@ export function handleTemplateInput(event: Event) {
 	_templateId = null;
 	if (debounceTimeout) clearTimeout(debounceTimeout);
 	debounceTimeout = setTimeout(() => {
-		searchTemplates(_templateName);
+		if (_templateName.trim() === "") {
+			loadAllTemplates();
+		} else {
+			searchTemplates(_templateName);
+		}
 	}, 300);
 }
 
@@ -369,6 +377,20 @@ export function onCustomFieldNameInput(index: number, event: Event) {
 	_customFields[index].isExisting = false;
 	searchForCustomFields(index);
 }
+
+export async function loadAllTemplates(): Promise<any[]> {
+	try {
+		const response = await fetch(`/api/templates`, {
+			method: "GET",
+			headers: { "Content-Type": "application/json" },
+		});
+		return await response.json();
+	} catch (err) {
+		console.error("Error loading templates:", err);
+		return [];
+	}
+}
+
 
 async function searchParentItems(query: string) {
 	try {
@@ -674,4 +696,17 @@ export async function checkIfItemExistsById(itemId: string) {
 		return false;
 	}
 			
+export async function submitAndCloseItem(
+	dialog: HTMLDialogElement | undefined,
+	imageSelector: { resetImage: () => void }
+) {
+	let success = await handleCreateItem();
+	if (success) {
+		if (dialog) {
+			dialog.close();
+		}
+		imageSelector.resetImage();
+		resetAllFields();
+	}
+	return success;
 }

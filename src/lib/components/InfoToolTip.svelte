@@ -1,12 +1,12 @@
 <script lang="ts">
-    import { Info } from '@lucide/svelte';
-    import { onMount } from 'svelte';
+	import { Info } from "@lucide/svelte";
+	import { onMount } from "svelte";
 
     let { message, align = 'auto' } = $props();
 
-    let tooltipContainer: HTMLDivElement;
-    let tooltipAlignment = $state("left");
-    let tooltipActive = $state(false);
+	let tooltipContainer: HTMLDivElement;
+	let tooltipAlignment = $state("left");
+	let tooltipActive = $state(false);
 
     function updateAlignment() {
         if (align !== 'auto') {
@@ -31,7 +31,6 @@
     }
 
     onMount(() => {
-        // Calculate alignment immediately on mount
         updateAlignment();
         
         document.addEventListener('click', handleClickOutside);
@@ -55,7 +54,7 @@
     </button>
 
     <div
-        class="absolute bottom-full {tooltipAlignment}-0 mb-2 px-2 py-1 text-sm text-white bg-gray-800 rounded-md pointer-events-none transition-opacity {tooltipActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}"
+        class="absolute bottom-full {tooltipAlignment}-0 mb-2 min-w-48 max-w-xs break-words px-2 py-1 text-sm text-white bg-gray-800 rounded-md pointer-events-none transition-opacity {tooltipActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}"
         style="width: max-content; max-width: min(300px, 80vw); white-space: normal;">
         {message}
     </div>
