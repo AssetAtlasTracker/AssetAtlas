@@ -150,12 +150,16 @@ export async function handleCreateItem() {
 		}
 
 		actionStore.addMessage("Item created successfully!");
+
 		if (onItemCreated) {
 			onItemCreated();
 		}
+
+		return true;
 	} catch (err) {
 		console.error("Error creating item:", err);
 		actionStore.addMessage("Error creating item");
+		return false;
 	}
 }
 
@@ -636,4 +640,19 @@ export async function checkIfItemExists(itemName: string) {
 		console.error("Error checking item name:", err);
 		return false;
 	}
+}
+
+export async function submitAndCloseItem(
+	dialog: HTMLDialogElement | undefined,
+	imageSelector: { resetImage: () => void }
+) {
+	let success = await handleCreateItem();
+	if (success) {
+		if (dialog) {
+			dialog.close();
+		}
+		imageSelector.resetImage();
+		resetAllFields();
+	}
+	return success;
 }

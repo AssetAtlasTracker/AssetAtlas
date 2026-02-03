@@ -30,7 +30,8 @@
 		setOnItemCreated,
 		resetAllFields,
 		loadAllTemplates,
-		checkIfItemExists
+		checkIfItemExists,
+		submitAndCloseItem
 	} from "$lib/stores/createItemStore.svelte";
 	import { createEventDispatcher, onMount } from "svelte";
 
@@ -87,21 +88,9 @@
 	}
 
 	setOnItemCreated(() => {
-		if (dialog) {
-			dialog.close();
-		}
 		dispatch("itemCreated");
 	});
 	initializeItemEdit();
-
-	async function submitItem() {
-		if (dialog) {
-			dialog.close();
-		}
-		await handleCreateItem();
-		imageSelector.resetImage();
-		resetAllFields();
-	}
 </script>
 
 <Dialog isLarge={true} bind:dialog create={() => {}} close={resetAllFields}>
@@ -115,7 +104,7 @@
 		</h1>
 	{/if}
 	<div class="page-component large-dialog-internal">
-		<form on:submit|preventDefault={submitItem}>
+		<form on:submit|preventDefault={() => submitAndCloseItem(dialog, imageSelector)}>
 			<div class="flex flex-col space-y-4">
 				<div class="flex space-x-4">
 					<!-- Name -->
