@@ -177,8 +177,6 @@
 
 	//Initialize with a starting z-index and set up the window
 	onMount(() => {
-		if (browser) return;
-		
 		bringWindowToFront();
 
 		if (currentTopBarHeight && initialY < currentTopBarHeight) {
