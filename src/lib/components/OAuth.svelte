@@ -185,8 +185,6 @@
 	login.subscribe((value) => {
 		currentLogin = value;
 	});
-</script>
-
  
 	onMount(() => {
 		window.addEventListener('message', (event) => {
@@ -197,7 +195,6 @@
 			}
 		});
 	});
-
 </script>
 
 				{#if oauthResult}
