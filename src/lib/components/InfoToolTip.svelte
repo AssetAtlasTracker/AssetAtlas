@@ -1,8 +1,12 @@
 <script lang="ts">
-	export let message = "";
+	import { Info } from "@lucide/svelte";
+	import { onMount } from "svelte";
+
+	let { message } = $props();
 
 	let tooltipContainer: HTMLDivElement;
-	let tooltipAlignment = "left";
+	let tooltipAlignment = $state("left");
+	let tooltipActive = $state(false);
 
 	function updateAlignment() {
 		const rect = tooltipContainer.getBoundingClientRect();
@@ -10,6 +14,27 @@
 		const viewportWidth = window.innerWidth;
 		tooltipAlignment = centerX < viewportWidth / 2 ? "left" : "right";
 	}
+
+	function showTooltip(event: MouseEvent) {
+		event.stopPropagation();
+		tooltipActive = true;
+	}
+
+	function handleClickOutside(event: MouseEvent) {
+		if (
+			tooltipContainer &&
+			!tooltipContainer.contains(event.target as Node)
+		) {
+			tooltipActive = false;
+		}
+	}
+
+	onMount(() => {
+		document.addEventListener("click", handleClickOutside);
+		return () => {
+			document.removeEventListener("click", handleClickOutside);
+		};
+	});
 </script>
 
 <div
@@ -18,14 +43,17 @@
 	onmouseenter={updateAlignment}
 	role="tooltip">
 	<!-- Info Icon -->
-	<span
+	<button
 		class="text-gray-600 hover:text-gray-800 cursor-pointer select-none"
-		aria-label="info">
-		🛈
-	</span>
+		onclick={showTooltip}
+		type="button">
+		<Info id="tooltip-icon" />
+	</button>
 
 	<div
-		class="absolute bottom-full {tooltipAlignment}-0 mb-2 w-max max-w-xs px-2 py-1 text-sm text-white bg-gray-800 rounded-md opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity">
+		class="absolute bottom-full {tooltipAlignment}-0 mb-2 min-w-48 max-w-xs break-words px-2 py-1 text-sm text-white bg-gray-800 rounded-md pointer-events-none transition-opacity {tooltipActive
+			? 'opacity-100'
+			: 'opacity-0 group-hover:opacity-100'}">
 		{message}
 	</div>
 </div>

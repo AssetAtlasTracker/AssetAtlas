@@ -1,7 +1,5 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vitest/config';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
-import sveltePreprocess from 'svelte-preprocess';
 
 export default defineConfig({
 	plugins: [sveltekit()],
@@ -31,6 +29,21 @@ export default defineConfig({
 					name: 'server',
 					include: ['tests/**/*.{test,spec}.{js,ts}'],
 					exclude: ['tests/components/**', 'tests/performance.test.ts'],
+					environment: 'node',
+					globals: true
+				},
+				plugins: [sveltekit()],
+				resolve: {
+					alias: {
+						$lib: '/src/lib',
+						$routes: '/src/routes'
+					}
+				}
+			},
+			{
+				test: {
+					name: 'performance',
+					include: ['tests/performance.test.ts'],
 					environment: 'node',
 					globals: true
 				},

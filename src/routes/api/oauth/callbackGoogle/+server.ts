@@ -75,7 +75,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 			maxAge: 60 * 60 * 24 * 7
 		});
 
-		throw redirect(302, '/');
+		throw redirect(302, '/oauth/success');
 	} catch (e) {
 		if (e instanceof arctic.OAuth2RequestError) {
 			throw error(400, `OAuth2 request error: ${e.message}`);

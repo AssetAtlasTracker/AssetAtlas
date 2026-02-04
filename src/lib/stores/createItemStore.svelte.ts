@@ -3,6 +3,8 @@ import type { ICustomField, ICustomFieldEntryInstance } from "$lib/types/customF
 
 import { addToRecents } from "$lib/utility/recentItemHelper";
 import { actionStore } from "$lib/stores/actionStore";
+import { uploadImage } from '$lib/utility/imageUpload.js';
+
 
 let item = $state<IBasicItemPopulated | null>(null);
 let duplicate = $state(false);
@@ -17,11 +19,15 @@ let _parentItemSuggestions = $state<any[]>([]);
 let _homeItemName = $state("");
 let _homeItemId = $state<string | null>(null);
 let _homeItemSuggestions = $state<any[]>([]);
+let _fieldItemName = $state("");
+let _fieldItemId = $state<string | null>(null);
+let _fieldItemSuggestions = $state<any[]>([]);
 let _templateName = $state("");
 let _templateId = $state<string | null>(null);
 let _templateSuggestions = $state<any[]>([]);
 let _customFields = $state<ICustomFieldEntryInstance[]>([]);
 let _selectedImage = $state<File | null>(null);
+let _placeholder = $state("Search for item...");
 
 export const createItemState = {
 	get name() { return _name; },
@@ -44,6 +50,12 @@ export const createItemState = {
 	set homeItemId(v) { _homeItemId = v; },
 	get homeItemSuggestions() { return _homeItemSuggestions; },
 	set homeItemSuggestions(v) { _homeItemSuggestions = v; },
+	get fieldItemName() { return _fieldItemName; },
+	set fieldItemName(v) { _fieldItemName = v; },
+	get fieldItemId() { return _fieldItemId; },
+	set fieldItemId(v) { _fieldItemId = v; },
+	get fieldItemSuggestions() { return _fieldItemSuggestions; },
+	set fieldItemSuggestions(v) { _fieldItemSuggestions = v; },
 	get templateName() { return _templateName; },
 	set templateName(v) { _templateName = v; },
 	get templateId() { return _templateId; },
@@ -54,6 +66,8 @@ export const createItemState = {
 	set customFields(v) { _customFields = v; },
 	get selectedImage() { return _selectedImage; },
 	set selectedImage(v) { _selectedImage = v; },
+	get placeholder() { return _placeholder; },
+	set placeholder(v) { _placeholder = v; },
 };
 
 let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -112,11 +126,14 @@ export async function handleCreateItem() {
 		if (_parentItemId) formData.append("parentItem", _parentItemId);
 		if (_homeItemId) formData.append("homeItem", _homeItemId);
 		if (_templateId) formData.append("template", _templateId);
+		if (_selectedImage) {
+			const filename = await uploadImage(_selectedImage);
+			formData.append("image", filename);
+		}
 		formData.append(
 			"customFields",
 			JSON.stringify(formattedCustomFields),
 		);
-		if (_selectedImage) formData.append("image", _selectedImage);
 
 		const response = await fetch(`/api/items`, {
 			method: "POST",
@@ -131,20 +148,22 @@ export async function handleCreateItem() {
 			actionStore.addMessage("Error creating item");
 			throw new Error(data.message || "Error creating item");
 		}
+
 		actionStore.addMessage("Item created successfully!");
+
 		if (onItemCreated) {
 			onItemCreated();
 		}
 
-		resetForm();
+		return true;
 	} catch (err) {
 		console.error("Error creating item:", err);
 		actionStore.addMessage("Error creating item");
+		return false;
 	}
 }
 
 export function changeItem(newItem: IBasicItemPopulated){
-	console.log("ITEM SATTEST");
 	item = newItem;
 	if (duplicate) {
 		_name = item.name;
@@ -201,7 +220,7 @@ export function initializeItemEdit() {
 	}
 }
 
-export function resetForm() {
+export function resetAllFields() {
 	_name = "";
 	_description = "";
 	_tags = "";
@@ -209,12 +228,21 @@ export function resetForm() {
 	_parentItemId = null;
 	_homeItemName = "";
 	_homeItemId = null;
+	_fieldItemName = "";
+	_fieldItemId = null;
 	_templateName = "";
 	_templateId = null;
 	_customFields = [];
 	_parentItemSuggestions = [];
 	_homeItemSuggestions = [];
+	_fieldItemSuggestions = [];
 	_templateSuggestions = [];
+	_selectedImage = null;
+	_placeholder = "Search for item...";
+}
+
+export function partialResetFields() {
+	_name = "";
 	_selectedImage = null;
 }
 
@@ -244,7 +272,7 @@ export async function handleHomeItemFocus() {
 
 export async function handleTemplateFocus() {
 	if (!_templateName) {
-		_templateSuggestions = await loadRecentItems("template");
+		_templateSuggestions = await loadAllTemplates();
 	}
 }
 
@@ -253,6 +281,22 @@ export async function handleCustomFieldFocus(index: number) {
 		_customFields[index].suggestions =
             await loadRecentItems("customField");
 	}
+}
+
+export async function handleFieldItemFocus() {
+	if (!_fieldItemName) {
+		_fieldItemSuggestions = await loadRecentItems("item");
+	}
+}
+
+export function handleFieldItemInput(event: Event) {
+	const target = event.target as HTMLInputElement;
+	_fieldItemName = target.value;
+	_fieldItemId = null;
+	if (debounceTimeout) clearTimeout(debounceTimeout);
+	debounceTimeout = setTimeout(() => {
+		searchFieldItems(_fieldItemName);
+	}, 300);
 }
 
 export function handleParentItemInput(event: Event) {
@@ -281,7 +325,11 @@ export function handleTemplateInput(event: Event) {
 	_templateId = null;
 	if (debounceTimeout) clearTimeout(debounceTimeout);
 	debounceTimeout = setTimeout(() => {
-		searchTemplates(_templateName);
+		if (_templateName.trim() === "") {
+			loadAllTemplates();
+		} else {
+			searchTemplates(_templateName);
+		}
 	}, 300);
 }
 
@@ -293,6 +341,20 @@ export function onCustomFieldNameInput(index: number, event: Event) {
 	_customFields[index].isExisting = false;
 	searchForCustomFields(index);
 }
+
+export async function loadAllTemplates(): Promise<any[]> {
+	try {
+		const response = await fetch(`/api/templates`, {
+			method: "GET",
+			headers: { "Content-Type": "application/json" },
+		});
+		return await response.json();
+	} catch (err) {
+		console.error("Error loading templates:", err);
+		return [];
+	}
+}
+
 
 async function searchParentItems(query: string) {
 	try {
@@ -323,6 +385,22 @@ async function searchHomeItems(query: string) {
 		_homeItemSuggestions = data;
 	} catch (err) {
 		console.error("Error searching home items:", err);
+	}
+}
+
+async function searchFieldItems(query: string) {
+	try {
+		const response = await fetch(
+			`/api/items/search?name=${encodeURIComponent(query)}`,
+			{
+				method: "GET",
+				headers: { "Content-Type": "application/json" },
+			},
+		);
+		const data = await response.json();
+		_fieldItemSuggestions = data;
+	} catch (err) {
+		console.error("Error searching field items:", err);
 	}
 }
 
@@ -447,7 +525,6 @@ async function loadTemplateFields(templateId: string | null) {
 		}
 
 		const data = await response.json();
-		console.log("Template data:", data);
 
 		if (!data || !data.fields) {
 			console.warn("No fields found in template:", data);
@@ -458,12 +535,10 @@ async function loadTemplateFields(templateId: string | null) {
 		removeTemplateFields();
 
 		//Add the template fields
-		console.log(`Fetching details for ${data.fields.length} fields.`);
 		const templateFields = await Promise.all(
 			data.fields.map(async (field: { _id: string }) => {
 				const fieldId = field._id;
 				const fieldUrl = `/api/customFields/${fieldId}`;
-				console.log(`Fetching field details from: ${fieldUrl}`);
 
 				const fieldRes = await fetch(fieldUrl, {
 					method: "GET",
@@ -481,7 +556,6 @@ async function loadTemplateFields(templateId: string | null) {
 				}
 
 				const fieldData: ICustomField = await fieldRes.json();
-				console.log("Field data:", fieldData);
 
 				return {
 					fieldName: fieldData.fieldName,
@@ -497,11 +571,8 @@ async function loadTemplateFields(templateId: string | null) {
 			}),
 		);
 
-		console.log("Loaded template fields:", templateFields);
-
 		//display template fields before any user-defined fields
 		_customFields = [...templateFields, ..._customFields];
-		console.log("Updated customFields:", _customFields);
 	} catch (err) {
 		console.error("Error loading template fields:", err);
 	}
@@ -551,4 +622,37 @@ async function loadRecentItems(type: string) {
 		console.error("Error loading recent items:", err);
 		return [];
 	}
+}
+
+export async function checkIfItemExists(itemName: string) {
+	if (itemName.trim() === "") return false;
+	try {
+		const response = await fetch(
+			`/api/customFields/checkItemName?itemName=${encodeURIComponent(itemName)}`,
+			{
+				method: "GET",
+				headers: { "Content-Type": "application/json" },
+			},
+		);
+		const data = await response.json();
+		return data.id;
+	} catch (err) {
+		console.error("Error checking item name:", err);
+		return false;
+	}
+}
+
+export async function submitAndCloseItem(
+	dialog: HTMLDialogElement | undefined,
+	imageSelector: { resetImage: () => void }
+) {
+	let success = await handleCreateItem();
+	if (success) {
+		if (dialog) {
+			dialog.close();
+		}
+		imageSelector.resetImage();
+		resetAllFields();
+	}
+	return success;
 }
