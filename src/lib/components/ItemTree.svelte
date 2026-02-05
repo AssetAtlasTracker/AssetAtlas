@@ -3,6 +3,7 @@
 	import { dragDropMode } from "$lib/stores/dragDropStore.js";
 	import { onDestroy, onMount } from "svelte";
 	import ItemLink from "./ItemLink.svelte";
+	import { GripVerticalIcon } from '@lucide/svelte';
 
 	interface TreeItem {
 		_id: string;
@@ -198,39 +199,8 @@
 									{item._id === currentId ? 'current' : ''}"
 								aria-current={item._id === currentId}>
 								<div class="flex">
-									<div class="draggable-tree-dot-icon">
-										<svg viewBox="0 0 200 300" role="img">
-											<circle
-												cx="50"
-												cy="50"
-												r="25"
-												style="fill: #ffffff" />
-											<circle
-												cx="50"
-												cy="140"
-												r="25"
-												style="fill: #ffffff" />
-											<circle
-												cx="50"
-												cy="230"
-												r="25"
-												style="fill: #ffffff" />
-											<circle
-												cx="140"
-												cy="50"
-												r="25"
-												style="fill: #ffffff" />
-											<circle
-												cx="140"
-												cy="140"
-												r="25"
-												style="fill: #ffffff" />
-											<circle
-												cx="140"
-												cy="230"
-												r="25"
-												style="fill: #ffffff" />
-										</svg>
+									<div class="grip-vertical-icon">
+										<GripVerticalIcon class="icon-small" />
 									</div>
 									{item.name}
 								</div>

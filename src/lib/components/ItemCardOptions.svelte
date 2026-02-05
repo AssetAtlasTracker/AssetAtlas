@@ -1,9 +1,3 @@
-<!-- Icons from: 
- Font Awesome Free 6.7.2 by @fontawesome 
- - https://fontawesome.com License 
- - https://fontawesome.com/license/free 
- Copyright 2025 Fonticons, Inc.-->
-
 <script lang="ts">
 	import CreateItem from "./CreateItem.svelte";
 	import Duplicate from "./Duplicate.svelte";
@@ -11,6 +5,7 @@
 	import { createEventDispatcher } from "svelte";
 	import {login, getEditOnLogin} from '../stores/loginStore.js';
 	import type { LoginState } from "../stores/loginStore.js";
+	import { CopyIcon, SquarePenIcon } from '@lucide/svelte';
 
 	export let item: IBasicItemPopulated;
 
@@ -60,15 +55,7 @@
 			on:click={() => duplicateFunction(item)}
 		>
 			<span class="hovertiptext">Duplicate</span>
-			<svg
-				class="icon-small"
-				xmlns="http://www.w3.org/2000/svg"
-				viewBox="0 0 512 512"
-			>
-				<path
-					fill="#ffffff"
-					d="M288 448L64 448l0-224 64 0 0-64-64 0c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l224 0c35.3 0 64-28.7 64-64l0-64-64 0 0 64zm-64-96l224 0c35.3 0 64-28.7 64-64l0-224c0-35.3-28.7-64-64-64L224 0c-35.3 0-64 28.7-64 64l0 224c0 35.3 28.7 64 64 64z"/>
-			</svg>
+			<CopyIcon class="icon-small" />
 		</button>
 		<!--Duplicate and Edit button-->
 		<button
@@ -77,7 +64,7 @@
 			on:click={() => duplicateEditFunction(item)}
 		>
 			<span class="hovertiptext">Duplicate and edit</span>
-			<img src="/icons/DupAndEdit.svg" alt="Duplicate and Edit" width="40" />
+			<SquarePenIcon class="icon-small" />
 		</button>
 	{/if}
 </div>

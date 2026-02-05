@@ -1,9 +1,3 @@
-<!-- Icons from: 
- Font Awesome Free 6.7.2 by @fontawesome 
- - https://fontawesome.com License 
- - https://fontawesome.com/license/free 
- Copyright 2025 Fonticons, Inc.-->
-
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { dragDropMode } from "$lib/stores/dragDropStore.js";
@@ -11,6 +5,7 @@
 	import Dialog from "./Dialog.svelte";
 	import ItemCardOptions from "./ItemCardOptions.svelte";
 	import MultiActions from "./MultiActions.svelte";
+	import { GripVerticalIcon } from '@lucide/svelte';
 
 	export let items: IBasicItemPopulated[];
 
@@ -190,40 +185,8 @@
 					}} />
 				<a href={`/view/${i._id}`} class="item-card">
 					<div class="item-subcard flex">
-						<!-- Custom "draggable" icon svg-->
-						<div class="draggable-list-dot-icon">
-							<svg viewBox="0 0 200 300" role="img">
-								<circle
-									cx="50"
-									cy="50"
-									r="25"
-									style="fill: #ffffff" />
-								<circle
-									cx="50"
-									cy="140"
-									r="25"
-									style="fill: #ffffff" />
-								<circle
-									cx="50"
-									cy="230"
-									r="25"
-									style="fill: #ffffff" />
-								<circle
-									cx="140"
-									cy="50"
-									r="25"
-									style="fill: #ffffff" />
-								<circle
-									cx="140"
-									cy="140"
-									r="25"
-									style="fill: #ffffff" />
-								<circle
-									cx="140"
-									cy="230"
-									r="25"
-									style="fill: #ffffff" />
-							</svg>
+						<div class="grip-vertical-icon">
+							<GripVerticalIcon class="icon-small" />
 						</div>
 						<div>
 							<div class="important-text">

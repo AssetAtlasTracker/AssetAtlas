@@ -472,11 +472,11 @@
   width: 100%;
 }
 
-.draggable-list-dot-icon {
+.grip-vertical-icon {
   display: flex;
   align-items: center;
-  margin: 0 1rem 0 -0.8rem;
-  width: 1rem;
+  margin: 0;
+  width: 2rem;
   height: 100%;
 }
 
