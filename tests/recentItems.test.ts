@@ -1,14 +1,14 @@
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose from 'mongoose';
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import type { RequestEvent } from '@sveltejs/kit';
 import { RecentItems } from '$lib/server/db/models/recentItems.js';
+import { POST as createCustomFieldHandler } from '$routes/api/customFields/+server.js';
 import { POST as createItemHandler } from '$routes/api/items/+server.js';
 import { DELETE as deleteItemHandler } from '$routes/api/items/[id]/+server.js';
-import { POST as createTemplateHandler } from '$routes/api/templates/createTemplate/+server.js';
-import { POST as createCustomFieldHandler } from '$routes/api/customFields/+server.js';
 import { GET as getRecentsByTypeHandler } from '$routes/api/recentItems/[type]/+server.js';
 import { POST as addManualRecentHandler } from '$routes/api/recentItems/add/+server.js';
+import { POST as createTemplateHandler } from '$routes/api/templates/createTemplate/+server.js';
+import type { RequestEvent } from '@sveltejs/kit';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import mongoose from 'mongoose';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 let mongoServer: MongoMemoryServer;
 
@@ -59,15 +59,36 @@ function createMockEvent(options: {
 		params: options.params || {},
 		url: new URL(options.url || 'http://localhost'),
 		locals: {},
-		cookies: {} as any,
+		cookies: {
+			get: function (_name: string, _opts?: import("cookie").CookieParseOptions): string | undefined {
+				return "";
+			},
+			getAll: function (_opts?: import("cookie").CookieParseOptions): Array<{ name: string; value: string; }> {
+				return [];
+			},
+			set: function (_name: string, _value: string, _opts: import("cookie").CookieSerializeOptions & { path: string; }): void {
+				return;
+			},
+			delete: function (_name: string, _opts: import("cookie").CookieSerializeOptions & { path: string; }): void {
+				return;
+			},
+			serialize: function (_name: string, _value: string, _opts: import("cookie").CookieSerializeOptions & { path: string; }): string {
+				return "";
+			}
+		},
 		fetch: global.fetch,
 		getClientAddress: () => '127.0.0.1',
 		isDataRequest: false,
 		isSubRequest: false,
 		platform: undefined,
 		route: { id: null },
-		setHeaders: () => {},
-		depends: () => {}
+		setHeaders: () => { },
+		tracing: {
+			enabled: false,
+			root: undefined,
+			current: undefined
+		},
+		isRemoteRequest: false
 	};
 
 	return mockEvent;

@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest";
 import CustomField from "$lib/server/db/models/customField.js";
 import Template, { type ITemplatePopulated } from "$lib/server/db/models/template.js";
 import { CSVFormatterPopulated } from "$lib/utility/formating/CSVFormatterPopulated.js";
+import { describe, expect, it } from "vitest";
 
 describe("Testing Template Formatting", () => {
 
