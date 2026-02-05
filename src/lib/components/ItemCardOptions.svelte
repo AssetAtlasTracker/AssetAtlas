@@ -1,11 +1,11 @@
 <script lang="ts">
+	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
+	import { CopyIcon, SquarePenIcon } from "@lucide/svelte";
+	import { createEventDispatcher } from "svelte";
+	import type { LoginState } from "../stores/loginStore.js";
+	import { getEditOnLogin, login } from "../stores/loginStore.js";
 	import CreateItem from "./CreateItem.svelte";
 	import Duplicate from "./Duplicate.svelte";
-	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import { createEventDispatcher } from "svelte";
-	import {login, getEditOnLogin} from '../stores/loginStore.js';
-	import type { LoginState } from "../stores/loginStore.js";
-	import { CopyIcon, SquarePenIcon } from '@lucide/svelte';
 
 	export let item: IBasicItemPopulated;
 
@@ -14,7 +14,6 @@
 	let duplicateDialog: HTMLDialogElement;
 	let creator: CreateItem;
 	let duplicator: Duplicate;
-	let selectedItem: IBasicItemPopulated | null = null;
 
 	let currentLogin: LoginState | undefined;
 	login.subscribe((value) => {
@@ -24,14 +23,20 @@
 	let unique = {};
 
 	function duplicateFunction(item: IBasicItemPopulated) {
-		if(!getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)){
+		if (
+			!getEditOnLogin() ||
+			(currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)
+		) {
 			duplicator.changeItem(item);
 			duplicateDialog.showModal();
-		}    
+		}
 	}
 
 	function duplicateEditFunction(item: IBasicItemPopulated) {
-		if(!getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)){
+		if (
+			!getEditOnLogin() ||
+			(currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)
+		) {
 			creator.changeItem(item);
 			createDialog.showModal();
 		}
@@ -52,8 +57,7 @@
 		<button
 			class="border-button hoverable"
 			type="button"
-			on:click={() => duplicateFunction(item)}
-		>
+			on:click={() => duplicateFunction(item)}>
 			<span class="hovertiptext">Duplicate</span>
 			<CopyIcon class="icon-small" />
 		</button>
@@ -61,8 +65,7 @@
 		<button
 			class="border-button hoverable"
 			type="button"
-			on:click={() => duplicateEditFunction(item)}
-		>
+			on:click={() => duplicateEditFunction(item)}>
 			<span class="hovertiptext">Duplicate and edit</span>
 			<SquarePenIcon class="icon-small" />
 		</button>
@@ -73,11 +76,9 @@
 	<CreateItem
 		bind:dialog={createDialog}
 		bind:this={creator}
-		item={selectedItem}
 		duplicate={true}
 		on:itemCreated={onCreated}
-		on:close={() => createDialog?.close()}
-	/>
+		on:close={() => createDialog?.close()} />
 {/key}
 
 {#key unique}
@@ -86,6 +87,5 @@
 		bind:this={duplicator}
 		{item}
 		on:itemCreated={onCreated}
-		on:close={() => duplicateDialog?.close()}
-	/>
+		on:close={() => duplicateDialog?.close()} />
 {/key}

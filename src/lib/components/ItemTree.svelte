@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { dragDropMode } from "$lib/stores/dragDropStore.js";
+	import { GripVerticalIcon } from "@lucide/svelte";
 	import { onDestroy, onMount } from "svelte";
 	import ItemLink from "./ItemLink.svelte";
-	import { GripVerticalIcon } from '@lucide/svelte';
 
 	interface TreeItem {
 		_id: string;
@@ -87,11 +87,6 @@
 				autoExpandTree(item.children);
 			}
 		}
-	}
-
-	function ensureString(id: any): string {
-		if (!id) return "";
-		return typeof id === "string" ? id : id.toString();
 	}
 
 	onMount(() => {
@@ -191,7 +186,7 @@
 						<!-- Use ItemLink for in-window navigation -->
 						<ItemLink
 							className="flex-grow"
-							itemId={ensureString(item._id)}
+							itemId={item._id ? item._id.toString() : ""}
 							itemName={item.name}
 							on:openItem>
 							<button

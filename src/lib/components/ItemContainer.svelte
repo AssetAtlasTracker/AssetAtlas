@@ -1,11 +1,11 @@
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { dragDropMode } from "$lib/stores/dragDropStore.js";
+	import { GripVerticalIcon } from "@lucide/svelte";
 	import { createEventDispatcher, onDestroy } from "svelte";
 	import Dialog from "./Dialog.svelte";
 	import ItemCardOptions from "./ItemCardOptions.svelte";
 	import MultiActions from "./MultiActions.svelte";
-	import { GripVerticalIcon } from '@lucide/svelte';
 
 	export let items: IBasicItemPopulated[];
 
@@ -119,7 +119,12 @@
 		}
 		targetItemId = currentTarget!.getAttribute("data-item-id");
 		targetItemName = currentTarget!.getAttribute("data-item-name");
-		if (currentDragDropMode && targetItemId && targetItemName && draggingItem) {
+		if (
+			currentDragDropMode &&
+			targetItemId &&
+			targetItemName &&
+			draggingItem
+		) {
 			showMoveDialog = true;
 			console.log("Successful Drop");
 		}
@@ -140,10 +145,9 @@
 			bind:dialog
 			isLarge={false}
 			create={() => {}}
-			close={handleClose}
-		><MultiActions
-			on:close={handleClose}
-			bind:this={multiActions} /></Dialog>
+			close={handleClose}>
+			<MultiActions on:close={handleClose} bind:this={multiActions} />
+		</Dialog>
 		<div class="sort-flex">
 			<button
 				class="success-button font-semibold shadow mt-4 w-full block"
