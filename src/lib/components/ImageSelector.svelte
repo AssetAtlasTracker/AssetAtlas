@@ -1,17 +1,16 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from 'svelte';
 	import { CameraIcon } from '@lucide/svelte';
 	import { FileUpload } from '@skeletonlabs/skeleton-svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 
-	import type { FileUploadDetails, FileRejectDetails } from '@skeletonlabs/skeleton';
 	import { actionStore } from '$lib/stores/actionStore';
+	import type { FileRejectDetails, FileUploadDetails } from '@skeletonlabs/skeleton';
 
 	export let itemId: string | undefined = undefined;
 	export let existingImage: boolean = false;
 
 	let imagePreview: string | null = null;
 	let selectedImage: File | null = null;
-	let removeExistingImage = false;
   
 	const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 5MB in bytes
 	const allowedFileTypes = ['.jpg', '.jpeg', '.jfif', '.pjpeg', '.pjp', '.png', '.gif'];
@@ -30,7 +29,6 @@
 			const response = await fetch(`/api/items/${itemId}/image`);
 			if (response.ok) {
 				imagePreview = `/api/items/${itemId}/image`;
-				removeExistingImage = false;
 				dispatch('imageChange', { 
 					selectedImage: null,
 					removeExistingImage: false
@@ -53,7 +51,6 @@
 				imagePreview = URL.createObjectURL(selectedImage);
 			}
 
-			removeExistingImage = false;
 			dispatch('imageChange', {
 				selectedImage,
 				removeExistingImage: false
@@ -74,8 +71,7 @@
 			URL.revokeObjectURL(imagePreview);
 		}
 		selectedImage = null;
-		imagePreview = null;
-		removeExistingImage = true;
+		imagePreview = null
 		dispatch('imageChange', {
 			selectedImage: null,
 			removeExistingImage: true

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { addToRecents } from "$lib/utility/recentItemHelper";
-	import type { ICustomFieldEntry } from "$lib/types/customField";
 	import type { ICustomField } from "$lib/server/db/models/customField.js";
 	import type { ITemplatePopulated } from "$lib/server/db/models/template.js";
+	import type { ICustomFieldEntry } from "$lib/types/customField";
+	import { addToRecents } from "$lib/utility/recentItemHelper";
 	import CustomFieldPicker from "./CustomFieldPicker.svelte";
 
 	export let template: ITemplatePopulated;
@@ -11,7 +11,7 @@
 	let name = template.name;
 	let customFields: ICustomFieldEntry[] = template.fields.map((field) => ({
 		fieldName: field.fieldName,
-		fieldId: field._id as string | undefined,
+		fieldId: field._id as unknown as string | undefined,
 		dataType: field.dataType,
 		suggestions: [],
 		isNew: false,
@@ -111,6 +111,7 @@
 						headers: { "Content-Type": "application/json" },
 					},
 				);
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				const data: any[] = await response.json();
 				customFields[index].suggestions = data;
 			} catch (error) {
@@ -141,6 +142,7 @@
 
 	function selectCustomFieldSuggestion(
 		index: number,
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		suggestion: any,
 	) {
 		customFields[index].fieldName = suggestion.fieldName;
@@ -201,63 +203,6 @@
 				nameError = "";
 			}
 		}, 300);
-	}
-
-	let templateName = "";
-	let templateId: string | null = null;
-	let templateSuggestions: any[] = [];
-
-	function handleTemplateInput(event: Event) {
-		const target = event.target as HTMLInputElement;
-		templateName = target.value;
-		templateId = null;
-		if (debounceTimeout) clearTimeout(debounceTimeout);
-		debounceTimeout = setTimeout(() => {
-			searchTemplates(templateName);
-		}, 300);
-	}
-
-	async function searchTemplates(query: string) {
-		try {
-			const response = await fetch(
-				`/api/templates?name=${encodeURIComponent(query)}`,
-				{
-					method: "GET",
-					headers: { "Content-Type": "application/json" },
-				},
-			);
-			const data = await response.json();
-			templateSuggestions = data;
-		} catch (err) {
-			console.error("Error searching templates:", err);
-		}
-	}
-
-	function selectTemplate(template: { name: string; _id: string }) {
-		templateName = template.name;
-		templateId = template._id;
-		templateSuggestions = [];
-		addToRecents("template", template);
-	}
-
-	async function handleTemplateFocus() {
-		if (!templateName) {
-			templateSuggestions = await loadRecentItems("template");
-		}
-	}
-
-	async function loadRecentItems(type: string) {
-		try {
-			const response = await fetch(`/api/recentItems/${type}`, {
-				method: "GET",
-				headers: { "Content-Type": "application/json" },
-			});
-			const data = await response.json();
-			return data;
-		} catch (err) {
-			console.error("Error loading recent items:", err);
-			return [];
-		}
 	}
 </script>
 

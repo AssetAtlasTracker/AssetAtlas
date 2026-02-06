@@ -29,6 +29,7 @@
 	let currentY = initialY;
 	let zIndex = 1;
 	let currentTopBarHeight: number;
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	let currentDragDropMode: boolean;
 	let isCollapsed: boolean = false;
 
@@ -104,7 +105,8 @@
 		if (windowBar && event.pointerId) {
 			try {
 				windowBar.releasePointerCapture(event.pointerId);
-			} catch (e) {}
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			} catch (e){}
 		}
 		handleEnd(event);
 	}

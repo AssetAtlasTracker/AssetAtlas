@@ -6,6 +6,7 @@
 	export let itemId: string | undefined;
 	export let parentItemName = "";
 	export let parentItemId: string | null = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let suggestions: any[] = [];
 
 	export let items: IBasicItemPopulated[] | undefined;
@@ -112,6 +113,7 @@
 		searchItems(parentItemName);
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function selectItem(item: any) {
 		parentItemName = item.name;
 		parentItemId = item._id;

@@ -16,4 +16,3 @@
 <button class={className} on:click={handleClick}>
 	<slot>{itemName}</slot>
 </button>
-

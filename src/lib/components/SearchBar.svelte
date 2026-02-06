@@ -26,6 +26,7 @@
 		}
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function selectSuggestion(suggestion: any) {
 		searchQuery = suggestion.name;
 		onSearch(searchQuery);
