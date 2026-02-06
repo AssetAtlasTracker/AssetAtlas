@@ -2,7 +2,8 @@ import { connectDB } from '$lib/server/db/mongo.js';
 import type { Handle } from '@sveltejs/kit';
 import { error } from '@sveltejs/kit';
 
-const dbConnection = connectDB();
+await connectDB();
+console.log('MongoDB ready');
 
 function isTrustedOrigin(origin: string | null, host: string): boolean {
 	// No origin header means same-origin request (relative fetch calls)
