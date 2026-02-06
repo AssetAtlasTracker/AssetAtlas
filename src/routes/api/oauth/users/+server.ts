@@ -1,7 +1,7 @@
-import { json } from '@sveltejs/kit';
-import type { RequestHandler } from '@sveltejs/kit';
 import { requireAuth } from '$lib/server/auth.js';
 import { Login } from '$lib/server/db/models/login.js';
+import type { RequestHandler } from '@sveltejs/kit';
+import { json } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async (event) => {
 	try {
@@ -34,6 +34,7 @@ export const GET: RequestHandler = async (event) => {
 	}
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getPermissionLevel(event: any) : number {
 	const user = requireAuth(event);
 	if ('permissionLevel' in user) {
@@ -41,4 +42,3 @@ function getPermissionLevel(event: any) : number {
 	}
 	return 0;
 }
-

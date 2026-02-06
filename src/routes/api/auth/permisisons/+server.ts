@@ -1,8 +1,8 @@
-import { json, error, fail } from '@sveltejs/kit';
-import type { RequestHandler } from '@sveltejs/kit';
-import mongoose from 'mongoose';
 import { requirePermissionLevel } from '$lib/server/auth.js';
 import User from '$lib/server/db/models/user.js';
+import type { RequestHandler } from '@sveltejs/kit';
+import { error, json } from '@sveltejs/kit';
+import mongoose from 'mongoose';
 
 export const PUT: RequestHandler = async (event) => {
 	// Require permission level 9 or higher

@@ -1,8 +1,7 @@
-import { json, error } from '@sveltejs/kit';
-import type { RequestHandler } from '@sveltejs/kit';
-import mongoose from 'mongoose';
 import BasicItem from '$lib/server/db/models/basicItem.js';
-import { uploadImage } from '$lib/utility/imageUpload.js';
+import type { RequestHandler } from '@sveltejs/kit';
+import { error, json } from '@sveltejs/kit';
+import mongoose from 'mongoose';
 
 export const GET: RequestHandler = async ({ params }) => {
 	const { id } = params;
