@@ -85,7 +85,7 @@ export default [
 						"TSIntersectionType"
 					]
 				}
-			],			
+			],
 			"svelte/indent": ["warn", { "indent": "tab" }]
 		},
 	},
