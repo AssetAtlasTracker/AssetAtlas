@@ -2,14 +2,18 @@
 	let {
 		dialog = $bindable(),
 		isLarge = false,
-		create,
 		close,
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		create,
 		children,
 	}: {
 		dialog: HTMLDialogElement | undefined;
 		isLarge: boolean;
-		create: any;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		close: any;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		create: any;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		children: any;
 	} = $props();
 

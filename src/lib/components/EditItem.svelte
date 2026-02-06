@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { addToRecents } from "$lib/utility/recentItemHelper";
-	import type { ICustomField, ICustomFieldEntryInstance } from "$lib/types/customField";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import { uploadImage } from '$lib/utility/imageUpload.js';
 	import { actionStore } from "$lib/stores/actionStore.js";
+	import type { ICustomField, ICustomFieldEntryInstance } from "$lib/types/customField";
+	import { uploadImage } from '$lib/utility/imageUpload.js';
+	import { addToRecents } from "$lib/utility/recentItemHelper";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
 	import { createEventDispatcher, onMount } from "svelte";
 	import CreateTemplate from "./CreateTemplate.svelte";
@@ -27,6 +27,7 @@
 	if (item.parentItem) {
 		parentItemId = item.parentItem._id.toString();
 	}
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let parentItemSuggestions: any[] = [];
 	let homeItemName = "";
 	if (item.homeItem?.name != null) {
@@ -36,6 +37,7 @@
 	if (item.homeItem) {
 		homeItemId = item.homeItem._id.toString();
 	}
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let homeItemSuggestions: any[] = [];
 	let templateName = "";
 	let templateId: string | null = null;
@@ -43,10 +45,12 @@
 		templateName = item.template?.name;
 		templateId = item.template?._id.toString();
 	}
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let templateSuggestions: any[] = [];
 	let selectedImage: File | null = null;
 	let imagePreview: string | null = null;
 	if (item.image) {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		imagePreview = `/api/items/${item._id}/image`;
 	}
 	let debounceTimeout: NodeJS.Timeout | undefined;
@@ -54,7 +58,9 @@
 	let sameLocations: boolean = false;
 
 	let fieldItemName = "";
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	let fieldItemId: string | null = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let fieldItemSuggestions: any[] = [];
 	let placeholder = "Search for item...";
 
@@ -63,7 +69,7 @@
 		//First load non-template fields
 		let nonTemplateFields = item.customFields.map((cf) => ({
 			fieldName: cf.field.fieldName,
-			fieldId: cf.field._id as string,
+			fieldId: cf.field._id as unknown as string,
 			dataType: cf.field.dataType,
 			value: cf.value as string,
 			suggestions: [],
@@ -75,6 +81,7 @@
 
 		if (item.template && item.template.fields?.length) {
 			const templateFieldIds = new Set(
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				item.template.fields.map((tid: any) =>
 					typeof tid === "string" ? tid : tid._id.toString(),
 				),
@@ -104,6 +111,7 @@
 
 	if (item.template && item.template.fields?.length) {
 		const templateFieldIds = new Set(
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			item.template.fields.map((tid: any) =>
 				typeof tid === "string" ? tid : tid._id.toString(),
 			),
@@ -552,8 +560,7 @@
 			);
 			const data = await response.json();
 			return data.id;
-		} catch
-			(err) {
+		} catch (err) {
 			console.error("Error checking item name:", err);
 			return false;
 		}
@@ -572,8 +579,7 @@
 			);
 			const data = await response.json();
 			return data.name;
-		} catch
-			(err) {
+		} catch (err) {
 			console.error("Error checking item name:", err);
 			return false;
 		}

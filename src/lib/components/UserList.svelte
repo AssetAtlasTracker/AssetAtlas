@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { getEditOnLogin, login, toggleEditOnLogin } from '$lib/stores/loginStore.js';
 	import { onMount } from 'svelte';
-	import { login, getEditOnLogin, toggleEditOnLogin } from '$lib/stores/loginStore.js';
 
 	interface User {
 		id: string;
@@ -50,7 +50,7 @@
 
 	async function updatePermission(userId: string, newLevel: number) {
 		updateError = '';
-    
+
 		try {
 			const token = cookieStore.get('auth_token');
 			if (!token) {
@@ -72,11 +72,11 @@
 			});
 
 			const data = await response.json();
-      
+
 			if (!response.ok) {
 				throw new Error(data.message || `Error: ${response.status}`);
 			}
-      
+
 			// Refresh user list
 			await fetchUsers();
 		} catch (err) {
