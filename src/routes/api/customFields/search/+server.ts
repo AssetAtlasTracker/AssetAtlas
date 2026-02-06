@@ -1,8 +1,6 @@
-import { json } from '@sveltejs/kit';
-import type { RequestHandler } from '@sveltejs/kit';
 import CustomField from '$lib/server/db/models/customField.js';
-import Template from '$lib/server/db/models/template.js';
-import type { ICustomField } from '$lib/server/db/models/customField.js';
+import type { RequestHandler } from '@sveltejs/kit';
+import { json } from '@sveltejs/kit';
 import Fuse from 'fuse.js';
 
 export const GET: RequestHandler = async ({ url }) => {

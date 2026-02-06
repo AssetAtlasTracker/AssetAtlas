@@ -1,20 +1,21 @@
-import type { RequestHandler } from '@sveltejs/kit';
-import { json, error } from '@sveltejs/kit';
-import Fuse from 'fuse.js';
-import BasicItem from '$lib/server/db/models/basicItem.js';
 import type { IBasicItemPopulated } from '$lib/server/db/models/basicItem';
+import BasicItem from '$lib/server/db/models/basicItem.js';
+import type { RequestHandler } from '@sveltejs/kit';
+import { error, json } from '@sveltejs/kit';
+import type { FuseResult } from 'fuse.js';
+import Fuse from 'fuse.js';
 
 function sortItems(items: IBasicItemPopulated[], sortOption: string): IBasicItemPopulated[] {
 	return [...items].sort((a, b) => {
 		switch (sortOption) {
-		case 'alphabetical':
-			return a.name.localeCompare(b.name);
-		case 'firstAdded':
-			return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-		case 'lastAdded':
-			return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-		default:
-			return a.name.localeCompare(b.name);
+			case 'alphabetical':
+				return a.name.localeCompare(b.name);
+			case 'firstAdded':
+				return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+			case 'lastAdded':
+				return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+			default:
+				return a.name.localeCompare(b.name);
 		}
 	});
 }
@@ -50,7 +51,7 @@ export const GET: RequestHandler = async ( {url} ) => {
 		});
 
 		const fuzzyResults = fuse.search(name);
-		const resultItems = fuzzyResults.map((r: Fuse.FuseResult<IBasicItemPopulated>) => r.item);
+		const resultItems = fuzzyResults.map((r: FuseResult<IBasicItemPopulated>) => r.item);
 
 		const sortedItems = sortItems(resultItems, sort);
 		return json(sortedItems);

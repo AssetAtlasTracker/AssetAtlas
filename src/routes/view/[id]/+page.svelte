@@ -71,7 +71,7 @@
 		goto(resolve("/"));
 	}
 
-	function onSearch(query: string) {}
+	function onSearch(_query: string) {}
 
 	//Track additional item windows
 	interface ItemWindow {
