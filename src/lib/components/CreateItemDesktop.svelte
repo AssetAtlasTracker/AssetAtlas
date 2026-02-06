@@ -24,8 +24,13 @@
 		removeCustomField,
 		handleImageChange,
 		setOnItemCreated,
-		resetAllFields	} from "$lib/stores/createItemStore.svelte";
-	import { createEventDispatcher } from "svelte";
+		resetAllFields,
+		loadAllTemplates,
+		checkIfItemExists,
+		submitAndCloseItem
+	} from "$lib/stores/createItemStore.svelte";
+	import { createEventDispatcher, onMount } from "svelte";
+
 	import { collection } from "@zag-js/combobox";
 	
 	export let dialog: HTMLDialogElement;
@@ -53,21 +58,9 @@
 	});
 
 	setOnItemCreated(() => {
-		if (dialog) {
-			dialog.close();
-		}
 		dispatch("itemCreated");
 	});
 	initializeItemEdit();
-
-	async function submitItem() {
-		if (dialog) {
-			dialog.close();
-		}
-		await handleCreateItem();
-		imageSelector.resetImage();
-		resetAllFields();
-	}
 </script>
 
 <Dialog isLarge={true} bind:dialog create={() => {}} close={resetAllFields}>
@@ -81,7 +74,7 @@
 		</h1>
 	{/if}
 	<div class="page-component large-dialog-internal">
-		<form on:submit|preventDefault={submitItem}>
+		<form on:submit|preventDefault={() => submitAndCloseItem(dialog, imageSelector)}>
 			<div class="flex flex-col space-y-4">
 				<div class="flex space-x-4">
 					<!-- Name -->
@@ -146,71 +139,33 @@
 					<Switch.HiddenInput />
 				</Switch>
 
-				<div class="flex space-x-4">
-					<!-- Parent Item -->
+				<!-- Parent Item -->
+				<div class="flex-column flex-grow relative">
 					{#if !createItemState.sameLocations}
-						<label class="flex-column flex-grow relative">
-							<div class="flex items-center gap-2">
-								<span>Current Location:</span>
-								<InfoToolTip
-									message="Where an item currently is, e.g. a shirt's parent item may be a suitcase."
-								/>
-							</div>
-							<input
-								type="text"
-								class="dark-textarea py-2 px-4 w-full"
-								bind:value={createItemState.parentItemName}
-								on:input={handleParentItemInput}
-								on:focus={handleParentItemFocus}
-								on:blur={() =>
-									(createItemState.parentItemSuggestions =
-										[])}
-							/>
-							{#if createItemState.parentItemSuggestions.length > 0}
-								<ul class="suggestions suggestion-box">
-									{#each createItemState.parentItemSuggestions as item (item.id)}
-										<button
-											class="suggestion-item"
-											type="button"
-											on:mousedown={(e) => {
-												e.preventDefault();
-												selectParentItem(item);
-											}}
-										>
-											{item.name}
-										</button>
-									{/each}
-								</ul>
-							{/if}
-						</label>
-					{/if}
-
-					<!-- Home Item -->
-					<label class="flex-column flex-grow relative">
 						<div class="flex items-center gap-2">
-							<span>Home Location:</span>
+							<span>Current Location:</span>
 							<InfoToolTip
-								message="Where an item should normally be, e.g a shirt's home item may be a drawer."
-							/>
+								message="Where an item currently is, e.g. a shirt's parent item may be a suitcase." />
 						</div>
 						<input
 							type="text"
 							class="dark-textarea py-2 px-4 w-full"
-							bind:value={createItemState.homeItemName}
-							on:input={handleHomeItemInput}
-							on:focus={handleHomeItemFocus}
+							bind:value={createItemState.parentItemName}
+							on:input={handleParentItemInput}
+							on:focus={handleParentItemFocus}
 							on:blur={() =>
-								(createItemState.homeItemSuggestions = [])}
+									(createItemState.parentItemSuggestions =
+										[])} 
 						/>
-						{#if createItemState.homeItemSuggestions.length > 0}
+						{#if createItemState.parentItemSuggestions.length > 0}
 							<ul class="suggestions suggestion-box">
-								{#each createItemState.homeItemSuggestions as item (item.id)}
+								{#each createItemState.parentItemSuggestions as item (item.id)}
 									<button
 										class="suggestion-item"
 										type="button"
 										on:mousedown={(e) => {
 											e.preventDefault();
-											selectHomeItem(item);
+											selectParentItem(item);
 										}}
 									>
 										{item.name}
@@ -218,13 +173,47 @@
 								{/each}
 							</ul>
 						{/if}
-					</label>
+					{/if}
+				</div>
+
+				<!-- Home Item -->
+				<div class="flex-column flex-grow relative">
+					<div class="flex items-center gap-2">
+						<span>Home Location:</span>
+						<InfoToolTip
+							message="Where an item should normally be, e.g a shirt's home item may be a drawer." />
+					</div>
+					<input
+						type="text"
+						class="dark-textarea py-2 px-4 w-full"
+						bind:value={createItemState.homeItemName}
+						on:input={handleHomeItemInput}
+						on:focus={handleHomeItemFocus}
+						on:blur={() =>
+								(createItemState.homeItemSuggestions = [])}
+						/>
+					{#if createItemState.homeItemSuggestions.length > 0}
+						<ul class="suggestions suggestion-box">
+							{#each createItemState.homeItemSuggestions as item (item.id)}
+								<button
+									class="suggestion-item"
+									type="button"
+									on:mousedown={(e) => {
+										e.preventDefault();
+										selectHomeItem(item);
+									}}
+								>
+									{item.name}
+								</button>
+							{/each}
+						</ul>
+					{/if}
 				</div>
 				<br />
 
 				<!-- Template Field and Create Template Button -->
 				<div class="flex space-x-4 items-center">
-					<label class="flex-column flex-grow relative">
+					<div class="flex-column flex-grow relative">
 						<div class="flex items-center gap-2">
 							<span>Template:</span>
 							<InfoToolTip
@@ -274,7 +263,7 @@
 								<option>Loading templates…</option>
 							</select>
 						{/if}
-					</label>
+					</div>
 					<div>
 						<br />
 						<button
@@ -305,8 +294,41 @@
 					bind:field
 					onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
 					onFieldFocus={() => handleCustomFieldFocus(index)}
-					onFieldBlur={() =>
-					(createItemState.customFields[index].suggestions = [])}
+					onFieldBlur={() => (createItemState.customFields[index].suggestions = [])}
+					placeholder={createItemState.placeholder}
+					onDuplicateAndEdit={duplicate}
+					onFieldValueInput={(e) => {
+						const target = e.target as HTMLInputElement;
+						if (field.dataType === 'item') {
+							createItemState.customFields[index].displayValue = target.value;
+							createItemState.customFields[index].value = ''; 
+							handleFieldItemInput(e);
+						} else {
+							createItemState.customFields[index].value = target.value;
+						}
+					}}
+					onFieldValueFocus={() => {
+						if (field.dataType === 'item') {
+							handleFieldItemFocus();
+						}
+					}}
+					onFieldValueBlur={() => {
+						if (field.dataType === 'item') {
+							createItemState.fieldItemSuggestions = [];
+	
+							checkIfItemExists(field.displayValue || '').then((itemId) => {
+								if (itemId) {
+									createItemState.customFields[index].value = itemId;
+									return true;
+								} else {
+									createItemState.customFields[index].value = '';
+									createItemState.customFields[index].displayValue = '';
+									createItemState.placeholder = "Item not found";
+									return false;
+								}
+							});
+						}
+					}}
 					showDeleteButton={!field.fromTemplate}
 					onDelete={() => removeCustomField(index)}
 				>

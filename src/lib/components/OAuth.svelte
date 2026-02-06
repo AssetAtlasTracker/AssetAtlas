@@ -3,7 +3,7 @@
 	import { login, type LoginState } from "../stores/loginStore.js";
 
 	const dispatch = createEventDispatcher();
-  
+
 	export let dialog: HTMLDialogElement;
 	let oauthResult = "";
 	let showAuthenticatorLogin = false;
@@ -12,7 +12,7 @@
 	let transitionToOTP = false;
 	let authCode = "";
 	let otpCode = "";
-  
+
 	let errorMessage = "";
 	let successMessage = "";
 
@@ -24,12 +24,12 @@
 
 	async function handleLoginGoogle() {
 		try {
-			const response = await fetch('/api/oauth/loginGoogle');
-      
+			const response = await fetch("/api/oauth/loginGoogle");
+
 			const data = await response.json();
-      
+
 			if (!response.ok) {
-				throw new Error(data.message || 'OAuth failed');
+				throw new Error(data.message || "OAuth failed");
 			}
       
 			openOAuthWindow(data.url);
@@ -104,7 +104,6 @@
 			oauthResult = "";
 			window.location.href = data.redirect;
 		}
-    
 	}
 
 	function backToMain() {
@@ -119,49 +118,50 @@
 
 	async function handleLoginGithub() {
 		try {
-			const response = await fetch('/api/oauth/loginGithub');
-      
+			const response = await fetch("/api/oauth/loginGithub");
+
 			const data = await response.json();
-      
+
 			if (!response.ok) {
-				throw new Error(data.message || 'OAuth failed');
+				throw new Error(data.message || "OAuth failed");
 			}
       
 			openOAuthWindow(data.url);
       
 		} catch (err) {
-			oauthResult = err instanceof Error ? err.message : 'Something went wrong';
-			console.error('OAuth error:', err);
+			oauthResult =
+				err instanceof Error ? err.message : "Something went wrong";
+			console.error("OAuth error:", err);
 		}
 	}
 
 	async function handleLogout() {
 		try {
-			const response = await fetch('/api/oauth/logout', {
-				method: 'POST',
+			const response = await fetch("/api/oauth/logout", {
+				method: "POST",
 				headers: {
-					'Content-Type': 'application/json'
-				}
+					"Content-Type": "application/json",
+				},
 			});
-      
+
 			const data = await response.json();
-      
+
 			if (!response.ok) {
-				throw new Error(data.message || 'OAuth failed');
+				throw new Error(data.message || "OAuth failed");
 			}
 
 			login.set({
 				isLoggedIn: false,
 				name: "",
 				sub_id: "",
-				permissionLevel: 0
+				permissionLevel: 0,
 			});
 
 			oauthResult = "Successfully logged out.";
-
 		} catch (err) {
-			oauthResult = err instanceof Error ? err.message : 'Something went wrong';
-			console.error('Logout error:', err);
+			oauthResult =
+				err instanceof Error ? err.message : "Something went wrong";
+			console.error("Logout error:", err);
 		}
 	}
 
@@ -185,7 +185,6 @@
 	login.subscribe((value) => {
 		currentLogin = value;
 	});
-
  
 	onMount(() => {
 		window.addEventListener('message', (event) => {
@@ -196,9 +195,11 @@
 			}
 		});
 	});
-
 </script>
 
+				{#if oauthResult}
+					<div class="text-center mb-4">{oauthResult}</div>
+				{/if}
 
 <dialog bind:this={dialog} class="glass border fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
 	<div class="flex flex-col space-y-4 p-4 relative">

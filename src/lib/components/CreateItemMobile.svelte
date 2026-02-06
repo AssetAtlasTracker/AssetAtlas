@@ -30,7 +30,8 @@
 		resetAllFields,
 		partialResetFields,
 		checkIfItemExists,
-		loadAllTemplates
+		loadAllTemplates,
+		submitAndCloseItem
 	} from "$lib/stores/createItemStore.svelte";
 	import { createEventDispatcher, onMount } from "svelte";
 	import "$lib/styles/mobile.css";
@@ -67,23 +68,16 @@
 	});
 	initializeItemEdit();
 
-	async function submitAndClose() {
-		if (dialog) {
-			dialog.close();
-		}
-		await handleCreateItem();
-		imageSelector.resetImage();
-		resetAllFields();
-	}
-
 	async function submitAndAddAnother() {
 		if (!formElement.checkValidity()) {
 			formElement.reportValidity();
 			return;
 		}
-		await handleCreateItem();
-		imageSelector.resetImage();
-		partialResetFields();
+		let success = await handleCreateItem();
+		if (success) {
+			imageSelector.resetImage();
+			partialResetFields();
+		}
 	}
 </script>
 
@@ -97,7 +91,7 @@
 			Create New Item
 		</h1>
 	{/if}
-	<form bind:this={formElement} on:submit|preventDefault={submitAndClose}>
+	<form bind:this={formElement} on:submit|preventDefault={() => submitAndCloseItem(dialog, imageSelector)}>
 		<div class="flex flex-col space-y-4">
 			<div class="flex flex-col space-y-2">
 				<ImageSelector bind:this={imageSelector} on:imageChange={handleImageChange} />
@@ -296,6 +290,7 @@
 				onFieldFocus={() => handleCustomFieldFocus(index)}
 				onFieldBlur={() => (createItemState.customFields[index].suggestions = [])}
 				placeholder={createItemState.placeholder}
+				onDuplicateAndEdit={duplicate}
 				onFieldValueInput={(e) => {
 					const target = e.target as HTMLInputElement;
 					if (field.dataType === 'item') {
