@@ -164,7 +164,7 @@
 						<Switch.Thumb />
 					</Switch.Control>
 					<Switch.Label
-						>Item is currently at its home location</Switch.Label
+					>Item is currently at its home location</Switch.Label
 					>
 					<Switch.HiddenInput />
 				</Switch>
@@ -278,7 +278,7 @@
 												class="text-black"
 											>
 												<Combobox.ItemText
-													>{t.name}</Combobox.ItemText
+												>{t.name}</Combobox.ItemText
 												>
 											</Combobox.Item>
 										{/each}
@@ -324,8 +324,41 @@
 					bind:field
 					onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
 					onFieldFocus={() => handleCustomFieldFocus(index)}
-					onFieldBlur={() =>
-						(createItemState.customFields[index].suggestions = [])}
+					onFieldBlur={() => (createItemState.customFields[index].suggestions = [])}
+					placeholder={createItemState.placeholder}
+					onDuplicateAndEdit={duplicate}
+					onFieldValueInput={(e) => {
+						const target = e.target as HTMLInputElement;
+						if (field.dataType === 'item') {
+							createItemState.customFields[index].displayValue = target.value;
+							createItemState.customFields[index].value = ''; 
+							handleFieldItemInput(e);
+						} else {
+							createItemState.customFields[index].value = target.value;
+						}
+					}}
+					onFieldValueFocus={() => {
+						if (field.dataType === 'item') {
+							handleFieldItemFocus();
+						}
+					}}
+					onFieldValueBlur={() => {
+						if (field.dataType === 'item') {
+							createItemState.fieldItemSuggestions = [];
+	
+							checkIfItemExists(field.displayValue || '').then((itemId) => {
+								if (itemId) {
+									createItemState.customFields[index].value = itemId;
+									return true;
+								} else {
+									createItemState.customFields[index].value = '';
+									createItemState.customFields[index].displayValue = '';
+									createItemState.placeholder = "Item not found";
+									return false;
+								}
+							});
+						}
+					}}
 					showDeleteButton={!field.fromTemplate}
 					onDelete={() => removeCustomField(index)}
 				>

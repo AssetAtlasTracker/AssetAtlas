@@ -187,6 +187,42 @@ export function changeItem(newItem: IBasicItemPopulated){
 			_templateName = item.template?.name;
 			_templateId = item.template?._id.toString();
 		}
+
+		if (item.customFields?.length) {
+			let nonTemplateFields = item.customFields.map((cf) => ({
+				fieldName: cf.field.fieldName,
+				fieldId: cf.field._id as unknown as string,
+				dataType: cf.field.dataType,
+				displayValue: cf.field.dataType === "item" ? (cf.value as IBasicItemPopulated)?.name || "" : cf.value as string,
+				value: cf.value as string,
+				suggestions: [],
+				isNew: false,
+				isSearching: false,
+				isExisting: true,
+				fromTemplate: false,
+				searchTimeout: undefined,
+			}));
+
+			if (item.template && item.template.fields?.length) {
+				const templateFieldIds = new Set(
+					item.template.fields.map((tid: any) =>
+						typeof tid === "string" ? tid : tid._id.toString(),
+					),
+				);
+
+				const templateFields = nonTemplateFields
+					.filter((field) => field.fieldId && templateFieldIds.has(field.fieldId.toString()))
+					.map((field) => ({ ...field, fromTemplate: true }));
+
+				const remainingFields = nonTemplateFields.filter(
+					(field) => !field.fieldId || !templateFieldIds.has(field.fieldId.toString())
+				);
+
+				_customFields = [...templateFields, ...remainingFields];
+			} else {
+				_customFields = nonTemplateFields;
+			}
+		}
 	}
 }
 
@@ -636,6 +672,24 @@ export async function checkIfItemExists(itemName: string) {
 		);
 		const data = await response.json();
 		return data.id;
+	} catch (err) {
+		console.error("Error checking item name:", err);
+		return false;
+	}
+}
+
+export async function checkIfItemExistsById(itemId: string) {
+	if(itemId === "") return false;
+	try {
+		const response = await fetch(
+			`/api/customFields/checkItemId?itemID=${itemId}`,
+			{
+				method: "GET",
+				headers: { "Content-Type": "application/json" },
+			},
+		);
+		const data = await response.json();
+		return data.name;
 	} catch (err) {
 		console.error("Error checking item name:", err);
 		return false;
