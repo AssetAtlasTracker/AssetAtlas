@@ -6,7 +6,6 @@ This document contains information about running AssetAtlas from our container r
 
 AssetAtlas is a digital item management and cataloguing system similar to Item Genie and Home Box. Users are able to create digital representations of their belongings along with templates for those items. More information can be found in the AssetAtlas application.
 
-
 ## Running the Containers
 
 Make sure to run these commands in the folder containing the docker-compose files, and that Docker is running.
