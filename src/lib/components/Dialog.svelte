@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ActionDisplay from "./ActionDisplay.svelte";
 	let {
 		dialog = $bindable(),
 		isLarge = false,
@@ -27,4 +28,7 @@
 	oncancel={handleClose}>
 	<button class="x-button" onclick={handleClose}>X</button>
 	{@render children?.()}
+	<div style="position: relative; z-index: 1;">
+    	<ActionDisplay />
+	</div>
 </dialog>

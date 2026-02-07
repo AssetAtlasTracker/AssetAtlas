@@ -661,9 +661,9 @@
 	}
 </script>
 
-<div style="position: relative; z-index: 1;">
+<!-- <div style="position: relative; z-index: 1;">
     <ActionDisplay />
-</div>
+</div> -->
 
 <div class="page-component">
 	<form on:submit|preventDefault={handleEditItem}>
