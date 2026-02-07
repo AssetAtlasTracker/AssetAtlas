@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { dragDropMode } from "$lib/stores/dragDropStore.js";
+	import { GripVerticalIcon } from "@lucide/svelte";
 	import { onDestroy, onMount } from "svelte";
 	import ItemLink from "./ItemLink.svelte";
 
@@ -86,11 +87,6 @@
 				autoExpandTree(item.children);
 			}
 		}
-	}
-
-	function ensureString(id: any): string {
-		if (!id) return "";
-		return typeof id === "string" ? id : id.toString();
 	}
 
 	onMount(() => {
@@ -190,7 +186,7 @@
 						<!-- Use ItemLink for in-window navigation -->
 						<ItemLink
 							className="flex-grow"
-							itemId={ensureString(item._id)}
+							itemId={item._id ? item._id.toString() : ""}
 							itemName={item.name}
 							on:openItem>
 							<button
@@ -198,39 +194,8 @@
 									{item._id === currentId ? 'current' : ''}"
 								aria-current={item._id === currentId}>
 								<div class="flex">
-									<div class="draggable-tree-dot-icon">
-										<svg viewBox="0 0 200 300" role="img">
-											<circle
-												cx="50"
-												cy="50"
-												r="25"
-												style="fill: #ffffff" />
-											<circle
-												cx="50"
-												cy="140"
-												r="25"
-												style="fill: #ffffff" />
-											<circle
-												cx="50"
-												cy="230"
-												r="25"
-												style="fill: #ffffff" />
-											<circle
-												cx="140"
-												cy="50"
-												r="25"
-												style="fill: #ffffff" />
-											<circle
-												cx="140"
-												cy="140"
-												r="25"
-												style="fill: #ffffff" />
-											<circle
-												cx="140"
-												cy="230"
-												r="25"
-												style="fill: #ffffff" />
-										</svg>
+									<div class="grip-vertical-icon">
+										<GripVerticalIcon class="icon-small" />
 									</div>
 									{item.name}
 								</div>
