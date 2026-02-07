@@ -14,9 +14,17 @@
 6. Install node dependencies for development via `npm install` in the base folder of the repo
 7. Start Docker Desktop
 8. Create `docker/secrets.env` by copying `docker/secrets.env.example` and filling in the necessary OAuth provider credentials. You can either go to the pinned messages in general in discord to find our current local dev secrets, or configure your own via the directions in [`ConfiguringOauthProviders.md`](../.github/assetatlas/ConfiguringOauthProviders.md)
-9. Launch the docker compose via the helper script. Run `python start.py` in the base folder of the repo
-10. A new window with various start up options should appear. Choose your desired options and press 'Run Docker Compose' to start the app. This may take several minutes
-11. A popup will appear with the URL to access the frontend. Or if something went wrong, error details will be shown in the terminal you launched the helper script from.
+9. Run the project. You have two options for this:
+
+Dev Mode:
+a. Run `npm run dev:build` in the project root. Once all containers are started, go to `localhost:5173`. It may take several minutes for the site to load
+b. While in dev mode, hot module reload is enabled, meaning your changes will be reflected on the site without needing to restart all the containers.
+c. Use `npm run dev:down` to shut down the project.
+
+Production Mode:
+a. Launch the docker compose via the helper script. Run `python start.py` in the base folder of the repo
+b. A new window with various start up options should appear. Choose your desired options and press 'Run Docker Compose' to start the app. This may take several minutes
+c. A popup will appear with the URL to access the frontend. Or if something went wrong, error details will be shown in the terminal you launched the helper script from.
 
 ## Best Practices
 
