@@ -47,11 +47,6 @@
 	></div>
 {/if}
 
-role="button"
-tabindex="0"
-on:click={handleClicked}
-on:keydown={(e: KeyboardEvent) => e.key === 'Enter' && handleClicked()}
-
 <div
 	class="glass slide-out-menu"
 	bind:this={menu}
