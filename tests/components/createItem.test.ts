@@ -4,6 +4,14 @@ import CreateItem from '$lib/components/CreateItem.svelte';
 import { render } from '@testing-library/svelte';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+// Mock the animate method for Svelte transitions
+Object.defineProperty(HTMLElement.prototype, 'animate', {
+	value: function () { return { 
+		finished: Promise.resolve(),
+		cancel: function() {}
+	}; },
+});
+
 if (typeof HTMLDialogElement !== 'undefined') {
 	if (!HTMLDialogElement.prototype.close) {
 		HTMLDialogElement.prototype.close = vi.fn();
@@ -18,6 +26,7 @@ if (typeof HTMLDialogElement !== 'undefined') {
 		showModal = vi.fn();
 	};
 }
+
 
 function renderComponent(props = {}) {
 	return render(CreateItem, { props: { dialog: document.createElement('dialog') as HTMLDialogElement, ...props } });
