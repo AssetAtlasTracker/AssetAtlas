@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from "svelte";
 	import { user, type UserState } from "$lib/stores/userStore.js";
-  
+	import { createEventDispatcher, onMount } from "svelte";
+
 	const dispatch = createEventDispatcher();
-  
+
 	export let dialog: HTMLDialogElement;
 
 	async function sha256(message: string) {
@@ -13,13 +13,14 @@
 		const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 		return hashHex;
 	}
-  
+
 	let username = "";
 	let password = "";
 	let isRegistering = false;
 	let errorMessage = "";
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	let successMessage = "";
-  
+
 	function handleClose() {
 		username = "";
 		password = "";
@@ -27,22 +28,22 @@
 		successMessage = "";
 		dispatch("close");
 	}
-  
+
 	async function handleSubmit() {
 		if (!username || !password) {
 			errorMessage = "Username and password are required";
 			return;
 		}
-    
+
 		errorMessage = "";
 		successMessage = "";
-    
+
 		try {
 			const endpoint = isRegistering ? '/api/auth/register' : '/api/auth/login';
-      
+
 			// Hash the password before sending to server, if user is re-using password at least that will not leak
 			const hashedPassword = sha256(password).toString();
-      
+
 			const response = await fetch(endpoint, {
 				method: 'POST',
 				headers: {
@@ -53,16 +54,16 @@
 					password: hashedPassword
 				}),
 			});
-      
+
 			const data = await response.json();
-      
+
 			if (!response.ok) {
 				throw new Error(data.message || 'Authentication failed');
 			}
-      
+
 			// Store token in localStorage
 			localStorage.setItem('token', data.token);
-      
+
 			// Update user store
 			user.set({
 				isLoggedIn: true,
@@ -70,31 +71,31 @@
 				permissionLevel: data.user.permissionLevel,
 				id: data.user.id
 			});
-      
+
 			handleClose();
 			dialog.close();
-      
+
 		} catch (err) {
 			errorMessage = err instanceof Error ? err.message : 'Something went wrong';
 			console.error('Auth error:', err);
 		}
 	}
-  
+
 	function setMode(mode: boolean) {
 		isRegistering = mode;
 		errorMessage = "";
 		successMessage = "";
 	}
-  
+
 	async function handleLogout() {
 		// Clear token and user state
 		localStorage.removeItem('token');
 		user.set({ isLoggedIn: false, username: '', permissionLevel: 0, id: '' });
-    
+
 		handleClose();
 		dialog.close();
 	}
-  
+
 	// Check if user is already logged in
 	onMount(() => {
 		const token = localStorage.getItem('token');
@@ -122,7 +123,7 @@
 				});
 		}
 	});
-  
+
 	let currentUser: UserState | undefined;
 	user.subscribe(value => {
 		currentUser = value;
@@ -132,12 +133,12 @@
 <dialog bind:this={dialog} class="glass border">
 	<div class="flex flex-col space-y-4 p-4 relative">
 		<button class="x-button absolute top-0 right-0 mt-2 mr-2" on:click={() => dialog.close()}>X</button>
-    
+
 		{#if currentUser?.isLoggedIn}
 			<div>
 				<h2 class="important-text text-center mb-4">You are: {currentUser.username}</h2>
 				<p class="text-center mb-4">Permission Level: {currentUser.permissionLevel}</p>
-        
+
 				<button class="border-button w-full" on:click={handleLogout}>
 					Log Out
 				</button>
@@ -147,7 +148,7 @@
 				<h2 class="important-text text-center mb-4">
 					{isRegistering ? 'Create Account' : 'Log In'}
 				</h2>
-        
+
 				<div class="flex w-full mb-4 gap-2">
 					<button 
 						class={!isRegistering ? "inactive-button w-full" : "border-button w-full"}
@@ -162,11 +163,11 @@
 						Register
 					</button>
 				</div>
-        
+
 				{#if errorMessage}
 					<div class="error-message text-center mb-4">{errorMessage}</div>
 				{/if}
-        
+
 				<form on:submit|preventDefault={handleSubmit}>
 					<div class="mb-4">
 						<label class="block mb-2">
@@ -179,7 +180,7 @@
 							/>
 						</label>
 					</div>
-          
+
 					<div class="mb-4">
 						<label class="block mb-2">
 							Password
@@ -191,7 +192,7 @@
 							/>
 						</label>
 					</div>
-          
+
 					<button type="submit" class="success-button w-full">
 						{isRegistering ? 'Create Account' : 'Sign In'}
 					</button>

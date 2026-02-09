@@ -1,7 +1,7 @@
-import { authenticator } from '@otplib/preset-default';
-import { redirect, json, error } from '@sveltejs/kit';
-import type { RequestHandler } from '@sveltejs/kit';
 import { Login, ServiceType } from '$lib/server/db/models/login';
+import { authenticator } from '@otplib/preset-default';
+import type { RequestHandler } from '@sveltejs/kit';
+import { json } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';

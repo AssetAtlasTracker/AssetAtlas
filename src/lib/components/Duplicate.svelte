@@ -1,6 +1,9 @@
 <script lang="ts">
-	import type { ICustomField, ICustomFieldEntryInstance } from "$lib/types/customField";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
+	import type {
+		ICustomField,
+		ICustomFieldEntryInstance,
+	} from "$lib/types/customField";
 	import { createEventDispatcher } from "svelte";
 	import { actionStore } from "../stores/actionStore.js";
 	import Dialog from "./Dialog.svelte";
@@ -15,28 +18,23 @@
 		description = item.description;
 	}
 	let tags = item.tags.toString();
-	let parentItemName = "";
-	if (item.parentItem?.name != null) {
-		parentItemName = item.parentItem?.name;
-	}
-	let parentItemId: string | null = null;
-	if (item.parentItem) {
-		parentItemId = item.parentItem._id.toString();
-	}
-	let homeItemName = "";
-	if (item.homeItem?.name != null) {
-		homeItemName = item.homeItem?.name;
-	}
-	let homeItemId: string | null = null;
-	if (item.homeItem) {
-		homeItemId = item.homeItem._id.toString();
-	}
-	let templateName = "";
-	let templateId: string | null = null;
-	if (item.template) {
-		templateName = item.template?.name;
-		templateId = item.template?._id.toString();
-	}
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	let parentItemName =
+		item.parentItem?.name != null ? item.parentItem?.name : "";
+	let parentItemId: string | null = item.parentItem
+		? item.parentItem._id.toString()
+		: null;
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	let homeItemName = item.homeItem?.name != null ? item.homeItem?.name : "";
+	let homeItemId: string | null = item.homeItem
+		? item.homeItem._id.toString()
+		: null;
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	let templateName = item.template ? item.template?.name : "";
+	let templateId: string | null = item.template
+		? item.template?._id.toString()
+		: null;
 	let selectedImage: File | null = null;
 
 	export function changeItem(newItem: IBasicItemPopulated) {
@@ -82,6 +80,7 @@
 
 		if (item.template && item.template.fields?.length) {
 			const templateFieldIds = new Set(
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				item.template.fields.map((tid: any) =>
 					typeof tid === "string" ? tid : tid._id.toString(),
 				),
@@ -111,6 +110,7 @@
 
 	if (item.template && item.template.fields?.length) {
 		const templateFieldIds = new Set(
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			item.template.fields.map((tid: any) =>
 				typeof tid === "string" ? tid : tid._id.toString(),
 			),

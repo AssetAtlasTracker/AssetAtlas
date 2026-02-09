@@ -56,7 +56,7 @@
 
 	fetchTemplates();
 
-	function onSearch(query: string) {}
+	function onSearch(_query: string) {}
 
 	onMount(() => {
 		document.title = "Templates - AssetAtlas";

@@ -1,4 +1,5 @@
 <script lang="ts">
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	export let items: string | any[] = [];
 </script>
 
@@ -13,4 +14,3 @@
 {:else}
 	<p>No items found.</p>
 {/if}
-

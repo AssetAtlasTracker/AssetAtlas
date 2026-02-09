@@ -4,14 +4,14 @@
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
-	import { Switch } from "@skeletonlabs/skeleton-svelte";
+	import { Switch, Combobox } from "@skeletonlabs/skeleton-svelte";
+	import { browser } from "$app/environment";
 	import { 
 		createItemState,
 		handleCreateItem, 
 		initializeItemEdit, 
 		handleParentItemInput,
 		handleHomeItemInput,
-		handleTemplateInput,
 		handleParentItemFocus,
 		handleHomeItemFocus,
 		handleTemplateFocus,
@@ -30,13 +30,19 @@
 		resetAllFields,
 		partialResetFields,
 		checkIfItemExists,
+		loadAllTemplates,
 		submitAndCloseItem
 	} from "$lib/stores/createItemStore.svelte";
-	import { createEventDispatcher } from "svelte";
+	import { createEventDispatcher, onMount } from "svelte";
 	import "$lib/styles/mobile.css";
+
+	import { collection } from "@zag-js/combobox";
 
 	export let dialog: HTMLDialogElement;
 	export let duplicate = false;
+	export let filteredTemplates: any[] = [];
+	export let onTemplateInputValueChange: (details: { inputValue: string }) => void;
+	export let onTemplateSelect: (details: { itemValue?: string }) => void;
 
 	let templateDialog: HTMLDialogElement | undefined;
 	let showCreateTemplateDialog = false;
@@ -50,6 +56,12 @@
 			templateDialog.showModal();
 		}
 	}
+
+	$: templateCollection = collection({
+		items: filteredTemplates,
+		itemToString: (item) => item?.name ?? "",
+		itemToValue: (item) => String(item?._id ?? ""),
+	});
 
 	setOnItemCreated(() => {
 		dispatch("itemCreated")
@@ -214,27 +226,48 @@
 						Create New Template
 					</button>
 				</div>
-				<input
-					type="text"
-					class="dark-textarea py-2 px-4 w-full"
-					bind:value={createItemState.templateName}
-					on:input={handleTemplateInput}
-					on:focus={handleTemplateFocus}
-					on:blur={() => (createItemState.templateSuggestions = [])} />
-				{#if createItemState.templateSuggestions.length > 0}
-					<ul class="suggestions suggestion-box">
-						{#each createItemState.templateSuggestions as t (t.id)}
-							<button
-								class="suggestion-item"
-								type="button"
-								on:mousedown={(e) => {
-									e.preventDefault();
-									selectTemplate(t);
-								}}>
-								{t.name}
-							</button>
-						{/each}
-					</ul>
+				{#if browser}
+					<Combobox
+						collection={templateCollection}
+						openOnClick={true}
+						inputValue={createItemState.templateName}
+						onInputValueChange={onTemplateInputValueChange}
+						onSelect={onTemplateSelect}
+					>
+						<Combobox.Control class="w-full">
+							<Combobox.Input
+								class="dark-textarea py-2 px-4 w-full"
+								on:focus={handleTemplateFocus}
+							/>
+							<Combobox.Trigger
+								aria-label="Open templates"
+							/>
+						</Combobox.Control>
+
+						<Combobox.Positioner>
+							<Combobox.Content
+								class="bg-surface-3 text-white shadow-lg rounded-md mt-1 max-h-60 overflow-auto z-50"
+							>
+								{#each filteredTemplates as t (t._id)}
+									<Combobox.Item
+										item={t}
+										class="text-black"
+									>
+										<Combobox.ItemText
+										>{t.name}</Combobox.ItemText
+										>
+									</Combobox.Item>
+								{/each}
+							</Combobox.Content>
+						</Combobox.Positioner>
+					</Combobox>
+				{:else}
+					<select
+						class="dark-textarea py-2 px-4 w-full"
+						disabled
+					>
+						<option>Loading templates…</option>
+					</select>
 				{/if}
 			</div>
 		</div>
@@ -257,6 +290,7 @@
 				onFieldFocus={() => handleCustomFieldFocus(index)}
 				onFieldBlur={() => (createItemState.customFields[index].suggestions = [])}
 				placeholder={createItemState.placeholder}
+				onDuplicateAndEdit={duplicate}
 				onFieldValueInput={(e) => {
 					const target = e.target as HTMLInputElement;
 					if (field.dataType === 'item') {

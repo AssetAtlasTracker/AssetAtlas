@@ -1,10 +1,11 @@
-import { json } from '@sveltejs/kit';
-import type { RequestHandler } from '@sveltejs/kit';
 import BasicItem from '$lib/server/db/models/basicItem.js';
+import type { RequestHandler } from '@sveltejs/kit';
+import { json } from '@sveltejs/kit';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const formData = await request.formData();
   
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const itemData: any = {};
   
 	for (const [key, value] of formData.entries()) {

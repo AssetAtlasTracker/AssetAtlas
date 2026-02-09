@@ -1,9 +1,9 @@
 <script lang="ts">
 	import OAuth from "$lib/components/OAuth.svelte";
+	import type { LoginState } from "$lib/stores/loginStore.js";
+	import { login } from "$lib/stores/loginStore.js";
 	import "$lib/styles/main.css";
 	import { onMount } from "svelte";
-	import type { LoginState } from "$lib/stores/loginStore.js";
-	import {login} from "$lib/stores/loginStore.js";
 
 	export let open = false;
 	export let menu;
@@ -40,7 +40,10 @@
 {#if open}
 	<div 
 		class="menu-backdrop"
+		role="button"
+		tabindex="0"
 		on:click={handleClicked}
+		on:keydown={(e: KeyboardEvent) => e.key === 'Enter' && handleClicked()}
 	></div>
 {/if}
 
@@ -48,7 +51,10 @@
 	class="glass slide-out-menu"
 	bind:this={menu}
 	class:open
+	role="button"
+	tabindex="0"
 	on:click={handleClicked}
+	on:keydown={(e: KeyboardEvent) => e.key === 'Enter' && handleClicked()}
 >
 	<div class="block">
 		<nav class="menu-button text-xl">

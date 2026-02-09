@@ -1,12 +1,7 @@
-<!-- Icons from: 
- Font Awesome Free 6.7.2 by @fontawesome 
- - https://fontawesome.com License 
- - https://fontawesome.com/license/free 
- Copyright 2025 Fonticons, Inc.-->
-
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { dragDropMode } from "$lib/stores/dragDropStore.js";
+	import { GripVerticalIcon } from "@lucide/svelte";
 	import { createEventDispatcher, onDestroy } from "svelte";
 	import Dialog from "./Dialog.svelte";
 	import ItemCardOptions from "./ItemCardOptions.svelte";
@@ -124,7 +119,12 @@
 		}
 		targetItemId = currentTarget!.getAttribute("data-item-id");
 		targetItemName = currentTarget!.getAttribute("data-item-name");
-		if (currentDragDropMode && targetItemId && targetItemName && draggingItem) {
+		if (
+			currentDragDropMode &&
+			targetItemId &&
+			targetItemName &&
+			draggingItem
+		) {
 			showMoveDialog = true;
 			console.log("Successful Drop");
 		}
@@ -145,10 +145,9 @@
 			bind:dialog
 			isLarge={false}
 			create={() => {}}
-			close={handleClose}
-		><MultiActions
-			on:close={handleClose}
-			bind:this={multiActions} /></Dialog>
+			close={handleClose}>
+			<MultiActions on:close={handleClose} bind:this={multiActions} />
+		</Dialog>
 		<div class="sort-flex">
 			<button
 				class="success-button font-semibold shadow mt-4 w-full block"
@@ -190,40 +189,8 @@
 					}} />
 				<a href={`/view/${i._id}`} class="item-card">
 					<div class="item-subcard flex">
-						<!-- Custom "draggable" icon svg-->
-						<div class="draggable-list-dot-icon">
-							<svg viewBox="0 0 200 300" role="img">
-								<circle
-									cx="50"
-									cy="50"
-									r="25"
-									style="fill: #ffffff" />
-								<circle
-									cx="50"
-									cy="140"
-									r="25"
-									style="fill: #ffffff" />
-								<circle
-									cx="50"
-									cy="230"
-									r="25"
-									style="fill: #ffffff" />
-								<circle
-									cx="140"
-									cy="50"
-									r="25"
-									style="fill: #ffffff" />
-								<circle
-									cx="140"
-									cy="140"
-									r="25"
-									style="fill: #ffffff" />
-								<circle
-									cx="140"
-									cy="230"
-									r="25"
-									style="fill: #ffffff" />
-							</svg>
+						<div class="grip-vertical-icon">
+							<GripVerticalIcon class="icon-small" />
 						</div>
 						<div>
 							<div class="important-text">

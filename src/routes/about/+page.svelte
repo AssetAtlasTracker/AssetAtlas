@@ -1,13 +1,13 @@
 <script lang="ts">
-	import TopBar from "$lib/components/TopBar.svelte";
-	import Menu from "$lib/components/Menu.svelte";
 	import ActionDisplay from "$lib/components/ActionDisplay.svelte";
+	import Menu from "$lib/components/Menu.svelte";
+	import TopBar from "$lib/components/TopBar.svelte";
 	import "$lib/styles/main.css";
 
 	let menu: HTMLDialogElement;
 	const version = import.meta.env.APP_VERSION || 'dev version';
 
-	function onSearch(query: string) {}
+	function onSearch(_query: string) {}
 </script>
 
 <ActionDisplay />

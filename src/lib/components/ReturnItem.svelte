@@ -6,7 +6,9 @@
 		parentId,
 		children
 	}: {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		itemId: any;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		parentId: any;
 		children?: Snippet;
 	} = $props();
@@ -35,13 +37,11 @@
 </script>
 
 <button
-	on:click={returnItem}
+	onclick={returnItem}
 	class="success-button font-semibold shadow mt-4 w-full block"
 >
 	Submit
 </button>
-
-
 
 {#if children}
 	{@render children()}

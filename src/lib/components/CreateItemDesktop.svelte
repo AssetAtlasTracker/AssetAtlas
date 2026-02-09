@@ -12,17 +12,13 @@
 		initializeItemEdit,
 		handleParentItemInput,
 		handleHomeItemInput,
-		handleTemplateInput,
 		handleParentItemFocus,
 		handleHomeItemFocus,
 		handleTemplateFocus,
 		handleCustomFieldFocus,
-		handleFieldItemInput,
-		handleFieldItemFocus,
 		onCustomFieldNameInput,
 		selectParentItem,
 		selectHomeItem,
-		selectTemplate,
 		selectCustomFieldSuggestion,
 		addCustomFieldLine,
 		removeCustomField,
@@ -36,56 +32,30 @@
 	import { createEventDispatcher, onMount } from "svelte";
 
 	import { collection } from "@zag-js/combobox";
-
+	
 	export let dialog: HTMLDialogElement;
 	export let duplicate = false;
+	export let filteredTemplates: any[] = [];
+	export let onTemplateInputValueChange: (details: { inputValue: string }) => void;
+	export let onTemplateSelect: (details: { itemValue?: string }) => void;
 
 	let templateDialog: HTMLDialogElement | undefined;
 	let showCreateTemplateDialog = false;
 	let imageSelector: ImageSelector;
-	let allTemplates: any[] = [];
-	let filteredTemplates: any[] = [];
 
 	const dispatch = createEventDispatcher();
-
-	onMount(async () => {
-		const raw = await loadAllTemplates();
-		console.log(raw);
-		allTemplates = raw
-			.map((t) => ({ ...t, _id: t?._id ?? t?.id }))
-			.filter((t) => t?._id);
-		filteredTemplates = allTemplates;
-	});
 
 	$: if (showCreateTemplateDialog) {
 		if (templateDialog) {
 			templateDialog.showModal();
 		}
 	}
+
 	$: templateCollection = collection({
 		items: filteredTemplates,
 		itemToString: (item) => item?.name ?? "",
 		itemToValue: (item) => String(item?._id ?? ""),
 	});
-
-	function onTemplateInputValueChange(details: { inputValue: string }) {
-		createItemState.templateName = details.inputValue;
-		const query = details.inputValue.trim().toLowerCase();
-		filteredTemplates = query
-			? allTemplates.filter((t) => t?.name?.toLowerCase().includes(query))
-			: allTemplates;
-	}
-
-	function onTemplateSelect(details: { itemValue?: string }) {
-		if (!details.itemValue) return;
-		const selected = allTemplates.find(
-			(t) => String(t._id) === details.itemValue,
-		);
-		if (selected) {
-			selectTemplate(selected);
-			filteredTemplates = allTemplates; 
-		}
-	}
 
 	setOnItemCreated(() => {
 		dispatch("itemCreated");
@@ -164,7 +134,7 @@
 						<Switch.Thumb />
 					</Switch.Control>
 					<Switch.Label
-						>Item is currently at its home location</Switch.Label
+					>Item is currently at its home location</Switch.Label
 					>
 					<Switch.HiddenInput />
 				</Switch>
@@ -278,7 +248,7 @@
 												class="text-black"
 											>
 												<Combobox.ItemText
-													>{t.name}</Combobox.ItemText
+												>{t.name}</Combobox.ItemText
 												>
 											</Combobox.Item>
 										{/each}
@@ -324,8 +294,41 @@
 					bind:field
 					onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
 					onFieldFocus={() => handleCustomFieldFocus(index)}
-					onFieldBlur={() =>
-						(createItemState.customFields[index].suggestions = [])}
+					onFieldBlur={() => (createItemState.customFields[index].suggestions = [])}
+					placeholder={createItemState.placeholder}
+					onDuplicateAndEdit={duplicate}
+					onFieldValueInput={(e) => {
+						const target = e.target as HTMLInputElement;
+						if (field.dataType === 'item') {
+							createItemState.customFields[index].displayValue = target.value;
+							createItemState.customFields[index].value = ''; 
+							handleFieldItemInput(e);
+						} else {
+							createItemState.customFields[index].value = target.value;
+						}
+					}}
+					onFieldValueFocus={() => {
+						if (field.dataType === 'item') {
+							handleFieldItemFocus();
+						}
+					}}
+					onFieldValueBlur={() => {
+						if (field.dataType === 'item') {
+							createItemState.fieldItemSuggestions = [];
+	
+							checkIfItemExists(field.displayValue || '').then((itemId) => {
+								if (itemId) {
+									createItemState.customFields[index].value = itemId;
+									return true;
+								} else {
+									createItemState.customFields[index].value = '';
+									createItemState.customFields[index].displayValue = '';
+									createItemState.placeholder = "Item not found";
+									return false;
+								}
+							});
+						}
+					}}
 					showDeleteButton={!field.fromTemplate}
 					onDelete={() => removeCustomField(index)}
 				>

@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function addToRecents(type: string, item: any) {
 	try {
 		const body = JSON.stringify({

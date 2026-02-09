@@ -24,7 +24,7 @@ export async function uploadImage(file: File): Promise<string> {
 				reject(error);
 			},
 			onProgress(bytesUploaded, bytesTotal) {
-				const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(1);
+				const _percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(1);
 			},
 			onSuccess() {
 				const filename = upload.url?.split('/').pop() || file.name;

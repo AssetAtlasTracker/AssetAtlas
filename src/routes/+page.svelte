@@ -33,7 +33,6 @@
 	let viewMode: "list" | "tree" = "list";
 	$: showItemTree = viewMode === "tree";
 
-	let topLevel = true;
 	let itemCount = -1;
 
 	let draggingItem: IBasicItemPopulated | undefined = undefined;
@@ -50,6 +49,7 @@
 	let actionItem: IBasicItemPopulated | null = null;
 	let actionItemId: string | null = null;
 	let actionHomeItemId: string | null = null;
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	let actionParentItemId: string | null = null;
 	let actionItemName = "";
 
@@ -191,6 +191,7 @@
 		window.open(`/view/${itemId}`, "_blank");
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	let currentTopBarHeight: number = 0;
 
 	let unsubscribe: () => void = () => {};
@@ -219,7 +220,7 @@
 	onSearch={(query) => {
 		handleSearch(query);
 	}}
-	onExactSearchChange={(value) => {
+	onExactSearchChange={(_value) => {
 		handleSearch(searchQuery);
 	}} />
 
@@ -244,7 +245,7 @@
 
 			<Switch
 				checked={showItemTree}
-				onchange={(e) => {
+				onchange={(_e) => {
 					showItemTree = !showItemTree;
 					toggleView();
 				}}>
@@ -257,7 +258,7 @@
 
 			<Switch
 				checked={$dragDropMode}
-				onchange={(e) => {
+				onchange={(_e) => {
 					setDragDropMode(!$dragDropMode);
 				}}>
 				<Switch.Control>
@@ -362,7 +363,6 @@
 		<button
 			class="add-button text-icon font-bold shadow"
 			on:click={() => {
-				topLevel = false;
 				if (dialog) dialog.showModal();
 			}}>
 			+
@@ -371,12 +371,6 @@
 	<CreateItem
 		bind:dialog
 		duplicate={false}
-		on:open={() => {
-			topLevel = false;
-		}}
-		on:close={() => {
-			topLevel = true;
-		}}
 		on:itemCreated={() => {
 			handleSearch(searchQuery);
 		}} />

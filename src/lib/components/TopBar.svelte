@@ -1,14 +1,11 @@
 <script lang="ts">
-	import { AppBar } from "@skeletonlabs/skeleton-svelte";
-	import { Switch } from "@skeletonlabs/skeleton-svelte";
-	import SearchBar from "./SearchBar.svelte";
+	import { setTopBarHeight } from '$lib/stores/topBarStore.js';
+	import { AppBar, Switch } from "@skeletonlabs/skeleton-svelte";
 	import { Menu } from "lucide-svelte";
 	import { onMount } from 'svelte';
-	import { setTopBarHeight } from '$lib/stores/topBarStore.js';
-	import {login} from "../stores/loginStore.js";
+	import { login } from "../stores/loginStore.js";
+	import SearchBar from "./SearchBar.svelte";
 
-
-	// Props using $props() rune
 	let {
 		searchQuery = $bindable(""),
 		onSearch,

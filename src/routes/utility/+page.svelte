@@ -215,7 +215,7 @@
 		const zip = new JSZip();
 		const unzipped = await zip.loadAsync(item);
 		addedLength -= 1;
-		const length = Object.keys(unzipped.files).length;
+		const _length = Object.keys(unzipped.files).length;
 		let blobs: Promise<Blob>[] = [];
 		let objs: JSZip.JSZipObject[] = [];
 		unzipped.forEach((path, obj) => {
@@ -235,7 +235,7 @@
 		}
 	}
 
-	function onSearch(query: string) {}
+	function onSearch(_query: string) {}
 
 	onMount(() => {
 		document.title = "Import/Export - AssetAtlas";

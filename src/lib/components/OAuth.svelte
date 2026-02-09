@@ -1,8 +1,6 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from "svelte";
+	import { onMount } from "svelte";
 	import { login, type LoginState } from "../stores/loginStore.js";
-
-	const dispatch = createEventDispatcher();
 
 	export let dialog: HTMLDialogElement;
 	let oauthResult = "";
@@ -13,15 +11,6 @@
 	let authCode = "";
 	let otpCode = "";
 
-	let errorMessage = "";
-	let successMessage = "";
-
-	function handleClose() {
-		errorMessage = "";
-		successMessage = "";
-		dispatch("close");
-	}
-
 	async function handleLoginGoogle() {
 		try {
 			const response = await fetch("/api/oauth/loginGoogle");
@@ -31,9 +20,9 @@
 			if (!response.ok) {
 				throw new Error(data.message || "OAuth failed");
 			}
-      
+
 			openOAuthWindow(data.url);
-      
+
 		} catch (err) {
 			oauthResult = err instanceof Error ? err.message : 'Something went wrong';
 			console.error('OAuth error:', err);
@@ -45,24 +34,6 @@
 		showAuthenticatorLogin = true;
 	} 
 
-	async function checkForAccount(){
-		try {
-			const response = await fetch(`/api/authenticator/checkAccount?username=${encodeURIComponent(username)}`);
-			const data = await response.json();
-      
-			if (!response.ok) {
-				throw new Error(data.message || 'Account check failed');
-			}
-      
-			return data.exists;
-		} catch (err) {
-			oauthResult = err instanceof Error ? err.message : 'Something went wrong';
-			console.error('Account check error:', err);
-			return false;
-		}
-
-	}
-
 	async function fetchQRCode() {
 		try {
 			const response = await fetch('/api/authenticator/check', {
@@ -73,7 +44,7 @@
 				}
 			})
 			const data = await response.json();
-      
+
 			if (!response.ok) {
 				throw new Error(data.message || 'Failed to generate QR code');
 			}
@@ -96,7 +67,7 @@
 	async function verifyAuthCode() {
 		const response = await fetch(`/api/authenticator/verify?username=${encodeURIComponent(username)}&code=${encodeURIComponent(authCode)}`);
 		const data = await response.json();
-    
+
 		if (!response.ok) {
 			oauthResult = data.message || 'Verification failed';
 			return;
@@ -125,9 +96,8 @@
 			if (!response.ok) {
 				throw new Error(data.message || "OAuth failed");
 			}
-      
+
 			openOAuthWindow(data.url);
-      
 		} catch (err) {
 			oauthResult =
 				err instanceof Error ? err.message : "Something went wrong";
@@ -178,14 +148,12 @@
 		);
 	}
 
-
-
-  
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	let currentLogin: LoginState | undefined;
 	login.subscribe((value) => {
 		currentLogin = value;
 	});
- 
+
 	onMount(() => {
 		window.addEventListener('message', (event) => {
 			if (event.origin !== window.location.origin) return;
@@ -197,22 +165,22 @@
 	});
 </script>
 
-				{#if oauthResult}
-					<div class="text-center mb-4">{oauthResult}</div>
-				{/if}
+{#if oauthResult}
+	<div class="text-center mb-4">{oauthResult}</div>
+{/if}
 
 <dialog bind:this={dialog} class="glass border fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
 	<div class="flex flex-col space-y-4 p-4 relative">
 		<button class="x-button absolute top-0 right-0 mt-2 mr-2" on:click={() => dialog.close()}>X</button>
-    
+
 		{#if !showAuthenticatorLogin}
 			<div>
 				<h2 class="important-text text-center mb-4">Login with external account</h2>
-      
+
 				{#if oauthResult}
 					<div class="text-center mb-4">{oauthResult}</div>
 				{/if}
-      
+
 				<button class="border-button w-full" on:click={handleLoginGoogle}>
 					Login with Google Account
 				</button>
@@ -228,7 +196,7 @@
 				<button class="border-button w-full" on:click={handleLogout}>
 					Logout
 				</button>
-      
+
 			</div>
 		{:else}
 			<div>
