@@ -16,6 +16,7 @@
 	interface ItemUpdateEvent extends CustomEvent {
 		detail: {
 			imageChanged: boolean;
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			[key: string]: any;
 		};
 	}
@@ -42,8 +43,6 @@
 	let loading = !!itemId && !item;
 
 	let imageElement: HTMLImageElement;
-	//each image gets a random ID. trust the process
-	const instanceId = Math.random().toString(36).substring(2, 15);
 	let imageLoadError = false;
 
 	let currentLogin: LoginState | undefined;
@@ -154,12 +153,10 @@
 			);
 			const data = await response.json();
 			return data.name;
-		} catch
-			(err) {
+		} catch (err) {
 			console.error("Error checking item name:", err);
 			return false;
 		}
-			
 	}
 
 	//Handle updates from EditItem
@@ -195,6 +192,7 @@
 		isHistoryExpanded = !isHistoryExpanded;
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function ensureString(id: any): string {
 		if (!id) return "";
 		return typeof id === "string" ? id : id.toString();
@@ -297,7 +295,7 @@
 	</div>
 
 	{#if item.image}
-		
+
 		{#if imageLoadError}
 			<p class="text-red-400" role="alert">Failed to load image</p>
 		{:else}
@@ -396,7 +394,7 @@
 									{:else}
 										<span>(Item does not exist)</span>
 									{/if}
-								{:catch error}
+								{:catch _error}
 									<span>(Error loading item)</span>
 								{/await}
 							{:else}
