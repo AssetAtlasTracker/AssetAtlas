@@ -12,7 +12,7 @@
 	let imagePreview: string | null = null;
 	let selectedImage: File | null = null;
   
-	const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 5MB in bytes
+	const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 50MB in bytes
 	const allowedFileTypes = ['.jpg', '.jpeg', '.jfif', '.pjpeg', '.pjp', '.png', '.gif'];
 	const dispatch = createEventDispatcher();
 
