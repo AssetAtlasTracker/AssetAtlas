@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import Device from 'svelte-device-info'
-	import { createEventDispatcher, onMount } from "svelte";
-	import { 
+	import {
 		changeItem as changeItemState,
 		createItemState,
 		loadAllTemplates,
 		selectTemplate,
 		setDuplicate
 	} from "$lib/stores/createItemStore.svelte";
+	import { createEventDispatcher, onMount } from "svelte";
+	import Device from 'svelte-device-info';
 
 	import "$lib/styles/main.css";
 	import CreateItemDesktop from "./CreateItemDesktop.svelte";
@@ -21,7 +21,9 @@
 	const dispatch = createEventDispatcher();
 	
 	let creator: CreateItemDesktop | CreateItemMobile;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let allTemplates: any[] = [];
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let filteredTemplates: any[] = [];
 
 	onMount(async () => {

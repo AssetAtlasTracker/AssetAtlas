@@ -1,10 +1,8 @@
 import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem";
-import type { ICustomField, ICustomFieldEntryInstance } from "$lib/types/customField";
-
-import { addToRecents } from "$lib/utility/recentItemHelper";
 import { actionStore } from "$lib/stores/actionStore";
+import type { ICustomField, ICustomFieldEntryInstance } from "$lib/types/customField";
 import { uploadImage } from '$lib/utility/imageUpload.js';
-
+import { addToRecents } from "$lib/utility/recentItemHelper";
 
 let item = $state<IBasicItemPopulated | null>(null);
 let duplicate = $state(false);
@@ -15,15 +13,19 @@ let _tags = $state("");
 let _parentItemName = $state("");
 let _parentItemId = $state<string | null>(null);
 let _sameLocations = $state(true);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _parentItemSuggestions = $state<any[]>([]);
 let _homeItemName = $state("");
 let _homeItemId = $state<string | null>(null);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _homeItemSuggestions = $state<any[]>([]);
 let _fieldItemName = $state("");
 let _fieldItemId = $state<string | null>(null);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _fieldItemSuggestions = $state<any[]>([]);
 let _templateName = $state("");
 let _templateId = $state<string | null>(null);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _templateSuggestions = $state<any[]>([]);
 let _customFields = $state<ICustomFieldEntryInstance[]>([]);
 let _selectedImage = $state<File | null>(null);
@@ -205,6 +207,7 @@ export function changeItem(newItem: IBasicItemPopulated){
 
 			if (item.template && item.template.fields?.length) {
 				const templateFieldIds = new Set(
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					item.template.fields.map((tid: any) =>
 						typeof tid === "string" ? tid : tid._id.toString(),
 					),
@@ -378,6 +381,7 @@ export function onCustomFieldNameInput(index: number, event: Event) {
 	searchForCustomFields(index);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function loadAllTemplates(): Promise<any[]> {
 	try {
 		const response = await fetch(`/api/templates`, {
@@ -390,7 +394,6 @@ export async function loadAllTemplates(): Promise<any[]> {
 		return [];
 	}
 }
-
 
 async function searchParentItems(query: string) {
 	try {

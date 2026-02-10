@@ -1,11 +1,11 @@
 <script lang="ts">
-	import InfoToolTip from "./InfoToolTip.svelte";
-	import { onMount } from "svelte";
-	export let field;
 	import { browser } from '$app/environment';
-	import {checkIfItemExistsById} from "../stores/createItemStore.svelte";
-	import type { fromAction } from "svelte/attachments";
-	import { on } from "events";
+	import { onMount } from "svelte";
+	import { checkIfItemExistsById } from "../stores/createItemStore.svelte";
+	import InfoToolTip from "./InfoToolTip.svelte";
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	export let field: any;
 	export let onFieldNameInput: (event: Event) => void;
 	export let onFieldFocus: () => void;
 	export let onFieldBlur: () => void;

@@ -33,11 +33,11 @@ async function shutdown() {
 	try {
 		await mongoose.connection.close(false);
 		process.exit(0);
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	} catch (error) {
 		process.exit(1);
 	}
 }
-
 
 mongoose.connection.on('connected', () => {
 	console.log('Mongoose connected to MongoDB');

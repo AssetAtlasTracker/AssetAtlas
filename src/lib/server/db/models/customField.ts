@@ -1,7 +1,9 @@
+import type { CallbackError, Document } from "mongoose";
 import mongoose, { Types } from "mongoose";
-import type { Document, CallbackError } from "mongoose";
-const { Schema, model, models } = mongoose;
 import { addToRecents, removeFromRecents } from './recentItems.js';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const { Schema, model, models } = mongoose;
 
 export interface ICustomField extends Document {
   fieldName: string;

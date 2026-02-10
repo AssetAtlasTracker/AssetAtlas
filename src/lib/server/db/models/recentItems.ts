@@ -1,7 +1,8 @@
-import mongoose, { Types } from 'mongoose';
 import type { Document } from 'mongoose';
-const { Schema, model, models } = mongoose;
+import mongoose, { Types } from 'mongoose';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const { Schema, model, models } = mongoose;
 const MAX_ITEMS: number = 5;
 
 export interface IRecentItems extends Document {
@@ -20,9 +21,9 @@ const RecentItemsSchema = new Schema({
 		type: Schema.Types.ObjectId,
 		ref: function(this: { type: 'item' | 'template' | 'customField' }) {
 			switch(this.type) {
-			case 'item': return 'BasicItem';
-			case 'template': return 'Template';
-			case 'customField': return 'CustomField';
+				case 'item': return 'BasicItem';
+				case 'template': return 'Template';
+				case 'customField': return 'CustomField';
 			}
 		}
 	}],
