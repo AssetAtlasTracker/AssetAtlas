@@ -44,6 +44,7 @@
 	let imageElement: HTMLImageElement;
 	//each image gets a random ID. trust the process
 	const instanceId = Math.random().toString(36).substring(2, 15);
+	let imageLoadError = false;
 
 	let currentLogin: LoginState | undefined;
 	login.subscribe((value) => {
@@ -127,6 +128,7 @@
 
 	async function reloadImage() {
 		if (item?.image) {
+			imageLoadError = false;
 			try {
 				const response = await fetch(`/api/items/${item._id}/image`);
 				if (response.ok) {
@@ -295,20 +297,26 @@
 	</div>
 
 	{#if item.image}
-		<button
-			type="button"
-			class="item-image-container"
-			class:expanded={isImageExpanded}
-			on:click={toggleImage}
-			on:keydown={handleKeydown}
-			aria-label="Toggle image size">
-			<img
-				bind:this={imageElement}
-				src={`/api/items/${item._id}/image?instance=${instanceId}`}
-				alt={item.name}
-				class="item-image"
-				id={`item-image-${instanceId}`} />
-		</button>
+		
+		{#if imageLoadError}
+			<p class="text-red-400" role="alert">Failed to load image</p>
+		{:else}
+			<button
+				type="button"
+				class="item-image-container"
+				class:expanded={isImageExpanded}
+				on:click={toggleImage}
+				on:keydown={handleKeydown}
+				aria-label="Toggle image size">
+				<img
+					bind:this={imageElement}
+					src={`/api/items/${item._id}/image`}
+					alt={item.name}
+					class="item-image"
+					id={`item-image`}
+					on:error={() => {imageLoadError = true;}} />
+			</button>
+		{/if}
 	{/if}
 
 	{#if item.template}
