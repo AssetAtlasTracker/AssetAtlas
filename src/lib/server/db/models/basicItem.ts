@@ -1,9 +1,11 @@
-import mongoose, { Types, Schema } from 'mongoose';
-import type { Document, CallbackError } from 'mongoose';
-const { model, models } = mongoose;
+import type { CallbackError, Document } from 'mongoose';
+import mongoose, { Schema, Types } from 'mongoose';
 import type { ICustomField } from './customField.js';
-import type { ITemplate } from './template.js';
 import { addToRecents, removeFromRecents } from './recentItems.js';
+import type { ITemplate } from './template.js';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const { model, models } = mongoose;
 
 export interface IBasicItem extends Document { //we can add more stuff here
   _id: Types.ObjectId;//we need this underscore i think
@@ -196,5 +198,4 @@ BasicItemSchema.post('save', async function() {
 });
 
 const BasicItem = mongoose.models.BasicItem ||  model<IBasicItem>('BasicItem', BasicItemSchema);
-
 export default BasicItem;

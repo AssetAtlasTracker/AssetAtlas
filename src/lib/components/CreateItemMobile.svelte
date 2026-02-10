@@ -1,45 +1,44 @@
 <script lang="ts">
+	import { browser } from "$app/environment";
+	import {
+		addCustomFieldLine,
+		checkIfItemExists,
+		createItemState,
+		handleCreateItem,
+		handleCustomFieldFocus,
+		handleFieldItemFocus,
+		handleFieldItemInput,
+		handleHomeItemFocus,
+		handleHomeItemInput,
+		handleImageChange,
+		handleParentItemFocus,
+		handleParentItemInput,
+		handleTemplateFocus,
+		initializeItemEdit,
+		onCustomFieldNameInput,
+		partialResetFields,
+		removeCustomField,
+		resetAllFields,
+		selectCustomFieldSuggestion,
+		selectHomeItem,
+		selectParentItem,
+		setOnItemCreated,
+		submitAndCloseItem
+	} from "$lib/stores/createItemStore.svelte";
+	import "$lib/styles/mobile.css";
+	import { Combobox, Switch } from "@skeletonlabs/skeleton-svelte";
+	import { createEventDispatcher } from "svelte";
 	import CreateTemplate from "./CreateTemplate.svelte";
 	import CustomFieldPicker from "./CustomFieldPicker.svelte";
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
-	import { Switch, Combobox } from "@skeletonlabs/skeleton-svelte";
-	import { browser } from "$app/environment";
-	import { 
-		createItemState,
-		handleCreateItem, 
-		initializeItemEdit, 
-		handleParentItemInput,
-		handleHomeItemInput,
-		handleParentItemFocus,
-		handleHomeItemFocus,
-		handleTemplateFocus,
-		handleCustomFieldFocus,
-		handleFieldItemInput,
-		handleFieldItemFocus,
-		onCustomFieldNameInput,
-		selectParentItem,
-		selectHomeItem,
-		selectTemplate,
-		selectCustomFieldSuggestion,
-		addCustomFieldLine,
-		removeCustomField,
-		handleImageChange,
-		setOnItemCreated,
-		resetAllFields,
-		partialResetFields,
-		checkIfItemExists,
-		loadAllTemplates,
-		submitAndCloseItem
-	} from "$lib/stores/createItemStore.svelte";
-	import { createEventDispatcher, onMount } from "svelte";
-	import "$lib/styles/mobile.css";
 
 	import { collection } from "@zag-js/combobox";
 
 	export let dialog: HTMLDialogElement;
 	export let duplicate = false;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	export let filteredTemplates: any[] = [];
 	export let onTemplateInputValueChange: (details: { inputValue: string }) => void;
 	export let onTemplateSelect: (details: { itemValue?: string }) => void;
@@ -81,7 +80,7 @@
 	}
 </script>
 
-<Dialog bind:dialog create={() => {}} close={resetAllFields}>
+<Dialog bind:dialog create={() => {}} isLarge={false} close={resetAllFields}>
 	{#if duplicate}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item

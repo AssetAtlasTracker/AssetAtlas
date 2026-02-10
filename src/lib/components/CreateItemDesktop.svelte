@@ -1,40 +1,41 @@
 <script lang="ts">
+	import { browser } from "$app/environment";
+	import {
+		addCustomFieldLine,
+		checkIfItemExists,
+		createItemState,
+		handleCustomFieldFocus,
+		handleFieldItemFocus,
+		handleFieldItemInput,
+		handleHomeItemFocus,
+		handleHomeItemInput,
+		handleImageChange,
+		handleParentItemFocus,
+		handleParentItemInput,
+		handleTemplateFocus,
+		initializeItemEdit,
+		onCustomFieldNameInput,
+		removeCustomField,
+		resetAllFields,
+		selectCustomFieldSuggestion,
+		selectHomeItem,
+		selectParentItem,
+		setOnItemCreated,
+		submitAndCloseItem
+	} from "$lib/stores/createItemStore.svelte";
+	import { Combobox, Switch } from "@skeletonlabs/skeleton-svelte";
+	import { createEventDispatcher } from "svelte";
 	import CreateTemplate from "./CreateTemplate.svelte";
 	import CustomFieldPicker from "./CustomFieldPicker.svelte";
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
-	import { Switch, Combobox } from "@skeletonlabs/skeleton-svelte";
-	import { browser } from "$app/environment";
-	import {
-		createItemState,
-		handleCreateItem,
-		initializeItemEdit,
-		handleParentItemInput,
-		handleHomeItemInput,
-		handleParentItemFocus,
-		handleHomeItemFocus,
-		handleTemplateFocus,
-		handleCustomFieldFocus,
-		onCustomFieldNameInput,
-		selectParentItem,
-		selectHomeItem,
-		selectCustomFieldSuggestion,
-		addCustomFieldLine,
-		removeCustomField,
-		handleImageChange,
-		setOnItemCreated,
-		resetAllFields,
-		loadAllTemplates,
-		checkIfItemExists,
-		submitAndCloseItem
-	} from "$lib/stores/createItemStore.svelte";
-	import { createEventDispatcher, onMount } from "svelte";
 
 	import { collection } from "@zag-js/combobox";
 	
 	export let dialog: HTMLDialogElement;
 	export let duplicate = false;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	export let filteredTemplates: any[] = [];
 	export let onTemplateInputValueChange: (details: { inputValue: string }) => void;
 	export let onTemplateSelect: (details: { itemValue?: string }) => void;
@@ -154,8 +155,8 @@
 							on:input={handleParentItemInput}
 							on:focus={handleParentItemFocus}
 							on:blur={() =>
-									(createItemState.parentItemSuggestions =
-										[])} 
+								(createItemState.parentItemSuggestions =
+									[])} 
 						/>
 						{#if createItemState.parentItemSuggestions.length > 0}
 							<ul class="suggestions suggestion-box">
@@ -190,8 +191,8 @@
 						on:input={handleHomeItemInput}
 						on:focus={handleHomeItemFocus}
 						on:blur={() =>
-								(createItemState.homeItemSuggestions = [])}
-						/>
+							(createItemState.homeItemSuggestions = [])}
+					/>
 					{#if createItemState.homeItemSuggestions.length > 0}
 						<ul class="suggestions suggestion-box">
 							{#each createItemState.homeItemSuggestions as item (item.id)}
