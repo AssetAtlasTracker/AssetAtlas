@@ -15,7 +15,7 @@
 		"test:comp": "vitest run tests/components --reporter verbose --silent",
 		"coverage": "vitest run --exclude=tests/performance.test.ts --exclude=tests/components/** --coverage --coverage.include=src/** --coverage.exclude=src/lib/components/** --reporter dot --silent",
 		"coverage:comp": "vitest run tests/components --coverage --coverage.include=src/lib/components/** --reporter dot --silent",
-		"lint": "eslint \"{src,tests}/**/*.{js,ts,svelte}\"",
+		"lint": "eslint \"{src,tests}/**/*.{js,ts,svelte}\" --max-warnings=0",
 		"lint:fix": "eslint \"{src,tests}/**/*.{js,ts,svelte}\" --fix",
 		"check": "tsc --noEmit",
 		"migrate_down": "migrate-mongo down -f migrate-mongo-config.cjs",
