@@ -10,6 +10,8 @@
 	} from "lucide-svelte";
 	import { createEventDispatcher, onDestroy, onMount } from "svelte";
 
+	let children = $props();
+	
 	export let initialX = 0;
 	export let initialY = 0;
 	export let windowTitle = "";
@@ -299,7 +301,7 @@
 		</div>
 
 		<div class="window-content">
-			<slot></slot>
+			{@render children?.()}
 		</div>
 	</div>
 {/if}

@@ -44,7 +44,6 @@
 	<Dialog
 		bind:dialog
 		isLarge={false}
-		create={() => {}}
 		close={() => dialog.close()}
 	><DeleteItem itemId="" bind:this={deleter} />
 	</Dialog>

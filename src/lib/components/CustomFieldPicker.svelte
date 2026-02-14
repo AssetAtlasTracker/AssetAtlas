@@ -1,37 +1,62 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
+	import type { ICustomFieldEntry } from '$lib/types/customField';
+	import type { Snippet } from "svelte";
 	import { onMount } from "svelte";
 	import { checkIfItemExistsById } from "../stores/createItemStore.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
-
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	export let field: any;
-	export let onFieldNameInput: (event: Event) => void;
-	export let onFieldFocus: () => void;
-	export let onFieldBlur: () => void;
-	export let placeholder: string = "Search for item...";
-	export let onFieldValueInput: ((event: Event) => void) | undefined = undefined;
-	export let onFieldValueFocus: (() => void) | undefined = undefined;
-	export let onFieldValueBlur: (() => void) | undefined = undefined;
-	export let showDeleteButton = true;
-	export let onDuplicateAndEdit: boolean = false;
-	export let onDelete: () => void;
-	export let mode: "template" | "item" = "item";
+	 
+	let {
+		field = $bindable(),
+		onFieldNameInput,
+		onFieldFocus,
+		onFieldBlur,
+		placeholder = "Search for item...",
+		onFieldValueInput = undefined,
+		onFieldValueFocus = undefined,
+		onFieldValueBlur = undefined,
+		showDeleteButton = true,
+		onDuplicateAndEdit = false,
+		onDelete,
+		mode = "item",
+		suggestions,
+		itemSuggestions
+	} = $props<{
+		field: ICustomFieldEntry;
+		onFieldNameInput: (event: Event) => void;
+		onFieldFocus: () => void;
+		onFieldBlur: () => void;
+		placeholder?: string;
+		onFieldValueInput?: (event: Event) => void;
+		onFieldValueFocus?: () => void;
+		onFieldValueBlur?: () => void;
+		showDeleteButton: boolean;
+		onDuplicateAndEdit?: boolean;
+		onDelete: () => void;
+		mode?: "template" | "item";
+		suggestions?: Snippet;
+		itemSuggestions?: Snippet;
+	}>();
 
 	const dataTypes = ["string", "number", "boolean", "date", "item"];
 
-	$: if (!field.dataType) {
-		field.dataType = "string";
-	}
-	let previousDataType = field.dataType;
-	$: if (!field.fromTemplate && field.dataType !== previousDataType) {
-		if (field.value && previousDataType) {
-			field.value = "";
+	$effect.pre(() => {
+		if (!field.dataType) {
+			field.dataType = "string";
 		}
-		previousDataType = field.dataType;
-	}
+	});
+
+	let previousDataType = field.dataType;
+	$effect(() => {
+		if (!field.fromTemplate && field.dataType !== previousDataType) {
+			if (field.value && previousDataType) {
+				field.value = "";
+			}
+			previousDataType = field.dataType;
+		}
+	});
     
-	let isItemValueValid = false;
+	let isItemValueValid = $state(false);
 
 	onMount(async () => {
 		if (field.dataType === "item" && onDuplicateAndEdit && !field.displayValue && field.value) {
@@ -75,15 +100,15 @@
 			type="text"
 			placeholder="Field Name"
 			bind:value={field.fieldName}
-			on:input={onFieldNameInput}
-			on:focus={onFieldFocus}
-			on:blur={onFieldBlur}
+			oninput={onFieldNameInput}
+			onfocus={onFieldFocus}
+			onblur={onFieldBlur}
 			disabled={field.fromTemplate}
 			class="dark-textarea py-2 px-4"
 		/>
 		{#if field.suggestions?.length > 0}
 			<ul class="suggestions suggestion-box">
-				<slot name="suggestions" />
+				{@render suggestions?.()}
 			</ul>
 		{/if}
 
@@ -93,7 +118,7 @@
 				message="This field is required by the template and cannot be removed. Can be left blank if desired."
 			/>
 		{:else if showDeleteButton}
-			<button type="button" class="x-button flex" on:click={onDelete}> X </button>
+			<button type="button" class="x-button flex" onclick={onDelete}> X </button>
 		{/if}
 	</div>
 
@@ -125,7 +150,7 @@
 					<input
 						type="number"
 						bind:value={field.value}
-						on:input={validateNumberInput}
+						oninput={validateNumberInput}
 						class="dark-textarea py-2 px-4 flex-grow"
 					/>
 				{:else if field.dataType === "date"}
@@ -138,18 +163,19 @@
 					<input
 						type="text"
 						bind:value={field.displayValue}
-						on:input={onFieldValueInput}
-						on:focus={onFieldValueFocus}
-						on:blur={handleFieldValueBlur}
+						oninput={onFieldValueInput}
+						onfocus={onFieldValueFocus}
+						onblur={handleFieldValueBlur}
 						class="dark-textarea py-2 px-4 flex-grow"
 						placeholder={placeholder}
 					/>
-                    
-					<slot name="itemSuggestions" />
-                    
-                    
-					<button type="button" unselectable={isItemValueValid ? "off" : "on"} on:click={() => redirectToItem(field.value)} class="success-button">Check Item</button>
-                    
+					{@render itemSuggestions?.()}
+					<button
+						type="button"
+						unselectable={isItemValueValid ? "off" : "on"} 
+						onclick={() => redirectToItem(field.value)}
+						class="success-button"
+					>Check Item</button>
 				{:else}
 					<input
 						type="text"

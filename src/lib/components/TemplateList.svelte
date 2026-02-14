@@ -91,7 +91,6 @@
 <Dialog
 	bind:dialog={editDialog}
 	isLarge={false}
-	create={() => {}}
 	close={closeEdit}>
 	{#if editingTemplate}
 		<EditTemplate template={editingTemplate} onClose={closeEdit} />

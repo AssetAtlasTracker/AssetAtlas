@@ -1,9 +1,21 @@
-<script>
+<script lang="ts">
 	import { actionStore } from '$lib/stores/actionStore';
-	export let itemId;
-	export let onDelete = () => {};
 
-	export function deleteExternalItem(newItem) {
+	let {
+		itemId,
+		onDelete = () => {},
+		children
+	} = $props<{
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		itemId: any;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		onDelete: (itemId: any) => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		children: any;
+	}>();
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	export function deleteExternalItem(newItem: any) {
 		itemId = newItem;
 		deleteItem();
 	}
@@ -31,6 +43,6 @@
 	}
 </script>
 
-<button on:click={deleteItem} class="warn-button font-semibold shadow">
-	<slot></slot>
+<button onclick={deleteItem} class="warn-button font-semibold shadow">
+	{@render children?.()}
 </button>

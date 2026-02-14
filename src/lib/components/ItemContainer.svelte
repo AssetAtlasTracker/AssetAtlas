@@ -2,25 +2,32 @@
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { dragDropMode } from "$lib/stores/dragDropStore.js";
 	import { GripVerticalIcon } from "@lucide/svelte";
-	import { createEventDispatcher, onDestroy } from "svelte";
+	import { createEventDispatcher } from "svelte";
 	import Dialog from "./Dialog.svelte";
 	import ItemCardOptions from "./ItemCardOptions.svelte";
 	import MultiActions from "./MultiActions.svelte";
 
-	export let items: IBasicItemPopulated[];
+	let {
+		items,
+		draggingItem = $bindable(),
+		targetItemId = $bindable(),
+		targetItemName = $bindable(),
+		showMoveDialog = $bindable(),
+	} = $props<{
+		items: IBasicItemPopulated[];
+		draggingItem: IBasicItemPopulated | null;
+		targetItemId: string | null;
+		targetItemName: string | null;
+		showMoveDialog: boolean;
+	}>();
 
-	let selectedItems: IBasicItemPopulated[] = [];
+	let selectedItems = $state<IBasicItemPopulated[]>([]);
 
-	let dialog: HTMLDialogElement;
+	let dialog = $state<HTMLDialogElement | undefined>(undefined);
 
-	let multiActions: MultiActions;
-	let itemCardOptions: ItemCardOptions;
-	let numSelected = 0;
-	let currentDragDropMode: boolean;
-
-	const dragDropUnsubscribe = dragDropMode.subscribe((value) => {
-		currentDragDropMode = value;
-	});
+	let multiActions = $state<MultiActions | undefined>(undefined);
+	let itemCardOptions = $state<ItemCardOptions | undefined>(undefined);
+	let numSelected = $state(0);
 
 	function handleSelect(item: IBasicItemPopulated) {
 		if (selectedItems.includes(item)) {
@@ -63,19 +70,19 @@
 	}
 
 	function handleDeleteAll() {
-		multiActions.setAction("delete");
-		multiActions.setItems(selectedItems);
-		dialog.showModal();
+		multiActions?.setAction("delete");
+		multiActions?.setItems(selectedItems);
+		dialog?.showModal();
 	}
 
 	function handleMoveAll() {
-		multiActions.setAction("move");
-		multiActions.setItems(selectedItems);
-		dialog.showModal();
+		multiActions?.setAction("move");
+		multiActions?.setItems(selectedItems);
+		dialog?.showModal();
 	}
 
 	function handleClose() {
-		dialog.close();
+		dialog?.close();
 		location.reload();
 	}
 
@@ -84,14 +91,6 @@
 	function onCreated() {
 		dispatch("itemCreated");
 	}
-
-	// Log items to verify data in the frontend
-	console.log("Items in frontend:", items);
-
-	export let draggingItem: IBasicItemPopulated | null = null;
-	export let targetItemId: string | null = null;
-	export let targetItemName: string | null = null;
-	export let showMoveDialog: boolean;
 
 	function handleDragDrop(
 		event: DragEvent & { currentTarget: EventTarget & HTMLDivElement },
@@ -119,12 +118,7 @@
 		}
 		targetItemId = currentTarget!.getAttribute("data-item-id");
 		targetItemName = currentTarget!.getAttribute("data-item-name");
-		if (
-			currentDragDropMode &&
-			targetItemId &&
-			targetItemName &&
-			draggingItem
-		) {
+		if ($dragDropMode && targetItemId && targetItemName && draggingItem) {
 			showMoveDialog = true;
 			console.log("Successful Drop");
 		}
@@ -134,9 +128,9 @@
 		draggingItem = item;
 	}
 
-	onDestroy(() => {
-		dragDropUnsubscribe();
-	});
+	// Log items to verify data in the frontend
+	// svelte-ignore state_referenced_locally
+	console.log("Items in frontend:", items);
 </script>
 
 {#if items && items.length > 0}
@@ -144,23 +138,22 @@
 		<Dialog
 			bind:dialog
 			isLarge={false}
-			create={() => {}}
 			close={handleClose}>
 			<MultiActions on:close={handleClose} bind:this={multiActions} />
 		</Dialog>
 		<div class="sort-flex">
 			<button
 				class="success-button font-semibold shadow mt-4 w-full block"
-				on:click={selectAll}>Select All</button>
+				onclick={selectAll}>Select All</button>
 			<button
 				class="success-button font-semibold shadow mt-4 w-full block"
-				on:click={deselectAll}>Deselect All</button>
+				onclick={deselectAll}>Deselect All</button>
 			<button
 				class="success-button font-semibold shadow mt-4 w-full block"
-				on:click={handleMoveAll}>Move Selected</button>
+				onclick={handleMoveAll}>Move Selected</button>
 			<button
 				class="warn-button font-semibold shadow mt-4 w-full block"
-				on:click={handleDeleteAll}>Delete Selected</button>
+				onclick={handleDeleteAll}>Delete Selected</button>
 		</div>
 	{/if}
 	<div id="home-component" class="glass page-component">
@@ -169,22 +162,22 @@
 				class="item-card-flex"
 				role="navigation"
 				draggable="true"
-				on:dragstart={(e) => {
+				ondragstart={(e) => {
 					handleDragStart(e, i);
 				}}
-				on:dragover={(e) => {
+				ondragover={(e) => {
 					e.preventDefault();
 				}}
-				on:dragend={(e) => {
+				ondragend={(e) => {
 					e.preventDefault();
 				}}
-				on:drop={handleDragDrop}
+				ondrop={handleDragDrop}
 				data-item-id={i._id}
 				data-item-name={i.name}>
 				<input
 					type="checkbox"
 					style="width: 20px; height: 20px; align-self: center; margin: auto 0;"
-					on:click={() => {
+					onclick={() => {
 						handleSelect(i);
 					}} />
 				<a href={`/view/${i._id}`} class="item-card">

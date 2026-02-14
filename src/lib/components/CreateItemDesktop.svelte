@@ -24,6 +24,7 @@
 		submitAndCloseItem
 	} from "$lib/stores/createItemStore.svelte";
 	import { Combobox, Switch } from "@skeletonlabs/skeleton-svelte";
+	import { collection } from "@zag-js/combobox";
 	import { createEventDispatcher } from "svelte";
 	import CreateTemplate from "./CreateTemplate.svelte";
 	import CustomFieldPicker from "./CustomFieldPicker.svelte";
@@ -31,32 +32,40 @@
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
 
-	import { collection } from "@zag-js/combobox";
-	
-	export let dialog: HTMLDialogElement;
-	export let duplicate = false;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	export let filteredTemplates: any[] = [];
-	export let onTemplateInputValueChange: (details: { inputValue: string }) => void;
-	export let onTemplateSelect: (details: { itemValue?: string }) => void;
+	let {
+		dialog = $bindable(),
+		duplicate = false,
+		filteredTemplates = [],
+		onTemplateInputValueChange,
+		onTemplateSelect
+	} = $props<{
+		dialog: HTMLDialogElement;
+		duplicate: boolean;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		filteredTemplates: any[];
+		onTemplateInputValueChange: (details: { inputValue: string }) => void;
+		onTemplateSelect: (details: { itemValue?: string }) => void
+	}>();
 
-	let templateDialog: HTMLDialogElement | undefined;
-	let showCreateTemplateDialog = false;
+	let templateDialog: HTMLDialogElement | undefined = $state();
+	let showCreateTemplateDialog = $state(false);
 	let imageSelector: ImageSelector;
 
 	const dispatch = createEventDispatcher();
-
-	$: if (showCreateTemplateDialog) {
-		if (templateDialog) {
+	
+	$effect(() => {
+		if (showCreateTemplateDialog && templateDialog) {
 			templateDialog.showModal();
 		}
-	}
-
-	$: templateCollection = collection({
-		items: filteredTemplates,
-		itemToString: (item) => item?.name ?? "",
-		itemToValue: (item) => String(item?._id ?? ""),
 	});
+
+	let templateCollection = $derived(collection({
+		items: filteredTemplates,
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		itemToString: (item: any) => item?.name ?? "",
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		itemToValue: (item: any) => String(item?._id ?? ""),
+	}));
 
 	setOnItemCreated(() => {
 		dispatch("itemCreated");
@@ -64,7 +73,7 @@
 	initializeItemEdit();
 </script>
 
-<Dialog isLarge={true} bind:dialog create={() => {}} close={resetAllFields}>
+<Dialog isLarge={true} bind:dialog close={resetAllFields}>
 	{#if duplicate}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
@@ -75,7 +84,12 @@
 		</h1>
 	{/if}
 	<div class="page-component large-dialog-internal">
-		<form on:submit|preventDefault={() => submitAndCloseItem(dialog, imageSelector)}>
+		<form onsubmit={
+			(event) => {
+				event.preventDefault();
+				submitAndCloseItem(dialog, imageSelector);
+			}
+		}>
 			<div class="flex flex-col space-y-4">
 				<div class="flex space-x-4">
 					<!-- Name -->
@@ -152,11 +166,9 @@
 							type="text"
 							class="dark-textarea py-2 px-4 w-full"
 							bind:value={createItemState.parentItemName}
-							on:input={handleParentItemInput}
-							on:focus={handleParentItemFocus}
-							on:blur={() =>
-								(createItemState.parentItemSuggestions =
-									[])} 
+							oninput={handleParentItemInput}
+							onfocus={handleParentItemFocus}
+							onblur={() => (createItemState.parentItemSuggestions = [])} 
 						/>
 						{#if createItemState.parentItemSuggestions.length > 0}
 							<ul class="suggestions suggestion-box">
@@ -164,7 +176,7 @@
 									<button
 										class="suggestion-item"
 										type="button"
-										on:mousedown={(e) => {
+										onmousedown={(e) => {
 											e.preventDefault();
 											selectParentItem(item);
 										}}
@@ -182,16 +194,16 @@
 					<div class="flex items-center gap-2">
 						<span>Home Location:</span>
 						<InfoToolTip
-							message="Where an item should normally be, e.g a shirt's home item may be a drawer." />
+							message="Where an item should normally be, e.g a shirt's home item may be a drawer."
+						/>
 					</div>
 					<input
 						type="text"
 						class="dark-textarea py-2 px-4 w-full"
 						bind:value={createItemState.homeItemName}
-						on:input={handleHomeItemInput}
-						on:focus={handleHomeItemFocus}
-						on:blur={() =>
-							(createItemState.homeItemSuggestions = [])}
+						oninput={handleHomeItemInput}
+						onfocus={handleHomeItemFocus}
+						onblur={() => (createItemState.homeItemSuggestions = [])}
 					/>
 					{#if createItemState.homeItemSuggestions.length > 0}
 						<ul class="suggestions suggestion-box">
@@ -199,7 +211,7 @@
 								<button
 									class="suggestion-item"
 									type="button"
-									on:mousedown={(e) => {
+									onmousedown={(e) => {
 										e.preventDefault();
 										selectHomeItem(item);
 									}}
@@ -232,7 +244,7 @@
 								<Combobox.Control class="w-full">
 									<Combobox.Input
 										class="dark-textarea py-2 px-4 w-full"
-										on:focus={handleTemplateFocus}
+										onfocus={handleTemplateFocus}
 									/>
 									<Combobox.Trigger
 										aria-label="Open templates"
@@ -270,7 +282,7 @@
 						<button
 							type="button"
 							class="border-button font-semibold shadow"
-							on:click={() => (showCreateTemplateDialog = true)}
+							onclick={() => (showCreateTemplateDialog = true)}
 						>
 							Create New Template
 						</button>
@@ -285,14 +297,14 @@
 				<button
 					type="button"
 					class="border-button font-semibold shadow small-add-button"
-					on:click={addCustomFieldLine}
+					onclick={addCustomFieldLine}
 				>
 					+
 				</button>
 			</div>
 			{#each createItemState.customFields as field, index (field.fieldId)}
 				<CustomFieldPicker
-					bind:field
+					bind:field={createItemState.customFields[index]}
 					onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
 					onFieldFocus={() => handleCustomFieldFocus(index)}
 					onFieldBlur={() => (createItemState.customFields[index].suggestions = [])}
@@ -333,12 +345,12 @@
 					showDeleteButton={!field.fromTemplate}
 					onDelete={() => removeCustomField(index)}
 				>
-					<svelte:fragment slot="suggestions">
+					{#snippet suggestions()}
 						{#each field.suggestions as suggestion (suggestion._id)}
 							<button
 								class="suggestion-item"
 								type="button"
-								on:mousedown={(e) => {
+								onmousedown={(e) => {
 									e.preventDefault();
 									selectCustomFieldSuggestion(
 										index,
@@ -349,16 +361,16 @@
 								{suggestion.fieldName} ({suggestion.dataType})
 							</button>
 						{/each}
-					</svelte:fragment>
+					{/snippet}
 					
-					<svelte:fragment slot="itemSuggestions">
+					{#snippet itemSuggestions()}
 						{#if field.dataType === 'item' && createItemState.fieldItemSuggestions.length > 0}
 							<ul class="suggestions suggestion-box">
 								{#each createItemState.fieldItemSuggestions as item (item._id)}
 									<button
 										class="suggestion-item"
 										type="button"
-										on:mousedown={(e) => {
+										onmousedown={(e) => {
 											e.preventDefault();
 											createItemState.customFields[index].value = item._id; // Store ID
 											createItemState.customFields[index].displayValue = item.name; // Display name
@@ -369,7 +381,7 @@
 								{/each}
 							</ul>
 						{/if}
-					</svelte:fragment>
+					{/snippet}
 				</CustomFieldPicker>
 			{/each}
 
@@ -392,7 +404,6 @@
 	<Dialog
 		bind:dialog={templateDialog}
 		isLarge={false}
-		create={() => {}}
 		close={() => {
 			showCreateTemplateDialog = false;
 		}}

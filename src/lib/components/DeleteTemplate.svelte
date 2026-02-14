@@ -2,8 +2,16 @@
 	import { actionStore } from '$lib/stores/actionStore.js';
 	import { createEventDispatcher } from 'svelte';
 
-	export let templateId: string;
-	export let onDelete: (id: string) => void = () => {};
+	let {
+		templateId,
+		onDelete = () => {},
+		children
+	} = $props<{
+		templateId: string;
+		onDelete: (id: string) => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		children: any;
+	}>();
 
 	const dispatch = createEventDispatcher();
 
@@ -28,6 +36,6 @@
 	}
 </script>
 
-<button on:click={deleteTemplate} class="warn-button font-semibold shadow">
-	<slot></slot>
+<button onclick={deleteTemplate} class="warn-button font-semibold shadow">
+	{@render children?.()}
 </button>

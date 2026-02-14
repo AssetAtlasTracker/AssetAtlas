@@ -7,121 +7,129 @@
 	import { createEventDispatcher } from "svelte";
 	import { actionStore } from "../stores/actionStore.js";
 	import Dialog from "./Dialog.svelte";
-	export let dialog: HTMLDialogElement;
-	export let item: IBasicItemPopulated;
+
+	let {
+		dialog = $bindable(),
+		item
+	} = $props<{
+		dialog?: HTMLDialogElement;
+		item: IBasicItemPopulated;
+	}>();
 
 	const dispatch = createEventDispatcher();
 
-	let name = "Copy of " + item.name;
-	let description = "";
-	if (item.description) {
-		description = item.description;
-	}
-	let tags = item.tags.toString();
+	let name = $state("");
+	let description = $state("");
+	let tags = $state("");
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let parentItemName =
-		item.parentItem?.name != null ? item.parentItem?.name : "";
-	let parentItemId: string | null = item.parentItem
-		? item.parentItem._id.toString()
-		: null;
+	let parentItemName = $state("");
+	let parentItemId = $state<string | null>(null);
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let homeItemName = item.homeItem?.name != null ? item.homeItem?.name : "";
-	let homeItemId: string | null = item.homeItem
-		? item.homeItem._id.toString()
-		: null;
+	let homeItemName = $state("");
+	let homeItemId = $state<string | null>(null);
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let templateName = item.template ? item.template?.name : "";
-	let templateId: string | null = item.template
-		? item.template?._id.toString()
-		: null;
-	let selectedImage: File | null = null;
+	let templateName = $state("");
+	let templateId = $state<string | null>(null);
+	let selectedImage = $state<File | null>(null);
 
-	export function changeItem(newItem: IBasicItemPopulated) {
-		console.log("item changed");
-		item = newItem;
-		name = "Copy of " + item.name;
-		if (item.description) {
-			description = item.description;
-		}
-		tags = item.tags.toString();
-		if (item.parentItem?.name != null) {
-			parentItemName = item.parentItem?.name;
-		}
-		if (item.parentItem) {
-			parentItemId = item.parentItem._id.toString();
-		}
-		if (item.homeItem?.name != null) {
-			homeItemName = item.homeItem?.name;
-		}
-		if (item.homeItem) {
-			homeItemId = item.homeItem._id.toString();
-		}
-		if (item.template) {
-			templateName = item.template?.name;
-			templateId = item.template?._id.toString();
-		}
-	}
+	let customFields = $state<ICustomFieldEntryInstance[]>([]);
 
-	let customFields: ICustomFieldEntryInstance[] = [];
-	if (item.customFields?.length) {
-		//First load non-template fields
-		let nonTemplateFields = item.customFields.map((cf) => ({
-			fieldName: cf.field.fieldName,
-			fieldId: cf.field._id as unknown as string,
-			dataType: cf.field.dataType,
-			value: cf.value as string,
-			suggestions: [],
-			isNew: false,
-			isSearching: false,
-			isExisting: true,
-			fromTemplate: false,
-		}));
+	function buildCustomFields(
+		currentItem: IBasicItemPopulated,
+	): ICustomFieldEntryInstance[] {
+		let fields: ICustomFieldEntryInstance[] = [];
+		if (currentItem.customFields?.length) {
+			//First load non-template fields
+			const nonTemplateFields = currentItem.customFields.map((cf) => ({
+				fieldName: cf.field.fieldName,
+				fieldId: cf.field._id as unknown as string,
+				dataType: cf.field.dataType,
+				value: cf.value as string,
+				suggestions: [],
+				isNew: false,
+				isSearching: false,
+				isExisting: true,
+				fromTemplate: false,
+			}));
 
-		if (item.template && item.template.fields?.length) {
+			if (currentItem.template && currentItem.template.fields?.length) {
+				const templateFieldIds = new Set(
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					currentItem.template.fields.map((tid: any) =>
+						typeof tid === "string" ? tid : tid._id.toString(),
+					),
+				);
+
+				//Split fields into template and non-template
+				const templateFields = nonTemplateFields
+					.filter(
+						(field) =>
+							field.fieldId &&
+								templateFieldIds.has(field.fieldId.toString()),
+					)
+					.map((field) => ({ ...field, fromTemplate: true }));
+
+				const remainingFields = nonTemplateFields.filter(
+					(field) =>
+						!field.fieldId ||
+							!templateFieldIds.has(field.fieldId.toString()),
+				);
+
+				//Combine with template fields first
+				fields = [...templateFields, ...remainingFields];
+			} else {
+				fields = nonTemplateFields;
+			}
+		}
+
+		if (currentItem.template && currentItem.template.fields?.length) {
 			const templateFieldIds = new Set(
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				item.template.fields.map((tid: any) =>
+				currentItem.template.fields.map((tid: any) =>
 					typeof tid === "string" ? tid : tid._id.toString(),
 				),
 			);
 
-			//Split fields into template and non-template
-			const templateFields = nonTemplateFields
-				.filter(
-					(field) =>
-						field.fieldId &&
-							templateFieldIds.has(field.fieldId.toString()),
-				)
-				.map((field) => ({ ...field, fromTemplate: true }));
-
-			const remainingFields = nonTemplateFields.filter(
-				(field) =>
-					!field.fieldId ||
-						!templateFieldIds.has(field.fieldId.toString()),
-			);
-
-			//Combine with template fields first
-			customFields = [...templateFields, ...remainingFields];
-		} else {
-			customFields = nonTemplateFields;
+			fields = fields.map((field) => ({
+				...field,
+				fromTemplate: field.fieldId
+					? templateFieldIds.has(field.fieldId.toString())
+					: false,
+			}));
 		}
+
+		return fields;
 	}
 
-	if (item.template && item.template.fields?.length) {
-		const templateFieldIds = new Set(
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			item.template.fields.map((tid: any) =>
-				typeof tid === "string" ? tid : tid._id.toString(),
-			),
-		);
+	function updateFromItem(currentItem: IBasicItemPopulated) {
+		name = "Copy of " + currentItem.name;
+		description = currentItem.description ?? "";
+		tags = currentItem.tags.toString();
+		parentItemName = currentItem.parentItem?.name ?? "";
+		parentItemId = currentItem.parentItem
+			? currentItem.parentItem._id.toString()
+			: null;
+		homeItemName = currentItem.homeItem?.name ?? "";
+		homeItemId = currentItem.homeItem
+			? currentItem.homeItem._id.toString()
+			: null;
+		templateName = currentItem.template?.name ?? "";
+		templateId = currentItem.template
+			? currentItem.template?._id.toString()
+			: null;
+		customFields = buildCustomFields(currentItem);
+		selectedImage = null;
+	}
 
-		customFields = customFields.map((field) => ({
-			...field,
-			fromTemplate: field.fieldId
-				? templateFieldIds.has(field.fieldId.toString())
-				: false,
-		}));
+	$effect(() => {
+		updateFromItem(item);
+	});
+
+	export function changeItem(newItem: IBasicItemPopulated) {
+		console.log("item changed");
+		item = newItem;
+		updateFromItem(newItem);
 	}
 	async function createCustomField(
 		fieldName: string,
@@ -191,7 +199,7 @@
 			console.log("Item created:", data);
 			actionStore.addMessage("Item created successfully!");
 			dispatch("itemCreated");
-			dialog.close();
+			dialog?.close();
 		} catch (err) {
 			console.error("Error creating item:", err);
 			actionStore.addMessage("Error creating item");
@@ -202,17 +210,16 @@
 <Dialog
 	bind:dialog
 	isLarge={false}
-	create={() => {}}
-	close={() => dialog.close()}>
+	close={() => dialog?.close()}>
 	<div class="small-dialog-padding">
 		Are you sure you want to duplicate "{item.name}"?
 		<div class="simple-flex pt-4">
 			<button
-				on:click={() => dialog.close()}
+				onclick={() => dialog?.close()}
 				class="border-button flex-grow">
 				Cancel
 			</button>
-			<button on:click={duplicateItem} class="success-button flex-grow">
+			<button onclick={duplicateItem} class="success-button flex-grow">
 				Duplicate
 			</button>
 		</div>

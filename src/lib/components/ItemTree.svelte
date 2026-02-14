@@ -2,8 +2,8 @@
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { dragDropMode } from "$lib/stores/dragDropStore.js";
 	import { GripVerticalIcon } from "@lucide/svelte";
-	import { onDestroy, onMount } from "svelte";
 	import ItemLink from "./ItemLink.svelte";
+	import ItemTree from "./ItemTree.svelte";
 
 	interface TreeItem {
 		_id: string;
@@ -11,34 +11,41 @@
 		description?: string;
 		children: TreeItem[];
 		hasChildren: boolean;
-	}
+	};
 
-	export let searchQuery: string = "";
-	export let exactSearch: boolean = false;
-
-	export let draggingItem: IBasicItemPopulated | null | undefined;
-	export let targetItemId: string | undefined;
-	export let targetItemName: string | undefined;
-	export let showMoveDialog: boolean;
-	let currentDragDropMode: boolean;
-
-	const dragDropUnsubscribe = dragDropMode.subscribe((value) => {
-		currentDragDropMode = value;
-	});
+	let {
+		searchQuery = "",
+		exactSearch = false,
+		draggingItem = $bindable(),
+		targetItemId = $bindable(),
+		targetItemName = $bindable(),
+		showMoveDialog = $bindable(),
+		useWindowView = false,
+		parentId = null,
+		indentLevel = 0,
+		rootData = null,
+		currentId = null,
+	} = $props<{
+		searchQuery?: string;
+		exactSearch?: boolean;
+		draggingItem?: IBasicItemPopulated | null;
+		targetItemId?: string;
+		targetItemName?: string;
+		showMoveDialog?: boolean;
+		useWindowView?: boolean;
+		parentId?: string | null;
+		indentLevel?: number;
+		rootData?: TreeItem[] | null;
+		currentId?: string | null;
+	}>();
 
 	export function closeMoveDialog() {
 		showMoveDialog = false;
 	}
 
-	export let useWindowView = false;
-	export let parentId: string | null = null;
-	export let indentLevel: number = 0;
-	export let rootData: TreeItem[] | null = null;
-	export let currentId: string | null = null;
-
-	let treeData: TreeItem[] = [];
-	let expanded: Record<string, boolean> = {};
-	let loading = true;
+	let treeData = $state<TreeItem[]>([]);
+	let expanded = $state<Record<string, boolean>>({});
+	let loading = $state(true);
 
 	async function fetchTree(id?: string) {
 		try {
@@ -89,17 +96,13 @@
 		}
 	}
 
-	onMount(() => {
-		loadTree();
+	$effect(() => {
+		void loadTree();
 	});
-
-	$: if (parentId) {
-		loadTree();
-	}
 
 	function checkIfSwap() {
 		if (
-			currentDragDropMode &&
+			$dragDropMode &&
 			targetItemId &&
 			draggingItem &&
 			targetItemId != (draggingItem._id as unknown as string)
@@ -136,9 +139,6 @@
 		draggingItem = item as unknown as IBasicItemPopulated;
 	}
 
-	onDestroy(() => {
-		dragDropUnsubscribe();
-	});
 </script>
 
 <div class="tree-container">
@@ -155,22 +155,22 @@
 					draggable="true"
 					data-item-id={item._id}
 					data-item-name={item.name}
-					on:dragstart={(e) => {
+					ondragstart={(e) => {
 						handleDragStart(e, item);
 					}}
-					on:dragover={(e) => {
+					ondragover={(e) => {
 						e.preventDefault();
 						console.log(`Dragged over ${index}.`);
 					}}
-					on:dragend={(e) => {
+					ondragend={(e) => {
 						e.preventDefault();
 						console.log("End Drag");
 					}}
-					on:drop={doDrop}>
+					ondrop={doDrop}>
 					{#if item.hasChildren}
 						<button
 							class="expand-button"
-							on:click={() => toggleExpand(item._id)}
+							onclick={() => toggleExpand(item._id)}
 							aria-label={expanded[item._id]
 								? "Collapse"
 								: "Expand"}>
@@ -205,7 +205,7 @@
 				</div>
 
 				{#if expanded[item._id] && item.children}
-					<svelte:self
+					<ItemTree
 						bind:draggingItem
 						bind:targetItemId
 						bind:targetItemName

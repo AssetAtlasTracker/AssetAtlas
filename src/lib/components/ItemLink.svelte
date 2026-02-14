@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { createEventDispatcher } from "svelte";
-  
-	export let itemId: string;
-	export let itemName: string = "";
-	export let className: string;
+
+	let { itemId, itemName = "", className = "" } = $props<{
+		itemId: string;
+		itemName?: string;
+		className?: string;
+	}>();
   
 	const dispatch = createEventDispatcher();
   
@@ -13,6 +15,6 @@
 	}
 </script>
 
-<button class={className} on:click={handleClick}>
-	<slot>{itemName}</slot>
+<button class={className} onclick={handleClick}>
+	{itemName}
 </button>
