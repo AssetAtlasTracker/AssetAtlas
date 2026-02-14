@@ -119,11 +119,7 @@
 				: false,
 		}));
 	}
-
-	if (item.image) {
-		getImage();
-	}
-
+	
 	let showEditTemplateDialog = false;
 
 	$: if (showEditTemplateDialog) {
@@ -133,16 +129,6 @@
 	}
 
 	const dispatch = createEventDispatcher();
-
-	async function getImage() {
-		try {
-			const response = await fetch(`/api/items/${item._id}/image`);
-			if (!response.ok) throw new Error("Failed to fetch image");
-			const blob = await response.blob();
-		} catch (err) {
-			console.error("Error fetching image:", err);
-		}
-	}
 
 	async function createCustomField(
 		fieldName: string,
@@ -520,7 +506,6 @@
 		try {
 			const response = await fetch(`/api/items/${item._id}/image`);
 			if (response.ok) {
-				const timestamp = Date.now();
 				removeExistingImage = false;
 			} else {
 				removeExistingImage = true;
