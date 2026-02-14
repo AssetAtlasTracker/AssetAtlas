@@ -19,47 +19,35 @@
 	}
 	let tags = item.tags.toString();
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let parentItemName =
-		item.parentItem?.name != null ? item.parentItem?.name : "";
 	let parentItemId: string | null = item.parentItem
 		? item.parentItem._id.toString()
 		: null;
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let homeItemName = item.homeItem?.name != null ? item.homeItem?.name : "";
 	let homeItemId: string | null = item.homeItem
 		? item.homeItem._id.toString()
 		: null;
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let templateName = item.template ? item.template?.name : "";
 	let templateId: string | null = item.template
 		? item.template?._id.toString()
 		: null;
-	let selectedImage: File | null = null;
+	let selectedImage: string | null = item.image ? item.image : null;
 
 	export function changeItem(newItem: IBasicItemPopulated) {
-		console.log("item changed");
 		item = newItem;
 		name = "Copy of " + item.name;
 		if (item.description) {
 			description = item.description;
 		}
 		tags = item.tags.toString();
-		if (item.parentItem?.name != null) {
-			parentItemName = item.parentItem?.name;
-		}
 		if (item.parentItem) {
 			parentItemId = item.parentItem._id.toString();
-		}
-		if (item.homeItem?.name != null) {
-			homeItemName = item.homeItem?.name;
 		}
 		if (item.homeItem) {
 			homeItemId = item.homeItem._id.toString();
 		}
 		if (item.template) {
-			templateName = item.template?.name;
 			templateId = item.template?._id.toString();
+		}
+		if (item.image) {
+			selectedImage = item.image;
 		}
 	}
 
@@ -163,24 +151,13 @@
 				JSON.stringify(formattedCustomFields),
 			);
 			if (selectedImage) formData.append("image", selectedImage);
-			console.log("Sending request with formData:");
-			for (const pair of formData.entries()) {
-				console.log(pair[0], pair[1]);
-			}
 
 			const response = await fetch(`/api/items`, {
 				method: "POST",
 				body: formData,
 			});
 
-			console.log("Response status:", response.status);
-			console.log("Response headers:");
-			response.headers.forEach((value, key) => {
-				console.log(key, value);
-			});
-
 			const rawText = await response.text();
-			console.log("Raw response:", rawText);
 			const data = JSON.parse(rawText);
 
 			if (!response.ok) {
@@ -188,7 +165,6 @@
 				throw new Error(data.message || "Error creating item");
 			}
 
-			console.log("Item created:", data);
 			actionStore.addMessage("Item created successfully!");
 			dispatch("itemCreated");
 			dialog.close();

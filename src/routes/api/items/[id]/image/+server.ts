@@ -9,12 +9,14 @@ export const GET: RequestHandler = async ({ params }) => {
 		const { id } = params;
 
 		if (!mongoose.Types.ObjectId.isValid(id)) {
+			console.log("IMAGE: invalid ID");
 			throw error(400, 'Invalid item ID');
 		}
 
 		const item = await BasicItem.findById(id).populate('image');
     
 		if (!item?.image) {
+			console.log("IMAGE: No Image");
 			throw error(404, 'No image found');
 		}
 

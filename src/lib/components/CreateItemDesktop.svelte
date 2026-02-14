@@ -32,9 +32,10 @@
 	import InfoToolTip from "./InfoToolTip.svelte";
 
 	import { collection } from "@zag-js/combobox";
+	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem";
 	
 	export let dialog: HTMLDialogElement;
-	export let duplicate = false;
+	export let originalItem: IBasicItemPopulated | null = null;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	export let filteredTemplates: any[] = [];
 	export let onTemplateInputValueChange: (details: { inputValue: string }) => void;
@@ -65,7 +66,7 @@
 </script>
 
 <Dialog isLarge={true} bind:dialog create={() => {}} close={resetAllFields}>
-	{#if duplicate}
+	{#if originalItem}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
 		</h1>
@@ -118,6 +119,8 @@
 				<br />
 				<div class="flex flex-col space-y-2">
 					<ImageSelector
+						itemId={originalItem?._id.toString()}
+						existingImage={!!originalItem?.image}
 						bind:this={imageSelector}
 						on:imageChange={handleImageChange}
 					/>

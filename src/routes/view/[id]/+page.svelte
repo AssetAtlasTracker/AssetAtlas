@@ -297,7 +297,6 @@
 	{#if createDialog}
 		<CreateItem
 			bind:dialog={createDialog}
-			duplicate={false}
 			on:close={() => createDialog?.close()}
 			on:itemCreated={() =>
 				data.item?._id && fetchItem(data.item._id.toString())} />

@@ -35,9 +35,10 @@
 	import InfoToolTip from "./InfoToolTip.svelte";
 
 	import { collection } from "@zag-js/combobox";
+	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem";
 
 	export let dialog: HTMLDialogElement;
-	export let duplicate = false;
+	export let originalItem: IBasicItemPopulated | null = null;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	export let filteredTemplates: any[] = [];
 	export let onTemplateInputValueChange: (details: { inputValue: string }) => void;
@@ -81,7 +82,7 @@
 </script>
 
 <Dialog bind:dialog create={() => {}} isLarge={false} close={resetAllFields}>
-	{#if duplicate}
+	{#if originalItem}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
 		</h1>
@@ -289,7 +290,7 @@
 				onFieldFocus={() => handleCustomFieldFocus(index)}
 				onFieldBlur={() => (createItemState.customFields[index].suggestions = [])}
 				placeholder={createItemState.placeholder}
-				onDuplicateAndEdit={duplicate}
+				duplicate={!!originalItem}
 				onFieldValueInput={(e) => {
 					const target = e.target as HTMLInputElement;
 					if (field.dataType === 'item') {

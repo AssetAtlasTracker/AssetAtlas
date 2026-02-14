@@ -370,7 +370,6 @@
 	{/if}
 	<CreateItem
 		bind:dialog
-		duplicate={false}
 		on:itemCreated={() => {
 			handleSearch(searchQuery);
 		}} />
