@@ -76,7 +76,7 @@
 	<CreateItem
 		bind:dialog={createDialog}
 		bind:this={creator}
-		duplicate={true}
+		originalItem={item}
 		on:itemCreated={onCreated}
 		on:close={() => createDialog?.close()} />
 {/key}

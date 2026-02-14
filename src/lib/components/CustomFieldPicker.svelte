@@ -14,7 +14,7 @@
 	export let onFieldValueFocus: (() => void) | undefined = undefined;
 	export let onFieldValueBlur: (() => void) | undefined = undefined;
 	export let showDeleteButton = true;
-	export let onDuplicateAndEdit: boolean = false;
+	export let duplicate: boolean = false;
 	export let onDelete: () => void;
 	export let mode: "template" | "item" = "item";
 
@@ -34,7 +34,7 @@
 	let isItemValueValid = false;
 
 	onMount(async () => {
-		if (field.dataType === "item" && onDuplicateAndEdit && !field.displayValue && field.value) {
+		if (field.dataType === "item" && duplicate && !field.displayValue && field.value) {
 			const itemName = await checkIfItemExistsById(field.value);
 			field.displayValue = itemName || '';
 		}

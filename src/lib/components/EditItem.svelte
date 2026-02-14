@@ -48,11 +48,6 @@
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let templateSuggestions: any[] = [];
 	let selectedImage: File | null = null;
-	let imagePreview: string | null = null;
-	if (item.image) {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		imagePreview = `/api/items/${item._id}/image`;
-	}
 	let debounceTimeout: NodeJS.Timeout | undefined;
 	let removeExistingImage = false;
 	let sameLocations: boolean = false;
@@ -144,7 +139,6 @@
 			const response = await fetch(`/api/items/${item._id}/image`);
 			if (!response.ok) throw new Error("Failed to fetch image");
 			const blob = await response.blob();
-			imagePreview = URL.createObjectURL(blob);
 		} catch (err) {
 			console.error("Error fetching image:", err);
 		}
@@ -527,15 +521,12 @@
 			const response = await fetch(`/api/items/${item._id}/image`);
 			if (response.ok) {
 				const timestamp = Date.now();
-				imagePreview = `/api/items/${item._id}/image?t=${timestamp}`;
 				removeExistingImage = false;
 			} else {
-				imagePreview = null;
 				removeExistingImage = true;
 			}
 		} catch (err) {
 			console.error("Error checking image:", err);
-			imagePreview = null;
 			removeExistingImage = true;
 		}
 	}
