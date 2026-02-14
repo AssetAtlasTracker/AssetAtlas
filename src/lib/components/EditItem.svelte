@@ -6,7 +6,6 @@
 	import { actionStore } from "$lib/stores/actionStore.js";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
 	import { createEventDispatcher, onMount } from "svelte";
-	import ActionDisplay from "./ActionDisplay.svelte";  // Add this import
 	import CreateTemplate from "./CreateTemplate.svelte";
 	import CustomFieldPicker from "./CustomFieldPicker.svelte";
 	import Dialog from "./Dialog.svelte";
@@ -660,10 +659,6 @@
 		}
 	}
 </script>
-
-<!-- <div style="position: relative; z-index: 1;">
-    <ActionDisplay />
-</div> -->
 
 <div class="page-component">
 	<form on:submit|preventDefault={handleEditItem}>

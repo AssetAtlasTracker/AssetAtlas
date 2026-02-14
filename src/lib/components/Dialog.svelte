@@ -28,7 +28,4 @@
 	oncancel={handleClose}>
 	<button class="x-button" onclick={handleClose}>X</button>
 	{@render children?.()}
-	<div style="position: relative; z-index: 1;">
-    	<ActionDisplay />
-	</div>
 </dialog>
