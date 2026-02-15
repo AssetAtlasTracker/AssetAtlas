@@ -45,7 +45,7 @@ c. A popup will appear with the URL to access the frontend. Or if something went
 
 ## Project Structure
 
-For more information see the [SvelteKit docs](https://svelte.dev/docs/kit/project-structure)
+For more information on why the routing is setup the way it is or how routing works, see the [SvelteKit docs](https://svelte.dev/docs/kit/project-structure)
 - `/.github` - GitHub files. Largely used for continuous integration workflows
   - `../workflows` - Workflows that control how the continuous integration runs
   - `../ISSUE_TEMPLATE` - How the GitHub issue templates are formatted
@@ -63,6 +63,33 @@ For more information see the [SvelteKit docs](https://svelte.dev/docs/kit/projec
   - `../resource` - Contains resource files used in testing.
 - `/docs` - Folder containing documentation related to the project. No code should be here unless it's for the sake of documentation
   - `24-25` - Folder containing documentation from the 2024-2025 team of Asset Atlas
+  - `25-26 Old` - Folder containing old documentation from the 2025-2026 team of Asset Atlas
 - `/docker` - Folder containing Docker stuff
   - `secrets.env` - This is a .env village that holds secrets necessary for user to log in. You can either go to the pinned messages in #general in discord to find our current local dev secrets, or configure your own in a manner similar to the doc in the .github/assetatlas folder
+
+## Svelte Information
+
+Currently the project is running on Svelte 5, the transition happened during the 2025-2026 Winter quarter. Due to the scale of this upgrade, we currently have the project still running in legacy mode. This means that the project is still written using Svelte 4 syntax. This means that the Svelte code does NOT use the Svelte 5 runes. More information about this can be found in the [Svelte 5 upgrade recap](https://github.com/AssetAtlasTracker/AssetAtlas/blob/newdev-onboarding/docs/25-26%20Old/svelte5UpgradeRecap.md).  
+
+## Best Practices
+
+- Commit early and often!
+- Run the linter and tests frequently
+  - `npm run lint` and `npm run test` respectively
+- Run code coverage as needed
+  - `npm run coverage`
+- Name PRs according to [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specifications
+- Ensure that the linter being used by VS Code is the same as the one as the CI linter
+
+## Troubleshooting  
+
+- Restart docker engine
+- Delete docker images and containers (sometimes cache issues)
+- Can take like ~3 minutes to build containers with no cache on Rose laptops
+- Running dev takes longer than building containers
+- Make sure to have your Rose laptops plugged in to ensure that things run as fast as they can
+- Delete repo and clone again from github
+- Restart PC
+- Run VS code/docker as administrator
+
 
