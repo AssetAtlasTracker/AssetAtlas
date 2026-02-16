@@ -81,6 +81,10 @@ Currently the project is running on Svelte 5, the transition happened during the
 - Name PRs according to [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specifications
 - Ensure that the linter being used by VS Code is the same as the one as the CI linter
 
+## Continuous Integration  
+
+The continuous integration system currently being used for the project is GitHub Actions. Whenever a commit is pushed, the CI systems runs all tests and runs a lint check on the entirety of the project. If either fail then the push is marked as failing the CI check. The logs for each CI run are stored in the GitHub commit history.
+
 ## Troubleshooting  
 
 - Restart docker engine
