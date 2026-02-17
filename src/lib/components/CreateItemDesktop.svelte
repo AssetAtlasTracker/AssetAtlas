@@ -300,7 +300,7 @@
 					onFieldFocus={() => handleCustomFieldFocus(index)}
 					onFieldBlur={() => (createItemState.customFields[index].suggestions = [])}
 					placeholder={createItemState.placeholder}
-					onDuplicateAndEdit={duplicate}
+					duplicate={!!originalItem}
 					onFieldValueInput={(e) => {
 						const target = e.target as HTMLInputElement;
 						if (field.dataType === 'item') {
