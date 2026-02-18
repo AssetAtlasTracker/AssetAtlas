@@ -85,6 +85,10 @@ Currently the project is running on Svelte 5, the transition happened during the
 
 The continuous integration system currently being used for the project is GitHub Actions. Whenever a commit is pushed, the CI systems runs all tests and runs a lint check on the entirety of the project. If either fail then the push is marked as failing the CI check. The logs for each CI run are stored in the GitHub commit history.
 
+## Project Management
+
+We are using GitHub Projects for the project management for AssetAtlas, of which the various boards can be found [here](https://github.com/orgs/AssetAtlasTracker/projects). Issues are seperated into different tiers of priority, with Priority at the top followed by the Backlog. You likely will not need to worry about issues in Cold Storage and Unrefined as Rob will move them to the Backlog or Priority once they are ready to be addressed. It should also be noted that you can link a pull request to an issue on the project board making it much easier for fellow developers to understand what each pull request is doing.  
+
 ## Troubleshooting  
 
 - Restart docker engine
