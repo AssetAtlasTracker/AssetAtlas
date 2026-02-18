@@ -31,16 +31,17 @@
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
+	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem";
 
 	let {
 		dialog = $bindable(),
-		duplicate = false,
+		originalItem = null,
 		filteredTemplates = [],
 		onTemplateInputValueChange,
 		onTemplateSelect
 	} = $props<{
 		dialog: HTMLDialogElement;
-		duplicate: boolean;
+		originalItem: IBasicItemPopulated | null;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		filteredTemplates: any[];
 		onTemplateInputValueChange: (details: { inputValue: string }) => void;
@@ -74,7 +75,7 @@
 </script>
 
 <Dialog isLarge={true} bind:dialog close={resetAllFields}>
-	{#if duplicate}
+	{#if originalItem}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
 		</h1>
@@ -132,6 +133,8 @@
 				<br />
 				<div class="flex flex-col space-y-2">
 					<ImageSelector
+						itemId={originalItem?._id.toString()}
+						existingImage={!!originalItem?.image}
 						bind:this={imageSelector}
 						on:imageChange={handleImageChange}
 					/>
@@ -309,7 +312,7 @@
 					onFieldFocus={() => handleCustomFieldFocus(index)}
 					onFieldBlur={() => (createItemState.customFields[index].suggestions = [])}
 					placeholder={createItemState.placeholder}
-					onDuplicateAndEdit={duplicate}
+					duplicate={!!originalItem}
 					onFieldValueInput={(e) => {
 						const target = e.target as HTMLInputElement;
 						if (field.dataType === 'item') {

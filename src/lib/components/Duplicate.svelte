@@ -22,16 +22,10 @@
 	let description = $state("");
 	let tags = $state("");
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let parentItemName = $state("");
 	let parentItemId = $state<string | null>(null);
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let homeItemName = $state("");
 	let homeItemId = $state<string | null>(null);
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let templateName = $state("");
 	let templateId = $state<string | null>(null);
-	let selectedImage = $state<File | null>(null);
+	let selectedImage = $derived<string | null>(item.image ? item.image : null);
 
 	let customFields = $state<ICustomFieldEntryInstance[]>([]);
 
@@ -106,20 +100,17 @@
 		name = "Copy of " + currentItem.name;
 		description = currentItem.description ?? "";
 		tags = currentItem.tags.toString();
-		parentItemName = currentItem.parentItem?.name ?? "";
 		parentItemId = currentItem.parentItem
 			? currentItem.parentItem._id.toString()
 			: null;
-		homeItemName = currentItem.homeItem?.name ?? "";
 		homeItemId = currentItem.homeItem
 			? currentItem.homeItem._id.toString()
 			: null;
-		templateName = currentItem.template?.name ?? "";
 		templateId = currentItem.template
 			? currentItem.template?._id.toString()
 			: null;
 		customFields = buildCustomFields(currentItem);
-		selectedImage = null;
+		selectedImage = item.image ? item.image : null;
 	}
 
 	$effect(() => {
@@ -127,7 +118,6 @@
 	});
 
 	export function changeItem(newItem: IBasicItemPopulated) {
-		console.log("item changed");
 		item = newItem;
 		updateFromItem(newItem);
 	}
@@ -171,24 +161,13 @@
 				JSON.stringify(formattedCustomFields),
 			);
 			if (selectedImage) formData.append("image", selectedImage);
-			console.log("Sending request with formData:");
-			for (const pair of formData.entries()) {
-				console.log(pair[0], pair[1]);
-			}
 
 			const response = await fetch(`/api/items`, {
 				method: "POST",
 				body: formData,
 			});
 
-			console.log("Response status:", response.status);
-			console.log("Response headers:");
-			response.headers.forEach((value, key) => {
-				console.log(key, value);
-			});
-
 			const rawText = await response.text();
-			console.log("Raw response:", rawText);
 			const data = JSON.parse(rawText);
 
 			if (!response.ok) {
@@ -196,7 +175,6 @@
 				throw new Error(data.message || "Error creating item");
 			}
 
-			console.log("Item created:", data);
 			actionStore.addMessage("Item created successfully!");
 			dispatch("itemCreated");
 			dialog?.close();

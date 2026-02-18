@@ -35,18 +35,19 @@
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
+	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem";
 
 	type TemplateLite = Pick<ITemplate, "_id" | "name">;
 
 	let {
 		dialog = $bindable(),
-		duplicate = false,
+		originalItem = null,
 		filteredTemplates = [],
 		onTemplateInputValueChange,
 		onTemplateSelect
 	} = $props<{
 		dialog: HTMLDialogElement;
-		duplicate?: boolean;
+		originalItem: IBasicItemPopulated | null;
 		filteredTemplates?: TemplateLite[];
 		onTemplateInputValueChange: (details: { inputValue: string }) => void;
 		onTemplateSelect: (details: { itemValue?: string }) => void;
@@ -90,7 +91,7 @@
 </script>
 
 <Dialog bind:dialog isLarge={false} close={resetAllFields}>
-	{#if duplicate}
+	{#if originalItem}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
 		</h1>
@@ -305,7 +306,7 @@
 				onFieldFocus={() => handleCustomFieldFocus(index)}
 				onFieldBlur={() => (createItemState.customFields[index].suggestions = [])}
 				placeholder={createItemState.placeholder}
-				onDuplicateAndEdit={duplicate}
+				duplicate={!!originalItem}
 				onFieldValueInput={(e) => {
 					const target = e.target as HTMLInputElement;
 					if (field.dataType === 'item') {

@@ -16,7 +16,7 @@
 		onFieldValueFocus = undefined,
 		onFieldValueBlur = undefined,
 		showDeleteButton = true,
-		onDuplicateAndEdit = false,
+		duplicate = false,
 		onDelete,
 		mode = "item",
 		suggestions,
@@ -31,7 +31,7 @@
 		onFieldValueFocus?: () => void;
 		onFieldValueBlur?: () => void;
 		showDeleteButton: boolean;
-		onDuplicateAndEdit?: boolean;
+		duplicate?: boolean;
 		onDelete: () => void;
 		mode?: "template" | "item";
 		suggestions?: Snippet;
@@ -59,7 +59,7 @@
 	let isItemValueValid = $state(false);
 
 	onMount(async () => {
-		if (field.dataType === "item" && onDuplicateAndEdit && !field.displayValue && field.value) {
+		if (field.dataType === "item" && duplicate && !field.displayValue && field.value) {
 			const itemName = await checkIfItemExistsById(field.value);
 			field.displayValue = itemName || '';
 		}

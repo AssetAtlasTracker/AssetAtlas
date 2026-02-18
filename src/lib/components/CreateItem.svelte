@@ -20,12 +20,12 @@
 	let {
 		creator = $bindable(),
 		dialog = $bindable(),
-		duplicate = false,
+		originalItem = null,
 		filteredTemplates = []
 	} = $props<{
 		creator?: CreateItemDesktop | CreateItemMobile;
 		dialog?: HTMLDialogElement;
-		duplicate: boolean;
+		originalItem: IBasicItemPopulated;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		filteredTemplates?: any[]
 	}>();
@@ -39,7 +39,7 @@
 			.map((t) => ({ ...t, _id: t?._id ?? t?.id }))
 			.filter((t) => t?._id);
 		filteredTemplates = allTemplates;
-		setDuplicate(duplicate);
+		setDuplicate(!!originalItem);
 	});
 
 	export function changeItem(newItem: IBasicItemPopulated){
@@ -70,7 +70,7 @@
 	<CreateItemMobile
 		bind:dialog={dialog}
 		bind:this={creator}
-		duplicate={duplicate}
+		originalItem={originalItem}
 		filteredTemplates={filteredTemplates}
 		onTemplateInputValueChange={onTemplateInputValueChange}
 		onTemplateSelect={onTemplateSelect}
@@ -80,7 +80,7 @@
 	<CreateItemDesktop
 		bind:dialog={dialog}
 		bind:this={creator}
-		duplicate={duplicate}
+		originalItem={originalItem}
 		filteredTemplates={filteredTemplates}
 		onTemplateInputValueChange={onTemplateInputValueChange}
 		onTemplateSelect={onTemplateSelect}

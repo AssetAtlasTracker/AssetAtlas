@@ -34,8 +34,6 @@
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let templateSuggestions = $state<any[]>([]);
 	let selectedImage = $state<File | null>(null);
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let imagePreview = $state<string | null>(null);
 	let debounceTimeout: NodeJS.Timeout | undefined;
 	let removeExistingImage = $state(false);
 	let sameLocations = $state(false);
@@ -144,15 +142,8 @@
 		placeholder = "Search for item...";
 		customFields = buildCustomFields(currentItem);
 		selectedImage = null;
-		imagePreview = currentItem.image
-			? `/api/items/${currentItem._id}/image`
-			: null;
 		removeExistingImage = false;
 		sameLocations = false;
-
-		if (currentItem.image) {
-			void getImage();
-		}
 	}
 
 	$effect(() => {
@@ -165,17 +156,6 @@
 			templateDialog.showModal();
 		}
 	});
-
-	async function getImage() {
-		try {
-			const response = await fetch(`/api/items/${item._id}/image`);
-			if (!response.ok) throw new Error("Failed to fetch image");
-			const blob = await response.blob();
-			imagePreview = URL.createObjectURL(blob);
-		} catch (err) {
-			console.error("Error fetching image:", err);
-		}
-	}
 
 	async function createCustomField(
 		fieldName: string,
@@ -553,16 +533,12 @@
 		try {
 			const response = await fetch(`/api/items/${item._id}/image`);
 			if (response.ok) {
-				const timestamp = Date.now();
-				imagePreview = `/api/items/${item._id}/image?t=${timestamp}`;
 				removeExistingImage = false;
 			} else {
-				imagePreview = null;
 				removeExistingImage = true;
 			}
 		} catch (err) {
 			console.error("Error checking image:", err);
-			imagePreview = null;
 			removeExistingImage = true;
 		}
 	}
