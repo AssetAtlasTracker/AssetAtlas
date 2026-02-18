@@ -16,7 +16,7 @@
 	import CreateItemMobile from "./CreateItemMobile.svelte";
 
 	export let dialog: HTMLDialogElement;
-	export let duplicate = false;
+	export let originalItem: IBasicItemPopulated | null = null;
 
 	const dispatch = createEventDispatcher();
 	
@@ -57,14 +57,14 @@
 		}
 	}
 
-	setDuplicate(duplicate);
+	setDuplicate(!!originalItem);
 </script>
 
 {#if browser && Device.isMobile}
 	<CreateItemMobile
 		bind:dialog={dialog}
 		bind:this={creator}
-		duplicate={duplicate}
+		originalItem={originalItem}
 		filteredTemplates={filteredTemplates}
 		onTemplateInputValueChange={onTemplateInputValueChange}
 		onTemplateSelect={onTemplateSelect}
@@ -74,7 +74,7 @@
 	<CreateItemDesktop
 		bind:dialog={dialog}
 		bind:this={creator}
-		duplicate={duplicate}
+		originalItem={originalItem}
 		filteredTemplates={filteredTemplates}
 		onTemplateInputValueChange={onTemplateInputValueChange}
 		onTemplateSelect={onTemplateSelect}

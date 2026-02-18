@@ -28,9 +28,15 @@
 		try {
 			const response = await fetch(`/api/items/${itemId}/image`);
 			if (response.ok) {
-				imagePreview = `/api/items/${itemId}/image`;
+				const blob = await response.blob();
+				const filename = `image-${itemId}.jpg`;
+				const file = new File([blob], filename, { type: 'image/jpeg' });
+				
+				selectedImage = file;
+				imagePreview = URL.createObjectURL(blob);
+				
 				dispatch('imageChange', { 
-					selectedImage: null,
+					selectedImage: file,
 					removeExistingImage: false
 				});
 			} else {
