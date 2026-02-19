@@ -31,8 +31,7 @@
 	class="glass dialog-component self-center {isLarge
 		? 'large-dialog-noscroll'
 		: ''}"
-	bind:this={dialog}
-	oncancel={handleClose}>
+	bind:this={dialog}>
 	<button class="x-button" onclick={handleClose}>X</button>
 	{@render children?.()}
 </dialog>
