@@ -27,9 +27,6 @@
 
 	$effect(() => {
 		if (!active) {
-			if (imagePreview || selectedImage) {
-				resetImage(false);
-			}
 			lastImageKey = "";
 			return;
 		}
