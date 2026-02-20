@@ -25,7 +25,7 @@
 	} = $props<{
 		creator?: CreateItemDesktop | CreateItemMobile;
 		dialog?: HTMLDialogElement;
-		originalItem: IBasicItemPopulated;
+		originalItem?: IBasicItemPopulated;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		filteredTemplates?: any[]
 	}>();

@@ -15,9 +15,9 @@
 		showMoveDialog = $bindable(),
 	} = $props<{
 		items: IBasicItemPopulated[];
-		draggingItem: IBasicItemPopulated | null;
-		targetItemId: string | null;
-		targetItemName: string | null;
+		draggingItem: IBasicItemPopulated | undefined;
+		targetItemId: string | undefined;
+		targetItemName: string | undefined;
 		showMoveDialog: boolean;
 	}>();
 

@@ -96,7 +96,7 @@
 	}
 
 	export async function reload() {
-		await loadTree();
+		await loadTree(searchQuery, exactSearch, rootData, parentId);
 	}
 
 	async function loadTree(

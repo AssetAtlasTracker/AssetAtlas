@@ -6,10 +6,10 @@
 
 	let {
 		open = $bindable(false),
-		menu
+		menu = $bindable()
 	} = $props<{
 		open?: boolean;
-		menu: HTMLDivElement;
+		menu: HTMLElement | undefined;
 	}>();
 	let authDialog = $state<HTMLDialogElement>();
 	let initialized = $state(false);
