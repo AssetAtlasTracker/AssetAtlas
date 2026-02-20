@@ -12,13 +12,13 @@
 		menu = $bindable(),
 		exactSearch = $bindable(false),
 		onExactSearchChange
-	}: {
+	} = $props<{
 		searchQuery?: string;
 		onSearch: (query: string) => void;
 		menu?: HTMLDialogElement;
 		exactSearch?: boolean;
 		onExactSearchChange?: (value: boolean) => void;
-	} = $props();
+	}>();
 
 	function handleClickMenu() {
 		menu?.click();

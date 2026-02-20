@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { browser } from "$app/environment";
+	import type { ITemplate } from "$lib/server/db/models/template.js";
 	import {
 		addCustomFieldLine,
 		checkIfItemExists,
@@ -27,41 +28,49 @@
 	} from "$lib/stores/createItemStore.svelte";
 	import "$lib/styles/mobile.css";
 	import { Combobox, Switch } from "@skeletonlabs/skeleton-svelte";
+	import { collection } from "@zag-js/combobox";
 	import { createEventDispatcher } from "svelte";
 	import CreateTemplate from "./CreateTemplate.svelte";
 	import CustomFieldPicker from "./CustomFieldPicker.svelte";
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
-
-	import { collection } from "@zag-js/combobox";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem";
 
-	export let dialog: HTMLDialogElement;
-	export let originalItem: IBasicItemPopulated | null = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	export let filteredTemplates: any[] = [];
-	export let onTemplateInputValueChange: (details: { inputValue: string }) => void;
-	export let onTemplateSelect: (details: { itemValue?: string }) => void;
+	type TemplateLite = Pick<ITemplate, "_id" | "name">;
 
-	let templateDialog: HTMLDialogElement | undefined;
-	let showCreateTemplateDialog = false;
+	let {
+		dialog = $bindable(),
+		originalItem = null,
+		filteredTemplates = [],
+		onTemplateInputValueChange,
+		onTemplateSelect
+	} = $props<{
+		dialog: HTMLDialogElement;
+		originalItem: IBasicItemPopulated | null;
+		filteredTemplates?: TemplateLite[];
+		onTemplateInputValueChange: (details: { inputValue: string }) => void;
+		onTemplateSelect: (details: { itemValue?: string }) => void;
+	}>();
+
+	let templateDialog: HTMLDialogElement | undefined = $state();
+	let showCreateTemplateDialog = $state(false);
 	let formElement: HTMLFormElement;
 	let imageSelector: ImageSelector;
 
 	const dispatch = createEventDispatcher();
 
-	$: if (showCreateTemplateDialog) {
-		if (templateDialog) {
+	$effect(() => {
+		if (showCreateTemplateDialog && templateDialog) {
 			templateDialog.showModal();
 		}
-	}
-
-	$: templateCollection = collection({
-		items: filteredTemplates,
-		itemToString: (item) => item?.name ?? "",
-		itemToValue: (item) => String(item?._id ?? ""),
 	});
+
+	let templateCollection = $derived.by(() => collection({
+		items: filteredTemplates,
+		itemToString: (item: TemplateLite) => item?.name ?? "",
+		itemToValue: (item: TemplateLite) => String(item?._id ?? ""),
+	}));
 
 	setOnItemCreated(() => {
 		dispatch("itemCreated")
@@ -81,7 +90,7 @@
 	}
 </script>
 
-<Dialog bind:dialog create={() => {}} isLarge={false} close={resetAllFields}>
+<Dialog bind:dialog isLarge={false} close={resetAllFields}>
 	{#if originalItem}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
@@ -91,10 +100,17 @@
 			Create New Item
 		</h1>
 	{/if}
-	<form bind:this={formElement} on:submit|preventDefault={() => submitAndCloseItem(dialog, imageSelector)}>
+	<form
+		bind:this={formElement}
+		onsubmit={
+			(event) => {
+				event.preventDefault();
+				submitAndCloseItem(dialog, imageSelector);
+			}
+		}>
 		<div class="flex flex-col space-y-4">
 			<div class="flex flex-col space-y-2">
-				<ImageSelector bind:this={imageSelector} on:imageChange={handleImageChange} />
+				<ImageSelector active={dialog?.open ?? false} bind:this={imageSelector} on:imageChange={handleImageChange} />
 			</div>
 
 			<div class="flex space-x-4">
@@ -146,16 +162,16 @@
 					type="text"
 					class="dark-textarea py-2 px-4 w-full"
 					bind:value={createItemState.homeItemName}
-					on:input={handleHomeItemInput}
-					on:focus={handleHomeItemFocus}
-					on:blur={() => (createItemState.homeItemSuggestions = [])} />
+					oninput={handleHomeItemInput}
+					onfocus={handleHomeItemFocus}
+					onblur={() => (createItemState.homeItemSuggestions = [])} />
 				{#if createItemState.homeItemSuggestions.length > 0}
 					<ul class="suggestions suggestion-box">
 						{#each createItemState.homeItemSuggestions as item (item.id)}
 							<button
 								class="suggestion-item"
 								type="button"
-								on:mousedown={(e) => {
+								onmousedown={(e) => {
 									e.preventDefault();
 									selectHomeItem(item);
 								}}>
@@ -178,16 +194,16 @@
 						type="text"
 						class="dark-textarea py-2 px-4 w-full"
 						bind:value={createItemState.parentItemName}
-						on:input={handleParentItemInput}
-						on:focus={handleParentItemFocus}
-						on:blur={() => (createItemState.parentItemSuggestions = [])} />
+						oninput={handleParentItemInput}
+						onfocus={handleParentItemFocus}
+						onblur={() => (createItemState.parentItemSuggestions = [])} />
 					{#if createItemState.parentItemSuggestions.length > 0}
 						<ul class="suggestions suggestion-box">
 							{#each createItemState.parentItemSuggestions as item (item.id)}
 								<button
 									class="suggestion-item"
 									type="button"
-									on:mousedown={(e) => {
+									onmousedown={(e) => {
 										e.preventDefault();
 										selectParentItem(item);
 									}}>
@@ -222,7 +238,7 @@
 					<button
 						type="button"
 						class="border-button shadow m-1"
-						on:click={() => (showCreateTemplateDialog = true)}>
+						onclick={() => (showCreateTemplateDialog = true)}>
 						Create New Template
 					</button>
 				</div>
@@ -237,7 +253,7 @@
 						<Combobox.Control class="w-full">
 							<Combobox.Input
 								class="dark-textarea py-2 px-4 w-full"
-								on:focus={handleTemplateFocus}
+								onfocus={handleTemplateFocus}
 							/>
 							<Combobox.Trigger
 								aria-label="Open templates"
@@ -280,12 +296,12 @@
 			type="button"
 			id="create-custom-field-button"
 			class="border-button font-semibold shadow small-add-button w-full"
-			on:click={addCustomFieldLine}>
+			onclick={addCustomFieldLine}>
 			+
 		</button>
 		{#each createItemState.customFields as field, index (field.fieldId)}
 			<CustomFieldPicker
-				bind:field
+				bind:field={createItemState.customFields[index]}
 				onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
 				onFieldFocus={() => handleCustomFieldFocus(index)}
 				onFieldBlur={() => (createItemState.customFields[index].suggestions = [])}
@@ -324,12 +340,12 @@
 				}}
 				showDeleteButton={!field.fromTemplate}
 				onDelete={() => removeCustomField(index)}>
-				<svelte:fragment slot="suggestions">
+				{#snippet suggestions()}
 					{#each field.suggestions as suggestion (suggestion._id)}
 						<button
 							class="suggestion-item"
 							type="button"
-							on:mousedown={(e) => {
+							onmousedown={(e) => {
 								e.preventDefault();
 								selectCustomFieldSuggestion(
 									index,
@@ -339,16 +355,16 @@
 							{suggestion.fieldName} ({suggestion.dataType})
 						</button>
 					{/each}
-				</svelte:fragment>
+				{/snippet}
 				
-				<svelte:fragment slot="itemSuggestions">
+				{#snippet itemSuggestions()}
 					{#if field.dataType === 'item' && createItemState.fieldItemSuggestions.length > 0}
 						<ul class="suggestions suggestion-box">
 							{#each createItemState.fieldItemSuggestions as item (item._id)}
 								<button
 									class="suggestion-item"
 									type="button"
-									on:mousedown={(e) => {
+									onmousedown={(e) => {
 										e.preventDefault();
 										createItemState.customFields[index].value = item._id; // Store ID
 										createItemState.customFields[index].displayValue = item.name; // Display name
@@ -359,14 +375,14 @@
 							{/each}
 						</ul>
 					{/if}
-				</svelte:fragment>
+				{/snippet}
 			</CustomFieldPicker>
 		{/each}
 
 		<br />
 		<!-- Submit -->
 		<div id="submit-button-container" class="flex justify-end mt-4">
-			<button on:click={submitAndAddAnother}
+			<button onclick={submitAndAddAnother}
 				class="border-button font-semibold shadow mt-4 mr-2 w-full block"
 				type="button">
 				Save and Add Another
@@ -385,7 +401,6 @@
 	<Dialog
 		bind:dialog={templateDialog}
 		isLarge={false}
-		create={() => {}}
 		close={() => {
 			showCreateTemplateDialog = false;
 		}}>

@@ -2,7 +2,10 @@
 	import { Info } from "@lucide/svelte";
 	import { onMount } from "svelte";
 
-	let { message, align = 'auto' } = $props();
+	let {
+		message,
+		align = 'auto'
+	} = $props();
 
 	let tooltipContainer: HTMLDivElement;
 	let tooltipAlignment = $state("left");

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { getEditOnLogin, login, toggleEditOnLogin } from '$lib/stores/loginStore.js';
-	import { onMount } from 'svelte';
 
 	interface User {
 		id: string;
@@ -11,15 +10,17 @@
 		updatedAt: string;
 	}
 
-	let users: User[] = [];
-	let isLoading = true;
-	let error = '';
-	let updateError = '';
+	let users = $state<User[]>([]);
+	let isLoading = $state(true);
+	let error = $state('');
+	let updateError = $state('');
+	let currentUserLevel = $derived($login.permissionLevel);
+	let initialized = $state(false);
 
-	$: currentUserLevel = $login.permissionLevel;
-
-	onMount(async () => {
-		await fetchUsers();
+	$effect(() => {
+		if (initialized) return;
+		initialized = true;
+		void fetchUsers();
 	});
 
 	async function fetchUsers() {
@@ -144,7 +145,7 @@
 				id="toggle-slider" 
 				class="sr-only peer"
 				checked={getEditOnLogin()}
-				on:change={toggleUserEditOnLogin}
+				onchange={toggleUserEditOnLogin}
 			>
 			<div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-600 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
 		</label>
@@ -185,7 +186,7 @@
 								<select 
 									class="dark-textarea py-1 px-2 w-full"
 									value={userData.permissionLevel}
-									on:change={(e) => handlePermissionChange(userData.id, e)}
+									onchange={(e) => handlePermissionChange(userData.id, e)}
 								>
 									{#each getPermissionOptions(currentUserLevel) as level}
 										<option value={level}>{level}</option>

@@ -1,10 +1,15 @@
 <script lang="ts">
-	import { user, type UserState } from "$lib/stores/userStore.js";
-	import { createEventDispatcher, onMount } from "svelte";
+	import { browser } from "$app/environment";
+	import { user } from "$lib/stores/userStore.js";
+	import { createEventDispatcher } from "svelte";
 
 	const dispatch = createEventDispatcher();
 
-	export let dialog: HTMLDialogElement;
+	let {
+		dialog = $bindable()
+	} = $props<{
+		dialog?: HTMLDialogElement;
+	}>();
 
 	async function sha256(message: string) {
 		const msgBuffer = new TextEncoder().encode(message);
@@ -14,12 +19,12 @@
 		return hashHex;
 	}
 
-	let username = "";
-	let password = "";
-	let isRegistering = false;
-	let errorMessage = "";
+	let username = $state("");
+	let password = $state("");
+	let isRegistering = $state(false);
+	let errorMessage = $state("");
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let successMessage = "";
+	let successMessage = $state("");
 
 	function handleClose() {
 		username = "";
@@ -73,7 +78,7 @@
 			});
 
 			handleClose();
-			dialog.close();
+			dialog?.close();
 
 		} catch (err) {
 			errorMessage = err instanceof Error ? err.message : 'Something went wrong';
@@ -93,11 +98,15 @@
 		user.set({ isLoggedIn: false, username: '', permissionLevel: 0, id: '' });
 
 		handleClose();
-		dialog.close();
+		dialog?.close();
 	}
 
 	// Check if user is already logged in
-	onMount(() => {
+	let initialized = $state(false);
+
+	$effect(() => {
+		if (!browser || initialized) return;
+		initialized = true;
 		const token = localStorage.getItem('token');
 		if (token) {
 			// Fetch user profile to validate token
@@ -123,23 +132,18 @@
 				});
 		}
 	});
-
-	let currentUser: UserState | undefined;
-	user.subscribe(value => {
-		currentUser = value;
-	});
 </script>
 
 <dialog bind:this={dialog} class="glass border">
 	<div class="flex flex-col space-y-4 p-4 relative">
-		<button class="x-button absolute top-0 right-0 mt-2 mr-2" on:click={() => dialog.close()}>X</button>
+		<button class="x-button absolute top-0 right-0 mt-2 mr-2" onclick={() => dialog?.close()}>X</button>
 
-		{#if currentUser?.isLoggedIn}
+		{#if $user?.isLoggedIn}
 			<div>
-				<h2 class="important-text text-center mb-4">You are: {currentUser.username}</h2>
-				<p class="text-center mb-4">Permission Level: {currentUser.permissionLevel}</p>
+				<h2 class="important-text text-center mb-4">You are: {$user.username}</h2>
+				<p class="text-center mb-4">Permission Level: {$user.permissionLevel}</p>
 
-				<button class="border-button w-full" on:click={handleLogout}>
+				<button class="border-button w-full" onclick={handleLogout}>
 					Log Out
 				</button>
 			</div>
@@ -152,13 +156,13 @@
 				<div class="flex w-full mb-4 gap-2">
 					<button 
 						class={!isRegistering ? "inactive-button w-full" : "border-button w-full"}
-						on:click={() => setMode(false)}
+						onclick={() => setMode(false)}
 					>
 						Log In
 					</button>
 					<button 
 						class={isRegistering ? "inactive-button w-full" : "border-button w-full"}
-						on:click={() => setMode(true)}
+						onclick={() => setMode(true)}
 					>
 						Register
 					</button>
@@ -168,7 +172,12 @@
 					<div class="error-message text-center mb-4">{errorMessage}</div>
 				{/if}
 
-				<form on:submit|preventDefault={handleSubmit}>
+				<form onsubmit={
+					(event) => {
+						event.preventDefault();
+						handleSubmit();
+					}
+				}>
 					<div class="mb-4">
 						<label class="block mb-2">
 							Username

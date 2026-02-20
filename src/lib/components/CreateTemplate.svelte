@@ -1,16 +1,16 @@
 <script lang="ts">
-	import type { ICustomField, ICustomFieldEntry } from "$lib/types/customField";
-	import { addToRecents } from "$lib/utility/recentItemHelper";
 	import { actionStore } from "$lib/stores/actionStore.js";
 	import "$lib/styles/main.css";
+	import type { ICustomField, ICustomFieldEntryInstance } from "$lib/types/customField";
+	import { addToRecents } from "$lib/utility/recentItemHelper";
 	import { createEventDispatcher } from "svelte";
 	import CustomFieldPicker from "./CustomFieldPicker.svelte";
 
 	const dispatch = createEventDispatcher();
 
-	let name = "";
-	let customFields: ICustomFieldEntry[] = [];
-	let nameError = "";
+	let name = $state("");
+	let customFields: ICustomFieldEntryInstance[] = $state([]);
+	let nameError = $state("");
 	let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
 
 	async function handleCreateTemplate() {
@@ -209,7 +209,12 @@
 	<h1 id="underline-header" class="font-bold text-center">
 		Create New Template
 	</h1>
-	<form on:submit|preventDefault={handleCreateTemplate}>
+	<form onsubmit={
+		(event) => {
+			event.preventDefault();
+			handleCreateTemplate();
+		}
+	}>
 		<label class="block mb-4">
 			Name:
 			<input
@@ -218,7 +223,7 @@
 					? 'error'
 					: ''}"
 				bind:value={name}
-				on:input={checkNameUniqueness}
+				oninput={checkNameUniqueness}
 				required />
 			{#if nameError}
 				<p class="text-red-500 text-sm mt-1">{nameError}</p>
@@ -229,19 +234,19 @@
 		<div class="space-y-4">
 			{#each customFields as field, index}
 				<CustomFieldPicker
-					bind:field
+					bind:field={customFields[index]}
 					mode="template"
 					onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
 					onFieldFocus={() => handleCustomFieldFocus(index)}
 					onFieldBlur={() => (customFields[index].suggestions = [])}
 					showDeleteButton={true}
 					onDelete={() => removeCustomField(index)}>
-					<svelte:fragment slot="suggestions">
+					{#snippet suggestions()}
 						{#each field.suggestions as suggestion}
 							<button
 								class="suggestion-item"
 								type="button"
-								on:mousedown={(e) => {
+								onmousedown={(e) => {
 									e.preventDefault();
 									selectCustomFieldSuggestion(
 										index,
@@ -251,7 +256,7 @@
 								{suggestion.fieldName} ({suggestion.dataType})
 							</button>
 						{/each}
-					</svelte:fragment>
+					{/snippet}
 				</CustomFieldPicker>
 			{/each}
 		</div>
@@ -259,7 +264,7 @@
 		<button
 			type="button"
 			class="border-button font-semibold shadow mt-2"
-			on:click={addCustomFieldLine}>
+			onclick={addCustomFieldLine}>
 			Add Custom Field
 		</button>
 		<button

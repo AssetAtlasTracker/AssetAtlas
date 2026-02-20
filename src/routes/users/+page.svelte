@@ -5,7 +5,7 @@
 	import UserList from "$lib/components/UserList.svelte";
 	import "$lib/styles/main.css";
 
-	let menu: HTMLDialogElement;
+	let menu = $state<HTMLDialogElement>();
   
 	function onSearch(_query: string) {
 	//TODO: Implement search functionality
