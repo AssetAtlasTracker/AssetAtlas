@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from "$app/environment";
 	import OAuth from "$lib/components/OAuth.svelte";
 	import { login } from "$lib/stores/loginStore.js";
 	import "$lib/styles/main.css";
@@ -11,6 +12,7 @@
 		menu: HTMLDivElement;
 	}>();
 	let authDialog = $state<HTMLDialogElement>();
+	let initialized = $state(false);
 
 	export function handleClicked() {
 		open = !open;
@@ -21,6 +23,8 @@
 	}
 
 	$effect(() => {
+		if (!browser || initialized) return;
+		initialized = true;
 		const topBar = document.querySelector(".top-bar");
 		if (topBar) {
 			const height = topBar.getBoundingClientRect().height;

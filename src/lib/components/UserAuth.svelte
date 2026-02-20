@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from "$app/environment";
 	import { user } from "$lib/stores/userStore.js";
 	import { createEventDispatcher } from "svelte";
 
@@ -101,7 +102,11 @@
 	}
 
 	// Check if user is already logged in
+	let initialized = $state(false);
+
 	$effect(() => {
+		if (!browser || initialized) return;
+		initialized = true;
 		const token = localStorage.getItem('token');
 		if (token) {
 			// Fetch user profile to validate token

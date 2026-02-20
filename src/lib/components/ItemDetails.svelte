@@ -48,6 +48,9 @@
 
 	let parentChain = $state<{ _id: string; name: string }[]>([]);
 	let loading = $state(false);
+	let lastItemId = $state<string | null>(null);
+	let fetchInFlight = false;
+	let listenerInitialized = $state(false);
 
 	let imageElement = $state<HTMLImageElement | undefined>(undefined);
 	let imageLoadError = $state(false);
@@ -96,21 +99,20 @@
 	}
 
 	$effect(() => {
-		loading = !!itemId && !item;
+		if (!itemId || item || fetchInFlight) return;
+		fetchInFlight = true;
+		void loadItemById(itemId).finally(() => {
+			fetchInFlight = false;
+		});
 	});
 
 	$effect(() => {
-		if (itemId && !item) {
-			void loadItemById(itemId);
-		}
-	});
-
-	$effect(() => {
-		if (item?._id) {
-			void loadParentChain();
-			void updateTitle();
-			void reloadImage();
-		}
+		const currentId = item?._id?.toString() ?? null;
+		if (!currentId || currentId === lastItemId) return;
+		lastItemId = currentId;
+		void loadParentChain();
+		void updateTitle();
+		void reloadImage();
 	});
 
 	let isImageExpanded = $state(false);
@@ -168,6 +170,8 @@
 	}
 
 	$effect(() => {
+		if (listenerInitialized) return;
+		listenerInitialized = true;
 		window.addEventListener(
 			"itemUpdated",
 			handleItemUpdated as EventListener,

@@ -18,6 +18,7 @@
 	let customFields = $state<ICustomFieldEntry[]>([]);
 	let nameError = $state("");
 	let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
+	let lastTemplateKey = $state("");
 
 	function updateFromTemplate(currentTemplate: ITemplatePopulated) {
 		name = currentTemplate.name;
@@ -34,6 +35,9 @@
 	}
 
 	$effect(() => {
+		const templateKey = `${template?._id ?? ""}|${template?.updatedAt ?? ""}`;
+		if (templateKey === lastTemplateKey) return;
+		lastTemplateKey = templateKey;
 		updateFromTemplate(template);
 	});
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from "$app/environment";
 	import { login } from "../stores/loginStore.js";
 
 	let {
@@ -152,7 +153,11 @@
 		);
 	}
 
+	let initialized = $state(false);
+
 	$effect(() => {
+		if (!browser || initialized) return;
+		initialized = true;
 		const onMessage = (event: MessageEvent) => {
 			if (event.origin !== window.location.origin) return;
 			if (event.data.type === 'oauth_success') {

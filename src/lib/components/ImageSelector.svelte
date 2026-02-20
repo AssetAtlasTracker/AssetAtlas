@@ -16,14 +16,22 @@
 
 	let imagePreview = $state<string | null>(null);
 	let selectedImage = $state<File | null>(null);
+	let lastImageKey = $state("");
+	let checkInFlight = $state(false);
   
 	const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 50MB in bytes
 	const allowedFileTypes = ['.jpg', '.jpeg', '.jfif', '.pjpeg', '.pjp', '.png', '.gif'];
 	const dispatch = createEventDispatcher();
 
 	$effect(() => {
-		if (itemId && existingImage) {
-			void checkImageExists();
+		const key = `${itemId ?? ""}|${existingImage ? "1" : "0"}`;
+		if (key === lastImageKey) return;
+		lastImageKey = key;
+		if (itemId && existingImage && !checkInFlight) {
+			checkInFlight = true;
+			void checkImageExists().finally(() => {
+				checkInFlight = false;
+			});
 		}
 	});
 

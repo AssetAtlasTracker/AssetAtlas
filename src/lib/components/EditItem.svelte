@@ -17,6 +17,7 @@
 	}>();
 
 	let templateDialog = $state<HTMLDialogElement | undefined>(undefined);
+	let lastItemKey = $state("");
 
 	let name = $state("");
 	let description = $state("");
@@ -147,6 +148,9 @@
 	}
 
 	$effect(() => {
+		const itemKey = `${item?._id ?? ""}|${item?.updatedAt ?? ""}`;
+		if (itemKey === lastItemKey) return;
+		lastItemKey = itemKey;
 		updateFromItem(item);
 		void loadItemDisplayNames();
 	});

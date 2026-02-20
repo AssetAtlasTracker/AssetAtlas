@@ -8,6 +8,7 @@
 		UnfoldVerticalIcon,
 	} from "lucide-svelte";
 	import type { Snippet } from "svelte";
+	import { untrack } from "svelte";
 	import { createEventDispatcher } from "svelte";
 
 	let {
@@ -41,8 +42,23 @@
 	let currentY = $state(0);
 	let zIndex = $state(1);
 	let isCollapsed = $state(false);
+	let initialized = $state(false);
+	let lastInitialX = $state<number | null>(null);
+	let lastInitialY = $state<number | null>(null);
 
-	$effect(() => {
+	$effect.pre(() => {
+		const cx = untrack(() => currentX);
+		const cy = untrack(() => currentY);
+		console.debug("[Window] position sync effect", {
+			initialX,
+			initialY,
+			currentX: cx,
+			currentY: cy
+		});
+		if (isDragging) return;
+		if (lastInitialX === initialX && lastInitialY === initialY) return;
+		lastInitialX = initialX;
+		lastInitialY = initialY;
 		currentX = initialX;
 		currentY = initialY;
 	});
@@ -185,19 +201,11 @@
 		}
 	}
 
-	// Initialize with a starting z-index and set up the window
 	$effect(() => {
-		if (!browser) return;
+		if (!browser || initialized) return;
+		initialized = true;
 
 		bringWindowToFront();
-
-		if ($topBarHeight && initialY < $topBarHeight) {
-			currentY = $topBarHeight;
-			if (container) {
-				container.style.top = `${currentY}px`;
-			}
-		}
-
 		window.addEventListener("keydown", handleKeyDown);
 
 		const safetyInterval = setInterval(() => {
@@ -215,6 +223,16 @@
 				handleEnd();
 			}
 		};
+	});
+
+	$effect(() => {
+		const cy = untrack(() => currentY);
+		if ($topBarHeight && initialY < $topBarHeight) {
+			currentY = $topBarHeight;
+			if (container) {
+				container.style.top = `${currentY}px`;
+			}
+		}
 	});
 </script>
 

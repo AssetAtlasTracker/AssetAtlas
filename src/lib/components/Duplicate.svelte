@@ -28,6 +28,7 @@
 	let selectedImage = $derived<string | null>(item.image ? item.image : null);
 
 	let customFields = $state<ICustomFieldEntryInstance[]>([]);
+	let lastItemKey = $state("");
 
 	function buildCustomFields(
 		currentItem: IBasicItemPopulated,
@@ -114,6 +115,9 @@
 	}
 
 	$effect(() => {
+		const itemKey = `${item?._id ?? ""}|${item?.updatedAt ?? ""}`;
+		if (itemKey === lastItemKey) return;
+		lastItemKey = itemKey;
 		updateFromItem(item);
 	});
 

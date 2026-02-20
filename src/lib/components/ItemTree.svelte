@@ -56,6 +56,8 @@
 	let treeData = $state<TreeItem[]>([]);
 	let expanded = $state<Record<string, boolean>>({});
 	let loading = $state(true);
+	let lastLoadKey = "";
+	let loadInFlight = false;
 	let visibleNodes = $derived.by((): VisibleNode[] => {
 		const nodes: VisibleNode[] = [];
 		const walk = (items: TreeItem[], level: number) => {
@@ -70,13 +72,17 @@
 		return nodes;
 	});
 
-	async function fetchTree(id?: string) {
+	async function fetchTree(
+		id: string | undefined,
+		query: string,
+		isExact: boolean,
+	) {
 		try {
 			const url = id ? `/api/items/tree/${id}` : `/api/items/tree/all`;
 			const params = new URLSearchParams();
-			if (searchQuery && searchQuery.trim() !== "") {
-				params.set("name", searchQuery);
-				params.set("exact", exactSearch.toString());
+			if (query && query.trim() !== "") {
+				params.set("name", query);
+				params.set("exact", isExact.toString());
 			}
 			const fullUrl = params.toString() ? `${url}?${params}` : url;
 			const res = await fetch(fullUrl);
@@ -93,12 +99,17 @@
 		await loadTree();
 	}
 
-	async function loadTree() {
+	async function loadTree(
+		query: string,
+		isExact: boolean,
+		root: typeof rootData,
+		parent: string | null,
+	) {
 		loading = true;
-		if (rootData) {
-			treeData = rootData as TreeItem[];
+		if (root) {
+			treeData = root as TreeItem[];
 		} else {
-			treeData = await fetchTree(parentId || undefined);
+			treeData = await fetchTree(parent || undefined, query, isExact);
 		}
 		loading = false;
 		autoExpandTree(treeData);
@@ -120,7 +131,23 @@
 	}
 
 	$effect(() => {
-		void loadTree();
+		const key = [
+			parentId ?? "",
+			searchQuery,
+			exactSearch ? "1" : "0",
+			rootData ? String(rootData.length) : "",
+		].join("|");
+		console.debug("[ItemTree] load effect", {
+			key,
+			lastLoadKey,
+			loadInFlight
+		});
+		if (key === lastLoadKey || loadInFlight) return;
+		lastLoadKey = key;
+		loadInFlight = true;
+		void loadTree(searchQuery, exactSearch, rootData, parentId).finally(() => {
+			loadInFlight = false;
+		});
 	});
 
 	function checkIfSwap() {

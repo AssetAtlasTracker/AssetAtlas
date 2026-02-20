@@ -15,8 +15,11 @@
 	let error = $state('');
 	let updateError = $state('');
 	let currentUserLevel = $derived($login.permissionLevel);
+	let initialized = $state(false);
 
 	$effect(() => {
+		if (initialized) return;
+		initialized = true;
 		void fetchUsers();
 	});
 
