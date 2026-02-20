@@ -135,6 +135,7 @@
 					<ImageSelector
 						itemId={originalItem?._id.toString()}
 						existingImage={!!originalItem?.image}
+						active={dialog?.open ?? false}
 						bind:this={imageSelector}
 						on:imageChange={handleImageChange}
 					/>

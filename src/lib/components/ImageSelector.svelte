@@ -8,10 +8,12 @@
 
 	let {
 		itemId = undefined,
-		existingImage = false
+		existingImage = false,
+		active = true
 	} = $props<{
 		itemId?: string;
 		existingImage?: boolean;
+		active?: boolean;
 	}>();
 
 	let imagePreview = $state<string | null>(null);
@@ -24,9 +26,21 @@
 	const dispatch = createEventDispatcher();
 
 	$effect(() => {
+		if (!active) {
+			if (imagePreview || selectedImage) {
+				resetImage(false);
+			}
+			lastImageKey = "";
+			return;
+		}
+
 		const key = `${itemId ?? ""}|${existingImage ? "1" : "0"}`;
 		if (key === lastImageKey) return;
 		lastImageKey = key;
+		if (!itemId || !existingImage) {
+			resetImage();
+			return;
+		}
 		if (itemId && existingImage && !checkInFlight) {
 			checkInFlight = true;
 			void checkImageExists().finally(() => {
@@ -85,16 +99,18 @@
 		}
 	}
 
-	export function resetImage() {
+	export function resetImage(dispatchChange = true) {
 		if (imagePreview) {
 			URL.revokeObjectURL(imagePreview);
 		}
 		selectedImage = null;
 		imagePreview = null;
-		dispatch('imageChange', {
-			selectedImage: null,
-			removeExistingImage: true
-		});
+		if (dispatchChange) {
+			dispatch('imageChange', {
+				selectedImage: null,
+				removeExistingImage: true
+			});
+		}
 	}
 </script>
 
@@ -112,7 +128,7 @@
 					<button
 						type="button"
 						class="absolute top-0 right-0 bg-red-500 text-white p-1"
-						onclick={resetImage}
+						onclick={() => resetImage()}
 					>
 						X
 					</button>

@@ -110,7 +110,7 @@
 		}>
 		<div class="flex flex-col space-y-4">
 			<div class="flex flex-col space-y-2">
-				<ImageSelector bind:this={imageSelector} on:imageChange={handleImageChange} />
+				<ImageSelector active={dialog?.open ?? false} bind:this={imageSelector} on:imageChange={handleImageChange} />
 			</div>
 
 			<div class="flex space-x-4">
