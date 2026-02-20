@@ -137,11 +137,6 @@
 			exactSearch ? "1" : "0",
 			rootData ? String(rootData.length) : "",
 		].join("|");
-		console.debug("[ItemTree] load effect", {
-			key,
-			lastLoadKey,
-			loadInFlight
-		});
 		if (key === lastLoadKey || loadInFlight) return;
 		lastLoadKey = key;
 		loadInFlight = true;

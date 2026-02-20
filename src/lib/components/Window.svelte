@@ -47,14 +47,8 @@
 	let lastInitialY = $state<number | null>(null);
 
 	$effect.pre(() => {
-		const cx = untrack(() => currentX);
-		const cy = untrack(() => currentY);
-		console.debug("[Window] position sync effect", {
-			initialX,
-			initialY,
-			currentX: cx,
-			currentY: cy
-		});
+		untrack(() => currentX);
+		untrack(() => currentY);
 		if (isDragging) return;
 		if (lastInitialX === initialX && lastInitialY === initialY) return;
 		lastInitialX = initialX;
@@ -226,7 +220,7 @@
 	});
 
 	$effect(() => {
-		const cy = untrack(() => currentY);
+		untrack(() => currentY);
 		if ($topBarHeight && initialY < $topBarHeight) {
 			currentY = $topBarHeight;
 			if (container) {
