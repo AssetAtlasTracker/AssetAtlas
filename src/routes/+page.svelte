@@ -379,9 +379,7 @@
 	<Dialog
 		bind:dialog={moveDialog}
 		isLarge={false}
-		create={() => {
-			moveDialog.showModal();
-		}}
+		create={() => {}}
 		close={() => {
 			showMoveDialog = false;
 		}}>
