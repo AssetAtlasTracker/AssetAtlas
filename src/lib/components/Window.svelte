@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { browser } from "$app/environment";
-	import { dragDropMode } from "$lib/stores/dragDropStore.js";
 	import { topBarHeight } from "$lib/stores/topBarStore.js";
 	import { bringToFront } from "$lib/stores/zIndexStore.js";
 	import {
@@ -8,39 +7,44 @@
 		FoldVerticalIcon,
 		UnfoldVerticalIcon,
 	} from "lucide-svelte";
-	import { createEventDispatcher, onDestroy, onMount } from "svelte";
+	import type { Snippet } from "svelte";
+	import { createEventDispatcher } from "svelte";
 
-	let children = $props();
-	
-	export let initialX = 0;
-	export let initialY = 0;
-	export let windowTitle = "";
-	export let windowClass = "";
-	export let showClose = false;
-	export let showOpenInNewTab = false;
-	export let showCollapse = false;
+	let {
+		children,
+		initialX = 0,
+		initialY = 0,
+		windowTitle = "",
+		windowClass = "",
+		showClose = false,
+		showOpenInNewTab = false,
+		showCollapse = false,
+	} = $props<{
+		children?: Snippet;
+		initialX?: number;
+		initialY?: number;
+		windowTitle?: string;
+		windowClass?: string;
+		showClose?: boolean;
+		showOpenInNewTab?: boolean;
+		showCollapse?: boolean;
+	}>();
 
 	const dispatch = createEventDispatcher();
 
-	let container: HTMLElement;
-	let windowBar: HTMLElement;
-	let startX = 0;
-	let startY = 0;
-	let isDragging = false;
-	let currentX = initialX;
-	let currentY = initialY;
-	let zIndex = 1;
-	let currentTopBarHeight: number;
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let currentDragDropMode: boolean;
-	let isCollapsed: boolean = false;
+	let container = $state<HTMLElement>();
+	let windowBar = $state<HTMLElement>();
+	let startX = $state(0);
+	let startY = $state(0);
+	let isDragging = $state(false);
+	let currentX = $state(0);
+	let currentY = $state(0);
+	let zIndex = $state(1);
+	let isCollapsed = $state(false);
 
-	const topBarUnsubscribe = topBarHeight.subscribe((value) => {
-		currentTopBarHeight = value;
-	});
-
-	const dragDropUnsubscribe = dragDropMode.subscribe((value) => {
-		currentDragDropMode = value;
+	$effect(() => {
+		currentX = initialX;
+		currentY = initialY;
 	});
 
 	function handleMouseDown(event: MouseEvent) {
@@ -95,12 +99,14 @@
 		event.preventDefault();
 		currentX = event.clientX - startX;
 
-		const minY = currentTopBarHeight || 0;
+		const minY = $topBarHeight || 0;
 		const calculatedY = event.clientY - startY;
 		currentY = calculatedY >= minY ? calculatedY : minY;
 
-		container.style.left = `${currentX}px`;
-		container.style.top = `${currentY}px`;
+		if (container) {
+			container.style.left = `${currentX}px`;
+			container.style.top = `${currentY}px`;
+		}
 	}
 
 	function handlePointerUp(event: PointerEvent) {
@@ -179,12 +185,14 @@
 		}
 	}
 
-	//Initialize with a starting z-index and set up the window
-	onMount(() => {
+	// Initialize with a starting z-index and set up the window
+	$effect(() => {
+		if (!browser) return;
+
 		bringWindowToFront();
 
-		if (currentTopBarHeight && initialY < currentTopBarHeight) {
-			currentY = currentTopBarHeight;
+		if ($topBarHeight && initialY < $topBarHeight) {
+			currentY = $topBarHeight;
 			if (container) {
 				container.style.top = `${currentY}px`;
 			}
@@ -194,7 +202,7 @@
 
 		const safetyInterval = setInterval(() => {
 			if (isDragging) {
-				if (browser && !window.navigator.userActivation?.hasBeenActive) {
+				if (!window.navigator.userActivation?.hasBeenActive) {
 					handleEnd();
 				}
 			}
@@ -202,26 +210,15 @@
 
 		return () => {
 			clearInterval(safetyInterval);
+			window.removeEventListener("keydown", handleKeyDown);
 			if (isDragging) {
 				handleEnd();
 			}
 		};
 	});
-
-	onDestroy(() => {
-		topBarUnsubscribe();
-		dragDropUnsubscribe();
-		if (browser) {
-			window.removeEventListener("keydown", handleKeyDown);
-		}
-		if (isDragging) {
-			handleEnd();
-		}
-	});
 </script>
 
 {#if browser}
-	<!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
 	<div
 		bind:this={container}
 		class="floating-container glass {windowClass} {isDragging
@@ -233,14 +230,14 @@
 		aria-labelledby={windowTitle
 			? "window-title-" + windowTitle.replace(/\s+/g, "-").toLowerCase()
 			: undefined}
-		on:mousedown={() => bringWindowToFront()}>
+		onmousedown={() => bringWindowToFront()}>
 		<!-- TODO: Get rid of style= -->
 		<div
 			bind:this={windowBar}
 			class="window-bar"
-			on:pointerdown={handleMouseDown}
-			on:mousedown={handleMouseDown}
-			on:keydown={(e) =>
+			onpointerdown={handleMouseDown}
+			onmousedown={handleMouseDown}
+			onkeydown={(e) =>
 				e.key === "Enter" &&
 					handleMouseDown(
 						new MouseEvent("mousedown", { clientX: 0, clientY: 0 }),
@@ -261,9 +258,22 @@
 				{#if showCollapse}
 					<button
 						class="window-control-button collapse-button"
-						on:click|stopPropagation={toggleCollapsed}
-						on:mousedown|stopPropagation
-						on:pointerdown|stopPropagation
+						onclick={
+							(event) => {
+								event.stopPropagation();
+								toggleCollapsed();
+							}
+						}
+						onmousedown={
+							(event) => {
+								event.stopPropagation();
+							}
+						}
+						onpointerdown={
+							(event) => {
+								event.stopPropagation();
+							}
+						}
 						title="{isCollapsed
 							? 'Expand'
 							: 'Collapse'} this window">
@@ -279,9 +289,22 @@
 				{#if showOpenInNewTab}
 					<button
 						class="window-control-button external-link-button"
-						on:click|stopPropagation={openInNewTab}
-						on:mousedown|stopPropagation
-						on:pointerdown|stopPropagation
+						onclick={
+							(event) => {
+								event.stopPropagation();
+								openInNewTab();
+							}
+						}
+						onmousedown={
+							(event) => {
+								event.stopPropagation();
+							}
+						}
+						onpointerdown={
+							(event) => {
+								event.stopPropagation();
+							}
+						}
 						title="Open this window in a new tab">
 						<ExternalLinkIcon />
 					</button>
@@ -290,9 +313,22 @@
 				{#if showClose}
 					<button
 						class="window-control-button x-button"
-						on:click|stopPropagation={closeWindow}
-						on:mousedown|stopPropagation
-						on:pointerdown|stopPropagation
+						onclick={
+							(event) => {
+								event.stopPropagation();
+								closeWindow();
+							}
+						}
+						onmousedown={
+							(event) => {
+								event.stopPropagation();
+							}
+						}
+						onpointerdown={
+							(event) => {
+								event.stopPropagation();
+							}
+						}
 						title="Close this window">
 						X
 					</button>

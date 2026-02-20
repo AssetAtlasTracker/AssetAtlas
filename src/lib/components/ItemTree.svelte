@@ -3,15 +3,19 @@
 	import { dragDropMode } from "$lib/stores/dragDropStore.js";
 	import { GripVerticalIcon } from "@lucide/svelte";
 	import ItemLink from "./ItemLink.svelte";
-	import ItemTree from "./ItemTree.svelte";
 
-	interface TreeItem {
+	type TreeItem = {
 		_id: string;
 		name: string;
 		description?: string;
 		children: TreeItem[];
 		hasChildren: boolean;
 	};
+
+	interface VisibleNode {
+		item: TreeItem;
+		level: number;
+	}
 
 	let {
 		searchQuery = "",
@@ -35,7 +39,13 @@
 		useWindowView?: boolean;
 		parentId?: string | null;
 		indentLevel?: number;
-		rootData?: TreeItem[] | null;
+		rootData?: Array<{
+			_id: string;
+			name: string;
+			description?: string;
+			children: unknown[];
+			hasChildren: boolean;
+		}> | null;
 		currentId?: string | null;
 	}>();
 
@@ -46,6 +56,19 @@
 	let treeData = $state<TreeItem[]>([]);
 	let expanded = $state<Record<string, boolean>>({});
 	let loading = $state(true);
+	let visibleNodes = $derived.by((): VisibleNode[] => {
+		const nodes: VisibleNode[] = [];
+		const walk = (items: TreeItem[], level: number) => {
+			items.forEach((treeItem) => {
+				nodes.push({ item: treeItem, level });
+				if (expanded[treeItem._id] && treeItem.children?.length) {
+					walk(treeItem.children, level + 1);
+				}
+			});
+		};
+		walk(treeData, indentLevel);
+		return nodes;
+	});
 
 	async function fetchTree(id?: string) {
 		try {
@@ -73,7 +96,7 @@
 	async function loadTree() {
 		loading = true;
 		if (rootData) {
-			treeData = rootData;
+			treeData = rootData as TreeItem[];
 		} else {
 			treeData = await fetchTree(parentId || undefined);
 		}
@@ -145,18 +168,18 @@
 	{#if loading}
 		<p>Loading tree...</p>
 	{:else}
-		{#each treeData as item, index (item._id)}
+		{#each visibleNodes as node, index (node.item._id)}
 			<div
 				class="tree-branch"
-				style="padding-left: {indentLevel * 0.75}rem;">
+				style="padding-left: {node.level * 0.75}rem;">
 				<div
 					class="flex"
 					role="navigation"
 					draggable="true"
-					data-item-id={item._id}
-					data-item-name={item.name}
+					data-item-id={node.item._id}
+					data-item-name={node.item.name}
 					ondragstart={(e) => {
-						handleDragStart(e, item);
+						handleDragStart(e, node.item);
 					}}
 					ondragover={(e) => {
 						e.preventDefault();
@@ -167,15 +190,15 @@
 						console.log("End Drag");
 					}}
 					ondrop={doDrop}>
-					{#if item.hasChildren}
+					{#if node.item.hasChildren}
 						<button
 							class="expand-button"
-							onclick={() => toggleExpand(item._id)}
-							aria-label={expanded[item._id]
+							onclick={() => toggleExpand(node.item._id)}
+							aria-label={expanded[node.item._id]
 								? "Collapse"
 								: "Expand"}>
 							<span class="tree-icon">
-								{expanded[item._id] ? "▾" : "▸"}
+								{expanded[node.item._id] ? "▾" : "▸"}
 							</span>
 						</button>
 					{:else}
@@ -186,36 +209,23 @@
 						<!-- Use ItemLink for in-window navigation -->
 						<ItemLink
 							className="flex-grow"
-							itemId={item._id ? item._id.toString() : ""}
-							itemName={item.name}
+							itemId={node.item._id ? node.item._id.toString() : ""}
+							itemName={node.item.name}
 							on:openItem>
 							<button
 								class="tree-item-card important-text
-									{item._id === currentId ? 'current' : ''}"
-								aria-current={item._id === currentId}>
+									{node.item._id === currentId ? 'current' : ''}"
+								aria-current={node.item._id === currentId}>
 								<div class="flex">
 									<div class="grip-vertical-icon">
 										<GripVerticalIcon class="icon-small" />
 									</div>
-									{item.name}
+									{node.item.name}
 								</div>
 							</button>
 						</ItemLink>
 					{/if}
 				</div>
-
-				{#if expanded[item._id] && item.children}
-					<ItemTree
-						bind:draggingItem
-						bind:targetItemId
-						bind:targetItemName
-						bind:showMoveDialog
-						rootData={item.children}
-						indentLevel={indentLevel + 1}
-						{currentId}
-						{useWindowView}
-						on:openItem />
-				{/if}
 			</div>
 		{/each}
 	{/if}

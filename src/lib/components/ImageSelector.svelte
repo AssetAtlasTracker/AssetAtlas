@@ -1,24 +1,29 @@
 <script lang="ts">
 	import { CameraIcon } from '@lucide/svelte';
 	import { FileUpload } from '@skeletonlabs/skeleton-svelte';
-	import { createEventDispatcher, onMount } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 
 	import { actionStore } from '$lib/stores/actionStore';
 	import type { FileRejectDetails, FileUploadDetails } from '@skeletonlabs/skeleton';
 
-	export let itemId: string | undefined = undefined;
-	export let existingImage: boolean = false;
+	let {
+		itemId = undefined,
+		existingImage = false
+	} = $props<{
+		itemId?: string;
+		existingImage?: boolean;
+	}>();
 
-	let imagePreview: string | null = null;
-	let selectedImage: File | null = null;
+	let imagePreview = $state<string | null>(null);
+	let selectedImage = $state<File | null>(null);
   
 	const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 50MB in bytes
 	const allowedFileTypes = ['.jpg', '.jpeg', '.jfif', '.pjpeg', '.pjp', '.png', '.gif'];
 	const dispatch = createEventDispatcher();
 
-	onMount(async () => {
+	$effect(() => {
 		if (itemId && existingImage) {
-			await checkImageExists();
+			void checkImageExists();
 		}
 	});
 
@@ -77,7 +82,7 @@
 			URL.revokeObjectURL(imagePreview);
 		}
 		selectedImage = null;
-		imagePreview = null
+		imagePreview = null;
 		dispatch('imageChange', {
 			selectedImage: null,
 			removeExistingImage: true
@@ -99,7 +104,7 @@
 					<button
 						type="button"
 						class="absolute top-0 right-0 bg-red-500 text-white p-1"
-						on:click={resetImage}
+						onclick={resetImage}
 					>
 						X
 					</button>

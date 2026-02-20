@@ -6,12 +6,12 @@
 	import MoveItem from "./MoveItem.svelte";
 
 	const dispatch = createEventDispatcher();
-	let action = "";
-	let items: IBasicItemPopulated[];
-	let deleter: DeleteItem;
-	let mover: MoveItem;
+	let action = $state("");
+	let items = $state<IBasicItemPopulated[]>([]);
+	let deleter = $state<DeleteItem | undefined>(undefined);
+	let mover = $state<MoveItem | undefined>(undefined);
 
-	let dialog: HTMLDialogElement;
+	let dialog = $state<HTMLDialogElement | undefined>(undefined);
 
 	export function setAction(newAction: string) {
 		action = newAction;
@@ -25,10 +25,10 @@
 		if (action == "delete") {
 			for (let i = 0; i < items.length; i++) {
 				console.log(items[i]);
-				deleter.deleteExternalItem(items[i]._id);
+				deleter?.deleteExternalItem(items[i]._id);
 			}
 			dispatch("close");
-			dialog.close();
+			dialog?.close();
 		}
 	}
 </script>
@@ -38,13 +38,13 @@
 {:else}
 	<button
 		class="success-button font-semibold shadow mt-4 w-full block"
-		on:click={handleAction}>
+		onclick={handleAction}>
 		Are you sure you want to {action} these items?
 	</button>
 	<Dialog
 		bind:dialog
 		isLarge={false}
-		close={() => dialog.close()}
+		close={() => dialog?.close()}
 	><DeleteItem itemId="" bind:this={deleter} />
 	</Dialog>
 {/if}

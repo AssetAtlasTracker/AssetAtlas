@@ -9,9 +9,9 @@
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		itemId: any;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		onDelete: (itemId: any) => void;
+		onDelete?: (itemId: any) => void;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		children: any;
+		children?: any;
 	}>();
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any

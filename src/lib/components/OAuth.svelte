@@ -1,15 +1,19 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import { login, type LoginState } from "../stores/loginStore.js";
+	import { login } from "../stores/loginStore.js";
 
-	export let dialog: HTMLDialogElement;
-	let oauthResult = "";
-	let showAuthenticatorLogin = false;
-	let username = "";
-	let qrCode = "";
-	let transitionToOTP = false;
-	let authCode = "";
-	let otpCode = "";
+	let {
+		dialog = $bindable()
+	} = $props<{
+		dialog?: HTMLDialogElement;
+	}>();
+	
+	let oauthResult = $state("");
+	let showAuthenticatorLogin = $state(false);
+	let username = $state("");
+	let qrCode = $state("");
+	let transitionToOTP = $state(false);
+	let authCode = $state("");
+	let otpCode = $state("");
 
 	async function handleLoginGoogle() {
 		try {
@@ -148,20 +152,17 @@
 		);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let currentLogin: LoginState | undefined;
-	login.subscribe((value) => {
-		currentLogin = value;
-	});
-
-	onMount(() => {
-		window.addEventListener('message', (event) => {
+	$effect(() => {
+		const onMessage = (event: MessageEvent) => {
 			if (event.origin !== window.location.origin) return;
-			
 			if (event.data.type === 'oauth_success') {
 				window.location.reload();
 			}
-		});
+		};
+		window.addEventListener('message', onMessage);
+		return () => {
+			window.removeEventListener('message', onMessage);
+		};
 	});
 </script>
 
@@ -171,7 +172,7 @@
 
 <dialog bind:this={dialog} class="glass border fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
 	<div class="flex flex-col space-y-4 p-4 relative">
-		<button class="x-button absolute top-0 right-0 mt-2 mr-2" on:click={() => dialog.close()}>X</button>
+		<button class="x-button absolute top-0 right-0 mt-2 mr-2" onclick={() => dialog?.close()}>X</button>
 
 		{#if !showAuthenticatorLogin}
 			<div>
@@ -181,19 +182,19 @@
 					<div class="text-center mb-4">{oauthResult}</div>
 				{/if}
 
-				<button class="border-button w-full" on:click={handleLoginGoogle}>
+				<button class="border-button w-full" onclick={handleLoginGoogle}>
 					Login with Google Account
 				</button>
 
-				<button class="border-button w-full" on:click={handleLoginGithub}>
+				<button class="border-button w-full" onclick={handleLoginGithub}>
 					Login with Github Account
 				</button>
 
-				<button class="border-button w-full" on:click={handleAuthenticatorApp}>
+				<button class="border-button w-full" onclick={handleAuthenticatorApp}>
 					Login with Authenticator App
 				</button>
 
-				<button class="border-button w-full" on:click={handleLogout}>
+				<button class="border-button w-full" onclick={handleLogout}>
 					Logout
 				</button>
 
@@ -211,17 +212,17 @@
 							<div class="text-center mb-4 text-red-500">{oauthResult}</div>
 						{/if}
 						<input type="text" placeholder="Enter code from app" bind:value={authCode} class="border p-2 w-full mb-4" />
-						<button class="border-button w-full" on:click={verifyAuthCode}>
+						<button class="border-button w-full" onclick={verifyAuthCode}>
 							Verify Code
 						</button>
 					</div>
 				{:else}
 					<input type="text" placeholder="Enter your username" bind:value={username} class="border p-2 w-full mb-4" />
-					<button class="border-button w-full" on:click={fetchQRCode}>
+					<button class="border-button w-full" onclick={fetchQRCode}>
 						Login to account
 					</button>
 				{/if}
-				<button class="border-button w-full mt-4" on:click={backToMain}>
+				<button class="border-button w-full mt-4" onclick={backToMain}>
 					Back
 				</button>
 			</div>

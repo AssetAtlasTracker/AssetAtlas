@@ -1,28 +1,26 @@
 <script lang="ts">
 	import OAuth from "$lib/components/OAuth.svelte";
-	import type { LoginState } from "$lib/stores/loginStore.js";
 	import { login } from "$lib/stores/loginStore.js";
 	import "$lib/styles/main.css";
-	import { onMount } from "svelte";
 
-	export let open = false;
-	export let menu;
-	let authDialog: HTMLDialogElement;
+	let {
+		open = $bindable(false),
+		menu
+	} = $props<{
+		open?: boolean;
+		menu: HTMLDivElement;
+	}>();
+	let authDialog = $state<HTMLDialogElement>();
 
 	export function handleClicked() {
 		open = !open;
 	}
 
 	function openAuthDialog() {
-		authDialog.showModal();
+		authDialog?.showModal();
 	}
 
-	let currentLogin: LoginState | undefined;
-	login.subscribe((value) => {
-		currentLogin = value;
-	});
-
-	onMount(async () => {
+	$effect(() => {
 		const topBar = document.querySelector(".top-bar");
 		if (topBar) {
 			const height = topBar.getBoundingClientRect().height;
@@ -33,8 +31,7 @@
 		}
 	});
 
-	//if permission level is ever undefined (it shouldnt be but typescript seems to think it may be) we default to 0
-	$: permissionLevel = currentLogin?.permissionLevel ?? 0;
+	const permissionLevel = $derived($login?.permissionLevel ?? 0);
 </script>
 
 {#if open}
@@ -42,8 +39,8 @@
 		class="menu-backdrop"
 		role="button"
 		tabindex="0"
-		on:click={handleClicked}
-		on:keydown={(e: KeyboardEvent) => e.key === 'Enter' && handleClicked()}
+		onclick={handleClicked}
+		onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && handleClicked()}
 	></div>
 {/if}
 
@@ -53,15 +50,15 @@
 	class:open
 	role="button"
 	tabindex="0"
-	on:click={handleClicked}
-	on:keydown={(e: KeyboardEvent) => e.key === 'Enter' && handleClicked()}
+	onclick={handleClicked}
+	onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && handleClicked()}
 >
 	<div class="block">
 		<nav class="menu-button text-xl">
 			<a href="/" class="block w-full pl-12 pr-12 pt-4 pb-4">Home</a>
 		</nav>
 		<nav class="menu-button text-xl">
-			<button on:click={openAuthDialog} class="block w-full pl-12 pr-12 pt-4 pb-4 text-left">
+			<button onclick={openAuthDialog} class="block w-full pl-12 pr-12 pt-4 pb-4 text-left">
 				Login/Logout
 			</button>
 		</nav>
