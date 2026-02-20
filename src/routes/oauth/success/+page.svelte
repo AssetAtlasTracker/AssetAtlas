@@ -3,7 +3,7 @@
     
 	onMount(() => {
 		if (window.opener) {
-			window.opener.postMessage({ type: 'oauth_success' }, window.location.origin);
+			window.opener.postMessage({ type: 'oauth_success' }, '*');
 			window.close();
 		}
 	});

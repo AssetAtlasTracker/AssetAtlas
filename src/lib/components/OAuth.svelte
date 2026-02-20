@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { browser } from "$app/environment";
+	import { invalidateAll } from "$app/navigation";
+	import { get } from "svelte/store";
 	import { login } from "../stores/loginStore.js";
 
 	let {
@@ -15,6 +17,27 @@
 	let transitionToOTP = $state(false);
 	let authCode = $state("");
 	let otpCode = $state("");
+	let oauthWindow: Window | null = null;
+	let oauthPollId: number | null = null;
+	let oauthRefreshHandled = false;
+
+	async function refreshAfterOAuth() {
+		if (oauthRefreshHandled) return;
+		oauthRefreshHandled = true;
+		if (oauthPollId !== null) {
+			window.clearInterval(oauthPollId);
+			oauthPollId = null;
+		}
+		oauthWindow = null;
+		dialog?.close();
+		for (let attempt = 0; attempt < 3; attempt += 1) {
+			await invalidateAll();
+			if (get(login).isLoggedIn) {
+				break;
+			}
+			await new Promise((resolve) => window.setTimeout(resolve, 250));
+		}
+	}
 
 	async function handleLoginGoogle() {
 		try {
@@ -145,12 +168,25 @@
 		const height = 700;
 		const left = window.screenX + (window.outerWidth - width) / 2;
 		const top = window.screenY + (window.outerHeight - height) / 2;
+		oauthRefreshHandled = false;
+		if (oauthPollId !== null) {
+			window.clearInterval(oauthPollId);
+			oauthPollId = null;
+		}
 		
-		window.open(
+		oauthWindow = window.open(
 			url,
 			'oauth',
 			`width=${width},height=${height},left=${left},top=${top}`
 		);
+
+		if (oauthWindow) {
+			oauthPollId = window.setInterval(() => {
+				if (oauthWindow?.closed) {
+					void refreshAfterOAuth();
+				}
+			}, 500);
+		}
 	}
 
 	let initialized = $state(false);
@@ -158,14 +194,18 @@
 	$effect(() => {
 		if (!browser || initialized) return;
 		initialized = true;
-		const onMessage = (event: MessageEvent) => {
-			if (event.origin !== window.location.origin) return;
+		const onMessage = async (event: MessageEvent) => {
+			if (!oauthWindow || event.source !== oauthWindow) return;
 			if (event.data.type === 'oauth_success') {
-				window.location.reload();
+				await refreshAfterOAuth();
 			}
 		};
 		window.addEventListener('message', onMessage);
 		return () => {
+			if (oauthPollId !== null) {
+				window.clearInterval(oauthPollId);
+				oauthPollId = null;
+			}
 			window.removeEventListener('message', onMessage);
 		};
 	});
