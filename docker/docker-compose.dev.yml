@@ -58,7 +58,7 @@ services:
     ports:
       - "1080:1080"
     volumes:
-      - image-uploads:/data
+      - ../uploads:/data
     networks:
       - dev-network
 
@@ -70,5 +70,3 @@ volumes:
   mongo-dev-data:
   node_modules:
     name: assetatlas-dev-node-modules
-  image-uploads:
-    name: assetatlas-dev-image-uploads
