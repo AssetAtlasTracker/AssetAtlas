@@ -21,17 +21,16 @@ const UserSchema = new Schema({
 	timestamps: true
 });
 
-UserSchema.pre('save', async function(next) {
+UserSchema.pre('save', async function() {
 	const user = this as unknown as IUser;
   
 	if (!user.isModified('passwordHash')) {
-		return next();
+		return;
 	}
   
 	//Generate salt and hash
 	const salt = await bcrypt.genSalt(10);
 	user.passwordHash = await bcrypt.hash(user.passwordHash, salt);
-	next();
 });
 
 //Method to compare given password with stored hash
