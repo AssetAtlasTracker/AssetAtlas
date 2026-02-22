@@ -11,20 +11,12 @@
 
 	let imagePreview: string | null = null;
 	let selectedImage: File | null = null;
-	let isAndroid = false;
-	let cameraInput: HTMLInputElement;
   
 	const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 50MB in bytes
-	const allowedFileTypes = ['.jpg', '.jpeg', '.jfif', '.pjpeg', '.pjp', '.png', '.gif'];
+	const allowedFileTypes = ['image/*', 'android/force-camera-workaround'];
 	const dispatch = createEventDispatcher();
 
-	function detectAndroid(): boolean {
-		if (typeof window === 'undefined') return false;
-		return /Android/i.test(navigator.userAgent);
-	}
-
 	onMount(async () => {
-		isAndroid = detectAndroid();
 		if (itemId && existingImage) {
 			await checkImageExists();
 		}
@@ -74,36 +66,6 @@
 		}
 	}
 
-	function handleCameraCapture(event: Event) {
-		const input = event.target as HTMLInputElement;
-		if (input.files?.length) {
-			const file = input.files[0];
-			
-			if (file.size > MAX_IMAGE_SIZE) {
-				actionStore.addMessage("File exceeds max size. Must be <50MB");
-				input.value = '';
-				return;
-			}
-
-			selectedImage = file;
-			if (selectedImage) {
-				imagePreview = URL.createObjectURL(selectedImage);
-			}
-
-			dispatch('imageChange', {
-				selectedImage,
-				removeExistingImage: false
-			});
-
-			// Reset input so same file can be re-selected
-			input.value = '';
-		}
-	}
-
-	function openCamera() {
-		cameraInput?.click();
-	}
-
 	export function resetImage() {
 		if (imagePreview) {
 			URL.revokeObjectURL(imagePreview);
@@ -137,23 +99,10 @@
 					</button>
 				</div>
 			{:else}
-				{#if isAndroid}
-					<CameraIcon class="size-32" on:click={openCamera}/>
-				{:else}
-					<CameraIcon class="size-32" />
-				{/if}
+				<CameraIcon class="size-32" />
 			{/if}
 			<FileUpload.Trigger>Upload Image</FileUpload.Trigger>
 			<FileUpload.HiddenInput />
 		</FileUpload.Dropzone>
 	</FileUpload>
-
-	<input
-		type="file"
-		accept="image/*"
-		capture="environment"
-		on:change={handleCameraCapture}
-		bind:this={cameraInput}
-		class="hidden"
-	/>
 </div>
