@@ -4,8 +4,10 @@
 	import TopBar from "$lib/components/TopBar.svelte";
 	import UserList from "$lib/components/UserList.svelte";
 	import "$lib/styles/main.css";
+	import type { PageData } from './$types';
 
 	let menu: HTMLDialogElement;
+	export let data: PageData;
   
 	function onSearch(_query: string) {
 	//TODO: Implement search functionality
@@ -20,5 +22,9 @@
 
 <div class="page-with-topbar">
 	<Menu bind:menu />
-	<UserList />
+	{#if !data.isLoggedIn}
+		<h1>Please log in to view users.</h1>
+	{:else}
+		<UserList />
+	{/if}
 </div>
