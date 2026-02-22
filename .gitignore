@@ -1,5 +1,8 @@
 # cspell:disable - Disable spellchecker in this file
 
+# Uploads folder used for image uploads while in dev mode
+/uploads
+
 # Env files contain private/secret local data. Still allow example env files.
 .env.*
 !.env.example
