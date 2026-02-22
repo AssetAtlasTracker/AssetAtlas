@@ -1,5 +1,4 @@
 <script lang="ts">
-	import ActionDisplay from "./ActionDisplay.svelte";
 	let {
 		dialog = $bindable(),
 		isLarge = false,

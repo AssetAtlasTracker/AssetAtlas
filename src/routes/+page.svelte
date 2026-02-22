@@ -1,5 +1,4 @@
 <script lang="ts">
-    import ActionDisplay from "$lib/components/ActionDisplay.svelte";
 	import CreateItem from "$lib/components/CreateItem.svelte";
 	import DeleteItem from "$lib/components/DeleteItem.svelte";
 	import Dialog from "$lib/components/Dialog.svelte";

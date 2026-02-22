@@ -1,59 +1,16 @@
 <script lang="ts">
-    import '../app.css';
-    import '$lib/styles/main.css'
-    import favicon from '$lib/assets/favicon.svg';
-    import { actionStore } from '$lib/stores/actionStore.js';
-    import toast, { Toaster } from 'svelte-french-toast';
-    import { tick } from 'svelte';
+	import '../app.css';
+	import '$lib/styles/main.css';
+	import favicon from '$lib/assets/favicon.svg';
+	import ActionDisplay from '$lib/components/ActionDisplay.svelte';
 
-    let { children } = $props();
-
-    let toasterPopover: HTMLDivElement;
-
-    async function ensureTopLayer() {
-        await tick();
-        if (toasterPopover && !toasterPopover.matches(':popover-open')) {
-            toasterPopover.showPopover();
-        }
-    }
-
-    function showToast(message: string) {
-        ensureTopLayer(); // make sure we're on top layer
-        toast(message, {
-            duration: 3000,
-            position: 'bottom-center',
-            style: `
-                background-color: rgba(0, 0, 0, 0.8);
-                color: white;
-                padding: 1rem;
-                border-radius: 0.5rem;
-            `
-        });
-    }
-
-    let previousLength = $state(0);
-
-    $effect(() => {
-        const messages = $actionStore;
-        if (messages.length > previousLength) {
-            const latestMessage = messages[messages.length - 1];
-            showToast(latestMessage.text);
-        }
-        previousLength = messages.length;
-    });
+	let { children } = $props();
 </script>
 
 <svelte:head>
-    <link rel="icon" href={favicon} />
+	<link rel="icon" href={favicon} />
 </svelte:head>
 
-
-<div
-    bind:this={toasterPopover}
-    popover="manual"
-    class="toaster-popover"
->
-    <Toaster position="bottom-center" />
-</div>
+<ActionDisplay />
 
 {@render children?.()}
