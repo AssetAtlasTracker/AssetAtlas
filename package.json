@@ -83,6 +83,7 @@
 		"qrcode": "^1.5.4",
 		"set-cookie-parser": "^2.7.2",
 		"svelte-device-info": "^1.0.6",
+		"svelte-french-toast": "^2.0.0-alpha.0",
 		"svelte-icons": "^2.1.0",
 		"svelte-portal": "^2.2.1",
 		"tus-js-client": "^4.3.1"
