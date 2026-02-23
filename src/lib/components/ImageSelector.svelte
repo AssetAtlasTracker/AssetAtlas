@@ -13,7 +13,8 @@
 	let selectedImage: File | null = null;
   
 	const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 50MB in bytes
-	const allowedFileTypes = ['.jpg', '.jpeg', '.jfif', '.pjpeg', '.pjp', '.png', '.gif'];
+	// Seems to be required for some mobile camera image submission to work https://stackoverflow.com/questions/77876374/html-input-type-file-not-working-to-pull-up-camera-for-pixel-android-14-comb
+	const allowedFileTypes = ['image/*', 'android/force-camera-workaround'];
 	const dispatch = createEventDispatcher();
 
 	onMount(async () => {
