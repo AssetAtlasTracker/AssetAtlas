@@ -104,8 +104,8 @@ export class CSVFormatterPopulated {
 
 	formatItem(item: IBasicItemPopulated, columns: string[]) {
 		let templateName = "";
-		if (item.template) {
-			templateName = item.template.name;
+		if (item.templates) {
+			templateName = item.templates.name;
 		}
 		const imageFile = item.image ? item.image!.filename : "";
 		let line = item.name + "," + templateName + "," + item.description + ",";

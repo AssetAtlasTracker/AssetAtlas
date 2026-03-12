@@ -48,10 +48,10 @@
 				fromTemplate: false,
 			}));
 
-			if (currentItem.template && currentItem.template.fields?.length) {
+			if (currentItem.templates && currentItem.templates.fields?.length) {
 				const templateFieldIds = new Set(
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					currentItem.template.fields.map((tid: any) =>
+					currentItem.templates.fields.map((tid: any) =>
 						typeof tid === "string" ? tid : tid._id.toString(),
 					),
 				);
@@ -78,10 +78,10 @@
 			}
 		}
 
-		if (currentItem.template && currentItem.template.fields?.length) {
+		if (currentItem.templates && currentItem.templates.fields?.length) {
 			const templateFieldIds = new Set(
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				currentItem.template.fields.map((tid: any) =>
+				currentItem.templates.fields.map((tid: any) =>
 					typeof tid === "string" ? tid : tid._id.toString(),
 				),
 			);
@@ -107,8 +107,8 @@
 		homeItemId = currentItem.homeItem
 			? currentItem.homeItem._id.toString()
 			: null;
-		templateId = currentItem.template
-			? currentItem.template?._id.toString()
+		templateId = currentItem.templates && currentItem.templates.length > 0
+			? currentItem.templates[0].fields?._id.toString()
 			: null;
 		customFields = buildCustomFields(currentItem);
 		selectedImage = item.image ? item.image : null;

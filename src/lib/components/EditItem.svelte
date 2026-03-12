@@ -29,9 +29,13 @@
 	let homeItemName = $state("");
 	let homeItemId = $state<string | null>(null);
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let homeItemSuggestions = $state<any[]>([]);
-	let templateName = $state("");
-	let templateId = $state<string | null>(null);
+	let homeItemSuggestions: any[] = [];
+	let templateName = "";
+	let templateId: string | null = null;
+	if (item.template) {
+		templateName = item.template?.name;
+		templateId = item.template?._id.toString();
+	}
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let templateSuggestions = $state<any[]>([]);
 	let selectedImage = $state<File | null>(null);
@@ -69,10 +73,10 @@
 				fromTemplate: false,
 			}));
 
-			if (currentItem.template && currentItem.template.fields?.length) {
+			if (currentItem.templates && currentItem.templates.fields?.length) {
 				const templateFieldIds = new Set(
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					currentItem.template.fields.map((tid: any) =>
+					currentItem.templates.fields.map((tid: any) =>
 						typeof tid === "string" ? tid : tid._id.toString(),
 					),
 				);
@@ -99,10 +103,10 @@
 			}
 		}
 
-		if (currentItem.template && currentItem.template.fields?.length) {
+		if (currentItem.templates && currentItem.templates.fields?.length) {
 			const templateFieldIds = new Set(
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				currentItem.template.fields.map((tid: any) =>
+				currentItem.templates.fields.map((tid: any) =>
 					typeof tid === "string" ? tid : tid._id.toString(),
 				),
 			);
@@ -132,9 +136,9 @@
 			? currentItem.homeItem._id.toString()
 			: null;
 		homeItemSuggestions = [];
-		templateName = currentItem.template?.name ?? "";
-		templateId = currentItem.template
-			? currentItem.template?._id.toString()
+		templateName = currentItem.templates[0]?.name ?? "";
+		templateId = currentItem.templates && currentItem.templates.length > 0
+			? currentItem.templates[0].fields._id.toString()
 			: null;
 		templateSuggestions = [];
 		fieldItemName = "";
@@ -804,7 +808,7 @@
 						type="text"
 						class="dark-textarea py-2 px-4 w-full"
 						bind:value={templateName}
-						placeholder={item.template?.name}
+						placeholder={item.templates?.name}
 						oninput={handleTemplateInput}
 						onfocus={handleTemplateFocus}
 						onblur={() => (templateSuggestions = [])} />
