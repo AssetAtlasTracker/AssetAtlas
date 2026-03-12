@@ -185,9 +185,9 @@ export function changeItem(newItem: IBasicItemPopulated){
 		if (item.homeItem) {
 			_homeItemId = item.homeItem._id.toString();
 		}
-		if (item.template) {
-			_templateName = item.template?.name;
-			_templateId = item.template?._id.toString();
+		if (item.templates) {
+			_templateName = item.templates?.name;
+			_templateId = item.templates?._id.toString();
 		}
 
 		if (item.customFields?.length) {
@@ -205,10 +205,10 @@ export function changeItem(newItem: IBasicItemPopulated){
 				searchTimeout: undefined,
 			}));
 
-			if (item.template && item.template.fields?.length) {
+			if (item.templates && item.templates.fields?.length) {
 				const templateFieldIds = new Set(
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					item.template.fields.map((tid: any) =>
+					item.templates.fields.map((tid: any) =>
 						typeof tid === "string" ? tid : tid._id.toString(),
 					),
 				);
@@ -251,9 +251,9 @@ export function initializeItemEdit() {
 			if (item.homeItem) {
 				_homeItemId = item.homeItem._id.toString();
 			}
-			if (item.template) {
-				_templateName = item.template?.name;
-				_templateId = item.template?._id.toString();
+			if (item.templates) {
+				_templateName = item.templates?.name;
+				_templateId = item.templates?._id.toString();
 			}
 		}
 	}

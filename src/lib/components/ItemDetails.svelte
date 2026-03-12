@@ -317,10 +317,8 @@
 		{/if}
 	{/if}
 
-	{#if item.template}
-		<p><strong>Template Name:</strong> {item.template.name}</p>
-	{/if}
-	<ul>
+	templates
+	<ul>templates
 		{#if item.description}
 			<li><strong>Description:</strong> {item.description}</li>
 		{/if}
@@ -357,6 +355,10 @@
 			</li>
 		{:else}
 			<li><strong>Home Location:</strong> No home</li>
+		{/if}
+
+		{#if item.template}
+			<p><strong>Template Name:</strong> {item.template.name}</p>
 		{/if}
 
 		{#if item.containedItems && item.containedItems.length > 0}

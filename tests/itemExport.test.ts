@@ -113,7 +113,7 @@ describe("Testing Item Exporting", () => {
 		const firstItem = new BasicItem() as unknown as IBasicItemPopulated;
 		firstItem._id = new Types.ObjectId();
 		firstItem.name = "dog";
-		firstItem.template = undefined;
+		firstItem.templates = undefined;
 		firstItem.description = "a german shepherd";
 
 

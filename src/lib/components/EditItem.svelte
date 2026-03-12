@@ -41,9 +41,9 @@
 	let homeItemSuggestions: any[] = [];
 	let templateName = "";
 	let templateId: string | null = null;
-	if (item.template) {
-		templateName = item.template?.name;
-		templateId = item.template?._id.toString();
+	if (item.templates) {
+		templateName = item.templates?.name;
+		templateId = item.templates?._id.toString();
 	}
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let templateSuggestions: any[] = [];
@@ -74,10 +74,10 @@
 			fromTemplate: false,
 		}));
 
-		if (item.template && item.template.fields?.length) {
+		if (item.templates && item.templates.fields?.length) {
 			const templateFieldIds = new Set(
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				item.template.fields.map((tid: any) =>
+				item.templates.fields.map((tid: any) =>
 					typeof tid === "string" ? tid : tid._id.toString(),
 				),
 			);
@@ -104,10 +104,10 @@
 		}
 	}
 
-	if (item.template && item.template.fields?.length) {
+	if (item.templates && item.templates.fields?.length) {
 		const templateFieldIds = new Set(
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			item.template.fields.map((tid: any) =>
+			item.templates.fields.map((tid: any) =>
 				typeof tid === "string" ? tid : tid._id.toString(),
 			),
 		);
@@ -770,7 +770,7 @@
 						type="text"
 						class="dark-textarea py-2 px-4 w-full"
 						bind:value={templateName}
-						placeholder={item.template?.name}
+						placeholder={item.templates?.name}
 						on:input={handleTemplateInput}
 						on:focus={handleTemplateFocus}
 						on:blur={() => (templateSuggestions = [])} />
