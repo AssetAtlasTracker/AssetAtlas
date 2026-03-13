@@ -4,6 +4,11 @@ import type { ICustomField, ICustomFieldEntryInstance } from "$lib/types/customF
 import { uploadImage } from '$lib/utility/imageUpload.js';
 import { addToRecents } from "$lib/utility/recentItemHelper";
 
+type ISelectedTemplate = {
+	_id: string;
+	name: string;
+};
+
 let item = $state<IBasicItemPopulated | null>(null);
 let duplicate = $state(false);
 
@@ -25,6 +30,7 @@ let _fieldItemId = $state<string | null>(null);
 let _fieldItemSuggestions = $state<any[]>([]);
 let _templateName = $state("");
 let _templateId = $state<string | null>(null);
+let _selectedTemplates = $state<ISelectedTemplate[]>([]);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _templateSuggestions = $state<any[]>([]);
 let _customFields = $state<ICustomFieldEntryInstance[]>([]);
@@ -62,6 +68,8 @@ export const createItemState = {
 	set templateName(v) { _templateName = v; },
 	get templateId() { return _templateId; },
 	set templateId(v) { _templateId = v; },
+	get selectedTemplates() { return _selectedTemplates; },
+	set selectedTemplates(v) { _selectedTemplates = v; },
 	get templateSuggestions() { return _templateSuggestions; },
 	set templateSuggestions(v) { _templateSuggestions = v; },
 	get customFields() { return _customFields; },
@@ -127,7 +135,12 @@ export async function handleCreateItem() {
 		formData.append("tags", JSON.stringify(tagsArray));
 		if (_parentItemId) formData.append("parentItem", _parentItemId);
 		if (_homeItemId) formData.append("homeItem", _homeItemId);
-		if (_templateId) formData.append("templates", JSON.stringify([{ field: _templateId }]));
+		if (_selectedTemplates.length > 0) {
+			formData.append(
+				"templates",
+				JSON.stringify(_selectedTemplates.map((template) => ({ field: template._id }))),
+			);
+		}
 		if (_selectedImage) {
 			const filename = await uploadImage(_selectedImage);
 			formData.append("image", filename);
@@ -185,13 +198,19 @@ export function changeItem(newItem: IBasicItemPopulated){
 		if (item.homeItem) {
 			_homeItemId = item.homeItem._id.toString();
 		}
-		if (item.templates && item.templates.length > 0) {
-			_templateName = item.templates[0].field.name;
-			_templateId = item.templates[0].field._id.toString();
-		}
+		_selectedTemplates = (item.templates ?? [])
+			.map((template) => ({
+				_id: template.field?._id?.toString(),
+				name: template.field?.name,
+			}))
+			.filter((template) => !!template._id && !!template.name) as ISelectedTemplate[];
+		_templateName = "";
+		_templateId = null;
 
 		if (item.customFields?.length) {
-			let nonTemplateFields = item.customFields.map((cf) => ({
+			const templateFieldIds = getTemplateFieldIdSet(item);
+
+			const mappedFields = item.customFields.map((cf) => ({
 				fieldName: cf.field.fieldName,
 				fieldId: cf.field._id as unknown as string,
 				dataType: cf.field.dataType,
@@ -201,30 +220,13 @@ export function changeItem(newItem: IBasicItemPopulated){
 				isNew: false,
 				isSearching: false,
 				isExisting: true,
-				fromTemplate: false,
+				fromTemplate: templateFieldIds.has((cf.field._id as unknown as string).toString()),
 				searchTimeout: undefined,
 			}));
 
-			if (item.templates && item.templates.length > 0 && item.templates[0].field.fields?.length) {
-				const templateFieldIds = new Set(
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					item.templates[0].field.fields.map((tid: any) =>
-						typeof tid === "string" ? tid : tid._id.toString(),
-					),
-				);
-
-				const templateFields = nonTemplateFields
-					.filter((field) => field.fieldId && templateFieldIds.has(field.fieldId.toString()))
-					.map((field) => ({ ...field, fromTemplate: true }));
-
-				const remainingFields = nonTemplateFields.filter(
-					(field) => !field.fieldId || !templateFieldIds.has(field.fieldId.toString())
-				);
-
-				_customFields = [...templateFields, ...remainingFields];
-			} else {
-				_customFields = nonTemplateFields;
-			}
+			const templateFields = mappedFields.filter((field) => field.fromTemplate);
+			const remainingFields = mappedFields.filter((field) => !field.fromTemplate);
+			_customFields = [...templateFields, ...remainingFields];
 		}
 	}
 }
@@ -251,10 +253,14 @@ export function initializeItemEdit() {
 			if (item.homeItem) {
 				_homeItemId = item.homeItem._id.toString();
 			}
-			if (item.templates && item.templates.length > 0) {
-				_templateName = item.templates[0].field.name;
-				_templateId = item.templates[0].field._id.toString();
-			}
+			_selectedTemplates = (item.templates ?? [])
+				.map((template) => ({
+					_id: template.field?._id?.toString(),
+					name: template.field?.name,
+				}))
+				.filter((template) => !!template._id && !!template.name) as ISelectedTemplate[];
+			_templateName = "";
+			_templateId = null;
 		}
 	}
 }
@@ -271,6 +277,7 @@ export function resetAllFields() {
 	_fieldItemId = null;
 	_templateName = "";
 	_templateId = null;
+	_selectedTemplates = [];
 	_customFields = [];
 	_parentItemSuggestions = [];
 	_homeItemSuggestions = [];
@@ -455,19 +462,15 @@ async function searchTemplates(query: string) {
 		const data = await response.json();
 		_templateSuggestions = data;
 
-		//Check for an exact match
+		// Check for exact match to help with typed-entry validation
 		const exactMatch = data.find(
 			(template: { name: string }) => template.name === _templateName,
 		);
 
 		if (exactMatch) {
-			if (_templateId !== exactMatch._id) {
-				_templateId = exactMatch._id;
-				await loadTemplateFields(_templateId);
-			}
+			_templateId = exactMatch._id;
 		} else {
 			_templateId = null;
-			removeTemplateFields();
 		}
 	} catch (err) {
 		console.error("Error searching templates:", err);
@@ -519,13 +522,22 @@ export function selectHomeItem(item: { name: string; _id: string | null }) {
 }
 
 export function selectTemplate(item: { name: string; _id: string }) {
-	_templateName = item.name;
-	_templateId = item._id;
+	const alreadySelected = _selectedTemplates.some((template) => template._id === item._id);
+	if (!alreadySelected) {
+		_selectedTemplates = [..._selectedTemplates, { _id: item._id, name: item.name }];
+		void syncTemplateFields();
+	}
+	_templateName = "";
+	_templateId = null;
 	_templateSuggestions = [];
-	loadTemplateFields(_templateId);
 	if (item && item._id) {
 		addToRecents("template", item);
 	}
+}
+
+export function removeSelectedTemplate(templateId: string) {
+	_selectedTemplates = _selectedTemplates.filter((template) => template._id !== templateId);
+	void syncTemplateFields();
 }
 
 export function selectCustomFieldSuggestion(
@@ -543,59 +555,71 @@ export function selectCustomFieldSuggestion(
 	}
 }
 
-async function loadTemplateFields(templateId: string | null) {
-	if (!templateId) return;
-
+async function syncTemplateFields() {
 	try {
-		if (!_templateName || _templateName.trim() === "") {
-			return;
-		}
-		const response = await fetch(`/api/templates/${templateId}`, {
-			method: "GET",
-			headers: { "Content-Type": "application/json" },
-		});
-
-		if (!response.ok) {
-			console.error(
-				`Failed to fetch template. Status: ${response.status} - ${response.statusText}`,
-			);
-			console.error(await response.text());
+		const nonTemplateFields = _customFields.filter((field) => !field.fromTemplate);
+		if (_selectedTemplates.length === 0) {
+			_customFields = nonTemplateFields;
 			return;
 		}
 
-		const data = await response.json();
+		const existingTemplateFields = _customFields
+			.filter((field) => field.fromTemplate && !!field.fieldId)
+			.reduce<Record<string, ICustomFieldEntryInstance>>((acc, field) => {
+				if (field.fieldId) {
+					acc[String(field.fieldId)] = field;
+				}
+				return acc;
+			}, {});
 
-		if (!data || !data.fields) {
-			console.warn("No fields found in template:", data);
-			return;
-		}
+		const templateResponses = await Promise.all(
+			_selectedTemplates.map(async (template) => {
+				const response = await fetch(`/api/templates/${template._id}`, {
+					method: "GET",
+					headers: { "Content-Type": "application/json" },
+				});
+				if (!response.ok) {
+					console.error(
+						`Failed to fetch template. Status: ${response.status} - ${response.statusText}`,
+					);
+					console.error(await response.text());
+					return [];
+				}
+				const data = await response.json();
+				return Array.isArray(data?.fields) ? data.fields : [];
+			}),
+		);
 
-		//Remove existing template fields before loading new ones
-		removeTemplateFields();
+		const uniqueFieldIds = Array.from(
+			new Set(
+				templateResponses
+					.flat()
+					.map((field: { _id: string }) => field?._id)
+					.filter((fieldId: string | undefined) => !!fieldId),
+			),
+		);
 
-		//Add the template fields
 		const templateFields = await Promise.all(
-			data.fields.map(async (field: { _id: string }) => {
-				const fieldId = field._id;
-				const fieldUrl = `/api/customFields/${fieldId}`;
+			uniqueFieldIds.map(async (fieldId) => {
+				const existingField = existingTemplateFields[fieldId];
+				if (existingField) {
+					return { ...existingField, fromTemplate: true };
+				}
 
+				const fieldUrl = `/api/customFields/${fieldId}`;
 				const fieldRes = await fetch(fieldUrl, {
 					method: "GET",
 					headers: { "Content-Type": "application/json" },
 				});
-
 				if (!fieldRes.ok) {
 					console.error(
 						`Failed to fetch field. Status: ${fieldRes.status} - ${fieldRes.statusText}`,
 					);
 					console.error(await fieldRes.text());
-					throw new Error(
-						`Failed to fetch field with ID: ${fieldId}`,
-					);
+					throw new Error(`Failed to fetch field with ID: ${fieldId}`);
 				}
 
 				const fieldData: ICustomField = await fieldRes.json();
-
 				return {
 					fieldName: fieldData.fieldName,
 					fieldId: fieldData._id,
@@ -610,15 +634,22 @@ async function loadTemplateFields(templateId: string | null) {
 			}),
 		);
 
-		//display template fields before any user-defined fields
-		_customFields = [...templateFields, ..._customFields];
+		_customFields = [...templateFields, ...nonTemplateFields];
 	} catch (err) {
-		console.error("Error loading template fields:", err);
+		console.error("Error syncing template fields:", err);
 	}
 }
 
-function removeTemplateFields() {
-	_customFields = _customFields.filter((f) => !f.fromTemplate);
+function getTemplateFieldIdSet(sourceItem: IBasicItemPopulated) {
+	const templateFieldIds = new Set<string>();
+	for (const template of sourceItem.templates ?? []) {
+		for (const field of template.field?.fields ?? []) {
+			templateFieldIds.add(
+				typeof field === "string" ? field : field._id.toString(),
+			);
+		}
+	}
+	return templateFieldIds;
 }
 
 export function addCustomFieldLine() {
