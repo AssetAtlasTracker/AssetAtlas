@@ -127,7 +127,7 @@ export async function handleCreateItem() {
 		formData.append("tags", JSON.stringify(tagsArray));
 		if (_parentItemId) formData.append("parentItem", _parentItemId);
 		if (_homeItemId) formData.append("homeItem", _homeItemId);
-		if (_templateId) formData.append("template", _templateId);
+		if (_templateId) formData.append("templates", JSON.stringify([{ field: _templateId }]));
 		if (_selectedImage) {
 			const filename = await uploadImage(_selectedImage);
 			formData.append("image", filename);
@@ -185,9 +185,9 @@ export function changeItem(newItem: IBasicItemPopulated){
 		if (item.homeItem) {
 			_homeItemId = item.homeItem._id.toString();
 		}
-		if (item.templates) {
-			_templateName = item.templates?.name;
-			_templateId = item.templates?._id.toString();
+		if (item.templates && item.templates.length > 0) {
+			_templateName = item.templates[0].field.name;
+			_templateId = item.templates[0].field._id.toString();
 		}
 
 		if (item.customFields?.length) {
@@ -205,10 +205,10 @@ export function changeItem(newItem: IBasicItemPopulated){
 				searchTimeout: undefined,
 			}));
 
-			if (item.templates && item.templates.fields?.length) {
+			if (item.templates && item.templates.length > 0 && item.templates[0].field.fields?.length) {
 				const templateFieldIds = new Set(
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					item.templates.fields.map((tid: any) =>
+					item.templates[0].field.fields.map((tid: any) =>
 						typeof tid === "string" ? tid : tid._id.toString(),
 					),
 				);
@@ -251,9 +251,9 @@ export function initializeItemEdit() {
 			if (item.homeItem) {
 				_homeItemId = item.homeItem._id.toString();
 			}
-			if (item.templates) {
-				_templateName = item.templates?.name;
-				_templateId = item.templates?._id.toString();
+			if (item.templates && item.templates.length > 0) {
+				_templateName = item.templates[0].field.name;
+				_templateId = item.templates[0].field._id.toString();
 			}
 		}
 	}

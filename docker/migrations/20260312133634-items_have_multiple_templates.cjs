@@ -7,17 +7,18 @@ module.exports = {
 	async up(db, client) {
 		const basicItemsCollection = db.collection('basicitems');
     
+		// Find all items where template exists as ObjectId (old format)
 		const itemsWithOldTemplate = await basicItemsCollection.find({
 			template: { $exists: true, $type: 'objectId' }
 		}).toArray();
     
+		console.log(`Found ${itemsWithOldTemplate.length} items with old template format (ObjectId)`);
+    
+		// Convert ObjectId to array format
 		for (const item of itemsWithOldTemplate) {
 			const oldTemplateId = item.template;
-      
-			// Wrap the template ID in the new array format: [{ field: templateId, value: null }]
 			const newTemplatesFormat = [{
-				field: oldTemplateId,
-				value: null
+				field: oldTemplateId
 			}];
         
 			await basicItemsCollection.updateOne(
@@ -25,6 +26,24 @@ module.exports = {
 				{ $set: { templates: newTemplatesFormat }, $unset: { template: "" } }
 			);
         
+			console.log(`Updated item ${item._id} from ObjectId to templates array format`);
+		}
+		
+		// Find all items where template already exists as array (current format)
+		const itemsWithArrayTemplate = await basicItemsCollection.find({
+			template: { $exists: true, $type: 'array' }
+		}).toArray();
+		
+		console.log(`Found ${itemsWithArrayTemplate.length} items with template already as array`);
+		
+		// Rename template field to templates
+		for (const item of itemsWithArrayTemplate) {
+			await basicItemsCollection.updateOne(
+				{ _id: item._id },
+				{ $rename: { template: 'templates' } }
+			);
+			
+			console.log(`Renamed template to templates for item ${item._id}`);
 		}
     
 		console.log('Migration completed successfully');
@@ -42,24 +61,28 @@ module.exports = {
 			templates: { $exists: true, $type: 'array' }
 		}).toArray();
     
-		// Convert each item's templates from array back to single ObjectId
-		// Takes the first template in the array
+		console.log(`Found ${itemsWithNewTemplates.length} items with templates field`);
+    
+		// Convert templates array back to single template ObjectId
 		for (const item of itemsWithNewTemplates) {
-			if (item.templates && item.templates.length > 0) {
-				// Get the first template's ObjectId from the array
+			if (item.templates && item.templates.length > 0 && item.templates[0].field) {
+				// Extract the first template's field ObjectId
 				const firstTemplateId = item.templates[0].field;
-        
+				
 				await basicItemsCollection.updateOne(
 					{ _id: item._id },
 					{ $set: { template: firstTemplateId }, $unset: { templates: "" } }
 				);
-        
+				
+				console.log(`Converted item ${item._id} from templates array to single template ObjectId`);
 			} else {
+				// Empty or invalid templates array, just remove it
 				await basicItemsCollection.updateOne(
 					{ _id: item._id },
 					{ $unset: { templates: "" } }
 				);
-        
+				
+				console.log(`Removed empty templates array from item ${item._id}`);
 			}
 		}
     

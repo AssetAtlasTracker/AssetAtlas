@@ -25,8 +25,8 @@
 	let homeItemId: string | null = item.homeItem
 		? item.homeItem._id.toString()
 		: null;
-	let templateId: string | null = item.templates
-		? item.templates?._id.toString()
+	let templateId: string | null = item.templates && item.templates.length > 0
+		? item.templates[0].field._id.toString()
 		: null;
 	let selectedImage: string | null = item.image ? item.image : null;
 
@@ -43,8 +43,8 @@
 		if (item.homeItem) {
 			homeItemId = item.homeItem._id.toString();
 		}
-		if (item.templates) {
-			templateId = item.templates?._id.toString();
+		if (item.templates && item.templates.length > 0) {
+			templateId = item.templates[0].field._id.toString();
 		}
 		if (item.image) {
 			selectedImage = item.image;
@@ -66,10 +66,10 @@
 			fromTemplate: false,
 		}));
 
-		if (item.templates && item.templates.fields?.length) {
+		if (item.templates && item.templates.length > 0 && item.templates[0].field.fields?.length) {
 			const templateFieldIds = new Set(
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				item.templates.fields.map((tid: any) =>
+				item.templates[0].field.fields.map((tid: any) =>
 					typeof tid === "string" ? tid : tid._id.toString(),
 				),
 			);
@@ -96,10 +96,10 @@
 		}
 	}
 
-	if (item.templates && item.templates.fields?.length) {
+	if (item.templates && item.templates.length > 0 && item.templates[0].field.fields?.length) {
 		const templateFieldIds = new Set(
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			item.templates.fields.map((tid: any) =>
+			item.templates[0].field.fields.map((tid: any) =>
 				typeof tid === "string" ? tid : tid._id.toString(),
 			),
 		);
@@ -145,7 +145,7 @@
 			formData.append("tags", JSON.stringify(tags));
 			if (parentItemId) formData.append("parentItem", parentItemId);
 			if (homeItemId) formData.append("homeItem", homeItemId);
-			if (templateId) formData.append("template", templateId);
+			if (templateId) formData.append("templates", JSON.stringify([{ field: templateId }]));
 			formData.append(
 				"customFields",
 				JSON.stringify(formattedCustomFields),
