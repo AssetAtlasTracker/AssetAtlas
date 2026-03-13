@@ -37,14 +37,32 @@
 	if (item.homeItem) {
 		homeItemId = item.homeItem._id.toString();
 	}
+	type ISelectedTemplate = {
+		_id: string;
+		name: string;
+	};
+
+	let selectedTemplates: ISelectedTemplate[] = (item.templates ?? [])
+		.map((template) => ({
+			_id: template.field?._id?.toString(),
+			name: template.field?.name,
+		}))
+		.filter((template) => !!template._id && !!template.name) as ISelectedTemplate[];
+
+	function getTemplateFieldIdsFromTemplates(templates: Array<{ field: { fields?: unknown[] } }>) {
+		const fieldIds = new Set<string>();
+		for (const template of templates) {
+			for (const field of template.field?.fields ?? []) {
+				fieldIds.add(typeof field === "string" ? field : (field as { _id: string })._id.toString());
+			}
+		}
+		return fieldIds;
+	}
+
+	const templateFieldIds = getTemplateFieldIdsFromTemplates(item.templates ?? []);
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let homeItemSuggestions: any[] = [];
 	let templateName = "";
-	let templateId: string | null = null;
-	if (item.templates && item.templates.length > 0) {
-		templateName = item.templates[0].field.name;
-		templateId = item.templates[0].field._id.toString();
-	}
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let templateSuggestions: any[] = [];
 	let selectedImage: File | null = null;
@@ -71,53 +89,12 @@
 			isNew: false,
 			isSearching: false,
 			isExisting: true,
-			fromTemplate: false,
+			fromTemplate: templateFieldIds.has((cf.field._id as unknown as string).toString()),
 		}));
 
-		if (item.templates && item.templates.length > 0 && item.templates[0].field.fields?.length) {
-			const templateFieldIds = new Set(
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				item.templates[0].field.fields.map((tid: any) =>
-					typeof tid === "string" ? tid : tid._id.toString(),
-				),
-			);
-
-			//Split fields into template and non-template
-			const templateFields = nonTemplateFields
-				.filter(
-					(field) =>
-						field.fieldId &&
-							templateFieldIds.has(field.fieldId.toString()),
-				)
-				.map((field) => ({ ...field, fromTemplate: true }));
-
-			const remainingFields = nonTemplateFields.filter(
-				(field) =>
-					!field.fieldId ||
-						!templateFieldIds.has(field.fieldId.toString()),
-			);
-
-			//Combine with template fields first
-			customFields = [...templateFields, ...remainingFields];
-		} else {
-			customFields = nonTemplateFields;
-		}
-	}
-
-	if (item.templates && item.templates.length > 0 && item.templates[0].field.fields?.length) {
-		const templateFieldIds = new Set(
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			item.templates[0].field.fields.map((tid: any) =>
-				typeof tid === "string" ? tid : tid._id.toString(),
-			),
-		);
-
-		customFields = customFields.map((field) => ({
-			...field,
-			fromTemplate: field.fieldId
-				? templateFieldIds.has(field.fieldId.toString())
-				: false,
-		}));
+		const templateFields = nonTemplateFields.filter((field) => field.fromTemplate);
+		const remainingFields = nonTemplateFields.filter((field) => !field.fromTemplate);
+		customFields = [...templateFields, ...remainingFields];
 	}
 	
 	let showEditTemplateDialog = false;
@@ -213,8 +190,6 @@
 	function handleTemplateInput(event: Event) {
 		const target = event.target as HTMLInputElement;
 		templateName = target.value.trim();
-		//Clear templateId since user is typing something else now
-		templateId = null;
 		if (debounceTimeout) clearTimeout(debounceTimeout);
 		debounceTimeout = setTimeout(() => {
 			searchTemplates(templateName);
@@ -231,92 +206,98 @@
 				},
 			);
 			const data = await response.json();
-			templateSuggestions = data;
-
-			//Check for an exact match
-			const exactMatch = data.find(
-				(template: { name: string }) => template.name === templateName,
+			templateSuggestions = data.filter(
+				(template: { _id: string }) =>
+					!selectedTemplates.some((selected) => selected._id === String(template._id)),
 			);
-
-			if (exactMatch) {
-				if (templateId !== exactMatch._id) {
-					templateId = exactMatch._id;
-					await loadTemplateFields(templateId);
-				}
-			} else {
-				templateId = null;
-				removeTemplateFields();
-			}
 		} catch (err) {
 			console.error("Error searching templates:", err);
 		}
 	}
 
 	function selectTemplate(item: { name: string; _id: string }) {
-		templateName = item.name;
-		templateId = item._id;
+		if (!selectedTemplates.some((template) => template._id === item._id)) {
+			selectedTemplates = [
+				...selectedTemplates,
+				{ _id: item._id, name: item.name },
+			];
+			void syncTemplateFields();
+		}
+		templateName = "";
 		templateSuggestions = [];
-		loadTemplateFields(templateId);
 		addToRecents("template", item);
 	}
 
-	async function loadTemplateFields(templateId: string | null) {
-		if (!templateId) return;
+	function removeSelectedTemplate(templateIdToRemove: string) {
+		selectedTemplates = selectedTemplates.filter((template) => template._id !== templateIdToRemove);
+		void syncTemplateFields();
+	}
 
+	async function syncTemplateFields() {
 		try {
-			if (!templateName || templateName.trim() === "") {
-				return;
-			}
-			const response = await fetch(`/api/templates/${templateId}`, {
-				method: "GET",
-				headers: { "Content-Type": "application/json" },
-			});
-
-			if (!response.ok) {
-				console.error(
-					`Failed to fetch template. Status: ${response.status} - ${response.statusText}`,
-				);
-				console.error(await response.text());
+			const nonTemplateFields = customFields.filter((f) => !f.fromTemplate);
+			if (selectedTemplates.length === 0) {
+				customFields = nonTemplateFields;
 				return;
 			}
 
-			const data = await response.json();
-			console.log("Template data:", data);
+			const existingTemplateFields = customFields
+				.filter((field) => field.fromTemplate && !!field.fieldId)
+				.reduce<Record<string, ICustomFieldEntryInstance>>((acc, field) => {
+					if (field.fieldId) {
+						acc[String(field.fieldId)] = field;
+					}
+					return acc;
+				}, {});
 
-			if (!data || !data.fields) {
-				console.warn("No fields found in template:", data);
-				return;
-			}
+			const templateResponses = await Promise.all(
+				selectedTemplates.map(async (template) => {
+					const response = await fetch(`/api/templates/${template._id}`, {
+						method: "GET",
+						headers: { "Content-Type": "application/json" },
+					});
+					if (!response.ok) {
+						console.error(
+							`Failed to fetch template. Status: ${response.status} - ${response.statusText}`,
+						);
+						console.error(await response.text());
+						return [];
+					}
+					const data = await response.json();
+					return Array.isArray(data?.fields) ? data.fields : [];
+				}),
+			);
 
-			//Remove existing template fields before loading new ones
-			removeTemplateFields();
+			const uniqueFieldIds = Array.from(
+				new Set(
+					templateResponses
+						.flat()
+						.map((field: { _id: string }) => field?._id)
+						.filter((fieldId: string | undefined) => !!fieldId),
+				),
+			);
 
-			//Add the template fields
-			console.log(`Fetching details for ${data.fields.length} fields.`);
 			const templateFields = await Promise.all(
-				data.fields.map(async (field: { _id: string }) => {
-					const fieldId = field._id;
-					const fieldUrl = `/api/customFields/${fieldId}`;
-					console.log(`Fetching field details from: ${fieldUrl}`);
+				uniqueFieldIds.map(async (fieldId) => {
+					const existingField = existingTemplateFields[fieldId];
+					if (existingField) {
+						return { ...existingField, fromTemplate: true };
+					}
 
+					const fieldUrl = `/api/customFields/${fieldId}`;
 					const fieldRes = await fetch(fieldUrl, {
 						method: "GET",
 						headers: { "Content-Type": "application/json" },
 					});
-
 					if (!fieldRes.ok) {
 						console.error(
 							`Failed to fetch field. Status: ${fieldRes.status} - ${fieldRes.statusText}`,
 						);
 						console.error(await fieldRes.text());
-						throw new Error(
-							`Failed to fetch field with ID: ${fieldId}`,
-						);
+						throw new Error(`Failed to fetch field with ID: ${fieldId}`);
 					}
 
 					const fieldData: ICustomField = await fieldRes.json();
-					console.log("Field data:", fieldData);
-
 					return {
 						fieldName: fieldData.fieldName,
 						fieldId: fieldData._id,
@@ -331,22 +312,10 @@
 				}),
 			);
 
-			console.log("Loaded template fields:", templateFields);
-
-			//template fields first, then other fields
-			const nonTemplateFields = customFields.filter(
-				(f) => !f.fromTemplate,
-			);
 			customFields = [...templateFields, ...nonTemplateFields];
-			console.log("Updated customFields:", customFields);
 		} catch (err) {
-			console.error("Error loading template fields:", err);
+			console.error("Error syncing template fields:", err);
 		}
-	}
-
-	//Removes all fields that came from a template
-	function removeTemplateFields() {
-		customFields = customFields.filter((f) => !f.fromTemplate);
 	}
 
 	//Custom fields handlers
@@ -489,7 +458,11 @@
 
 	async function handleTemplateFocus() {
 		if (!templateName) {
-			templateSuggestions = await loadRecentItems("template");
+			const recentTemplates = await loadRecentItems("template");
+			templateSuggestions = recentTemplates.filter(
+				(template: { _id: string }) =>
+					!selectedTemplates.some((selected) => selected._id === String(template._id)),
+			);
 		}
 	}
 
@@ -596,8 +569,12 @@
 			if (parentItemId && !sameLocations)
 				formData.append("parentItem", parentItemId);
 
-			if (templateId)
-				formData.append("templates", JSON.stringify([{ field: templateId }]));
+			if (selectedTemplates.length > 0) {
+				formData.append(
+					"templates",
+					JSON.stringify(selectedTemplates.map((template) => ({ field: template._id }))),
+				);
+			}
 
 			// Add custom fields
 			const formattedFields = await Promise.all(
@@ -771,7 +748,7 @@
 						type="text"
 						class="dark-textarea py-2 px-4 w-full"
 						bind:value={templateName}
-						placeholder={item.templates && item.templates.length > 0 ? item.templates[0].field.name : ""}
+						placeholder="Search templates"
 						on:input={handleTemplateInput}
 						on:focus={handleTemplateFocus}
 						on:blur={() => (templateSuggestions = [])} />
@@ -799,6 +776,25 @@
 					Create New Template
 				</button>
 			</div>
+
+			{#if selectedTemplates.length > 0}
+				<div class="flex-column flex-grow mt-2">
+					<span class="font-semibold">Templates:</span>
+					<div class="flex flex-wrap gap-2 mt-2">
+						{#each selectedTemplates as template (template._id)}
+							<div class="flex items-center gap-2 px-2 py-1 rounded border">
+								<span>{template.name}</span>
+								<button
+									type="button"
+									aria-label={`Remove ${template.name}`}
+									on:click={() => removeSelectedTemplate(template._id)}>
+									x
+								</button>
+							</div>
+						{/each}
+					</div>
+				</div>
+			{/if}
 		</div>
 
 		<!-- Custom Fields -->

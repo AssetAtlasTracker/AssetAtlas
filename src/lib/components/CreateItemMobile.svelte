@@ -13,10 +13,10 @@
 		handleImageChange,
 		handleParentItemFocus,
 		handleParentItemInput,
-		handleTemplateFocus,
 		initializeItemEdit,
 		onCustomFieldNameInput,
 		partialResetFields,
+		removeSelectedTemplate,
 		removeCustomField,
 		resetAllFields,
 		selectCustomFieldSuggestion,
@@ -237,7 +237,6 @@
 						<Combobox.Control class="w-full">
 							<Combobox.Input
 								class="dark-textarea py-2 px-4 w-full"
-								on:focus={handleTemplateFocus}
 							/>
 							<Combobox.Trigger
 								aria-label="Open templates"
@@ -270,6 +269,25 @@
 					</select>
 				{/if}
 			</div>
+			{#if createItemState.selectedTemplates.length > 0}
+				<div class="flex-column flex-grow mt-2">
+					<span class="font-semibold">Templates:</span>
+					<div class="flex flex-wrap gap-2 mt-2">
+						{#each createItemState.selectedTemplates as template (template._id)}
+							<div class="flex items-center gap-2 px-2 py-1 rounded border">
+								<span>{template.name}</span>
+								<button
+									type="button"
+									aria-label={`Remove ${template.name}`}
+									on:click={() => removeSelectedTemplate(template._id)}
+								>
+									x
+								</button>
+							</div>
+						{/each}
+					</div>
+				</div>
+			{/if}
 		</div>
 		<br />
 

@@ -31,7 +31,9 @@
 		allTemplates = raw
 			.map((t) => ({ ...t, _id: t?._id ?? t?.id }))
 			.filter((t) => t?._id);
-		filteredTemplates = allTemplates;
+		filteredTemplates = allTemplates.filter(
+			(t) => !createItemState.selectedTemplates.some((selected) => selected._id === String(t._id)),
+		);
 	});
 
 	export function changeItem(newItem: IBasicItemPopulated){
@@ -41,9 +43,12 @@
 	function onTemplateInputValueChange(details: { inputValue: string }) {
 		createItemState.templateName = details.inputValue;
 		const query = details.inputValue.trim().toLowerCase();
+		const availableTemplates = allTemplates.filter(
+			(t) => !createItemState.selectedTemplates.some((selected) => selected._id === String(t._id)),
+		);
 		filteredTemplates = query
-			? allTemplates.filter((t) => t?.name?.toLowerCase().includes(query))
-			: allTemplates;
+			? availableTemplates.filter((t) => t?.name?.toLowerCase().includes(query))
+			: availableTemplates;
 	}
 
 	function onTemplateSelect(details: { itemValue?: string }) {
@@ -53,7 +58,9 @@
 		);
 		if (selected) {
 			selectTemplate(selected);
-			filteredTemplates = allTemplates; 
+			filteredTemplates = allTemplates.filter(
+				(t) => !createItemState.selectedTemplates.some((template) => template._id === String(t._id)),
+			);
 		}
 	}
 
