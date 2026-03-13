@@ -48,10 +48,10 @@
 				fromTemplate: false,
 			}));
 
-			if (currentItem.templates && currentItem.templates.fields?.length) {
+			if (currentItem.templates && currentItem.templates.length > 0 && currentItem.templates[0].field.fields?.length) {
 				const templateFieldIds = new Set(
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					currentItem.templates.fields.map((tid: any) =>
+					currentItem.templates[0].field.fields.map((tid: any) =>
 						typeof tid === "string" ? tid : tid._id.toString(),
 					),
 				);
@@ -78,10 +78,10 @@
 			}
 		}
 
-		if (currentItem.templates && currentItem.templates.fields?.length) {
+		if (currentItem.templates && currentItem.templates.length > 0 && currentItem.templates[0].field.fields?.length) {
 			const templateFieldIds = new Set(
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				currentItem.templates.fields.map((tid: any) =>
+				currentItem.templates[0].field.fields.map((tid: any) =>
 					typeof tid === "string" ? tid : tid._id.toString(),
 				),
 			);
@@ -108,7 +108,7 @@
 			? currentItem.homeItem._id.toString()
 			: null;
 		templateId = currentItem.templates && currentItem.templates.length > 0
-			? currentItem.templates[0].fields?._id.toString()
+			? currentItem.templates[0].field._id.toString()
 			: null;
 		customFields = buildCustomFields(currentItem);
 		selectedImage = item.image ? item.image : null;
@@ -159,7 +159,7 @@
 			formData.append("tags", JSON.stringify(tags));
 			if (parentItemId) formData.append("parentItem", parentItemId);
 			if (homeItemId) formData.append("homeItem", homeItemId);
-			if (templateId) formData.append("template", templateId);
+			if (templateId) formData.append("templates", JSON.stringify([{ field: templateId }]));
 			formData.append(
 				"customFields",
 				JSON.stringify(formattedCustomFields),

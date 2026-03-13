@@ -12,7 +12,7 @@ export const GET: RequestHandler = async ({ params }) => {
 
 	console.log('Fetching item:', id);
 	const item = await BasicItem.findById(id)
-		.populate('template')
+		.populate('templates.field')
 		.populate('parentItem')
 		.populate('homeItem')
 		.populate('containedItems')
@@ -56,9 +56,17 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 		const parsedFields = JSON.parse(bodyData.customFields);
 		bodyData.customFields = Array.isArray(parsedFields) ? parsedFields : [];
 	}
+	if (typeof bodyData.templates === 'string') {
+		try {
+			const parsedTemplates = JSON.parse(bodyData.templates);
+			bodyData.templates = Array.isArray(parsedTemplates) ? parsedTemplates : [];
+		} catch {
+			bodyData.templates = [];
+		}
+	}
 
 	const item = await BasicItem.findById(id)
-		.populate('template')
+		.populate('templates.field')
 		.exec();
 
 	if (!item) {

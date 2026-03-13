@@ -39,8 +39,7 @@ export interface IBasicItemPopulated {
   parentItem?: IBasicItem | null;
   homeItem?: IBasicItem | null;
   templates?: Array<{
-    field: ITemplate;
-    value: null;
+    field: ITemplate
   }>;
   customFields?: Array<{
     field: ICustomField;
@@ -65,10 +64,9 @@ const BasicItemSchema: Schema = new Schema({
 	containedItems: [{ type: Schema.Types.ObjectId, ref: 'BasicItem'}],
 	parentItem: { type: Schema.Types.ObjectId, ref: 'BasicItem', required: false},
 	homeItem: { type: Schema.Types.ObjectId, ref: 'BasicItem', required: false},
-	template: [
+	templates: [
 		{
 			field: {type: Schema.Types.ObjectId, ref: "Template", required: false},
-			value: null,
 		}
 	],
 	customFields: [

@@ -32,9 +32,9 @@
 	let homeItemSuggestions: any[] = [];
 	let templateName = "";
 	let templateId: string | null = null;
-	if (item.template) {
-		templateName = item.template?.name;
-		templateId = item.template?._id.toString();
+	if (item.templates && item.templates.length > 0) {
+		templateName = item.templates[0].field.name;
+		templateId = item.templates[0].field._id.toString();
 	}
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let templateSuggestions = $state<any[]>([]);
@@ -73,10 +73,10 @@
 				fromTemplate: false,
 			}));
 
-			if (currentItem.templates && currentItem.templates.fields?.length) {
+			if (currentItem.templates && currentItem.templates.length > 0 && currentItem.templates[0].field.fields?.length) {
 				const templateFieldIds = new Set(
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					currentItem.templates.fields.map((tid: any) =>
+					currentItem.templates[0].field.fields.map((tid: any) =>
 						typeof tid === "string" ? tid : tid._id.toString(),
 					),
 				);
@@ -103,10 +103,10 @@
 			}
 		}
 
-		if (currentItem.templates && currentItem.templates.fields?.length) {
+		if (currentItem.templates && currentItem.templates.length > 0 && currentItem.templates[0].field.fields?.length) {
 			const templateFieldIds = new Set(
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				currentItem.templates.fields.map((tid: any) =>
+				currentItem.templates[0].field.fields.map((tid: any) =>
 					typeof tid === "string" ? tid : tid._id.toString(),
 				),
 			);
@@ -629,7 +629,8 @@
 			if (parentItemId && !sameLocations)
 				formData.append("parentItem", parentItemId);
 
-			if (templateId) formData.append("template", templateId);
+			if (templateId)
+				formData.append("templates", JSON.stringify([{ field: templateId }]));
 
 			// Add custom fields
 			const formattedFields = await Promise.all(
@@ -808,7 +809,7 @@
 						type="text"
 						class="dark-textarea py-2 px-4 w-full"
 						bind:value={templateName}
-						placeholder={item.templates?.name}
+						placeholder={item.templates && item.templates.length > 0 ? item.templates[0].field.name : ""}
 						oninput={handleTemplateInput}
 						onfocus={handleTemplateFocus}
 						onblur={() => (templateSuggestions = [])} />
