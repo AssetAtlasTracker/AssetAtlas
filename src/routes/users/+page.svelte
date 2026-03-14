@@ -4,6 +4,7 @@
 	import TopBar from "$lib/components/TopBar.svelte";
 	import UserList from "$lib/components/UserList.svelte";
 	import "$lib/styles/main.css";
+	import { login } from "../../lib/stores/loginStore.js";
 
 	let menu = $state<HTMLDialogElement>();
   
@@ -20,5 +21,9 @@
 
 <div class="page-with-topbar">
 	<Menu bind:menu />
-	<UserList />
+	{#if !$login.isLoggedIn}
+		<h1>Please log in to view users.</h1>
+	{:else}
+		<UserList />
+	{/if}
 </div>

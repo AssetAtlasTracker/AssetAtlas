@@ -156,6 +156,7 @@
 			});
 
 			oauthResult = "Successfully logged out.";
+			location.reload(); 
 		} catch (err) {
 			oauthResult =
 				err instanceof Error ? err.message : "Something went wrong";
