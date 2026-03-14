@@ -1,11 +1,10 @@
 <script lang="ts">
-	import '../app.css';
-	import '$lib/styles/main.css'
 	import favicon from '$lib/assets/favicon.svg';
 	import ActionDisplay from '$lib/components/ActionDisplay.svelte';
+	import '$lib/styles/main.css';
+	import '../app.css';
 	
 	let { children } = $props();
-
 </script>
 
 <svelte:head>

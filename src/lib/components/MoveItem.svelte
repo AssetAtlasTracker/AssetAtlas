@@ -3,13 +3,20 @@
 	import { actionStore } from "$lib/stores/actionStore.js";
 	import { createEventDispatcher } from "svelte";
 
-	export let itemId: string | undefined;
-	export let parentItemName = "";
-	export let parentItemId: string | null = null;
+	let {
+		itemId = $bindable(),
+		parentItemName = $bindable(""),
+		parentItemId = $bindable<string | null>(null),
+		items,
+	} = $props<{
+		itemId?: string;
+		parentItemName?: string;
+		parentItemId?: string | null;
+		items?: IBasicItemPopulated[];
+	}>();
+	
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let suggestions: any[] = [];
-
-	export let items: IBasicItemPopulated[] | undefined;
+	let suggestions = $state<any[]>([]);
 
 	const dispatch = createEventDispatcher();
 
@@ -128,13 +135,13 @@
 			type="text"
 			class="dark-textarea py-2 px-4 w-full"
 			bind:value={parentItemName}
-			on:input={handleInput} />
+			oninput={handleInput} />
 		{#if suggestions.length > 0}
 			<ul class="small-dialog-suggestions">
 				{#each suggestions as item}
 					<button
 						class="suggestion-item"
-						on:click={() => selectItem(item)}>
+						onclick={() => selectItem(item)}>
 						{item.name}
 					</button>
 				{/each}
@@ -145,7 +152,7 @@
 	<button
 		class="success-button font-semibold shadow mt-4 w-full block"
 		disabled={!parentItemId}
-		on:click={handleMove}>
+		onclick={handleMove}>
 		Move Item
 	</button>
 </div>

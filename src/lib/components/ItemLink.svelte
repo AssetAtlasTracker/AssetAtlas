@@ -1,9 +1,18 @@
 <script lang="ts">
+	import type { Snippet } from "svelte";
 	import { createEventDispatcher } from "svelte";
-  
-	export let itemId: string;
-	export let itemName: string = "";
-	export let className: string;
+
+	let {
+		itemId,
+		itemName = "",
+		className = "",
+		children
+	} = $props<{
+		itemId: string;
+		itemName?: string;
+		className?: string;
+		children?: Snippet;
+	}>();
   
 	const dispatch = createEventDispatcher();
   
@@ -13,6 +22,9 @@
 	}
 </script>
 
-<button class={className} on:click={handleClick}>
-	<slot>{itemName}</slot>
+<button class={className} onclick={handleClick}>
+	{@render children?.()}
+	{#if !children}
+		{itemName}
+	{/if}
 </button>

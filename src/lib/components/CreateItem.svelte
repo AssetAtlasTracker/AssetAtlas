@@ -15,23 +15,31 @@
 	import CreateItemDesktop from "./CreateItemDesktop.svelte";
 	import CreateItemMobile from "./CreateItemMobile.svelte";
 
-	export let dialog: HTMLDialogElement;
-	export let originalItem: IBasicItemPopulated | null = null;
-
 	const dispatch = createEventDispatcher();
-	
-	let creator: CreateItemDesktop | CreateItemMobile;
+
+	let {
+		creator = $bindable(),
+		dialog = $bindable(),
+		originalItem = null,
+		filteredTemplates = []
+	} = $props<{
+		creator?: CreateItemDesktop | CreateItemMobile;
+		dialog?: HTMLDialogElement;
+		originalItem?: IBasicItemPopulated;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		filteredTemplates?: any[]
+	}>();
+
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let allTemplates: any[] = [];
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let filteredTemplates: any[] = [];
-
+	
 	onMount(async () => {
 		const raw = await loadAllTemplates();
 		allTemplates = raw
 			.map((t) => ({ ...t, _id: t?._id ?? t?.id }))
 			.filter((t) => t?._id);
 		filteredTemplates = allTemplates;
+		setDuplicate(!!originalItem);
 	});
 
 	export function changeItem(newItem: IBasicItemPopulated){
@@ -56,8 +64,6 @@
 			filteredTemplates = allTemplates; 
 		}
 	}
-
-	setDuplicate(!!originalItem);
 </script>
 
 {#if browser && Device.isMobile}

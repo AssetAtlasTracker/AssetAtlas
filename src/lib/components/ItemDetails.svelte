@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import type { LoginState } from "$lib/stores/loginStore.js";
 	import { getEditOnLogin, login } from "$lib/stores/loginStore.js";
 	import {
 		FolderTreeIcon,
@@ -9,7 +8,7 @@
 		PencilIcon,
 		TrashIcon,
 	} from "@lucide/svelte";
-	import { createEventDispatcher, onDestroy, onMount } from "svelte";
+	import { createEventDispatcher } from "svelte";
 	import EditItem from "./EditItem.svelte";
 	import ItemLink from "./ItemLink.svelte";
 
@@ -21,11 +20,6 @@
 		};
 	}
 
-	export let item: IBasicItemPopulated | null = null;
-	export let itemId: string | null = null;
-
-	export let showItemTree: boolean = true;
-
 	interface ActionDetail {
 		item: IBasicItemPopulated | null;
 		itemId: string | null;
@@ -34,21 +28,32 @@
 		itemName: string;
 	}
 
-	export let onMove: ((detail: ActionDetail) => void) | undefined;
-	export let onReturn: ((detail: ActionDetail) => void) | undefined;
-	export let onEdit: ((detail: ActionDetail) => void) | undefined;
-	export let onDelete: ((detail: ActionDetail) => void) | undefined;
+	let {
+		item = $bindable(),
+		itemId = null,
+		showItemTree = $bindable(true),
+		onMove,
+		onReturn,
+		onEdit,
+		onDelete,
+	} = $props<{
+		item: IBasicItemPopulated | null;
+		itemId?: string | null;
+		showItemTree?: boolean;
+		onMove?: (detail: ActionDetail) => void;
+		onReturn?: (detail: ActionDetail) => void;
+		onEdit?: (detail: ActionDetail) => void;
+		onDelete?: (detail: ActionDetail) => void;
+	}>();
 
-	let parentChain: { _id: string; name: string }[] = [];
-	let loading = !!itemId && !item;
+	let parentChain = $state<{ _id: string; name: string }[]>([]);
+	let loading = $state(false);
+	let lastItemId = $state<string | null>(null);
+	let fetchInFlight = false;
+	let listenerInitialized = $state(false);
 
-	let imageElement: HTMLImageElement;
-	let imageLoadError = false;
-
-	let currentLogin: LoginState | undefined;
-	login.subscribe((value) => {
-		currentLogin = value;
-	});
+	let imageElement = $state<HTMLImageElement | undefined>(undefined);
+	let imageLoadError = $state(false);
 
 	// Load item by ID if needed
 	async function loadItemById(id: string) {
@@ -93,26 +98,24 @@
 		}
 	}
 
-	onMount(async () => {
-		if (itemId && !item) {
-			await loadItemById(itemId);
-		}
-		if (item) {
-			loadParentChain();
-			updateTitle();
-		}
+	$effect(() => {
+		if (!itemId || item || fetchInFlight) return;
+		fetchInFlight = true;
+		void loadItemById(itemId).finally(() => {
+			fetchInFlight = false;
+		});
 	});
 
-	$: if (item?._id) {
-		loadParentChain();
-		updateTitle();
-	}
+	$effect(() => {
+		const currentId = item?._id?.toString() ?? null;
+		if (!currentId || currentId === lastItemId) return;
+		lastItemId = currentId;
+		void loadParentChain();
+		void updateTitle();
+		void reloadImage();
+	});
 
-	$: if (itemId && !item) {
-		loadItemById(itemId);
-	}
-
-	let isImageExpanded = false;
+	let isImageExpanded = $state(false);
 
 	function toggleImage() {
 		isImageExpanded = !isImageExpanded;
@@ -166,27 +169,24 @@
 		}
 	}
 
-	onMount(() => {
+	$effect(() => {
+		if (listenerInitialized) return;
+		listenerInitialized = true;
 		window.addEventListener(
 			"itemUpdated",
 			handleItemUpdated as EventListener,
 		);
+		return () => {
+			window.removeEventListener(
+				"itemUpdated",
+				handleItemUpdated as EventListener,
+			);
+		};
 	});
 
-	onDestroy(() => {
-		window.removeEventListener(
-			"itemUpdated",
-			handleItemUpdated as EventListener,
-		);
-	});
+	let showEditDialog = $state(false);
 
-	$: if (item?._id) {
-		reloadImage();
-	}
-
-	let showEditDialog = false;
-
-	let isHistoryExpanded = false;
+	let isHistoryExpanded = $state(false);
 
 	function toggleHistory() {
 		isHistoryExpanded = !isHistoryExpanded;
@@ -250,26 +250,26 @@
 	</h1>
 
 	<div class="button-row-flex">
-		{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 0)}
+		{#if !getEditOnLogin() || ($login?.isLoggedIn && $login?.permissionLevel > 0)}
 			<button
 				title="Move"
 				class="border-button center-button-icons flex-grow font-semibold shadow"
-				on:click={requestMove}>
+				onclick={requestMove}>
 				<MoveIcon class="icon-small" />
 			</button>
 
 			<button
 				title="Return to Home"
 				class="border-button center-button-icons flex-grow font-semibold shadow"
-				on:click={requestReturn}>
+				onclick={requestReturn}>
 				<HouseIcon class="icon-small" />
 			</button>
 
-			{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
+			{#if !getEditOnLogin() || ($login?.isLoggedIn && $login?.permissionLevel > 1)}
 				<button
 					title="Edit"
 					class="border-button center-button-icons flex-grow font-semibold shadow"
-					on:click={requestEdit}>
+					onclick={requestEdit}>
 					<PencilIcon class="icon-small" />
 				</button>
 			{/if}
@@ -278,16 +278,16 @@
 				<button
 					title="Show Item Tree"
 					class="border-button center-button-icons flex-grow font-semibold shadow"
-					on:click={() => (showItemTree = true)}>
+					onclick={() => (showItemTree = true)}>
 					<FolderTreeIcon class="icon-small" />
 				</button>
 			{/if}
 
-			{#if (currentLogin?.permissionLevel ?? 1) > 2}
+			{#if ($login?.permissionLevel ?? 1) > 2}
 				<button
 					title="Delete"
 					class="warn-button center-button-icons flex-grow font-semibold shadow"
-					on:click={requestDelete}>
+					onclick={requestDelete}>
 					<TrashIcon class="icon-small" />
 				</button>
 			{/if}
@@ -295,7 +295,6 @@
 	</div>
 
 	{#if item.image}
-
 		{#if imageLoadError}
 			<p class="text-red-400" role="alert">Failed to load image</p>
 		{:else}
@@ -303,8 +302,8 @@
 				type="button"
 				class="item-image-container"
 				class:expanded={isImageExpanded}
-				on:click={toggleImage}
-				on:keydown={handleKeydown}
+				onclick={toggleImage}
+				onkeydown={handleKeydown}
 				aria-label="Toggle image size">
 				<img
 					bind:this={imageElement}
@@ -312,7 +311,7 @@
 					alt={item.name}
 					class="item-image"
 					id={`item-image`}
-					on:error={() => {imageLoadError = true;}} />
+					onerror={() => {imageLoadError = true;}} />
 			</button>
 		{/if}
 	{/if}
@@ -413,7 +412,7 @@
 					class="tree-container"
 					style="display: flex; align-items: center; gap: 4px;">
 					<strong>History Entries:</strong>
-					<button class="expand-button" on:click={toggleHistory}>
+					<button class="expand-button" onclick={toggleHistory}>
 						{isHistoryExpanded ? "▼" : "▶"}
 					</button>
 				</div>

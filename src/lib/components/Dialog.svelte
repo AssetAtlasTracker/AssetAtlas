@@ -1,9 +1,9 @@
 <script lang="ts">
+	import { onMount } from "svelte";
 	let {
 		dialog = $bindable(),
 		isLarge = false,
 		close,
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		create,
 		children,
 	}: {
@@ -12,10 +12,14 @@
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		close: any;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		create: any;
+		create?: any;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		children: any;
 	} = $props();
+
+	onMount(() => {
+		create?.();
+	});
 
 	function handleClose() {
 		dialog?.close();

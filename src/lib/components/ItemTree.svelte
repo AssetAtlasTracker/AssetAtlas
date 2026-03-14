@@ -2,51 +2,87 @@
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { dragDropMode } from "$lib/stores/dragDropStore.js";
 	import { GripVerticalIcon } from "@lucide/svelte";
-	import { onDestroy, onMount } from "svelte";
 	import ItemLink from "./ItemLink.svelte";
 
-	interface TreeItem {
+	type TreeItem = {
 		_id: string;
 		name: string;
 		description?: string;
 		children: TreeItem[];
 		hasChildren: boolean;
+	};
+
+	interface VisibleNode {
+		item: TreeItem;
+		level: number;
 	}
 
-	export let searchQuery: string = "";
-	export let exactSearch: boolean = false;
-
-	export let draggingItem: IBasicItemPopulated | null | undefined;
-	export let targetItemId: string | undefined;
-	export let targetItemName: string | undefined;
-	export let showMoveDialog: boolean;
-	let currentDragDropMode: boolean;
-
-	const dragDropUnsubscribe = dragDropMode.subscribe((value) => {
-		currentDragDropMode = value;
-	});
+	let {
+		searchQuery = "",
+		exactSearch = false,
+		draggingItem = $bindable(),
+		targetItemId = $bindable(),
+		targetItemName = $bindable(),
+		showMoveDialog = $bindable(),
+		useWindowView = false,
+		parentId = null,
+		indentLevel = 0,
+		rootData = null,
+		currentId = null,
+	} = $props<{
+		searchQuery?: string;
+		exactSearch?: boolean;
+		draggingItem?: IBasicItemPopulated | null;
+		targetItemId?: string;
+		targetItemName?: string;
+		showMoveDialog?: boolean;
+		useWindowView?: boolean;
+		parentId?: string | null;
+		indentLevel?: number;
+		rootData?: Array<{
+			_id: string;
+			name: string;
+			description?: string;
+			children: unknown[];
+			hasChildren: boolean;
+		}> | null;
+		currentId?: string | null;
+	}>();
 
 	export function closeMoveDialog() {
 		showMoveDialog = false;
 	}
 
-	export let useWindowView = false;
-	export let parentId: string | null = null;
-	export let indentLevel: number = 0;
-	export let rootData: TreeItem[] | null = null;
-	export let currentId: string | null = null;
+	let treeData = $state<TreeItem[]>([]);
+	let expanded = $state<Record<string, boolean>>({});
+	let loading = $state(true);
+	let lastLoadKey = "";
+	let loadInFlight = false;
+	let visibleNodes = $derived.by((): VisibleNode[] => {
+		const nodes: VisibleNode[] = [];
+		const walk = (items: TreeItem[], level: number) => {
+			items.forEach((treeItem) => {
+				nodes.push({ item: treeItem, level });
+				if (expanded[treeItem._id] && treeItem.children?.length) {
+					walk(treeItem.children, level + 1);
+				}
+			});
+		};
+		walk(treeData, indentLevel);
+		return nodes;
+	});
 
-	let treeData: TreeItem[] = [];
-	let expanded: Record<string, boolean> = {};
-	let loading = true;
-
-	async function fetchTree(id?: string) {
+	async function fetchTree(
+		id: string | undefined,
+		query: string,
+		isExact: boolean,
+	) {
 		try {
 			const url = id ? `/api/items/tree/${id}` : `/api/items/tree/all`;
 			const params = new URLSearchParams();
-			if (searchQuery && searchQuery.trim() !== "") {
-				params.set("name", searchQuery);
-				params.set("exact", exactSearch.toString());
+			if (query && query.trim() !== "") {
+				params.set("name", query);
+				params.set("exact", isExact.toString());
 			}
 			const fullUrl = params.toString() ? `${url}?${params}` : url;
 			const res = await fetch(fullUrl);
@@ -60,15 +96,20 @@
 	}
 
 	export async function reload() {
-		await loadTree();
+		await loadTree(searchQuery, exactSearch, rootData, parentId);
 	}
 
-	async function loadTree() {
+	async function loadTree(
+		query: string,
+		isExact: boolean,
+		root: typeof rootData,
+		parent: string | null,
+	) {
 		loading = true;
-		if (rootData) {
-			treeData = rootData;
+		if (root) {
+			treeData = root as TreeItem[];
 		} else {
-			treeData = await fetchTree(parentId || undefined);
+			treeData = await fetchTree(parent || undefined, query, isExact);
 		}
 		loading = false;
 		autoExpandTree(treeData);
@@ -89,17 +130,24 @@
 		}
 	}
 
-	onMount(() => {
-		loadTree();
+	$effect(() => {
+		const key = [
+			parentId ?? "",
+			searchQuery,
+			exactSearch ? "1" : "0",
+			rootData ? String(rootData.length) : "",
+		].join("|");
+		if (key === lastLoadKey || loadInFlight) return;
+		lastLoadKey = key;
+		loadInFlight = true;
+		void loadTree(searchQuery, exactSearch, rootData, parentId).finally(() => {
+			loadInFlight = false;
+		});
 	});
-
-	$: if (parentId) {
-		loadTree();
-	}
 
 	function checkIfSwap() {
 		if (
-			currentDragDropMode &&
+			$dragDropMode &&
 			targetItemId &&
 			draggingItem &&
 			targetItemId != (draggingItem._id as unknown as string)
@@ -136,46 +184,43 @@
 		draggingItem = item as unknown as IBasicItemPopulated;
 	}
 
-	onDestroy(() => {
-		dragDropUnsubscribe();
-	});
 </script>
 
 <div class="tree-container">
 	{#if loading}
 		<p>Loading tree...</p>
 	{:else}
-		{#each treeData as item, index (item._id)}
+		{#each visibleNodes as node, index (node.item._id)}
 			<div
 				class="tree-branch"
-				style="padding-left: {indentLevel * 0.75}rem;">
+				style="padding-left: {node.level * 0.75}rem;">
 				<div
 					class="flex"
 					role="navigation"
 					draggable="true"
-					data-item-id={item._id}
-					data-item-name={item.name}
-					on:dragstart={(e) => {
-						handleDragStart(e, item);
+					data-item-id={node.item._id}
+					data-item-name={node.item.name}
+					ondragstart={(e) => {
+						handleDragStart(e, node.item);
 					}}
-					on:dragover={(e) => {
+					ondragover={(e) => {
 						e.preventDefault();
 						console.log(`Dragged over ${index}.`);
 					}}
-					on:dragend={(e) => {
+					ondragend={(e) => {
 						e.preventDefault();
 						console.log("End Drag");
 					}}
-					on:drop={doDrop}>
-					{#if item.hasChildren}
+					ondrop={doDrop}>
+					{#if node.item.hasChildren}
 						<button
 							class="expand-button"
-							on:click={() => toggleExpand(item._id)}
-							aria-label={expanded[item._id]
+							onclick={() => toggleExpand(node.item._id)}
+							aria-label={expanded[node.item._id]
 								? "Collapse"
 								: "Expand"}>
 							<span class="tree-icon">
-								{expanded[item._id] ? "▾" : "▸"}
+								{expanded[node.item._id] ? "▾" : "▸"}
 							</span>
 						</button>
 					{:else}
@@ -186,36 +231,23 @@
 						<!-- Use ItemLink for in-window navigation -->
 						<ItemLink
 							className="flex-grow"
-							itemId={item._id ? item._id.toString() : ""}
-							itemName={item.name}
+							itemId={node.item._id ? node.item._id.toString() : ""}
+							itemName={node.item.name}
 							on:openItem>
 							<button
 								class="tree-item-card important-text
-									{item._id === currentId ? 'current' : ''}"
-								aria-current={item._id === currentId}>
+									{node.item._id === currentId ? 'current' : ''}"
+								aria-current={node.item._id === currentId}>
 								<div class="flex">
 									<div class="grip-vertical-icon">
 										<GripVerticalIcon class="icon-small" />
 									</div>
-									{item.name}
+									{node.item.name}
 								</div>
 							</button>
 						</ItemLink>
 					{/if}
 				</div>
-
-				{#if expanded[item._id] && item.children}
-					<svelte:self
-						bind:draggingItem
-						bind:targetItemId
-						bind:targetItemName
-						bind:showMoveDialog
-						rootData={item.children}
-						indentLevel={indentLevel + 1}
-						{currentId}
-						{useWindowView}
-						on:openItem />
-				{/if}
 			</div>
 		{/each}
 	{/if}

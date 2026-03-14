@@ -4,7 +4,7 @@
 	import TopBar from "$lib/components/TopBar.svelte";
 	import "$lib/styles/main.css";
 
-	let menu: HTMLDialogElement;
+	let menu = $state<HTMLDialogElement>();
 	const version = import.meta.env.APP_VERSION || 'dev version';
 
 	function onSearch(_query: string) {}

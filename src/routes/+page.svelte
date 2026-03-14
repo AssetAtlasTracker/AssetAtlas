@@ -23,56 +23,61 @@
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
 	import { onDestroy, onMount } from "svelte";
 
-	export let searchQuery = "";
-	export let dialog: HTMLDialogElement;
-	export let menu: HTMLDialogElement;
+	let {
+		searchQuery = "",
+		dialog,
+		menu
+	} = $props<{
+		searchQuery: string;
+		dialog: HTMLDialogElement;
+		menu: HTMLDialogElement;
+	}>();
 
-	let searchResults: IBasicItemPopulated[] = [];
-	let sortOption: string = "alphabetical";
-	let exactSearch = false;
-	let viewMode: "list" | "tree" = "list";
-	$: showItemTree = viewMode === "tree";
+	let searchResults = $state<IBasicItemPopulated[]>([]);
+	let sortOption = $state<string>("alphabetical");
+	let exactSearch = $state<boolean>(false);
+	let viewMode = $state<string>("list");
 
-	let itemCount = -1;
+	let showItemTree = $derived(viewMode === "tree")
 
-	let draggingItem: IBasicItemPopulated | undefined = undefined;
-	let targetItemId: string | undefined = undefined;
-	let targetItemName: string | undefined = undefined;
-	let showMoveDialog: boolean = false;
-	let moveDialog: HTMLDialogElement;
+	let itemCount = $state<number>(-1);
 
-	let actionMoveDialog: HTMLDialogElement | undefined;
-	let actionReturnDialog: HTMLDialogElement | undefined;
-	let actionEditDialog: HTMLDialogElement | undefined;
-	let actionDeleteDialog: HTMLDialogElement | undefined;
+	let draggingItem = $state<IBasicItemPopulated | undefined>(undefined);
+	let targetItemId = $state<string | undefined>(undefined);
+	let targetItemName = $state<string | undefined>(undefined);
+	let showMoveDialog = $state<boolean>(false);
+	let moveDialog = $state<HTMLDialogElement | undefined>(undefined);
 
-	let actionItem: IBasicItemPopulated | null = null;
-	let actionItemId: string | null = null;
-	let actionHomeItemId: string | null = null;
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let actionParentItemId: string | null = null;
-	let actionItemName = "";
+	let actionMoveDialog = $state<HTMLDialogElement | undefined>(undefined);
+	let actionReturnDialog = $state<HTMLDialogElement | undefined>(undefined);
+	let actionEditDialog = $state<HTMLDialogElement | undefined>(undefined);
+	let actionDeleteDialog = $state<HTMLDialogElement | undefined>(undefined);
 
-	let itemTreeRef: { reload: () => Promise<void> } | null = null;
+	let actionItem = $state<IBasicItemPopulated | null>(null);
+	let actionItemId = $state<string | null>(null);
+	let actionHomeItemId = $state<string | null>(null);
+	let actionItemName = $state<string>("");
 
-	let currentLogin: LoginState | undefined;
+	let itemTreeRef = $state<{ reload: () => Promise<void> } | null>(null);
+
+	let currentLogin = $state<LoginState | undefined>();
 	login.subscribe((value) => {
 		currentLogin = value;
 	});
 
-	$: {
+	$effect(() => {
 		if (showMoveDialog) {
-			moveDialog.showModal();
+			moveDialog?.showModal();
 		}
-	}
+	});
 
-	$: {
+	$effect(() => {
 		if (moveDialog) {
 			moveDialog.onclose = () => {
 				showMoveDialog = false;
 			};
 		}
-	}
+	});
 
 	async function handleSortChange(event: Event) {
 		const target = event.target as HTMLSelectElement;
@@ -136,7 +141,7 @@
 		y: number;
 	}
 
-	let additionalItemWindows: ItemWindow[] = [];
+	let additionalItemWindows = $state<ItemWindow[]>([]);
 
 	function handleOpenItem(event: CustomEvent) {
 		const { id } = event.detail;
@@ -181,7 +186,6 @@
 		actionItem = detail.item;
 		actionItemId = detail.itemId;
 		actionHomeItemId = detail.homeItemId;
-		actionParentItemId = detail.parentItemId;
 		actionItemName = detail.itemName;
 
 		dialog?.showModal();
@@ -235,7 +239,7 @@
 					<select
 						id="sort"
 						bind:value={sortOption}
-						on:change={handleSortChange}>
+						onchange={handleSortChange}>
 						<option value="alphabetical">A-Z</option>
 						<option value="lastAdded">Newest</option>
 						<option value="firstAdded">Oldest</option>
@@ -362,7 +366,7 @@
 	{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
 		<button
 			class="add-button text-icon font-bold shadow"
-			on:click={() => {
+			onclick={() => {
 				if (dialog) dialog.showModal();
 			}}>
 			+
@@ -379,9 +383,7 @@
 	<Dialog
 		bind:dialog={moveDialog}
 		isLarge={false}
-		create={() => {
-			moveDialog.showModal();
-		}}
+		create={() => {}}
 		close={() => {
 			showMoveDialog = false;
 		}}>
