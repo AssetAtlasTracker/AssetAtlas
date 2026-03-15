@@ -1,5 +1,5 @@
 import mongoose, { Types, Schema } from 'mongoose';
-import type { Document, CallbackError } from 'mongoose';
+import type { Document } from 'mongoose';
 const { model } = mongoose;
 import BasicItem from './basicItem.js';
 import type { ICustomField } from './customField.js';
@@ -28,9 +28,9 @@ const TemplateSchema: Schema = new Schema(
 	}
 );
 
-TemplateSchema.pre('findOneAndDelete', async function (next) {
+TemplateSchema.pre('findOneAndDelete', async function () {
 	const templateId = this.getQuery()._id;
-	if (!templateId) return next();
+	if (!templateId) return;
 
 	try {
 		await removeFromRecents('template', templateId);
@@ -39,11 +39,9 @@ TemplateSchema.pre('findOneAndDelete', async function (next) {
 			{ template: templateId },
 			{ $unset: { template: "" } }
 		).exec();
-
-		next();
 	} catch (err) {
 		console.error('Error in pre-delete hook for template:', err);
-		next(err as CallbackError);
+		throw err;
 	}
 });
 
