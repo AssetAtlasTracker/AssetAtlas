@@ -58,7 +58,7 @@ describe("Testing Item Exporting", () => {
 		const firstItem = new BasicItem();
 		firstItem.id = 1;
 		firstItem.name = "cat";
-		firstItem.template = undefined;
+		firstItem.templates = undefined;
 		firstItem.description = "a black cat"
 
 		const fieldMap = new Map<Types.ObjectId, ICustomField>();
@@ -120,7 +120,7 @@ describe("Testing Item Exporting", () => {
 		const secondItem = new BasicItem();
 		secondItem._id = new Types.ObjectId();
 		secondItem.name = "collar";
-		secondItem.template = undefined;
+		secondItem.templates = undefined;
 		secondItem.description = "a blue collar with a dog tag";
 
 		firstItem.containedItems = [secondItem];
