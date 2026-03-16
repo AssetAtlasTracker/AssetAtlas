@@ -14,13 +14,21 @@
 	import TopBar from "$lib/components/TopBar.svelte";
 	import Window from "$lib/components/Window.svelte";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
+	import type { LoginState } from "$lib/stores/loginStore.js";
+	import { getEditOnLogin } from "$lib/stores/loginStore.js";
 	import type { PageData } from "./$types";
 
-	let { data }: { data: PageData } = $props();
+	let {
+		data,
+		createDialog = $bindable(),
+	}: {
+		data: PageData;
+		createDialog: HTMLDialogElement;
+	} = $props();
+
 	let item = $derived(data.item);
 	let editDialog = $state<HTMLDialogElement | undefined>();
 	let deleteDialog = $state<HTMLDialogElement | undefined>();
-	let createDialog = $state<HTMLDialogElement | undefined>();
 	let returnDialog = $state<HTMLDialogElement | undefined>();
 	let moveDialog = $state<HTMLDialogElement | undefined>();
 	let menu = $state<HTMLDialogElement | undefined>();
@@ -35,6 +43,8 @@
 	let draggingItem = $state<IBasicItemPopulated | null>(null);
 	let targetItemId = $state<string | undefined>(undefined);
 	let targetItemName = $state<string | undefined>(undefined);
+
+	let currentLogin = $state<LoginState | undefined>();
 
 	function handleTreeClose() {
 		showItemTree = false;
@@ -287,18 +297,20 @@
 		}} />
 </Dialog>
 
-<button
-	class="add-button text-icon font-bold shadow"
-	onclick={() => createDialog?.showModal()}>
-	+
-</button>
+
+
+{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
+	<button
+		class="add-button text-icon font-bold shadow"
+		onclick={() => createDialog?.showModal()}>
+		+
+	</button>
+{/if}
 
 {#key unique}
-	{#if createDialog}
-		<CreateItem
-			bind:dialog={createDialog}
-			on:close={() => createDialog?.close()}
-			on:itemCreated={() =>
-				data.item?._id && fetchItem(data.item._id.toString())} />
-	{/if}
+	<CreateItem
+		bind:dialog={createDialog}
+		on:close={() => createDialog?.close()}
+		on:itemCreated={() =>
+			data.item?._id && fetchItem(data.item._id.toString())} />
 {/key}
