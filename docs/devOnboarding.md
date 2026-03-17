@@ -34,9 +34,9 @@ You shouldn't need to download the majority of these manually, those that you do
 9. Run the project. You have two options for this:
 
 Dev Mode:  
-a. Run `npm run dev:build` in the project root. Once all containers are started, go to `localhost:5173`. It may take several minutes for the site to load.  
+a. Run `npm run dev` in the project root. Once all containers are started, go to `localhost:5173`. 
 b. While in dev mode, hot module reload is enabled, meaning your changes will be reflected on the site without needing to restart all the containers.  
-c. Use `npm run dev:down` to shut down the project.  
+c. Use `npm run dev:down` to shut down the project containers. **This does not close the dev server**. In your terminal, press `q + enter` to close the dev server.
 
 Production Mode:  
 a. Launch the docker compose via the helper script. Run `python start.py` in the base folder of the repo.  
@@ -94,10 +94,7 @@ We are using GitHub Projects for the project management for AssetAtlas, of which
 - Restart docker engine
 - Delete docker images and containers (sometimes cache issues)
 - Can take like ~3 minutes to build containers with no cache on Rose laptops
-- Running dev takes longer than building containers
 - Make sure to have your Rose laptops plugged in to ensure that things run as fast as they can
 - Delete repo and clone again from github
 - Restart PC
 - Run VS code/docker as administrator
-
-
