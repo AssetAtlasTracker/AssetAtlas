@@ -1,39 +1,34 @@
 <script lang="ts">
 	import type { ITemplatePopulated } from "$lib/server/db/models/template.js";
-	import type { LoginState } from "../stores/loginStore.js";
 	import { getEditOnLogin, login } from "../stores/loginStore.js";
 	import DeleteTemplate from "./DeleteTemplate.svelte";
 	import Dialog from "./Dialog.svelte";
 	import EditTemplate from "./EditTemplate.svelte";
 
-	export let templates: ITemplatePopulated[] = [];
+	let {
+		templates = $bindable<ITemplatePopulated[]>([])
+	} = $props<{
+		templates?: ITemplatePopulated[];
+	}>();
 
-	let editingTemplate: ITemplatePopulated | null = null;
-	let editDialog: HTMLDialogElement | undefined;
-
-	let currentLogin: LoginState | undefined;
-	login.subscribe((value) => {
-		currentLogin = value;
-	});
+	let editingTemplate = $state<ITemplatePopulated | null>(null);
+	let editDialog = $state<HTMLDialogElement | undefined>(undefined);
 
 	function handleDelete(templateId: string) {
 		templates = templates.filter(
-			(template) => template._id.toString() !== templateId,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			(template: any) => template._id.toString() !== templateId,
 		);
 	}
 
 	function handleEdit(template: ITemplatePopulated) {
 		editingTemplate = template;
-		if (editDialog) {
-			editDialog.showModal();
-		}
+		editDialog?.showModal();
 	}
 
 	function closeEdit() {
 		editingTemplate = null;
-		if (editDialog) {
-			editDialog.close();
-		}
+		editDialog?.close();
 	}
 </script>
 
@@ -55,7 +50,7 @@
 				</ul>
 			</div>
 
-			{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 2)}
+			{#if !getEditOnLogin() || ($login?.isLoggedIn && $login?.permissionLevel > 2)}
 				<DeleteTemplate
 					templateId={template._id.toString()}
 					onDelete={handleDelete}>
@@ -63,7 +58,7 @@
 				</DeleteTemplate>
 				<button
 					class="border-button font-semibold shadow ml-2"
-					on:click={() => handleEdit(template)}>
+					onclick={() => handleEdit(template)}>
 					Edit
 				</button>
 			{/if}
@@ -91,7 +86,6 @@
 <Dialog
 	bind:dialog={editDialog}
 	isLarge={false}
-	create={() => {}}
 	close={closeEdit}>
 	{#if editingTemplate}
 		<EditTemplate template={editingTemplate} onClose={closeEdit} />

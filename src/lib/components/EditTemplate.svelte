@@ -5,21 +5,41 @@
 	import { addToRecents } from "$lib/utility/recentItemHelper";
 	import CustomFieldPicker from "./CustomFieldPicker.svelte";
 
-	export let template: ITemplatePopulated;
-	export let onClose: () => void;
+	let {
+		template,
+		onClose
+	} = $props<{
+		template: ITemplatePopulated;
+		onClose: () => void;
+	}>();
 
-	let name = template.name;
-	let customFields: ICustomFieldEntry[] = template.fields.map((field) => ({
-		fieldName: field.fieldName,
-		fieldId: field._id as unknown as string | undefined,
-		dataType: field.dataType,
-		suggestions: [],
-		isNew: false,
-		isSearching: false,
-		isExisting: true,
-	}));
-	let nameError = "";
+	let name = $state("");
+	 
+	let customFields = $state<ICustomFieldEntry[]>([]);
+	let nameError = $state("");
 	let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
+	let lastTemplateKey = $state("");
+
+	function updateFromTemplate(currentTemplate: ITemplatePopulated) {
+		name = currentTemplate.name;
+		customFields = currentTemplate.fields.map((field: ICustomField) => ({
+			fieldName: field.fieldName,
+			fieldId: field._id as unknown as string | undefined,
+			dataType: field.dataType,
+			suggestions: [],
+			isNew: false,
+			isSearching: false,
+			isExisting: true,
+		}));
+		nameError = "";
+	}
+
+	$effect(() => {
+		const templateKey = `${template?._id ?? ""}|${template?.updatedAt ?? ""}`;
+		if (templateKey === lastTemplateKey) return;
+		lastTemplateKey = templateKey;
+		updateFromTemplate(template);
+	});
 
 	async function handleEditTemplate() {
 		customFields = customFields.filter(
@@ -208,7 +228,10 @@
 
 <div class="template-container">
 	<h1 id="underline-header" class="font-bold text-center">Edit Template</h1>
-	<form on:submit|preventDefault={handleEditTemplate}>
+	<form onsubmit={(event) => {
+		event.preventDefault();
+		handleEditTemplate();
+	}}>
 		<label class="block mb-4">
 			Name:
 			<input
@@ -217,7 +240,7 @@
 					? 'error'
 					: ''}"
 				bind:value={name}
-				on:input={checkNameUniqueness}
+				oninput={checkNameUniqueness}
 				required />
 			{#if nameError}
 				<p class="text-red-500 text-sm mt-1">{nameError}</p>
@@ -228,7 +251,7 @@
 		<div class="space-y-4">
 			{#each customFields as field, index}
 				<CustomFieldPicker
-					bind:field
+					bind:field={customFields[index]}
 					mode="template"
 					onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
 					onFieldFocus={() => handleCustomFieldFocus(index)}
@@ -236,12 +259,12 @@
 					showDeleteButton={true}
 					onDelete={() => removeCustomField(index)}
 				>
-					<svelte:fragment slot="suggestions">
+					{#snippet suggestions()}
 						{#each field.suggestions as suggestion}
 							<button
 								class="suggestion-item"
 								type="button"
-								on:mousedown={(e) => {
+								onmousedown={(e) => {
 									e.preventDefault();
 									selectCustomFieldSuggestion(index, suggestion);
 								}}
@@ -249,7 +272,7 @@
 								{suggestion.fieldName} ({suggestion.dataType})
 							</button>
 						{/each}
-					</svelte:fragment>
+					{/snippet}
 				</CustomFieldPicker>
 			{/each}
 		</div>
@@ -257,7 +280,7 @@
 		<button
 			type="button"
 			class="border-button font-semibold shadow mt-2"
-			on:click={addCustomFieldLine}>
+			onclick={addCustomFieldLine}>
 			Add Custom Field
 		</button>
 		<button
@@ -267,6 +290,6 @@
 		<button
 			type="button"
 			class="warn-button font-semibold shadow mt-4 ml-2"
-			on:click={onClose}>Cancel</button>
+			onclick={onClose}>Cancel</button>
 	</form>
 </div>

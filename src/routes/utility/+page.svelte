@@ -14,11 +14,11 @@
 	import JSZip from "jszip";
 	import { onMount } from "svelte";
 
-	let files: FileList;
-	let dialog: HTMLDialogElement;
-	let itemInput: string = "";
-	let templateInput: string = "";
-	let menu: HTMLDialogElement;
+	let files = $state<FileList>();
+	let dialog = $state<HTMLDialogElement>();
+	let itemInput = $state<string>("");
+	let templateInput = $state<string>("");
+	let menu = $state<HTMLDialogElement>();
 
 	let csvData: string[] = [];
 	let images: File[] = [];
@@ -79,7 +79,7 @@
 		} catch (err) {
 			console.error("Error importing:", err);
 			setDialogText("Error Importing from Files.");
-			dialog.showModal();
+			dialog?.showModal();
 		}
 	}
 
@@ -101,11 +101,11 @@
 			});
 			if (!response.ok) throw new Error("Error Importing from Files.");
 			setDialogText("Files Imported Successfully!");
-			dialog.showModal();
+			dialog?.showModal();
 		} catch (err) {
 			console.error("Error importing:", err);
 			setDialogText("Error Importing from Files.");
-			dialog.showModal();
+			dialog?.showModal();
 		}
 	}
 
@@ -186,11 +186,11 @@
 			templateInput = "";
 
 			setDialogText("Data Exported Successfully!");
-			dialog.showModal();
+			dialog?.showModal();
 		} catch (err) {
 			console.error("Error exporting:", err);
 			setDialogText("Error Exporting to Files.");
-			dialog.showModal();
+			dialog?.showModal();
 		}
 	}
 
@@ -267,7 +267,7 @@
 				id="many"
 				multiple
 				type="file" />
-			<button class="border-button w-full my-4" on:click={handleSelected}>
+			<button class="border-button w-full my-4" onclick={handleSelected}>
 				Import From CSV
 			</button>
 		</div>
@@ -292,7 +292,7 @@
 				id="templateCSVName"
 				bind:value={templateInput} />
 			<br />
-			<button class="border-button w-full my-4" on:click={handleExport}>
+			<button class="border-button w-full my-4" onclick={handleExport}>
 				Export To CSV
 			</button>
 		</div>
@@ -303,6 +303,6 @@
 	bind:dialog
 	isLarge={false}
 	create={() => {}}
-	close={() => dialog.close()}>
+	close={() => dialog?.close()}>
 	<div id="dialog-text" class="simple-dialog-spacing">Some dialog text</div>
 </Dialog>
