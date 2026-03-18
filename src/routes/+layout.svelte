@@ -3,7 +3,7 @@
 	import ActionDisplay from '$lib/components/ActionDisplay.svelte';
 	import '$lib/styles/main.css';
 	import '../app.css';
-	
+
 	let { children } = $props();
 </script>
 

@@ -1,28 +1,6 @@
 name: assetatlas-dev
 
 services:
-  dev:
-    image: node:22-alpine
-    working_dir: /app
-    command: sh -c "npm install && npx vite dev"
-    volumes:
-      - ..:/app
-      - node_modules:/app/node_modules
-      - image-uploads:/app/uploads
-    ports:
-      - "5173:5173"
-    env_file: secrets.env
-    environment:
-      NODE_ENV: development
-      MONGO_URI: mongodb://mongo:27017/assetatlas_dev
-    networks:
-      - dev-network
-    depends_on:
-      mongo:
-        condition: service_healthy
-    stdin_open: true
-    tty: true
-
   mongo:
     image: mongo:latest
     ports:
@@ -80,7 +58,7 @@ services:
     ports:
       - "1080:1080"
     volumes:
-      - image-uploads:/data
+      - ../uploads:/data
     networks:
       - dev-network
 
@@ -92,5 +70,3 @@ volumes:
   mongo-dev-data:
   node_modules:
     name: assetatlas-dev-node-modules
-  image-uploads:
-    name: assetatlas-dev-image-uploads

@@ -773,7 +773,7 @@ select option:hover {
 }
 
 .action-container {
-  position: fixed;
+  position: relative;
   bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
@@ -784,6 +784,23 @@ select option:hover {
   width: auto;
   max-width: 400px;
 }
+
+.toaster-popover {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: 2rem;
+    border: none;
+    background: transparent;
+}
+
+.toaster-popover::backdrop {
+    background: transparent;
+}
+
 
 .action-message {
   background-color: color-mix(in oklch, var(--color-success-600) 90%, transparent);

@@ -1,4 +1,4 @@
-import type { CallbackError, Document } from "mongoose";
+import type { Document } from "mongoose";
 import mongoose, { Types } from "mongoose";
 import { addToRecents, removeFromRecents } from './recentItems.js';
 
@@ -25,16 +25,15 @@ CustomFieldSchema.post('save', async function() {
 	await addToRecents('customField', this._id as Types.ObjectId);
 });
 
-CustomFieldSchema.pre('findOneAndDelete', async function (next) {
+CustomFieldSchema.pre('findOneAndDelete', async function () {
 	const fieldId = this.getQuery()._id;
-	if (!fieldId) return next();
+	if (!fieldId) return;
 
 	try {
 		await removeFromRecents('customField', fieldId);
-		next();
 	} catch (err) {
 		console.error('Error in pre-delete hook:', err);
-		next(err as CallbackError);
+		throw err;
 	}
 });
 
