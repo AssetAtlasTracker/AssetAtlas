@@ -20,6 +20,19 @@ containers_probably_running = False
 processes: List[subprocess.Popen[bytes]] = []
 
 
+def get_local_app_version() -> str:
+    try:
+        return (
+            subprocess.check_output(
+                ["git", "describe", "--always", "--dirty"], cwd=SCRIPT_DIR
+            )
+            .decode()
+            .strip()
+        )
+    except Exception:
+        return "dev"
+
+
 # Function to write Tailscale auth key to .env file inside the docker folder
 def save_auth_key():
     auth_key = auth_key_entry.get()
@@ -186,9 +199,13 @@ def run_docker_compose(mode: str):
         print(f"Command: {' '.join(command)}")
         print("=" * 50)
 
+        app_version = get_local_app_version()
+        compose_env = os.environ.copy()
+        compose_env["APP_VERSION"] = app_version
+
         containers_probably_running = True
         run_button.config(state=tk.DISABLED)
-        process = subprocess.Popen(command)
+        process = subprocess.Popen(command, env=compose_env)
         processes.append(process)
         process.wait()
 
