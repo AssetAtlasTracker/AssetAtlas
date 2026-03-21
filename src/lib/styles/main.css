@@ -1,9 +1,9 @@
-#home-component{
+#home-component {
   margin: 1rem 2vw;
   padding: 2rem 2% 1rem 2vw;
 }
 
-.top-bar{
+.top-bar {
   border-radius: 0 0 10px 10px !important;
   padding: 0 !important;
   position: fixed;
@@ -12,22 +12,25 @@
   right: 0;
   width: 100%;
   z-index: 10;
-  height: auto; /* Allow height to adjust based on content */
+  /* Allow height to adjust based on content */
+  height: auto;
 }
 
 .top-bar-wrapper {
   width: 100%;
   position: relative;
-  z-index: 9999; /*Top bar on top bruh. Don't generate more than 9998 windows */
+  /*Top bar on top bruh. Don't generate more than 9998 windows */
+  z-index: 9999;
 }
 
-.top-bar-flex{
+.top-bar-flex {
   display: flex;
   align-items: center;
-  padding: 0 1rem; /* Add padding for spacing */
+  /* Add padding for spacing */
+  padding: 0 1rem;
 }
 
-.glass{
+.glass {
   background: color-mix(in oklch, var(--color-primary-800) 80%, transparent) !important;
   box-shadow: 0 8px 16px 0 var(--color-primary-900);
   backdrop-filter: blur(14px);
@@ -41,8 +44,9 @@
   border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
   border-radius: 10px;
 }
-  
-.internal-component { /* For components inset within other components*/
+
+/* For components inset within other components*/
+.internal-component {
   margin: 1rem 0;
   padding: 1rem;
   background-color: color-mix(in oklch, var(--color-primary-900) 10%, transparent);
@@ -56,24 +60,28 @@
   border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
 }
 
-.small-dialog-padding{
+.small-dialog-padding {
   padding: 1.5rem 1.5rem 1rem 1.5rem;
 }
 
-.large-dialog-noscroll{ /* Keeps add/edit dialog from scrolling */
+/* Keeps add/edit dialog from scrolling */
+.large-dialog-noscroll {
   height: calc(100% - 1rem);
   overflow: hidden;
 }
 
-.large-dialog-internal{ /* Allows scrolling on internal portion of add/edit */
+/* Allows scrolling on internal portion of add/edit */
+.large-dialog-internal {
   height: calc(100% - 5rem);
   overflow-y: scroll;
 }
 
 .slide-out-menu {
   position: fixed;
-  z-index: 10000; /* On top of topbar (to avoid topbar dropshadow)*/
-  top: var(--top-bar-height, 64px); /* were using the CSS variable with a harcoded fallback for height*/
+  /* On top of topbar (to avoid topbar dropshadow)*/
+  z-index: 10000;
+  /* were using the CSS variable with a harcoded fallback for height*/
+  top: var(--top-bar-height, 64px);
   left: -100%;
   height: calc(100% - var(--top-bar-height, 64px));
   transition: left 0.3s ease-in-out;
@@ -84,11 +92,13 @@
   padding: 1rem;
   display: flex;
   justify-content: flex-start;
-  overflow-y: auto; /* Allow scrolling within the menu */
-  overscroll-behavior: contain; /* Prevent scroll chaining */
+  /* Allow scrolling within the menu */
+  overflow-y: auto;
+  /* Prevent scroll chaining */
+  overscroll-behavior: contain;
 }
 
-.util-flex{
+.util-flex {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -98,7 +108,7 @@
   width: 50%;
 }
 
-.open{
+.open {
   left: 0;
 }
 
@@ -120,37 +130,42 @@
   box-shadow: 0 8px 32px 0 color-mix(in oklch, var(--color-primary-900) 40%, transparent);
   border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
   border-radius: 10px;
-  transition: 0.4s ease; /* Expand & shrink */
-  display:flex;
-  justify-content:space-between;
-  overflow:hidden;
-  position:relative;
+  /* Expand & shrink */
+  transition: 0.4s ease;
+  display: flex;
+  justify-content: space-between;
+  overflow: hidden;
+  position: relative;
 }
 
-.item-card::before{ /* Hidden gradient that slides in on hover*/
+/* Hidden gradient that slides in on hover*/
+.item-card::before {
   content: '';
   position: absolute;
   width: 200%;
   height: 100%;
   left: -200%;
   top: 0px;
-  background: 
+  background:
     linear-gradient(90deg,
-                    color-mix(in oklch, var(--color-success-800) 80%, transparent),
-                    color-mix(in oklch, var(--color-primary-800) 80%, transparent));
-  transition: 0.7s ease; /* Gradient slide in & out*/
-  z-index: -1; /* Behind item card text */
+      color-mix(in oklch, var(--color-success-800) 80%, transparent),
+      color-mix(in oklch, var(--color-primary-800) 80%, transparent));
+  /* Gradient slide in & out*/
+  transition: 0.7s ease;
+  /* Behind item card text */
+  z-index: -1;
 }
 
-.item-card:hover::before { /* Initial position of gradient */
+/* Initial position of gradient */
+.item-card:hover::before {
   left: -110%;
 }
 
-.item-card:hover{
-  transform:scale(1.02);
+.item-card:hover {
+  transform: scale(1.02);
 }
 
-.item-card-flex{
+.item-card-flex {
   display: flex;
   gap: 2rem;
 }
@@ -303,7 +318,7 @@
 }
 
 /* Standard flex setup for a row of buttons */
-.button-row-flex { 
+.button-row-flex {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
@@ -312,17 +327,19 @@
 }
 
 /* Flex for the sort row of buttons on the home page*/
-.sort-flex { 
-  display:flex;
+.sort-flex {
+  display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  padding: 0 3vw;  /* Remove the top padding since we're using page-with-topbar */
-  height: 3rem; /* Keeps height consistant when swapping view styles*/
+  /* Remove the top padding since we're using page-with-topbar */
+  padding: 0 3vw;
+  /* Keeps height consistant when swapping view styles*/
+  height: 3rem;
 }
 
 /* General purpose flex with standard gap size*/
-.simple-flex { 
+.simple-flex {
   display: flex;
   gap: 0.5rem;
 }
@@ -358,7 +375,8 @@
   padding: 0;
   margin: 0;
   will-change: transform, left, top;
-  transform: translateZ(0); /* hardware acceleration */
+  /* hardware acceleration */
+  transform: translateZ(0);
 }
 
 .window-bar {
@@ -393,7 +411,8 @@
   font-size: 14px;
   font-weight: bold;
   margin-left: 8px;
-  pointer-events: none; /* Prevents text selection when dragging */
+  /* Prevents text selection when dragging */
+  pointer-events: none;
   max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
@@ -462,7 +481,8 @@
   position: absolute;
   top: 100%;
   left: 0;
-  width: calc(100% - 2px); /* match input width accounting for border */
+  /* match input width accounting for border */
+  width: calc(100% - 2px);
   border-radius: 4px;
   z-index: 10;
 }
@@ -488,15 +508,15 @@
   height: 100%;
 }
 
-.simple-dialog-spacing{
+.simple-dialog-spacing {
   padding: 3rem 3rem 1rem;
 }
 
-.self-center{
+.self-center {
   justify-self: center;
 }
 
-.center-button-icons{
+.center-button-icons {
   justify-items: center;
 }
 
@@ -509,19 +529,20 @@ Small component styles
 e.g. buttons, lists, textareas, etc.
 */
 
-#resize-none-textarea{
+#resize-none-textarea {
   resize: none
 }
 
-.border{
+.border {
   border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
 }
 
-.round{
+.round {
   border-radius: 10px;
 }
 
-.border-button { /* Standard button style*/
+/* Standard button style*/
+.border-button {
   border-radius: 10px;
   border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
   padding: 0.5rem 1rem;
@@ -529,11 +550,12 @@ e.g. buttons, lists, textareas, etc.
   color: var(--base-font-color);
 }
 
-.border-button:hover{
+.border-button:hover {
   background: var(--color-primary-900);
 }
 
-.x-button { /* "X" button to close windows/dialogs */
+/* "X" button to close windows/dialogs */
+.x-button {
   float: right;
   color: var(--color-warning-500);
   text-transform: uppercase;
@@ -547,7 +569,8 @@ e.g. buttons, lists, textareas, etc.
   background-color: color-mix(in oklch, var(--color-warning-900) 20%, transparent);
 }
 
-.warn-button { /* For delete, cancel, etc.*/
+/* For delete, cancel, etc.*/
+.warn-button {
   border-radius: 10px;
   border: 1px solid color-mix(in oklch, var(--color-error-400) 80%, transparent);
   padding: 0.5rem 1rem;
@@ -559,7 +582,8 @@ e.g. buttons, lists, textareas, etc.
   background: var(--color-warning-900);
 }
 
-.success-button { /* For create, confirm, etc. */
+/* For create, confirm, etc. */
+.success-button {
   border-radius: 10px;
   border: 1px solid var(--color-success-400);
   padding: 0.5rem 1rem;
@@ -593,25 +617,26 @@ e.g. buttons, lists, textareas, etc.
   color: color-mix(in oklch, var(--base-font-color) 50%, transparent);
 }
 
-.add-button:hover{
+.add-button:hover {
   background: var(--color-primary-900);
 }
 
 .small-add-button {
-  padding: 0 0.45rem 0.1rem; /* Ugly set of values that keeps button squared*/
+  /* Ugly set of values that keeps button squared*/
+  padding: 0 0.45rem 0.1rem;
 }
 
-.home-view-buttons{
+.home-view-buttons {
   margin: 0.5rem 0 0 0;
 }
 
-.menu-button:hover{
+.menu-button:hover {
   background: color-mix(in oklch, var(--color-primary-900) 25%, transparent);
   border-radius: 10px;
   color: var(--color-success-400);
 }
 
-.toggle-background{
+.toggle-background {
   background: var(--color-success-600);
 }
 
@@ -621,14 +646,16 @@ e.g. buttons, lists, textareas, etc.
   border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
   padding: 0.25rem;
   position: absolute;
-  width: calc(100% - 4px); /* Account for borders */
+  /* Account for borders */
+  width: calc(100% - 4px);
   border-radius: 10px;
   z-index: 10;
   max-height: 200px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklch, var(--color-primary-100) 80%, transparent) var(--color-primary-900);
-  margin-top: 2px; /* Small gap between input and suggestions */
+  /* Small gap between input and suggestions */
+  margin-top: 2px;
 }
 
 .small-dialog-suggestions {
@@ -662,17 +689,20 @@ e.g. buttons, lists, textareas, etc.
 
 .suggestion-item {
   text-align: left;
-  width:100%;
+  width: 100%;
   padding: 0.5rem;
-  display: block; /* Ensures consistent spacing */
+  /* Ensures consistent spacing */
+  display: block;
 }
 
 .suggestion-item:hover {
   background: var(--color-primary-800);
-  border-radius: 6px; /* Slight rounding on hover highlight */
+  /* Slight rounding on hover highlight */
+  border-radius: 6px;
 }
 
-.dark-textarea { /* Should be used on any/all text input boxes*/
+/* Should be used on any/all text input boxes*/
+.dark-textarea {
   background: color-mix(in oklch, var(--color-primary-900) 10%, transparent);
   color: var(--base-font-color);
   border: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
@@ -706,7 +736,8 @@ e.g. buttons, lists, textareas, etc.
   max-width: calc(100% - 20px);
 }
 
-select option { /* Select dropdown options */
+/* Select dropdown options */
+select option {
   background: var(--color-primary-900);
   color: var(--base-font-color);
   padding: 0.5rem;
@@ -727,7 +758,8 @@ select option:hover {
 .item-image-container.expanded .item-image {
   width: 100%;
   height: auto;
-  max-width: 500px; /* Hard cap on image width */
+  /* Hard cap on image width */
+  max-width: 500px;
   object-fit: contain;
 }
 
@@ -780,25 +812,26 @@ select option:hover {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  z-index: 10000; /* hope we dont make 10001 of something */
+  /* hope we dont make 10001 of something */
+  z-index: 10000;
   width: auto;
   max-width: 400px;
 }
 
 .toaster-popover {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    padding-bottom: 2rem;
-    border: none;
-    background: transparent;
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 2rem;
+  border: none;
+  background: transparent;
 }
 
 .toaster-popover::backdrop {
-    background: transparent;
+  background: transparent;
 }
 
 
@@ -807,7 +840,7 @@ select option:hover {
   color: var(--base-font-color);
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   text-align: left;
   width: 100%;
 }
@@ -834,7 +867,7 @@ select option:hover {
   cursor: pointer;
 }
 
-.item-card-checkbox{
+.item-card-checkbox {
   height: 1.25rem;
   width: 1.25rem;
 }
@@ -866,7 +899,7 @@ select option:hover {
 }
 
 .item-subcard {
-  max-width:45%;
+  max-width: 45%;
 }
 
 .basis-30 {
@@ -878,7 +911,7 @@ select option:hover {
   width: 40px;
 }
 
-.vertical-dot-col { 
+.vertical-dot-col {
   /* Only for use on the rightmost column of dots to make the "draggable" icon */
   margin: 0 0 0 -1rem;
 }
@@ -886,21 +919,21 @@ select option:hover {
 /* 
 Text styles 
 */
-#title{
+#title {
   color: var(--base-font-color);
   letter-spacing: -0.1rem;
   transition: color 0.2s ease-in-out;
 }
 
-#title:hover{
+#title:hover {
   color: var(--color-success-500);
 }
 
-#underline-header{
+#underline-header {
   border-bottom: 1px solid color-mix(in oklch, var(--color-primary-100) 80%, transparent);
 }
 
-.important-text{ 
+.important-text {
   font-size: 1.5rem;
   font-weight: bold;
   letter-spacing: -0.05rem;
@@ -910,19 +943,19 @@ Text styles
   white-space: nowrap;
 }
 
-.sub-text{
+.sub-text {
   color: color-mix(in oklch, var(--base-font-color) 80%, transparent);
   font-weight: lighter;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.clickable-text{
+.clickable-text {
   color: var(--color-success-400);
   text-decoration: underline;
 }
 
-.clickable-text:hover{
+.clickable-text:hover {
   color: var(--color-success-500);
   text-decoration: underline;
 }
@@ -966,7 +999,7 @@ Text styles
   font-size: 2.25rem;
 }
 
-.icon-small{
+.icon-small {
   width: 24px;
   height: 24px;
 }
@@ -1016,7 +1049,7 @@ div {
 
 h1 {
   color: var(--base-font-color);
-  padding: 0rem 0rem 1rem 0rem; 
+  padding: 0rem 0rem 1rem 0rem;
 }
 
 h2 {
@@ -1027,8 +1060,8 @@ body {
   background: var(--color-surface-800) !important;
   background-repeat: no-repeat !important;
   background-size: 100% 50rem !important;
-  background-image: radial-gradient(at 0% 0%, oklch(75.54% 0.12 169.99deg / 0.2) 0px, transparent 55%), 
-                    radial-gradient(at 98% 1%, oklch(48.75% 0.19 22.13deg / 0.33) 0px, transparent 50%) !important;         
+  background-image: radial-gradient(at 0% 0%, oklch(75.54% 0.12 169.99deg / 0.2) 0px, transparent 55%),
+    radial-gradient(at 98% 1%, oklch(48.75% 0.19 22.13deg / 0.33) 0px, transparent 50%) !important;
 }
 
 ul {
@@ -1044,8 +1077,9 @@ select {
   width: 100%;
 }
 
-input[type="file"] { /* File input areas (universal) */
-  background: color-mix(in oklch, var(--color-primary-900) 80%, transparent); 
+/* File input areas (universal) */
+input[type="file"] {
+  background: color-mix(in oklch, var(--color-primary-900) 80%, transparent);
   color: var(--base-font-color);
   padding: 1rem;
   width: 100%;
@@ -1062,19 +1096,22 @@ input[type="file"]::file-selector-button {
   margin-right: 1rem;
 }
 
-input[type="file"][accept*=".csv"]{ /* File input areas (csv specific) */
+/* File input areas (csv specific) */
+input[type="file"][accept*=".csv"] {
   &:empty::before {
     content: "Drop csv files here or ";
   }
 }
 
-input[type="file"][accept*="image"]{ /* File input areas (image specific) */
+/* File input areas (image specific) */
+input[type="file"][accept*="image"] {
   &:empty::before {
     content: "Drop image file here or ";
   }
 }
 
-::backdrop { /* Dialog background */
+/* Dialog background */
+::backdrop {
   background: color-mix(in oklch, var(--color-surface-900) 70%, transparent);
   z-index: 9998;
-} 
+}
