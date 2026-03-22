@@ -93,13 +93,6 @@ export function setOnItemCreated(callback: () => void) {
 
 export async function handleCreateItem() {
 	try {
-		if (_templateName.trim() && !_templateId) {
-			alert(
-				"Please select a valid template from the list or clear the field.",
-			);
-			return;
-		}
-
 		const tagsArray = _tags.split(",").map((tag) => tag.trim());
 
 		if (_sameLocations) {
