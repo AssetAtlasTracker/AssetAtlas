@@ -11,6 +11,7 @@ services:
       context: ..
       dockerfile: ./docker/Dockerfile
       args:
+        APP_VERSION: ${APP_VERSION:-dev}
         BUILDKIT_INLINE_CACHE: "1"
       cache_from:
         - assetatlas:latest
@@ -76,7 +77,6 @@ services:
       - image-uploads:/data
     networks:
       - default
-
 
 networks:
   default:
