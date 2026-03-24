@@ -278,7 +278,7 @@
 				<button
 					title="Show Item Tree"
 					class="border-button center-button-icons flex-grow font-semibold shadow"
-					onclick={() => (showItemTree = true)}>
+					onclick={() => (showItemTree = !showItemTree)}>
 					<FolderTreeIcon class="icon-small" />
 				</button>
 			{/if}
