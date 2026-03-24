@@ -42,6 +42,7 @@
 		Are you sure you want to {action} these items?
 	</button>
 	<Dialog
+		canOverflow={false}
 		bind:dialog
 		isLarge={false}
 		close={() => dialog?.close()}

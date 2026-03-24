@@ -383,6 +383,7 @@
 <!-- Create Template Dialog -->
 {#if showCreateTemplateDialog}
 	<Dialog
+		canOverflow={true}
 		bind:dialog={templateDialog}
 		isLarge={false}
 		close={() => {
@@ -400,6 +401,7 @@
 <!-- Template Selection Dialog -->
 {#if showTemplateSelectionDialog}
 	<Dialog
+		canOverflow={false}
 		bind:dialog={templateSelectionDialog}
 		isLarge={false}
 		create={() => {}}
@@ -482,6 +484,7 @@
 <!-- Template Selection Dialog -->
 {#if showTemplateSelectionDialog}
 	<Dialog
+		canOverflow={true}
 		bind:dialog={templateSelectionDialog}
 		isLarge={false}
 		create={() => {}}

@@ -615,6 +615,8 @@
 					"templates",
 					JSON.stringify(selectedTemplates.map((template) => ({ field: template._id }))),
 				);
+			} else {
+				formData.append("templates", JSON.stringify([]));
 			}
 
 			// Add custom fields
@@ -632,6 +634,10 @@
 				}),
 			);
 			formData.append("customFields", JSON.stringify(formattedFields));
+			//TODO Remove after testing
+			for (const [key, value] of formData.entries()) {
+  				console.log(`${key}: ${value}`);
+			}
 
 			// Handle image
 			if (removeExistingImage) {
@@ -961,6 +967,7 @@
 
 {#if showEditTemplateDialog}
 	<Dialog
+		canOverflow={false}
 		bind:dialog={templateDialog}
 		isLarge={false}
 		close={() => {
@@ -975,6 +982,7 @@
 
 {#if showTemplateSelectionDialog}
 	<Dialog
+		canOverflow={true}
 		bind:dialog={templateSelectionDialog}
 		isLarge={false}
 		create={() => {}}
