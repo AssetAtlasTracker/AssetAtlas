@@ -22,9 +22,6 @@ vite.config.ts.timestamp-*
 # Secrets File
 /docker/secrets.env
 
-# Temporary file used by a test
-tests/resource/test-csv-item-perf.csv
-
 # Docker
 docker-compose.override.yml
 docker-compose.override.yaml
