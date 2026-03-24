@@ -17,6 +17,7 @@
 	}>();
 
 	let templateDialog = $state<HTMLDialogElement | undefined>(undefined);
+	let templateSelectionDialog = $state<HTMLDialogElement | undefined>(undefined);
 	let lastItemKey = $state("");
 
 	let name = $state("");
@@ -70,6 +71,7 @@
 
 	let customFields = $state<ICustomFieldEntryInstance[]>([]);
 	let showEditTemplateDialog = $state(false);
+	let showTemplateSelectionDialog = $state(false);
 
 	const dispatch = createEventDispatcher();
 
@@ -139,6 +141,12 @@
 	$effect(() => {
 		if (showEditTemplateDialog && templateDialog) {
 			templateDialog.showModal();
+		}
+	});
+
+	$effect(() => {
+		if (showTemplateSelectionDialog && templateSelectionDialog) {
+			templateSelectionDialog.showModal();
 		}
 	});
 
@@ -817,7 +825,10 @@
 
 			{#if selectedTemplates.length > 0}
 				<div class="flex-column flex-grow mt-2">
-					<span class="font-semibold">Templates:</span>
+					<span class="font-bold text-lg">Templates: 
+						<InfoToolTip
+							message="A template is a more narrow category of similar items that share common fields." />
+					</span>
 					<div class="flex flex-wrap gap-2 mt-2">
 						{#each selectedTemplates as template (template._id)}
 							<div class="flex items-center gap-2 px-2 py-1 rounded border">
@@ -833,6 +844,16 @@
 					</div>
 				</div>
 			{/if}
+
+			<!-- Template Field and Create Template Button -->
+			<div class="flex space-x-4 items-center">
+				<button
+					type="button"
+					class="border-button font-semibold shadow"
+					onclick={() => (showTemplateSelectionDialog = true)}>
+					Add Template
+				</button>
+			</div>
 		</div>
 
 		<!-- Custom Fields -->
@@ -949,5 +970,67 @@
 			on:close={() => {
 				showEditTemplateDialog = false;
 			}} />
+	</Dialog>
+{/if}
+
+{#if showTemplateSelectionDialog}
+	<Dialog
+		bind:dialog={templateSelectionDialog}
+		isLarge={false}
+		create={() => {}}
+		close={() => {
+			showTemplateSelectionDialog = false;
+			templateSuggestions = [];
+		}}>
+		<div class="p-4">
+			<h2 class="font-bold text-lg mb-4">Add Template</h2>
+			<label class="flex-column flex-grow relative mb-4">
+				<div class="flex items-center gap-2 mb-2">
+					<span>Search Templates:</span>
+					
+				</div>
+				<input
+					type="text"
+					class="dark-textarea py-2 px-4 w-full"
+					bind:value={templateName}
+					placeholder="Search templates"
+					on:input={handleTemplateInput}
+					on:focus={handleTemplateFocus}
+					on:blur={() => (templateSuggestions = [])} />
+				{#if templateSuggestions.length > 0}
+					<ul class="suggestions suggestion-box">
+						{#each templateSuggestions as t}
+							<button
+								class="suggestion-item"
+								type="button"
+								on:mousedown={(e) => {
+									e.preventDefault();
+									selectTemplate(t);
+									showTemplateSelectionDialog = false;
+								}}>
+								{t.name}
+							</button>
+						{/each}
+					</ul>
+				{/if}
+			</label>
+			<div class="flex gap-2" style="padding-top:1em">
+				<button
+					type="button"
+					class="border-button font-semibold shadow flex-grow"
+					on:click={() => (showEditTemplateDialog = true)}>
+					Create New Template
+				</button>
+				<button
+					type="button"
+					class="border-button font-semibold shadow"
+					on:click={() => {
+						showTemplateSelectionDialog = false;
+						templateSuggestions = [];
+					}}>
+					Close
+				</button>
+			</div>
+		</div>
 	</Dialog>
 {/if}
