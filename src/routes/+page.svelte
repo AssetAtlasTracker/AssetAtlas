@@ -173,6 +173,10 @@
 		);
 	}
 
+	async function handleItemUpdated() {
+		await handleSearch(searchQuery);
+	}
+
 	const handleShowActionDialog = (
 		detail: {
 			item: IBasicItemPopulated | null;
@@ -439,7 +443,7 @@
 		<EditItem
 			item={actionItem}
 			on:close={() => actionEditDialog?.close()}
-			on:itemUpdated={() => {}} />
+			on:itemUpdated={handleItemUpdated} />
 	{:else}
 		<div class="simple-dialog-spacing">Loading item data...</div>
 	{/if}
