@@ -1,41 +1,70 @@
-# AssetAtlas
+# AssetAtlas Container Registry Info
 
-AssetAtlas is a self hosted database with an object-oriented approach to keeping track of your stuff. Currently in early development.
+This document contains information about running AssetAtlas from our container registry, which lets you run AssetAtlas from the command line and with a more minimal initial download. Application data is NOT shared between the ghcr version and GUI-launched version as of (3/27/2025).
 
-## Asset Atlas User Setup
+## Download Required Files
 
-### Main setup
+This application consists of multiple container images.
+Docker Compose is used to configure and [run the images together](https://docs.docker.com/get-started/docker-concepts/running-containers/multi-container-applications/).
 
-1. Install Docker
-   - <https://www.docker.com/products/docker-desktop/>
-1. Make sure you have Python downloaded
-   - <https://www.python.org/downloads/>
-1. Clone the repository
-   - If you dont know how to clone a repository, you can download a .zip of the repository from the "code" button near the top of the page linked below
-   - <https://github.com/AssetAtlasTracker/AssetAtlas>   
-1. Run the file named "start.py" in the folder that downloaded from this github page on the previous step.
-   - You may need to right click on the file and "Open with > python".
-1. In the start.py launcher:
-   - If you are only following the main setup: leave local host selected
-   - If you are using the multi-device remote functionality and have followed the optional setup steps: select Tailscale mode
-1. Click "Run Docker Compose"
-   - This may take five or so minutes the first time, but will be faster on subsequent composes
-   - If the compose action fails right away, docker may not be open/running. Make sure the "docker desktop" application you downloaded earlier is running.
-   - Once it finishes, a window will pop up "Service is running" with the IP
-1. In your web browser, go to the localhost or Tailscale URL depending on the mode you chose
-   - For tailscale to work, Tailscale must be currently running on the device trying to access AssetAtlas
+You can get the required files with either of these methods:
 
-### (Optional) Multi device remote access additional setup
+### a. Direct download
 
-1. Make a Tailscale account
-   - <https://login.tailscale.com/login>
-   - Sign in however you like, but you will need to login once every 90 days to refresh your access key which is used in the software.
-   <!-- - Rob: I created a tailnet for our org but not technically needed. We probably can't use it or will have to get an open source plan for it because it has a limit of 3 users -->
-   - You will need to download the tailscale software on any device you want to use over the internet, such as a phone (It has an app). You will only need to download it on the host device if you would also like to access it from the host device while using multi-device mode.
-1. Create a Tailscale auth key
-   - <https://login.tailscale.com/admin/settings/keys>
-1. Navigate to "Auth keys"
-1. Set your key to **reusable** and **ephemeral**
-1. When using the "start.py" launcher, paste your key in the auth key box and click save. You'll only need to do this once.
-   - Note: this is an authentication key that is stored in plain text on your host machine. If you already use Tailscale/a Tailnet for other things, they could be accessed by someone who has this key. If you are only using Tailscale for AssetAtlas this doesn't really matter as someone who can see this key already has access to your host computer and could see your database anyway.
+[Download ZIP with all files from the latest release](https://github.com/AssetAtlasTracker/AssetAtlas/releases/latest/download/assetatlas-ghcr-files.zip).
 
+It contains the required docker-compose files and a copy of this readme.
+
+### b. Clone from GitHub
+
+Only do this if you'd like to get a development version.
+
+```bash
+# requires Node.js
+npx degit AssetAtlasTracker/AssetAtlas/ghcr-files assetatlas-ghcr
+```
+
+## Running the Containers
+
+Make sure to run these commands in the folder containing the docker-compose files, and that Docker is running.
+
+Run either the Localhost or Tailscale version, depending on your needs.
+
+### a. Localhost
+
+Enables accessing AssetAtlas from the same device you're hosting it on.
+
+For Windows (PowerShell and bash) and Linux/macOS (bash):
+
+```bash
+docker compose -f docker-compose-ghcr.yml up -d
+```
+
+### b. Tailscale
+
+Enables using Tailscale to connect from other devices without additional network configuration.
+Replace `your-tailscale-auth-key` with your actual Tailscale auth key.
+
+TODO how to get a tailscale auth key?
+
+For Windows (PowerShell):
+
+```ps
+$env:TS_AUTH_KEY="your-tailscale-auth-key"; docker-compose -f docker-compose-ghcr-tailscale.yml up -d
+```
+
+For Linux/macOS (bash) or Windows (bash):
+
+```bash
+TS_AUTH_KEY="your-tailscale-auth-key" docker compose -f docker-compose-ghcr-tailscale.yml up -d
+```
+
+## Stopping the Containers
+
+```bash
+# Localhost
+docker compose -f docker-compose-ghcr.yml down
+
+# Tailscale
+docker compose -f docker-compose-ghcr-tailscale.yml down
+```

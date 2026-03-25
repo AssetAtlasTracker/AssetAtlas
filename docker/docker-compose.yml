@@ -6,13 +6,16 @@ services:
     volumes:
       - ./.env:/usr/src/app/docker/.env
       - tsbuild-cache:/usr/src/app/.tsbuildcache
+      - image-uploads:/usr/src/app/uploads
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
       args:
+        APP_VERSION: ${APP_VERSION:-dev}
         BUILDKIT_INLINE_CACHE: "1"
       cache_from:
         - assetatlas:latest
+    env_file: secrets.env
     environment:
       NODE_ENV: production
       MONGO_URI: mongodb://mongo:27017/assetatlas_db
@@ -27,8 +30,51 @@ services:
 
   mongo:
     image: mongo:latest
+    ports:
+      - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    networks:
+      - default
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/tcp
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  auto-migration:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+    depends_on:
+      - mongo
+    command:
+      ["npx", "migrate-mongo", "up", "-f", "migrate-mongo-docker-config.cjs"]
+    environment:
+      MONGO_URI: mongodb://mongo:27017/assetatlas_db
+
+  app-mongoexpress:
+    extends:
+      file: ./common-services.yml
+      service: app-mongoexpress
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_PORT: "27017"
+    depends_on:
+      - mongo
+    networks:
+      - default
+
+  tusd:
+    image: tusproject/tusd:latest
+    command:
+      - "-upload-dir=/data"
+      - "-port=1080"
+      - "-verbose"
+    ports:
+      - "1080:1080"
+    volumes:
+      - image-uploads:/data
     networks:
       - default
 
@@ -41,3 +87,5 @@ volumes:
   mongo-data:
   tsbuild-cache:
     name: assetatlas-tsbuild-cache
+  image-uploads:
+    name: assetatlas-image-uploads
