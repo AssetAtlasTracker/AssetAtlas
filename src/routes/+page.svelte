@@ -247,6 +247,7 @@
 						<option value="alphabetical">A-Z</option>
 						<option value="lastAdded">Newest</option>
 						<option value="firstAdded">Oldest</option>
+						<option value="recentlyChanged">Recently Changed</option>
 					</select>
 				</div>
 			{/if}
