@@ -20,6 +20,7 @@
 		removeSelectedTemplate,
 		removeCustomField,
 		resetAllFields,
+		selectTemplate,
 		selectCustomFieldSuggestion,
 		selectHomeItem,
 		selectParentItem,
@@ -99,9 +100,20 @@
 			partialResetFields();
 		}
 	}
+
+	function getTemplateInfoBack(templateInfo: { _id: string; name: string }) {
+		showCreateTemplateDialog = false;
+		showTemplateSelectionDialog = false;
+		selectTemplate(templateInfo);
+	}
 </script>
 
-<Dialog bind:dialog isLarge={false} close={resetAllFields}>
+<Dialog
+	canOverflow={false}
+	bind:dialog
+	create={() => {}}
+	isLarge={false}
+	close={resetAllFields}>
 	{#if originalItem}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
@@ -388,6 +400,7 @@
 			showCreateTemplateDialog = false;
 		}}>
 		<CreateTemplate
+			returnCreatedTemplate={getTemplateInfoBack}
 			on:close={() => {
 				showCreateTemplateDialog = false;
 			}} />
@@ -440,9 +453,7 @@
 										item={t}
 										class="text-white"
 									>
-										<Combobox.ItemText
-										>{t.name}</Combobox.ItemText
-										>
+										<Combobox.ItemText>{t.name}</Combobox.ItemText>
 									</Combobox.Item>
 								{/each}
 							</Combobox.Content>
