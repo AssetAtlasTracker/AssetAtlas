@@ -17,6 +17,7 @@
 		removeSelectedTemplate,
 		removeCustomField,
 		resetAllFields,
+		selectTemplate,
 		selectCustomFieldSuggestion,
 		selectHomeItem,
 		selectParentItem,
@@ -83,9 +84,18 @@
 		dispatch("itemCreated");
 	});
 	initializeItemEdit();
+
+
+	function getTemplateInfoBack(templateInfo: { _id: string; name: string }) {
+		console.log("Received template info back from CreateTemplate dialog in CreateItemDesktop:", templateInfo);
+		showCreateTemplateDialog = false;
+		showTemplateSelectionDialog = false;
+		selectTemplate(templateInfo);
+	
+	}
 </script>
 
-<Dialog isLarge={true} bind:dialog close={resetAllFields}>
+<Dialog canOverflow={false} isLarge={true} bind:dialog create={() => {}} close={resetAllFields}>
 	{#if originalItem}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
@@ -391,6 +401,7 @@
 		}}
 	>
 		<CreateTemplate
+			returnCreatedTemplate={getTemplateInfoBack}
 			on:close={() => {
 				showCreateTemplateDialog = false;
 			}}
@@ -527,9 +538,7 @@
 										item={t}
 										class="text-white"
 									>
-										<Combobox.ItemText
-										>{t.name}</Combobox.ItemText
-										>
+										<Combobox.ItemText>{t.name}</Combobox.ItemText>
 									</Combobox.Item>
 								{/each}
 							</Combobox.Content>
