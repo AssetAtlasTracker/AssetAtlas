@@ -258,6 +258,14 @@
 		}
 	}
 
+	function getTemplateInfoBack(templateInfo: { _id: string; name: string }) {
+		console.log("Received template info back from CreateTemplate dialog:", templateInfo);
+		showEditTemplateDialog = false;
+		showTemplateSelectionDialog = false;
+		selectTemplate(templateInfo);
+	
+	}
+
 	function selectTemplate(item: { name: string; _id: string }) {
 		if (!selectedTemplates.some((template) => template._id === item._id)) {
 			selectedTemplates = [
@@ -974,6 +982,7 @@
 			showEditTemplateDialog = false;
 		}}>
 		<CreateTemplate
+			returnCreatedTemplate={getTemplateInfoBack}
 			on:close={() => {
 				showEditTemplateDialog = false;
 			}} />
