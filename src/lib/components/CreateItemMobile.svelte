@@ -14,17 +14,18 @@
 		handleImageChange,
 		handleParentItemFocus,
 		handleParentItemInput,
-		handleTemplateFocus,
 		initializeItemEdit,
 		onCustomFieldNameInput,
 		partialResetFields,
+		removeSelectedTemplate,
 		removeCustomField,
 		resetAllFields,
+		selectTemplate,
 		selectCustomFieldSuggestion,
 		selectHomeItem,
 		selectParentItem,
 		setOnItemCreated,
-		submitAndCloseItem
+		submitAndCloseItem,
 	} from "$lib/stores/createItemStore.svelte";
 	import "$lib/styles/mobile.css";
 	import { Combobox, Switch } from "@skeletonlabs/skeleton-svelte";
@@ -54,7 +55,9 @@
 	}>();
 
 	let templateDialog: HTMLDialogElement | undefined = $state();
+	let templateSelectionDialog: HTMLDialogElement | undefined = $state();
 	let showCreateTemplateDialog = $state(false);
+	let showTemplateSelectionDialog = $state(false);
 	let formElement: HTMLFormElement;
 	let imageSelector: ImageSelector;
 
@@ -63,6 +66,12 @@
 	$effect(() => {
 		if (showCreateTemplateDialog && templateDialog) {
 			templateDialog.showModal();
+		}
+	});
+
+	$effect(() => {
+		if (showTemplateSelectionDialog && templateSelectionDialog) {
+			templateSelectionDialog.showModal();
 		}
 	});
 
@@ -88,9 +97,20 @@
 			partialResetFields();
 		}
 	}
+
+	function getTemplateInfoBack(templateInfo: { _id: string; name: string }) {
+		showCreateTemplateDialog = false;
+		showTemplateSelectionDialog = false;
+		selectTemplate(templateInfo);
+	}
 </script>
 
-<Dialog bind:dialog isLarge={false} close={resetAllFields}>
+<Dialog
+	canOverflow={false}
+	bind:dialog
+	create={() => {}}
+	isLarge={false}
+	close={resetAllFields}>
 	{#if originalItem}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
@@ -229,63 +249,34 @@
 
 			<!-- Template Field and Create Template Button -->
 			<div class="flex-column flex-grow relative">
-				<div class="flex items-end justify-between w-full mb-1">
-					<div class="flex items-center gap-2">
-						<span>Template:</span>
-						<InfoToolTip
-							message="A template is a more narrow category of similar items that share common fields. Select an existing template or create a new one." />
-					</div>
-					<button
-						type="button"
-						class="border-button shadow m-1"
-						onclick={() => (showCreateTemplateDialog = true)}>
-						Create New Template
-					</button>
-				</div>
-				{#if browser}
-					<Combobox
-						collection={templateCollection}
-						openOnClick={true}
-						inputValue={createItemState.templateName}
-						onInputValueChange={onTemplateInputValueChange}
-						onSelect={onTemplateSelect}
-					>
-						<Combobox.Control class="w-full">
-							<Combobox.Input
-								class="dark-textarea py-2 px-4 w-full"
-								onfocus={handleTemplateFocus}
-							/>
-							<Combobox.Trigger
-								aria-label="Open templates"
-							/>
-						</Combobox.Control>
-
-						<Combobox.Positioner>
-							<Combobox.Content
-								class="bg-surface-3 text-white shadow-lg rounded-md mt-1 max-h-60 overflow-auto z-50"
-							>
-								{#each filteredTemplates as t (t._id)}
-									<Combobox.Item
-										item={t}
-										class="text-black"
-									>
-										<Combobox.ItemText
-										>{t.name}</Combobox.ItemText
-										>
-									</Combobox.Item>
-								{/each}
-							</Combobox.Content>
-						</Combobox.Positioner>
-					</Combobox>
-				{:else}
-					<select
-						class="dark-textarea py-2 px-4 w-full"
-						disabled
-					>
-						<option>Loading templates…</option>
-					</select>
-				{/if}
+				<button
+					type="button"
+					class="border-button font-semibold shadow w-full"
+					onclick={() => (showTemplateSelectionDialog = true)}>
+					Add Template
+				</button>
+				<InfoToolTip
+					message="A template is a more narrow category of similar items that share common fields." />
 			</div>
+			{#if createItemState.selectedTemplates.length > 0}
+				<div class="flex-column flex-grow mt-2">
+					<span class="font-semibold">Templates:</span>
+					<div class="flex flex-wrap gap-2 mt-2">
+						{#each createItemState.selectedTemplates as template (template._id)}
+							<div class="flex items-center gap-2 px-2 py-1 rounded border">
+								<span>{template.name}</span>
+								<button
+									type="button"
+									aria-label={`Remove ${template.name}`}
+									onclick={() => removeSelectedTemplate(template._id)}
+								>
+									x
+								</button>
+							</div>
+						{/each}
+					</div>
+				</div>
+			{/if}
 		</div>
 		<br />
 
@@ -399,14 +390,97 @@
 <!-- Create Template Dialog -->
 {#if showCreateTemplateDialog}
 	<Dialog
+		canOverflow={false}
 		bind:dialog={templateDialog}
 		isLarge={false}
 		close={() => {
 			showCreateTemplateDialog = false;
 		}}>
 		<CreateTemplate
+			returnCreatedTemplate={getTemplateInfoBack}
 			on:close={() => {
 				showCreateTemplateDialog = false;
 			}} />
+	</Dialog>
+{/if}
+
+<!-- Template Selection Dialog -->
+{#if showTemplateSelectionDialog}
+	<Dialog
+		canOverflow={true}
+		bind:dialog={templateSelectionDialog}
+		isLarge={false}
+		create={() => {}}
+		close={() => {
+			showTemplateSelectionDialog = false;
+		}}>
+		<div class="p-4">
+			<h2 class="font-bold text-lg mb-4">Add Template</h2>
+			<div class="flex-column flex-grow relative mb-4">
+				<div class="flex items-center gap-2 mb-2">
+					<span>Search Templates:</span>
+					
+				</div>
+				{#if browser}
+					<Combobox
+						collection={templateCollection}
+						openOnClick={true}
+						inputValue={createItemState.templateName}
+						onInputValueChange={onTemplateInputValueChange}
+						onSelect={(details) => {
+							onTemplateSelect(details);
+							showTemplateSelectionDialog = false;
+						}}
+					>
+						<Combobox.Control class="w-full">
+							<Combobox.Input
+								class="dark-textarea py-2 px-4 w-full"
+							/>
+							<Combobox.Trigger
+								aria-label="Open templates"
+							/>
+						</Combobox.Control>
+
+						<Combobox.Positioner>
+							<Combobox.Content
+								class="bg-surface-3 text-white shadow-lg rounded-md mt-1 max-h-60 overflow-auto z-50"
+							>
+								{#each filteredTemplates as t (t._id)}
+									<Combobox.Item
+										item={t}
+										class="text-white"
+									>
+										<Combobox.ItemText>{t.name}</Combobox.ItemText>
+									</Combobox.Item>
+								{/each}
+							</Combobox.Content>
+						</Combobox.Positioner>
+					</Combobox>
+				{:else}
+					<select
+						class="dark-textarea py-2 px-4 w-full"
+						disabled
+					>
+						<option>Loading templates…</option>
+					</select>
+				{/if}
+			</div>
+			<div class="flex gap-2">
+				<button
+					type="button"
+					class="border-button font-semibold shadow flex-grow"
+					onclick={() => (showCreateTemplateDialog = true)}>
+					Create New Template
+				</button>
+				<button
+					type="button"
+					class="border-button font-semibold shadow"
+					onclick={() => {
+						showTemplateSelectionDialog = false;
+					}}>
+					Close
+				</button>
+			</div>
+		</div>
 	</Dialog>
 {/if}

@@ -34,10 +34,10 @@ TemplateSchema.pre('findOneAndDelete', async function () {
 
 	try {
 		await removeFromRecents('template', templateId);
-		//update items that use the template being deleted
+		//update items that use the template being deleted by removing it from their templates array
 		await BasicItem.updateMany(
-			{ template: templateId },
-			{ $unset: { template: "" } }
+			{ "templates.field": templateId },
+			{ $pull: { templates: { field: templateId } } }
 		).exec();
 	} catch (err) {
 		console.error('Error in pre-delete hook for template:', err);

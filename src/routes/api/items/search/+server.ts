@@ -29,7 +29,7 @@ export const GET: RequestHandler = async ( {url} ) => {
 
 	try {
 		const items = await BasicItem.find({})
-			.populate('template')
+			.populate('templates.field')
 			.populate('parentItem')
 			.populate('homeItem')
 			.populate('containedItems')

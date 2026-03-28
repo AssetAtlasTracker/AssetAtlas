@@ -386,6 +386,7 @@
 
 {#if draggingItem}
 	<Dialog
+		canOverflow={false}
 		bind:dialog={moveDialog}
 		isLarge={false}
 		create={() => {}}

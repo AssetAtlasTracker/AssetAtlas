@@ -15,7 +15,10 @@ export interface IBasicItem extends Document { //we can add more stuff here
   containedItems?: Array<Types.ObjectId>;//for nested items
   parentItem?: Types.ObjectId | null;
   homeItem?: Types.ObjectId | null;
-  template?: Types.ObjectId | null;
+  templates?: {
+    field: Types.ObjectId;
+    value: null;
+  }[];
   image?: string;
   customFields?: {
     field: Types.ObjectId;
@@ -35,7 +38,9 @@ export interface IBasicItemPopulated {
   containedItems?: Array<IBasicItem>;
   parentItem?: IBasicItem | null;
   homeItem?: IBasicItem | null;
-  template?: ITemplate | null;
+  templates?: Array<{
+    field: ITemplate
+  }>;
   customFields?: Array<{
     field: ICustomField;
     value: unknown;
@@ -59,7 +64,11 @@ const BasicItemSchema: Schema = new Schema({
 	containedItems: [{ type: Schema.Types.ObjectId, ref: 'BasicItem'}],
 	parentItem: { type: Schema.Types.ObjectId, ref: 'BasicItem', required: false},
 	homeItem: { type: Schema.Types.ObjectId, ref: 'BasicItem', required: false},
-	template: {type: Schema.Types.ObjectId, ref: "Template", required: false},
+	templates: [
+		{
+			field: {type: Schema.Types.ObjectId, ref: "Template", required: false},
+		}
+	],
 	customFields: [
 		{
 			field: {type: Schema.Types.ObjectId, ref: "CustomField", required: true },

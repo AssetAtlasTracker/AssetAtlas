@@ -38,7 +38,7 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 	const addedFields = newFields.filter(field => !oldFields.includes(field));
 	if (addedFields.length > 0) {
 		await BasicItem.updateMany(
-			{ template: template._id },
+			{ "templates.field": template._id },
 			{ $addToSet: { customFields: { $each: addedFields.map(field => ({ field, value: "" })) } } }
 		).exec();
 	}
