@@ -22,9 +22,7 @@
 		selectHomeItem,
 		selectParentItem,
 		setOnItemCreated,
-		submitAndCloseItem,
-
-		handleTemplateFocus
+		submitAndCloseItem
 
 	} from "$lib/stores/createItemStore.svelte";
 	import { Combobox, Switch } from "@skeletonlabs/skeleton-svelte";

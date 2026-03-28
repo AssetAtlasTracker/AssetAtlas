@@ -11,6 +11,7 @@
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
+	import type { ITemplate } from "$lib/server/db/models/template";
 
 	let { item } = $props<{
 		item: IBasicItemPopulated;
@@ -34,12 +35,14 @@
 		name: string;
 	};
 
-	let selectedTemplates: ISelectedTemplate[] = (item.templates ?? [])
-		.map((template) => ({
-			_id: template.field?._id?.toString(),
-			name: template.field?.name,
-		}))
-		.filter((template) => !!template._id && !!template.name) as ISelectedTemplate[];
+	let selectedTemplates = $state<ISelectedTemplate[]>(
+		(item.templates ?? [])
+			.map((template: ITemplate) => ({
+				_id: template._id.toString(),
+				name: template.name,
+			}))
+			.filter((template: ITemplate) => !!template._id && !!template.name) as ISelectedTemplate[]
+	);
 
 	function getTemplateFieldIdsFromTemplates(templates: Array<{ field: { fields?: unknown[] } }>) {
 		const fieldIds = new Set<string>();
@@ -115,10 +118,12 @@
 			? currentItem.homeItem._id.toString()
 			: null;
 		homeItemSuggestions = [];
-		templateName = currentItem.templates[0]?.name ?? "";
-		templateId = currentItem.templates && currentItem.templates.length > 0
-			? currentItem.templates[0].fields._id.toString()
-			: null;
+		selectedTemplates = (currentItem.templates ?? [])
+			.map((template) => ({
+				_id: template.field?._id?.toString(),
+				name: template.field?.name,
+			}))
+			.filter((template) => !!template._id && !!template.name) as ISelectedTemplate[];
 		templateSuggestions = [];
 		fieldItemName = "";
 		fieldItemId = null;
@@ -256,14 +261,6 @@
 		} catch (err) {
 			console.error("Error searching templates:", err);
 		}
-	}
-
-	function getTemplateInfoBack(templateInfo: { _id: string; name: string }) {
-		console.log("Received template info back from CreateTemplate dialog:", templateInfo);
-		showEditTemplateDialog = false;
-		showTemplateSelectionDialog = false;
-		selectTemplate(templateInfo);
-	
 	}
 
 	function selectTemplate(item: { name: string; _id: string }) {
@@ -644,7 +641,7 @@
 			formData.append("customFields", JSON.stringify(formattedFields));
 			//TODO Remove after testing
 			for (const [key, value] of formData.entries()) {
-  				console.log(`${key}: ${value}`);
+				console.log(`${key}: ${value}`);
 			}
 
 			// Handle image
@@ -982,7 +979,6 @@
 			showEditTemplateDialog = false;
 		}}>
 		<CreateTemplate
-			returnCreatedTemplate={getTemplateInfoBack}
 			on:close={() => {
 				showEditTemplateDialog = false;
 			}} />
@@ -1011,16 +1007,16 @@
 					class="dark-textarea py-2 px-4 w-full"
 					bind:value={templateName}
 					placeholder="Search templates"
-					on:input={handleTemplateInput}
-					on:focus={handleTemplateFocus}
-					on:blur={() => (templateSuggestions = [])} />
+					oninput={handleTemplateInput}
+					onfocus={handleTemplateFocus}
+					onblur={() => (templateSuggestions = [])} />
 				{#if templateSuggestions.length > 0}
 					<ul class="suggestions suggestion-box">
 						{#each templateSuggestions as t}
 							<button
 								class="suggestion-item"
 								type="button"
-								on:mousedown={(e) => {
+								onmousedown={(e) => {
 									e.preventDefault();
 									selectTemplate(t);
 									showTemplateSelectionDialog = false;
@@ -1035,13 +1031,13 @@
 				<button
 					type="button"
 					class="border-button font-semibold shadow flex-grow"
-					on:click={() => (showEditTemplateDialog = true)}>
+					onclick={() => (showEditTemplateDialog = true)}>
 					Create New Template
 				</button>
 				<button
 					type="button"
 					class="border-button font-semibold shadow"
-					on:click={() => {
+					onclick={() => {
 						showTemplateSelectionDialog = false;
 						templateSuggestions = [];
 					}}>

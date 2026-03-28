@@ -26,9 +26,6 @@
 		selectParentItem,
 		setOnItemCreated,
 		submitAndCloseItem,
-
-		handleTemplateFocus
-
 	} from "$lib/stores/createItemStore.svelte";
 	import "$lib/styles/mobile.css";
 	import { Combobox, Switch } from "@skeletonlabs/skeleton-svelte";
