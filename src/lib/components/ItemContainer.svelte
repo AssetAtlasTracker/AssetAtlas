@@ -176,7 +176,7 @@
 				data-item-name={i.name}>
 				<input
 					type="checkbox"
-					style="width: 20px; height: 20px; align-self: center; margin: auto 0;"
+					class="item-checkbox"
 					onclick={() => {
 						handleSelect(i);
 					}} />
