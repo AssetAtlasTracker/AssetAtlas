@@ -32,30 +32,27 @@
 	let returnDialog = $state<HTMLDialogElement | undefined>();
 	let moveDialog = $state<HTMLDialogElement | undefined>();
 	let menu = $state<HTMLDialogElement | undefined>();
-
 	let unique = $state({});
-	function restart() {
-		unique = {};
-	}
-
 	let showItemTree = $state(true);
 	let itemTree = $state<{ reload: () => Promise<void> } | null>(null);
-
 	let draggingItem = $state<IBasicItemPopulated | null>(null);
 	let targetItemId = $state<string | undefined>(undefined);
 	let targetItemName = $state<string | undefined>(undefined);
-
 	let currentLogin = $state<LoginState | undefined>();
-
-	function handleTreeClose() {
-		showItemTree = false;
-	}
 
 	$effect(() => {
 		if (browser && item) {
 			document.title = item.name + " - AssetAtlas";
 		}
 	});
+
+	function handleTreeClose() {
+		showItemTree = false;
+	}
+
+	function restart() {
+		unique = {};
+	}
 
 	async function fetchItem(id: string) {
 		try {
@@ -171,7 +168,7 @@
 			showCollapse={true}>
 			<ItemDetails
 				{item}
-				{showItemTree}
+				bind:showItemTree
 				onMove={showMoveDialog}
 				onReturn={showReturnDialog}
 				onEdit={showEditDialog}
@@ -216,7 +213,7 @@
 				<ItemDetails
 					item={null}
 					itemId={itemWindow.id}
-					{showItemTree}
+					bind:showItemTree
 					onMove={showMoveDialog}
 					onReturn={showReturnDialog}
 					onEdit={showEditDialog}
