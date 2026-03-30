@@ -24,7 +24,7 @@
 
 	let parentItemId = $state<string | null>(null);
 	let homeItemId = $state<string | null>(null);
-	let templateId = $state<string | null>(null);
+	let templateIds = $state<string[] | null>(null);
 	let selectedImage = $derived<string | null>(item.image ? item.image : null);
 
 	let customFields = $state<ICustomFieldEntryInstance[]>([]);
@@ -48,10 +48,10 @@
 				fromTemplate: false,
 			}));
 
-			if (currentItem.template && currentItem.template.fields?.length) {
+			if (currentItem.templates && currentItem.templates.length > 0 && currentItem.templates[0].field.fields?.length) {
 				const templateFieldIds = new Set(
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					currentItem.template.fields.map((tid: any) =>
+					currentItem.templates[0].field.fields.map((tid: any) =>
 						typeof tid === "string" ? tid : tid._id.toString(),
 					),
 				);
@@ -78,10 +78,10 @@
 			}
 		}
 
-		if (currentItem.template && currentItem.template.fields?.length) {
+		if (currentItem.templates && currentItem.templates.length > 0 && currentItem.templates[0].field.fields?.length) {
 			const templateFieldIds = new Set(
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				currentItem.template.fields.map((tid: any) =>
+				currentItem.templates[0].field.fields.map((tid: any) =>
 					typeof tid === "string" ? tid : tid._id.toString(),
 				),
 			);
@@ -107,8 +107,8 @@
 		homeItemId = currentItem.homeItem
 			? currentItem.homeItem._id.toString()
 			: null;
-		templateId = currentItem.template
-			? currentItem.template?._id.toString()
+		templateIds = currentItem.templates && currentItem.templates.length > 0
+			? currentItem.templates.map(t => typeof t.field === "string" ? t.field : t.field._id.toString())
 			: null;
 		customFields = buildCustomFields(currentItem);
 		selectedImage = item.image ? item.image : null;
@@ -159,7 +159,7 @@
 			formData.append("tags", JSON.stringify(tags));
 			if (parentItemId) formData.append("parentItem", parentItemId);
 			if (homeItemId) formData.append("homeItem", homeItemId);
-			if (templateId) formData.append("template", templateId);
+			if (templateIds) formData.append("templates", JSON.stringify(templateIds.map((id) => ({ field: id }))));
 			formData.append(
 				"customFields",
 				JSON.stringify(formattedCustomFields),
@@ -190,6 +190,7 @@
 </script>
 
 <Dialog
+	canOverflow={false}
 	bind:dialog
 	isLarge={false}
 	close={() => dialog?.close()}>

@@ -316,9 +316,7 @@
 		{/if}
 	{/if}
 
-	{#if item.template}
-		<p><strong>Template Name:</strong> {item.template.name}</p>
-	{/if}
+	
 	<ul>
 		{#if item.description}
 			<li><strong>Description:</strong> {item.description}</li>
@@ -356,6 +354,15 @@
 			</li>
 		{:else}
 			<li><strong>Home Location:</strong> No home</li>
+		{/if}
+
+		{#if item.templates && item.templates.length > 0}
+			<p><strong>Templates:</strong></p>
+			<ul>
+				{#each item.templates as template}
+					<li>{template.field.name}</li>
+				{/each}
+			</ul>
 		{/if}
 
 		{#if item.containedItems && item.containedItems.length > 0}

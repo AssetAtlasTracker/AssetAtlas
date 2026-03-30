@@ -259,6 +259,7 @@
 
 {#if item}
 	<Dialog
+		canOverflow={false}
 		bind:dialog={editDialog}
 		isLarge={false}
 		create={() => {}}

@@ -13,6 +13,18 @@
 	let nameError = $state("");
 	let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
 
+	type TemplateInfo = { _id: string; name: string };
+
+	let {
+		returnCreatedTemplate
+	} = $props<{
+		returnCreatedTemplate?: (templateInfo: TemplateInfo) => void;
+	}>();
+
+	function handleTemplateCreated(templateInfo: TemplateInfo) {
+		returnCreatedTemplate?.(templateInfo);
+	}
+
 	async function handleCreateTemplate() {
 		//Filter out empty fields before submission
 		customFields = customFields.filter(
@@ -53,6 +65,8 @@
 
 			const data = await response.json();
 			console.log("Template created: ", data);
+
+			handleTemplateCreated(data);
 
 			//Reset form
 			name = "";
