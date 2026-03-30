@@ -34,6 +34,7 @@
 	let menu = $state<HTMLDialogElement | undefined>();
 	let unique = $state({});
 	let showItemTree = $state(true);
+	let itemTree = $state<{ reload: () => Promise<void> } | null>(null);
 	let draggingItem = $state<IBasicItemPopulated | null>(null);
 	let targetItemId = $state<string | undefined>(undefined);
 	let targetItemName = $state<string | undefined>(undefined);
@@ -65,6 +66,9 @@
 			const data: IBasicItemPopulated = await response.json();
 			item = data;
 			restart();
+			if (showItemTree && itemTree) {
+				await itemTree.reload();
+			}
 		} catch (err) {
 			console.error(err);
 			item = null;
@@ -183,6 +187,7 @@
 				showCollapse={true}
 				on:close={handleTreeClose}>
 				<ItemTree
+					bind:this={itemTree}
 					parentId={item._id.toString()}
 					currentId={item._id.toString()}
 					{draggingItem}

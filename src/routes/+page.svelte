@@ -173,6 +173,10 @@
 		);
 	}
 
+	async function handleItemUpdated() {
+		await handleSearch(searchQuery);
+	}
+
 	const handleShowActionDialog = (
 		detail: {
 			item: IBasicItemPopulated | null;
@@ -243,6 +247,7 @@
 						<option value="alphabetical">A-Z</option>
 						<option value="lastAdded">Newest</option>
 						<option value="firstAdded">Oldest</option>
+						<option value="recentlyChanged">Recently Changed</option>
 					</select>
 				</div>
 			{/if}
@@ -439,7 +444,7 @@
 		<EditItem
 			item={actionItem}
 			on:close={() => actionEditDialog?.close()}
-			on:itemUpdated={() => {}} />
+			on:itemUpdated={handleItemUpdated} />
 	{:else}
 		<div class="simple-dialog-spacing">Loading item data...</div>
 	{/if}
