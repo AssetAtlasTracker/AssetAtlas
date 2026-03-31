@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { browser } from "$app/environment";
+	import type { ITemplate } from "$lib/server/db/models/template.js";
 	import {
 		addCustomFieldLine,
 		checkIfItemExists,
@@ -13,55 +14,72 @@
 		handleImageChange,
 		handleParentItemFocus,
 		handleParentItemInput,
-		handleTemplateFocus,
 		initializeItemEdit,
 		onCustomFieldNameInput,
 		partialResetFields,
+		removeSelectedTemplate,
 		removeCustomField,
 		resetAllFields,
+		selectTemplate,
 		selectCustomFieldSuggestion,
 		selectHomeItem,
 		selectParentItem,
 		setOnItemCreated,
-		submitAndCloseItem
+		submitAndCloseItem,
 	} from "$lib/stores/createItemStore.svelte";
 	import "$lib/styles/mobile.css";
 	import { Combobox, Switch } from "@skeletonlabs/skeleton-svelte";
+	import { collection } from "@zag-js/combobox";
 	import { createEventDispatcher } from "svelte";
 	import CreateTemplate from "./CreateTemplate.svelte";
 	import CustomFieldPicker from "./CustomFieldPicker.svelte";
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
-
-	import { collection } from "@zag-js/combobox";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem";
 
-	export let dialog: HTMLDialogElement;
-	export let originalItem: IBasicItemPopulated | null = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	export let filteredTemplates: any[] = [];
-	export let onTemplateInputValueChange: (details: { inputValue: string }) => void;
-	export let onTemplateSelect: (details: { itemValue?: string }) => void;
+	type TemplateLite = Pick<ITemplate, "_id" | "name">;
 
-	let templateDialog: HTMLDialogElement | undefined;
-	let showCreateTemplateDialog = false;
+	let {
+		dialog = $bindable(),
+		originalItem = null,
+		filteredTemplates = [],
+		onTemplateInputValueChange,
+		onTemplateSelect
+	} = $props<{
+		dialog: HTMLDialogElement;
+		originalItem: IBasicItemPopulated | null;
+		filteredTemplates?: TemplateLite[];
+		onTemplateInputValueChange: (details: { inputValue: string }) => void;
+		onTemplateSelect: (details: { itemValue?: string }) => void;
+	}>();
+
+	let templateDialog: HTMLDialogElement | undefined = $state();
+	let templateSelectionDialog: HTMLDialogElement | undefined = $state();
+	let showCreateTemplateDialog = $state(false);
+	let showTemplateSelectionDialog = $state(false);
 	let formElement: HTMLFormElement;
 	let imageSelector: ImageSelector;
 
 	const dispatch = createEventDispatcher();
 
-	$: if (showCreateTemplateDialog) {
-		if (templateDialog) {
+	$effect(() => {
+		if (showCreateTemplateDialog && templateDialog) {
 			templateDialog.showModal();
 		}
-	}
-
-	$: templateCollection = collection({
-		items: filteredTemplates,
-		itemToString: (item) => item?.name ?? "",
-		itemToValue: (item) => String(item?._id ?? ""),
 	});
+
+	$effect(() => {
+		if (showTemplateSelectionDialog && templateSelectionDialog) {
+			templateSelectionDialog.showModal();
+		}
+	});
+
+	let templateCollection = $derived.by(() => collection({
+		items: filteredTemplates,
+		itemToString: (item: TemplateLite) => item?.name ?? "",
+		itemToValue: (item: TemplateLite) => String(item?._id ?? ""),
+	}));
 
 	setOnItemCreated(() => {
 		dispatch("itemCreated")
@@ -79,9 +97,20 @@
 			partialResetFields();
 		}
 	}
+
+	function getTemplateInfoBack(templateInfo: { _id: string; name: string }) {
+		showCreateTemplateDialog = false;
+		showTemplateSelectionDialog = false;
+		selectTemplate(templateInfo);
+	}
 </script>
 
-<Dialog bind:dialog create={() => {}} isLarge={false} close={resetAllFields}>
+<Dialog
+	canOverflow={false}
+	bind:dialog
+	create={() => {}}
+	isLarge={false}
+	close={resetAllFields}>
 	{#if originalItem}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
@@ -91,10 +120,17 @@
 			Create New Item
 		</h1>
 	{/if}
-	<form bind:this={formElement} on:submit|preventDefault={() => submitAndCloseItem(dialog, imageSelector)}>
+	<form
+		bind:this={formElement}
+		onsubmit={
+			(event) => {
+				event.preventDefault();
+				submitAndCloseItem(dialog, imageSelector);
+			}
+		}>
 		<div class="flex flex-col space-y-4">
 			<div class="flex flex-col space-y-2">
-				<ImageSelector bind:this={imageSelector} on:imageChange={handleImageChange} />
+				<ImageSelector active={dialog?.open ?? false} bind:this={imageSelector} on:imageChange={handleImageChange} />
 			</div>
 
 			<div class="flex space-x-4">
@@ -146,16 +182,16 @@
 					type="text"
 					class="dark-textarea py-2 px-4 w-full"
 					bind:value={createItemState.homeItemName}
-					on:input={handleHomeItemInput}
-					on:focus={handleHomeItemFocus}
-					on:blur={() => (createItemState.homeItemSuggestions = [])} />
+					oninput={handleHomeItemInput}
+					onfocus={handleHomeItemFocus}
+					onblur={() => (createItemState.homeItemSuggestions = [])} />
 				{#if createItemState.homeItemSuggestions.length > 0}
 					<ul class="suggestions suggestion-box">
 						{#each createItemState.homeItemSuggestions as item (item.id)}
 							<button
 								class="suggestion-item"
 								type="button"
-								on:mousedown={(e) => {
+								onmousedown={(e) => {
 									e.preventDefault();
 									selectHomeItem(item);
 								}}>
@@ -178,16 +214,16 @@
 						type="text"
 						class="dark-textarea py-2 px-4 w-full"
 						bind:value={createItemState.parentItemName}
-						on:input={handleParentItemInput}
-						on:focus={handleParentItemFocus}
-						on:blur={() => (createItemState.parentItemSuggestions = [])} />
+						oninput={handleParentItemInput}
+						onfocus={handleParentItemFocus}
+						onblur={() => (createItemState.parentItemSuggestions = [])} />
 					{#if createItemState.parentItemSuggestions.length > 0}
 						<ul class="suggestions suggestion-box">
 							{#each createItemState.parentItemSuggestions as item (item.id)}
 								<button
 									class="suggestion-item"
 									type="button"
-									on:mousedown={(e) => {
+									onmousedown={(e) => {
 										e.preventDefault();
 										selectParentItem(item);
 									}}>
@@ -213,63 +249,34 @@
 
 			<!-- Template Field and Create Template Button -->
 			<div class="flex-column flex-grow relative">
-				<div class="flex items-end justify-between w-full mb-1">
-					<div class="flex items-center gap-2">
-						<span>Template:</span>
-						<InfoToolTip
-							message="A template is a more narrow category of similar items that share common fields. Select an existing template or create a new one." />
-					</div>
-					<button
-						type="button"
-						class="border-button shadow m-1"
-						on:click={() => (showCreateTemplateDialog = true)}>
-						Create New Template
-					</button>
-				</div>
-				{#if browser}
-					<Combobox
-						collection={templateCollection}
-						openOnClick={true}
-						inputValue={createItemState.templateName}
-						onInputValueChange={onTemplateInputValueChange}
-						onSelect={onTemplateSelect}
-					>
-						<Combobox.Control class="w-full">
-							<Combobox.Input
-								class="dark-textarea py-2 px-4 w-full"
-								on:focus={handleTemplateFocus}
-							/>
-							<Combobox.Trigger
-								aria-label="Open templates"
-							/>
-						</Combobox.Control>
-
-						<Combobox.Positioner>
-							<Combobox.Content
-								class="bg-surface-3 text-white shadow-lg rounded-md mt-1 max-h-60 overflow-auto z-50"
-							>
-								{#each filteredTemplates as t (t._id)}
-									<Combobox.Item
-										item={t}
-										class="text-black"
-									>
-										<Combobox.ItemText
-										>{t.name}</Combobox.ItemText
-										>
-									</Combobox.Item>
-								{/each}
-							</Combobox.Content>
-						</Combobox.Positioner>
-					</Combobox>
-				{:else}
-					<select
-						class="dark-textarea py-2 px-4 w-full"
-						disabled
-					>
-						<option>Loading templates…</option>
-					</select>
-				{/if}
+				<button
+					type="button"
+					class="border-button font-semibold shadow w-full"
+					onclick={() => (showTemplateSelectionDialog = true)}>
+					Add Template
+				</button>
+				<InfoToolTip
+					message="A template is a more narrow category of similar items that share common fields." />
 			</div>
+			{#if createItemState.selectedTemplates.length > 0}
+				<div class="flex-column flex-grow mt-2">
+					<span class="font-semibold">Templates:</span>
+					<div class="flex flex-wrap gap-2 mt-2">
+						{#each createItemState.selectedTemplates as template (template._id)}
+							<div class="flex items-center gap-2 px-2 py-1 rounded border">
+								<span>{template.name}</span>
+								<button
+									type="button"
+									aria-label={`Remove ${template.name}`}
+									onclick={() => removeSelectedTemplate(template._id)}
+								>
+									x
+								</button>
+							</div>
+						{/each}
+					</div>
+				</div>
+			{/if}
 		</div>
 		<br />
 
@@ -280,12 +287,12 @@
 			type="button"
 			id="create-custom-field-button"
 			class="border-button font-semibold shadow small-add-button w-full"
-			on:click={addCustomFieldLine}>
+			onclick={addCustomFieldLine}>
 			+
 		</button>
 		{#each createItemState.customFields as field, index (field.fieldId)}
 			<CustomFieldPicker
-				bind:field
+				bind:field={createItemState.customFields[index]}
 				onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
 				onFieldFocus={() => handleCustomFieldFocus(index)}
 				onFieldBlur={() => (createItemState.customFields[index].suggestions = [])}
@@ -324,12 +331,12 @@
 				}}
 				showDeleteButton={!field.fromTemplate}
 				onDelete={() => removeCustomField(index)}>
-				<svelte:fragment slot="suggestions">
+				{#snippet suggestions()}
 					{#each field.suggestions as suggestion (suggestion._id)}
 						<button
 							class="suggestion-item"
 							type="button"
-							on:mousedown={(e) => {
+							onmousedown={(e) => {
 								e.preventDefault();
 								selectCustomFieldSuggestion(
 									index,
@@ -339,16 +346,16 @@
 							{suggestion.fieldName} ({suggestion.dataType})
 						</button>
 					{/each}
-				</svelte:fragment>
+				{/snippet}
 				
-				<svelte:fragment slot="itemSuggestions">
+				{#snippet itemSuggestions()}
 					{#if field.dataType === 'item' && createItemState.fieldItemSuggestions.length > 0}
 						<ul class="suggestions suggestion-box">
 							{#each createItemState.fieldItemSuggestions as item (item._id)}
 								<button
 									class="suggestion-item"
 									type="button"
-									on:mousedown={(e) => {
+									onmousedown={(e) => {
 										e.preventDefault();
 										createItemState.customFields[index].value = item._id; // Store ID
 										createItemState.customFields[index].displayValue = item.name; // Display name
@@ -359,14 +366,14 @@
 							{/each}
 						</ul>
 					{/if}
-				</svelte:fragment>
+				{/snippet}
 			</CustomFieldPicker>
 		{/each}
 
 		<br />
 		<!-- Submit -->
-		<div id="submit-button-container" class="flex justify-end mt-4">
-			<button on:click={submitAndAddAnother}
+		<div id="submit-button-container" class="flex justify-end mt-4 sticky bottom-0">
+			<button onclick={submitAndAddAnother}
 				class="border-button font-semibold shadow mt-4 mr-2 w-full block"
 				type="button">
 				Save and Add Another
@@ -383,15 +390,97 @@
 <!-- Create Template Dialog -->
 {#if showCreateTemplateDialog}
 	<Dialog
+		canOverflow={false}
 		bind:dialog={templateDialog}
 		isLarge={false}
-		create={() => {}}
 		close={() => {
 			showCreateTemplateDialog = false;
 		}}>
 		<CreateTemplate
+			returnCreatedTemplate={getTemplateInfoBack}
 			on:close={() => {
 				showCreateTemplateDialog = false;
 			}} />
+	</Dialog>
+{/if}
+
+<!-- Template Selection Dialog -->
+{#if showTemplateSelectionDialog}
+	<Dialog
+		canOverflow={true}
+		bind:dialog={templateSelectionDialog}
+		isLarge={false}
+		create={() => {}}
+		close={() => {
+			showTemplateSelectionDialog = false;
+		}}>
+		<div class="p-4">
+			<h2 class="font-bold text-lg mb-4">Add Template</h2>
+			<div class="flex-column flex-grow relative mb-4">
+				<div class="flex items-center gap-2 mb-2">
+					<span>Search Templates:</span>
+					
+				</div>
+				{#if browser}
+					<Combobox
+						collection={templateCollection}
+						openOnClick={true}
+						inputValue={createItemState.templateName}
+						onInputValueChange={onTemplateInputValueChange}
+						onSelect={(details) => {
+							onTemplateSelect(details);
+							showTemplateSelectionDialog = false;
+						}}
+					>
+						<Combobox.Control class="w-full">
+							<Combobox.Input
+								class="dark-textarea py-2 px-4 w-full"
+							/>
+							<Combobox.Trigger
+								aria-label="Open templates"
+							/>
+						</Combobox.Control>
+
+						<Combobox.Positioner>
+							<Combobox.Content
+								class="bg-surface-3 text-white shadow-lg rounded-md mt-1 max-h-60 overflow-auto z-50"
+							>
+								{#each filteredTemplates as t (t._id)}
+									<Combobox.Item
+										item={t}
+										class="text-white"
+									>
+										<Combobox.ItemText>{t.name}</Combobox.ItemText>
+									</Combobox.Item>
+								{/each}
+							</Combobox.Content>
+						</Combobox.Positioner>
+					</Combobox>
+				{:else}
+					<select
+						class="dark-textarea py-2 px-4 w-full"
+						disabled
+					>
+						<option>Loading templates…</option>
+					</select>
+				{/if}
+			</div>
+			<div class="flex gap-2">
+				<button
+					type="button"
+					class="border-button font-semibold shadow flex-grow"
+					onclick={() => (showCreateTemplateDialog = true)}>
+					Create New Template
+				</button>
+				<button
+					type="button"
+					class="border-button font-semibold shadow"
+					onclick={() => {
+						showTemplateSelectionDialog = false;
+					}}>
+					Close
+				</button>
+			</div>
+		</div>
 	</Dialog>
 {/if}

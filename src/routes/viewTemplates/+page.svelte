@@ -11,11 +11,11 @@
 
 	import "$lib/styles/main.css";
 
-	let templates: ITemplatePopulated[] = [];
-	let menu: HTMLDialogElement;
-	let templateDialog: HTMLDialogElement | undefined;
+	let templates = $state<ITemplatePopulated[]>([]);
+	let menu = $state<HTMLDialogElement>();
+	let templateDialog = $state<HTMLDialogElement | undefined>();
 
-	let currentLogin: LoginState | undefined;
+	let currentLogin = $state<LoginState | undefined>();
 	login.subscribe((value) => {
 		currentLogin = value;
 	});
@@ -38,11 +38,13 @@
 		}
 	}
 
-	let showCreateTemplateDialog = false;
+	let showCreateTemplateDialog = $state(false);
 
-	$: if (showCreateTemplateDialog && templateDialog) {
-		templateDialog.showModal();
-	}
+	$effect(() => {
+		if (showCreateTemplateDialog && templateDialog) {
+			templateDialog.showModal();
+		}
+	});
 
 	function closeCreateDialog() {
 		showCreateTemplateDialog = false;
@@ -73,7 +75,7 @@
 	{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
 		<button
 			class="add-button text-icon font-bold shadow"
-			on:click={() => {
+			onclick={() => {
 				showCreateTemplateDialog = true;
 			}}>
 			+

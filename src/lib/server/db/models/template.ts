@@ -1,5 +1,5 @@
 import mongoose, { Types, Schema } from 'mongoose';
-import type { Document, CallbackError } from 'mongoose';
+import type { Document } from 'mongoose';
 const { model } = mongoose;
 import BasicItem from './basicItem.js';
 import type { ICustomField } from './customField.js';
@@ -28,22 +28,20 @@ const TemplateSchema: Schema = new Schema(
 	}
 );
 
-TemplateSchema.pre('findOneAndDelete', async function (next) {
+TemplateSchema.pre('findOneAndDelete', async function () {
 	const templateId = this.getQuery()._id;
-	if (!templateId) return next();
+	if (!templateId) return;
 
 	try {
 		await removeFromRecents('template', templateId);
-		//update items that use the template being deleted
+		//update items that use the template being deleted by removing it from their templates array
 		await BasicItem.updateMany(
-			{ template: templateId },
-			{ $unset: { template: "" } }
+			{ "templates.field": templateId },
+			{ $pull: { templates: { field: templateId } } }
 		).exec();
-
-		next();
 	} catch (err) {
 		console.error('Error in pre-delete hook for template:', err);
-		next(err as CallbackError);
+		throw err;
 	}
 });
 

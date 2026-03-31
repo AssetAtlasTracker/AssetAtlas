@@ -3,7 +3,9 @@
 Welcome to AssetAtlas! Below is a relatively brief onboarding guide to the repo and some of the technology used in its development.
 
 ## Technologies Used
+
 Quite a few additional technologies are used for the development of AssetAtlas, the most notable of which I've listed below along with links to their documentation or home site:
+
 1. [NodeJS](https://nodejs.org/docs/latest/api/)
 2. [Vitest](https://vitest.dev/api/)
 3. [Skeleton](https://www.skeleton.dev/docs/svelte/get-started/introduction)
@@ -11,12 +13,12 @@ Quite a few additional technologies are used for the development of AssetAtlas, 
 5. [Typescript](https://www.typescriptlang.org/docs/)
 6. [MongoDB](https://www.mongodb.com/docs/)
 7. [Docker](https://docs.docker.com/)
-8. [Python3](https://docs.python.org/3.11/)  
+8. [Python3](https://docs.python.org/3.11/)
 
 You shouldn't need to download the majority of these manually, those that you do need to are listed below in the setup part of this document.
 
-
 ## Setup
+
 1. Get [Visual Studio Code](https://code.visualstudio.com/) or a fork
 2. Get node 22.21.x (check with `node --version`)
    - It might also work with other node versions but we are developing with node 22.21.1
@@ -33,19 +35,29 @@ You shouldn't need to download the majority of these manually, those that you do
 8. Create `docker/secrets.env` by copying `docker/secrets.env.example` and filling in the necessary OAuth provider credentials. You can either go to the pinned messages in general in discord to find our current local dev secrets, or configure your own via the directions in [`ConfiguringOauthProviders.md`](../.github/assetatlas/ConfiguringOauthProviders.md)
 9. Run the project. You have two options for this:
 
-Dev Mode:  
-a. Run `npm run dev:build` in the project root. Once all containers are started, go to `localhost:5173`. It may take several minutes for the site to load.  
-b. While in dev mode, hot module reload is enabled, meaning your changes will be reflected on the site without needing to restart all the containers.  
-c. Use `npm run dev:down` to shut down the project.  
+### a. Run in Dev Mode
 
-Production Mode:  
-a. Launch the docker compose via the helper script. Run `python start.py` in the base folder of the repo.  
-b. A new window with various start up options should appear. Choose your desired options and press 'Run Docker Compose' to start the app. This may take several minutes.  
-c. A popup will appear with the URL to access the frontend. Or if something went wrong, error details will be shown in the terminal you launched the helper script from.  
+Launches the project with hot reloading running the Vite server on your host machine.
+Changes you make to the Typescript codebase will cause automatic reloads without needing to restart the containers.
+
+1. Run `npm run dev` in the project root. Once all containers are started, go to `localhost:5173`.
+2. While in dev mode, hot module reload is enabled, meaning your changes will be reflected on the site without needing to restart all the containers.
+3. When you are done with the dev server, press `q + enter` in the same terminal you ran `npm run dev` in to close it. Then run `npm run dev:down` to shut down the project containers.
+
+### b. Run in Production Mode (Built Containers)
+
+Builds the project's containers as if preparing for a release, then starts them.
+The Vite server will be run inside a container.
+Any changes you make to the codebase will not be reflected until you rebuild the containers.
+
+1. Launch the docker compose via the helper script. Run `python start.py` in the base folder of the repo.
+2. A new window with various start up options should appear. Choose your desired options and press 'Run Docker Compose' to start the app. This may take several minutes.
+3. A popup will appear with the URL to access the frontend. Or if something went wrong, error details will be shown in the terminal you launched the helper script from.
 
 ## Project Structure
 
 For more information on why the routing is setup the way it is or how routing works, see the [SvelteKit docs](https://svelte.dev/docs/kit/project-structure)
+
 - `/.github` - GitHub files. Largely used for continuous integration workflows
   - `../workflows` - Workflows that control how the continuous integration runs
   - `../ISSUE_TEMPLATE` - How the GitHub issue templates are formatted
@@ -69,7 +81,7 @@ For more information on why the routing is setup the way it is or how routing wo
 
 ## Svelte Information
 
-Currently the project is running on Svelte 5, the transition happened during the 2025-2026 Winter quarter. Due to the scale of this upgrade, we currently have the project still running in legacy mode. This means that the project is still written using Svelte 4 syntax. This means that the Svelte code does NOT use the Svelte 5 runes. More information about this can be found in the [Svelte 5 upgrade recap](https://github.com/AssetAtlasTracker/AssetAtlas/blob/newdev-onboarding/docs/25-26%20Old/svelte5UpgradeRecap.md).  
+Currently the project is running on Svelte 5, the transition happened during the 2025-2026 Winter quarter. Due to the scale of this upgrade, we currently have the project still running in legacy mode. This means that the project is still written using Svelte 4 syntax. This means that the Svelte code does NOT use the Svelte 5 runes. More information about this can be found in the [Svelte 5 upgrade recap](https://github.com/AssetAtlasTracker/AssetAtlas/blob/newdev-onboarding/docs/25-26%20Old/svelte5UpgradeRecap.md).
 
 ## Best Practices
 
@@ -81,23 +93,20 @@ Currently the project is running on Svelte 5, the transition happened during the
 - Name PRs according to [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specifications
 - Ensure that the linter being used by VS Code is the same as the one as the CI linter
 
-## Continuous Integration  
+## Continuous Integration
 
 The continuous integration system currently being used for the project is GitHub Actions. Whenever a commit is pushed, the CI systems runs all tests and runs a lint check on the entirety of the project. If either fail then the push is marked as failing the CI check. The logs for each CI run are stored in the GitHub commit history.
 
 ## Project Management
 
-We are using GitHub Projects for the project management for AssetAtlas, of which the various boards can be found [here](https://github.com/orgs/AssetAtlasTracker/projects). Issues are seperated into different tiers of priority, with Priority at the top followed by the Backlog. You likely will not need to worry about issues in Cold Storage and Unrefined as Rob will move them to the Backlog or Priority once they are ready to be addressed. It should also be noted that you can link a pull request to an issue on the project board making it much easier for fellow developers to understand what each pull request is doing.  
+We are using GitHub Projects for the project management for AssetAtlas, of which the various boards can be found [on the GitHub Org page](https://github.com/orgs/AssetAtlasTracker/projects). Issues are seperated into different tiers of priority, with Priority at the top followed by the Backlog. You likely will not need to worry about issues in Cold Storage and Unrefined as Rob will move them to the Backlog or Priority once they are ready to be addressed. It should also be noted that you can link a pull request to an issue on the project board making it much easier for fellow developers to understand what each pull request is doing.
 
-## Troubleshooting  
+## Troubleshooting
 
 - Restart docker engine
 - Delete docker images and containers (sometimes cache issues)
 - Can take like ~3 minutes to build containers with no cache on Rose laptops
-- Running dev takes longer than building containers
 - Make sure to have your Rose laptops plugged in to ensure that things run as fast as they can
 - Delete repo and clone again from github
 - Restart PC
 - Run VS code/docker as administrator
-
-

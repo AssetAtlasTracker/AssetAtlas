@@ -14,6 +14,8 @@ function sortItems(items: IBasicItemPopulated[], sortOption: string): IBasicItem
 				return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
 			case 'lastAdded':
 				return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+			case 'recentlyChanged':
+				return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
 			default:
 				return a.name.localeCompare(b.name);
 		}
@@ -27,7 +29,7 @@ export const GET: RequestHandler = async ( {url} ) => {
 
 	try {
 		const items = await BasicItem.find({})
-			.populate('template')
+			.populate('templates.field')
 			.populate('parentItem')
 			.populate('homeItem')
 			.populate('containedItems')

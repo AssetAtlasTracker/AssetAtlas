@@ -859,15 +859,17 @@ describe('Item and Custom Field API', () => {
 });
 
 describe('Item and Template API', () => {
-	it('should delete a used template and ensure the item has it removed', async () => {
+	it('should delete used templates and ensure the item has it removed', async () => {
 		const customField = await CustomField.create({ fieldName: 'field1', dataType: 'string' });
+		const customField2 = await CustomField.create({ fieldName: 'field2', dataType: 'number' });
 
 		const template = await Template.create({ name: 'Testy', fields: [customField._id] });
+		const template2 = await Template.create({ name: 'Testy2', fields: [customField2._id] });
 
 		const itemData = {
 			name: 'Test Item',
 			description: 'An item using a template',
-			template: template._id,
+			templates: [{ field: template._id }, { field: template2._id }]
 		};
 		const itemEvent = createMockEvent({
 			method: 'POST',
@@ -892,7 +894,23 @@ describe('Item and Template API', () => {
 
 		const updatedItem = await BasicItem.findById(createdItem._id).exec();
 		expect(updatedItem).not.toBeNull();
-		expect(updatedItem?.template).toBeUndefined();
+		expect(updatedItem?.templates.length).toBe(1);
+		expect(updatedItem?.templates[0].field.toString()).toBe(template2._id.toString());
+
+		const deleteEvent2 = createMockEvent({
+			method: 'DELETE',
+			url: `http://localhost:3000/api/templates/${template2._id}`,
+			params: { id: template2._id.toString() }
+		});
+		const deleteResponse2 = await deleteTemplateHandler(deleteEvent2);
+		const deleteBody2 = await deleteResponse2.json();
+
+		expect(deleteResponse2.status).toBe(200);
+		expect(deleteBody2.message).toBe('Template deleted successfully');
+
+		const updatedItem2 = await BasicItem.findById(createdItem._id).exec();
+		expect(updatedItem2).not.toBeNull();
+		expect(updatedItem2?.templates.length).toBe(0);
 	});
 
 	it('should edit a template and update items with new custom fields', async () => {
@@ -905,7 +923,7 @@ describe('Item and Template API', () => {
 		const itemData = {
 			name: 'Test Item',
 			description: 'An item using a template',
-			template: template._id,
+			templates: [{ field: template._id }],
 			customFields: [
 				{ field: customField1._id, value: 'value1' },
 				{ field: customField2._id, value: 123 }

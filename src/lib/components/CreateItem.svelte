@@ -15,23 +15,33 @@
 	import CreateItemDesktop from "./CreateItemDesktop.svelte";
 	import CreateItemMobile from "./CreateItemMobile.svelte";
 
-	export let dialog: HTMLDialogElement;
-	export let originalItem: IBasicItemPopulated | null = null;
-
 	const dispatch = createEventDispatcher();
-	
-	let creator: CreateItemDesktop | CreateItemMobile;
+
+	let {
+		creator = $bindable(),
+		dialog = $bindable(),
+		originalItem = null,
+		filteredTemplates = []
+	} = $props<{
+		creator?: CreateItemDesktop | CreateItemMobile;
+		dialog?: HTMLDialogElement;
+		originalItem?: IBasicItemPopulated;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		filteredTemplates?: any[]
+	}>();
+
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let allTemplates: any[] = [];
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let filteredTemplates: any[] = [];
-
+	
 	onMount(async () => {
 		const raw = await loadAllTemplates();
 		allTemplates = raw
 			.map((t) => ({ ...t, _id: t?._id ?? t?.id }))
 			.filter((t) => t?._id);
-		filteredTemplates = allTemplates;
+		filteredTemplates = allTemplates.filter(
+			(t) => !createItemState.selectedTemplates.some((selected) => selected._id === String(t._id)),
+		);
+		setDuplicate(!!originalItem);
 	});
 
 	export function changeItem(newItem: IBasicItemPopulated){
@@ -41,9 +51,12 @@
 	function onTemplateInputValueChange(details: { inputValue: string }) {
 		createItemState.templateName = details.inputValue;
 		const query = details.inputValue.trim().toLowerCase();
+		const availableTemplates = allTemplates.filter(
+			(t) => !createItemState.selectedTemplates.some((selected) => selected._id === String(t._id)),
+		);
 		filteredTemplates = query
-			? allTemplates.filter((t) => t?.name?.toLowerCase().includes(query))
-			: allTemplates;
+			? availableTemplates.filter((t) => t?.name?.toLowerCase().includes(query))
+			: availableTemplates;
 	}
 
 	function onTemplateSelect(details: { itemValue?: string }) {
@@ -53,11 +66,11 @@
 		);
 		if (selected) {
 			selectTemplate(selected);
-			filteredTemplates = allTemplates; 
+			filteredTemplates = allTemplates.filter(
+				(t) => !createItemState.selectedTemplates.some((template) => template._id === String(t._id)),
+			);
 		}
 	}
-
-	setDuplicate(!!originalItem);
 </script>
 
 {#if browser && Device.isMobile}

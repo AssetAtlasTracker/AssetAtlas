@@ -1,24 +1,49 @@
 <script lang="ts">
 	import { CameraIcon } from '@lucide/svelte';
 	import { FileUpload } from '@skeletonlabs/skeleton-svelte';
-	import { createEventDispatcher, onMount } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 
 	import { actionStore } from '$lib/stores/actionStore';
 	import type { FileRejectDetails, FileUploadDetails } from '@skeletonlabs/skeleton';
 
-	export let itemId: string | undefined = undefined;
-	export let existingImage: boolean = false;
+	let {
+		itemId = undefined,
+		existingImage = false,
+		active = true
+	} = $props<{
+		itemId?: string;
+		existingImage?: boolean;
+		active?: boolean;
+	}>();
 
-	let imagePreview: string | null = null;
-	let selectedImage: File | null = null;
+	let imagePreview = $state<string | null>(null);
+	let selectedImage = $state<File | null>(null);
+	let lastImageKey = $state("");
+	let checkInFlight = $state(false);
   
 	const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 50MB in bytes
-	const allowedFileTypes = ['.jpg', '.jpeg', '.jfif', '.pjpeg', '.pjp', '.png', '.gif'];
+	// Seems to be required for some mobile camera image submission to work https://stackoverflow.com/questions/77876374/html-input-type-file-not-working-to-pull-up-camera-for-pixel-android-14-comb
+	const allowedFileTypes = ['image/*', 'android/force-camera-workaround'];
 	const dispatch = createEventDispatcher();
 
-	onMount(async () => {
-		if (itemId && existingImage) {
-			await checkImageExists();
+	$effect(() => {
+		if (!active) {
+			lastImageKey = "";
+			return;
+		}
+
+		const key = `${itemId ?? ""}|${existingImage ? "1" : "0"}`;
+		if (key === lastImageKey) return;
+		lastImageKey = key;
+		if (!itemId || !existingImage) {
+			resetImage();
+			return;
+		}
+		if (itemId && existingImage && !checkInFlight) {
+			checkInFlight = true;
+			void checkImageExists().finally(() => {
+				checkInFlight = false;
+			});
 		}
 	});
 
@@ -72,16 +97,18 @@
 		}
 	}
 
-	export function resetImage() {
+	export function resetImage(dispatchChange = true) {
 		if (imagePreview) {
 			URL.revokeObjectURL(imagePreview);
 		}
 		selectedImage = null;
-		imagePreview = null
-		dispatch('imageChange', {
-			selectedImage: null,
-			removeExistingImage: true
-		});
+		imagePreview = null;
+		if (dispatchChange) {
+			dispatch('imageChange', {
+				selectedImage: null,
+				removeExistingImage: true
+			});
+		}
 	}
 </script>
 
@@ -99,7 +126,7 @@
 					<button
 						type="button"
 						class="absolute top-0 right-0 bg-red-500 text-white p-1"
-						on:click={resetImage}
+						onclick={() => resetImage()}
 					>
 						X
 					</button>

@@ -1,4 +1,4 @@
-import type { CallbackError, Document } from 'mongoose';
+import type { Document } from 'mongoose';
 import mongoose, { Schema, Types } from 'mongoose';
 import type { ICustomField } from './customField.js';
 import { addToRecents, removeFromRecents } from './recentItems.js';
@@ -15,7 +15,10 @@ export interface IBasicItem extends Document { //we can add more stuff here
   containedItems?: Array<Types.ObjectId>;//for nested items
   parentItem?: Types.ObjectId | null;
   homeItem?: Types.ObjectId | null;
-  template?: Types.ObjectId | null;
+  templates?: {
+    field: Types.ObjectId;
+    value: null;
+  }[];
   image?: string;
   customFields?: {
     field: Types.ObjectId;
@@ -35,7 +38,9 @@ export interface IBasicItemPopulated {
   containedItems?: Array<IBasicItem>;
   parentItem?: IBasicItem | null;
   homeItem?: IBasicItem | null;
-  template?: ITemplate | null;
+  templates?: Array<{
+    field: ITemplate
+  }>;
   customFields?: Array<{
     field: ICustomField;
     value: unknown;
@@ -59,7 +64,11 @@ const BasicItemSchema: Schema = new Schema({
 	containedItems: [{ type: Schema.Types.ObjectId, ref: 'BasicItem'}],
 	parentItem: { type: Schema.Types.ObjectId, ref: 'BasicItem', required: false},
 	homeItem: { type: Schema.Types.ObjectId, ref: 'BasicItem', required: false},
-	template: {type: Schema.Types.ObjectId, ref: "Template", required: false},
+	templates: [
+		{
+			field: {type: Schema.Types.ObjectId, ref: "Template", required: false},
+		}
+	],
 	customFields: [
 		{
 			field: {type: Schema.Types.ObjectId, ref: "CustomField", required: true },
@@ -81,14 +90,14 @@ const BasicItemSchema: Schema = new Schema({
 );
 
 //handles item update stuff and keeping parent containers in check
-BasicItemSchema.pre('save', async function (next) {
+BasicItemSchema.pre('save', async function () {
 	const item = this as unknown as IBasicItem;
 
 	const BasicItem = model<IBasicItem>('BasicItem');
 
 	//Prevent self-referencing
 	if (item.parentItem && item._id && item.parentItem.equals(item._id)) {
-		return next(new Error("An item cannot be its own parent."));
+		throw new Error("An item cannot be its own parent.");
 	}
 
 	//Prevent cyclic nesting
@@ -96,7 +105,7 @@ BasicItemSchema.pre('save', async function (next) {
 		let current = await BasicItem.findById(item.parentItem).exec();
 		while (current) {
 			if (current._id.equals(item._id)) {
-				return next(new Error("Cyclic nesting detected: an item cannot be nested inside one of its descendants."));
+				throw new Error("Cyclic nesting detected: an item cannot be nested inside one of its descendants.");
 			}
 			if (!current.parentItem) break;
 			current = await BasicItem.findById(current.parentItem).exec();
@@ -135,21 +144,19 @@ BasicItemSchema.pre('save', async function (next) {
 			timestamp: new Date(),
 		});
 	}
-
-	next();
 });
 
 //update parent of the children and contained items with the given item on item delete
-BasicItemSchema.pre('findOneAndDelete', async function (next) {
+BasicItemSchema.pre('findOneAndDelete', async function () {
 	const itemId = this.getQuery()._id;
-	if (!itemId) return next();
+	if (!itemId) return;
 
 	const BasicItem = model<IBasicItem>('BasicItem');
 
 	try {
 		await removeFromRecents('item', itemId);
 		const itemToDelete = await BasicItem.findById(itemId).exec();
-		if (!itemToDelete) return next();
+		if (!itemToDelete) return;
 
 		const { containedItems, parentItem } = itemToDelete;
 
@@ -185,11 +192,9 @@ BasicItemSchema.pre('findOneAndDelete', async function (next) {
 			{ homeItem: itemId },
 			{ $set: { homeItem: null } }
 		).exec();
-
-		next();
 	} catch (err) {
 		console.error('Error in pre-delete hook:', err);
-		next(err as CallbackError);
+		throw err;
 	}
 });
 

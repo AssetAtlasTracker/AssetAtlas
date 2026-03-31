@@ -14,37 +14,45 @@
 	import TopBar from "$lib/components/TopBar.svelte";
 	import Window from "$lib/components/Window.svelte";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
+	import type { LoginState } from "$lib/stores/loginStore.js";
+	import { getEditOnLogin } from "$lib/stores/loginStore.js";
 	import type { PageData } from "./$types";
 
-	let { data }: { data: PageData } = $props();
+	let {
+		data,
+		createDialog = $bindable(),
+	}: {
+		data: PageData;
+		createDialog: HTMLDialogElement;
+	} = $props();
+
 	let item = $derived(data.item);
 	let editDialog = $state<HTMLDialogElement | undefined>();
 	let deleteDialog = $state<HTMLDialogElement | undefined>();
-	let createDialog = $state<HTMLDialogElement | undefined>();
 	let returnDialog = $state<HTMLDialogElement | undefined>();
 	let moveDialog = $state<HTMLDialogElement | undefined>();
 	let menu = $state<HTMLDialogElement | undefined>();
-
 	let unique = $state({});
-	function restart() {
-		unique = {};
-	}
-
 	let showItemTree = $state(true);
-
+	let itemTree = $state<{ reload: () => Promise<void> } | null>(null);
 	let draggingItem = $state<IBasicItemPopulated | null>(null);
 	let targetItemId = $state<string | undefined>(undefined);
 	let targetItemName = $state<string | undefined>(undefined);
-
-	function handleTreeClose() {
-		showItemTree = false;
-	}
+	let currentLogin = $state<LoginState | undefined>();
 
 	$effect(() => {
 		if (browser && item) {
 			document.title = item.name + " - AssetAtlas";
 		}
 	});
+
+	function handleTreeClose() {
+		showItemTree = false;
+	}
+
+	function restart() {
+		unique = {};
+	}
 
 	async function fetchItem(id: string) {
 		try {
@@ -58,6 +66,9 @@
 			const data: IBasicItemPopulated = await response.json();
 			item = data;
 			restart();
+			if (showItemTree && itemTree) {
+				await itemTree.reload();
+			}
 		} catch (err) {
 			console.error(err);
 			item = null;
@@ -157,7 +168,7 @@
 			showCollapse={true}>
 			<ItemDetails
 				{item}
-				{showItemTree}
+				bind:showItemTree
 				onMove={showMoveDialog}
 				onReturn={showReturnDialog}
 				onEdit={showEditDialog}
@@ -176,6 +187,7 @@
 				showCollapse={true}
 				on:close={handleTreeClose}>
 				<ItemTree
+					bind:this={itemTree}
 					parentId={item._id.toString()}
 					currentId={item._id.toString()}
 					{draggingItem}
@@ -201,7 +213,7 @@
 				<ItemDetails
 					item={null}
 					itemId={itemWindow.id}
-					{showItemTree}
+					bind:showItemTree
 					onMove={showMoveDialog}
 					onReturn={showReturnDialog}
 					onEdit={showEditDialog}
@@ -247,6 +259,7 @@
 
 {#if item}
 	<Dialog
+		canOverflow={false}
 		bind:dialog={editDialog}
 		isLarge={false}
 		create={() => {}}
@@ -287,18 +300,20 @@
 		}} />
 </Dialog>
 
-<button
-	class="add-button text-icon font-bold shadow"
-	onclick={() => createDialog?.showModal()}>
-	+
-</button>
+
+
+{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
+	<button
+		class="add-button text-icon font-bold shadow"
+		onclick={() => createDialog?.showModal()}>
+		+
+	</button>
+{/if}
 
 {#key unique}
-	{#if createDialog}
-		<CreateItem
-			bind:dialog={createDialog}
-			on:close={() => createDialog?.close()}
-			on:itemCreated={() =>
-				data.item?._id && fetchItem(data.item._id.toString())} />
-	{/if}
+	<CreateItem
+		bind:dialog={createDialog}
+		on:close={() => createDialog?.close()}
+		on:itemCreated={() =>
+			data.item?._id && fetchItem(data.item._id.toString())} />
 {/key}

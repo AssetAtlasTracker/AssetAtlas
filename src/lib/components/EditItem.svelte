@@ -11,124 +11,149 @@
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
+	import type { ITemplate } from "$lib/server/db/models/template";
 
-	export let item: IBasicItemPopulated;
+	let { item } = $props<{
+		item: IBasicItemPopulated;
+	}>();
 
-	let templateDialog: HTMLDialogElement | undefined;
+	let templateDialog = $state<HTMLDialogElement | undefined>(undefined);
+	let templateSelectionDialog = $state<HTMLDialogElement | undefined>(undefined);
+	let lastItemKey = $state("");
 
-	let name = item.name;
-	let description = item.description;
-	let tags = item.tags.toString();
-	let parentItemName = "";
-	if (item.parentItem?.name != null) {
-		parentItemName = item.parentItem?.name;
-	}
-	let parentItemId: string | null = null;
-	if (item.parentItem) {
-		parentItemId = item.parentItem._id.toString();
-	}
+	let name = $state("");
+	let description = $state("");
+	let tags = $state("");
+	let parentItemName = $state("");
+	let parentItemId = $state<string | null>(null);
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let parentItemSuggestions: any[] = [];
-	let homeItemName = "";
-	if (item.homeItem?.name != null) {
-		homeItemName = item.homeItem?.name;
+	let parentItemSuggestions = $state<any[]>([]);
+	let homeItemName = $state("");
+	let homeItemId = $state<string | null>(null);
+	type ISelectedTemplate = {
+		_id: string;
+		name: string;
+	};
+
+	let selectedTemplates = $state<ISelectedTemplate[]>(
+		(item.templates ?? [])
+			.map((template: ITemplate) => ({
+				_id: template._id.toString(),
+				name: template.name,
+			}))
+			.filter((template: ITemplate) => !!template._id && !!template.name) as ISelectedTemplate[]
+	);
+
+	function getTemplateFieldIdsFromTemplates(templates: Array<{ field: { fields?: unknown[] } }>) {
+		const fieldIds = new Set<string>();
+		for (const template of templates) {
+			for (const field of template.field?.fields ?? []) {
+				fieldIds.add(typeof field === "string" ? field : (field as { _id: string })._id.toString());
+			}
+		}
+		return fieldIds;
 	}
-	let homeItemId: string | null = null;
-	if (item.homeItem) {
-		homeItemId = item.homeItem._id.toString();
-	}
+
+	const templateFieldIds = getTemplateFieldIdsFromTemplates(item.templates ?? []);
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let homeItemSuggestions: any[] = [];
 	let templateName = "";
-	let templateId: string | null = null;
-	if (item.template) {
-		templateName = item.template?.name;
-		templateId = item.template?._id.toString();
-	}
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let templateSuggestions: any[] = [];
-	let selectedImage: File | null = null;
+	let templateSuggestions = $state<any[]>([]);
+	let selectedImage = $state<File | null>(null);
 	let debounceTimeout: NodeJS.Timeout | undefined;
-	let removeExistingImage = false;
-	let sameLocations: boolean = false;
+	let removeExistingImage = $state(false);
+	let sameLocations = $state(false);
 
-	let fieldItemName = "";
+	let fieldItemName = $state("");
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let fieldItemId: string | null = null;
+	let fieldItemId = $state<string | null>(null);
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let fieldItemSuggestions: any[] = [];
-	let placeholder = "Search for item...";
+	let fieldItemSuggestions = $state<any[]>([]);
+	let placeholder = $state("Search for item...");
 
-	let customFields: ICustomFieldEntryInstance[] = [];
-	if (item.customFields?.length) {
-		//First load non-template fields
-		let nonTemplateFields = item.customFields.map((cf) => ({
-			fieldName: cf.field.fieldName,
-			fieldId: cf.field._id as unknown as string,
-			dataType: cf.field.dataType,
-			value: cf.value as string,
-			suggestions: [],
-			isNew: false,
-			isSearching: false,
-			isExisting: true,
-			fromTemplate: false,
-		}));
-
-		if (item.template && item.template.fields?.length) {
-			const templateFieldIds = new Set(
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				item.template.fields.map((tid: any) =>
-					typeof tid === "string" ? tid : tid._id.toString(),
-				),
-			);
-
-			//Split fields into template and non-template
-			const templateFields = nonTemplateFields
-				.filter(
-					(field) =>
-						field.fieldId &&
-							templateFieldIds.has(field.fieldId.toString()),
-				)
-				.map((field) => ({ ...field, fromTemplate: true }));
-
-			const remainingFields = nonTemplateFields.filter(
-				(field) =>
-					!field.fieldId ||
-						!templateFieldIds.has(field.fieldId.toString()),
-			);
-
-			//Combine with template fields first
-			customFields = [...templateFields, ...remainingFields];
-		} else {
-			customFields = nonTemplateFields;
-		}
-	}
-
-	if (item.template && item.template.fields?.length) {
-		const templateFieldIds = new Set(
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			item.template.fields.map((tid: any) =>
-				typeof tid === "string" ? tid : tid._id.toString(),
-			),
-		);
-
-		customFields = customFields.map((field) => ({
-			...field,
-			fromTemplate: field.fieldId
-				? templateFieldIds.has(field.fieldId.toString())
-				: false,
-		}));
-	}
-	
-	let showEditTemplateDialog = false;
-
-	$: if (showEditTemplateDialog) {
-		if (templateDialog) {
-			templateDialog.showModal();
-		}
-	}
+	let customFields = $state<ICustomFieldEntryInstance[]>([]);
+	let showEditTemplateDialog = $state(false);
+	let showTemplateSelectionDialog = $state(false);
 
 	const dispatch = createEventDispatcher();
+
+	function buildCustomFields(
+		currentItem: IBasicItemPopulated,
+	): ICustomFieldEntryInstance[] {
+		let fields: ICustomFieldEntryInstance[] = [];
+		if (currentItem.customFields?.length) {
+			//First load non-template fields
+			const fields = currentItem.customFields.map((cf) => ({
+				fieldName: cf.field.fieldName,
+				fieldId: cf.field._id as unknown as string,
+				dataType: cf.field.dataType,
+				value: cf.value as string,
+				suggestions: [],
+				isNew: false,
+				isSearching: false,
+				isExisting: true,
+				fromTemplate: templateFieldIds.has((cf.field._id as unknown as string).toString()),
+			}));
+
+			const templateFields = fields.filter((field) => field.fromTemplate);
+			const remainingFields = fields.filter((field) => !field.fromTemplate);
+			customFields = [...templateFields, ...remainingFields];
+		}
+
+		return fields;
+	}
+
+	function updateFromItem(currentItem: IBasicItemPopulated) {
+		name = currentItem.name;
+		description = currentItem.description ?? "";
+		tags = currentItem.tags.toString();
+		parentItemName = currentItem.parentItem?.name ?? "";
+		parentItemId = currentItem.parentItem
+			? currentItem.parentItem._id.toString()
+			: null;
+		parentItemSuggestions = [];
+		homeItemName = currentItem.homeItem?.name ?? "";
+		homeItemId = currentItem.homeItem
+			? currentItem.homeItem._id.toString()
+			: null;
+		homeItemSuggestions = [];
+		selectedTemplates = (currentItem.templates ?? [])
+			.map((template) => ({
+				_id: template.field?._id?.toString(),
+				name: template.field?.name,
+			}))
+			.filter((template) => !!template._id && !!template.name) as ISelectedTemplate[];
+		templateSuggestions = [];
+		fieldItemName = "";
+		fieldItemId = null;
+		fieldItemSuggestions = [];
+		placeholder = "Search for item...";
+		customFields = buildCustomFields(currentItem);
+		selectedImage = null;
+		removeExistingImage = false;
+		sameLocations = false;
+	}
+
+	$effect(() => {
+		const itemKey = `${item?._id ?? ""}|${item?.updatedAt ?? ""}`;
+		if (itemKey === lastItemKey) return;
+		lastItemKey = itemKey;
+		updateFromItem(item);
+		void loadItemDisplayNames();
+	});
+
+	$effect(() => {
+		if (showEditTemplateDialog && templateDialog) {
+			templateDialog.showModal();
+		}
+	});
+
+	$effect(() => {
+		if (showTemplateSelectionDialog && templateSelectionDialog) {
+			templateSelectionDialog.showModal();
+		}
+	});
 
 	async function createCustomField(
 		fieldName: string,
@@ -213,8 +238,6 @@
 	function handleTemplateInput(event: Event) {
 		const target = event.target as HTMLInputElement;
 		templateName = target.value.trim();
-		//Clear templateId since user is typing something else now
-		templateId = null;
 		if (debounceTimeout) clearTimeout(debounceTimeout);
 		debounceTimeout = setTimeout(() => {
 			searchTemplates(templateName);
@@ -231,92 +254,98 @@
 				},
 			);
 			const data = await response.json();
-			templateSuggestions = data;
-
-			//Check for an exact match
-			const exactMatch = data.find(
-				(template: { name: string }) => template.name === templateName,
+			templateSuggestions = data.filter(
+				(template: { _id: string }) =>
+					!selectedTemplates.some((selected) => selected._id === String(template._id)),
 			);
-
-			if (exactMatch) {
-				if (templateId !== exactMatch._id) {
-					templateId = exactMatch._id;
-					await loadTemplateFields(templateId);
-				}
-			} else {
-				templateId = null;
-				removeTemplateFields();
-			}
 		} catch (err) {
 			console.error("Error searching templates:", err);
 		}
 	}
 
 	function selectTemplate(item: { name: string; _id: string }) {
-		templateName = item.name;
-		templateId = item._id;
+		if (!selectedTemplates.some((template) => template._id === item._id)) {
+			selectedTemplates = [
+				...selectedTemplates,
+				{ _id: item._id, name: item.name },
+			];
+			void syncTemplateFields();
+		}
+		templateName = "";
 		templateSuggestions = [];
-		loadTemplateFields(templateId);
 		addToRecents("template", item);
 	}
 
-	async function loadTemplateFields(templateId: string | null) {
-		if (!templateId) return;
+	function removeSelectedTemplate(templateIdToRemove: string) {
+		selectedTemplates = selectedTemplates.filter((template) => template._id !== templateIdToRemove);
+		void syncTemplateFields();
+	}
 
+	async function syncTemplateFields() {
 		try {
-			if (!templateName || templateName.trim() === "") {
-				return;
-			}
-			const response = await fetch(`/api/templates/${templateId}`, {
-				method: "GET",
-				headers: { "Content-Type": "application/json" },
-			});
-
-			if (!response.ok) {
-				console.error(
-					`Failed to fetch template. Status: ${response.status} - ${response.statusText}`,
-				);
-				console.error(await response.text());
+			const nonTemplateFields = customFields.filter((f) => !f.fromTemplate);
+			if (selectedTemplates.length === 0) {
+				customFields = nonTemplateFields;
 				return;
 			}
 
-			const data = await response.json();
-			console.log("Template data:", data);
+			const existingTemplateFields = customFields
+				.filter((field) => field.fromTemplate && !!field.fieldId)
+				.reduce<Record<string, ICustomFieldEntryInstance>>((acc, field) => {
+					if (field.fieldId) {
+						acc[String(field.fieldId)] = field;
+					}
+					return acc;
+				}, {});
 
-			if (!data || !data.fields) {
-				console.warn("No fields found in template:", data);
-				return;
-			}
+			const templateResponses = await Promise.all(
+				selectedTemplates.map(async (template) => {
+					const response = await fetch(`/api/templates/${template._id}`, {
+						method: "GET",
+						headers: { "Content-Type": "application/json" },
+					});
+					if (!response.ok) {
+						console.error(
+							`Failed to fetch template. Status: ${response.status} - ${response.statusText}`,
+						);
+						console.error(await response.text());
+						return [];
+					}
+					const data = await response.json();
+					return Array.isArray(data?.fields) ? data.fields : [];
+				}),
+			);
 
-			//Remove existing template fields before loading new ones
-			removeTemplateFields();
+			const uniqueFieldIds = Array.from(
+				new Set(
+					templateResponses
+						.flat()
+						.map((field: { _id: string }) => field?._id)
+						.filter((fieldId: string | undefined) => !!fieldId),
+				),
+			);
 
-			//Add the template fields
-			console.log(`Fetching details for ${data.fields.length} fields.`);
 			const templateFields = await Promise.all(
-				data.fields.map(async (field: { _id: string }) => {
-					const fieldId = field._id;
-					const fieldUrl = `/api/customFields/${fieldId}`;
-					console.log(`Fetching field details from: ${fieldUrl}`);
+				uniqueFieldIds.map(async (fieldId) => {
+					const existingField = existingTemplateFields[fieldId];
+					if (existingField) {
+						return { ...existingField, fromTemplate: true };
+					}
 
+					const fieldUrl = `/api/customFields/${fieldId}`;
 					const fieldRes = await fetch(fieldUrl, {
 						method: "GET",
 						headers: { "Content-Type": "application/json" },
 					});
-
 					if (!fieldRes.ok) {
 						console.error(
 							`Failed to fetch field. Status: ${fieldRes.status} - ${fieldRes.statusText}`,
 						);
 						console.error(await fieldRes.text());
-						throw new Error(
-							`Failed to fetch field with ID: ${fieldId}`,
-						);
+						throw new Error(`Failed to fetch field with ID: ${fieldId}`);
 					}
 
 					const fieldData: ICustomField = await fieldRes.json();
-					console.log("Field data:", fieldData);
-
 					return {
 						fieldName: fieldData.fieldName,
 						fieldId: fieldData._id,
@@ -331,22 +360,10 @@
 				}),
 			);
 
-			console.log("Loaded template fields:", templateFields);
-
-			//template fields first, then other fields
-			const nonTemplateFields = customFields.filter(
-				(f) => !f.fromTemplate,
-			);
 			customFields = [...templateFields, ...nonTemplateFields];
-			console.log("Updated customFields:", customFields);
 		} catch (err) {
-			console.error("Error loading template fields:", err);
+			console.error("Error syncing template fields:", err);
 		}
-	}
-
-	//Removes all fields that came from a template
-	function removeTemplateFields() {
-		customFields = customFields.filter((f) => !f.fromTemplate);
 	}
 
 	//Custom fields handlers
@@ -489,7 +506,11 @@
 
 	async function handleTemplateFocus() {
 		if (!templateName) {
-			templateSuggestions = await loadRecentItems("template");
+			const recentTemplates = await loadRecentItems("template");
+			templateSuggestions = recentTemplates.filter(
+				(template: { _id: string }) =>
+					!selectedTemplates.some((selected) => selected._id === String(template._id)),
+			);
 		}
 	}
 
@@ -520,8 +541,6 @@
 		if (item?._id && item.image) {
 			checkImageExists();
 		}
-
-		loadItemDisplayNames();
 	});
 
 	async function checkIfItemExists(itemName: string) {
@@ -596,7 +615,14 @@
 			if (parentItemId && !sameLocations)
 				formData.append("parentItem", parentItemId);
 
-			if (templateId) formData.append("template", templateId);
+			if (selectedTemplates.length > 0) {
+				formData.append(
+					"templates",
+					JSON.stringify(selectedTemplates.map((template) => ({ field: template._id }))),
+				);
+			} else {
+				formData.append("templates", JSON.stringify([]));
+			}
 
 			// Add custom fields
 			const formattedFields = await Promise.all(
@@ -613,6 +639,10 @@
 				}),
 			);
 			formData.append("customFields", JSON.stringify(formattedFields));
+			//TODO Remove after testing
+			for (const [key, value] of formData.entries()) {
+				console.log(`${key}: ${value}`);
+			}
 
 			// Handle image
 			if (removeExistingImage) {
@@ -643,7 +673,12 @@
 </script>
 
 <div class="page-component">
-	<form on:submit|preventDefault={handleEditItem}>
+	<form onsubmit={
+		(event) => {
+			event.preventDefault();
+			handleEditItem();
+		}
+	}>
 		<div class="flex flex-col space-y-4">
 			<div class="flex space-x-4">
 				<!-- Name -->
@@ -705,16 +740,16 @@
 							type="text"
 							class="dark-textarea py-2 px-4 w-full"
 							bind:value={parentItemName}
-							on:input={handleParentItemInput}
-							on:focus={handleParentItemFocus}
-							on:blur={() => (parentItemSuggestions = [])} />
+							oninput={handleParentItemInput}
+							onfocus={handleParentItemFocus}
+							onblur={() => (parentItemSuggestions = [])} />
 						{#if parentItemSuggestions.length > 0}
 							<ul class="suggestions suggestion-box">
 								{#each parentItemSuggestions as item}
 									<button
 										class="suggestion-item"
 										type="button"
-										on:mousedown={(e) => {
+										onmousedown={(e) => {
 											e.preventDefault();
 											selectParentItem(item);
 										}}>
@@ -737,16 +772,16 @@
 						type="text"
 						class="dark-textarea py-2 px-4 w-full"
 						bind:value={homeItemName}
-						on:input={handleHomeItemInput}
-						on:focus={handleHomeItemFocus}
-						on:blur={() => (homeItemSuggestions = [])} />
+						oninput={handleHomeItemInput}
+						onfocus={handleHomeItemFocus}
+						onblur={() => (homeItemSuggestions = [])} />
 					{#if homeItemSuggestions.length > 0}
 						<ul class="suggestions suggestion-box">
 							{#each homeItemSuggestions as item}
 								<button
 									class="suggestion-item"
 									type="button"
-									on:mousedown={(e) => {
+									onmousedown={(e) => {
 										e.preventDefault();
 										selectHomeItem(item);
 									}}>
@@ -770,17 +805,17 @@
 						type="text"
 						class="dark-textarea py-2 px-4 w-full"
 						bind:value={templateName}
-						placeholder={item.template?.name}
-						on:input={handleTemplateInput}
-						on:focus={handleTemplateFocus}
-						on:blur={() => (templateSuggestions = [])} />
+						placeholder="Search templates"
+						oninput={handleTemplateInput}
+						onfocus={handleTemplateFocus}
+						onblur={() => (templateSuggestions = [])} />
 					{#if templateSuggestions.length > 0}
 						<ul class="suggestions suggestion-box">
 							{#each templateSuggestions as t}
 								<button
 									class="suggestion-item"
 									type="button"
-									on:mousedown={(e) => {
+									onmousedown={(e) => {
 										e.preventDefault();
 										selectTemplate(t);
 									}}>
@@ -794,8 +829,40 @@
 				<button
 					type="button"
 					class="border-button font-semibold shadow"
-					on:click={() => (showEditTemplateDialog = true)}>
+					onclick={() => (showEditTemplateDialog = true)}>
 					Create New Template
+				</button>
+			</div>
+
+			{#if selectedTemplates.length > 0}
+				<div class="flex-column flex-grow mt-2">
+					<span class="font-bold text-lg">Templates: 
+						<InfoToolTip
+							message="A template is a more narrow category of similar items that share common fields." />
+					</span>
+					<div class="flex flex-wrap gap-2 mt-2">
+						{#each selectedTemplates as template (template._id)}
+							<div class="flex items-center gap-2 px-2 py-1 rounded border">
+								<span>{template.name}</span>
+								<button
+									type="button"
+									aria-label={`Remove ${template.name}`}
+									onclick={() => removeSelectedTemplate(template._id)}>
+									x
+								</button>
+							</div>
+						{/each}
+					</div>
+				</div>
+			{/if}
+
+			<!-- Template Field and Create Template Button -->
+			<div class="flex space-x-4 items-center">
+				<button
+					type="button"
+					class="border-button font-semibold shadow"
+					onclick={() => (showTemplateSelectionDialog = true)}>
+					Add Template
 				</button>
 			</div>
 		</div>
@@ -806,7 +873,7 @@
 			{#each customFields as field, index}
 				<div class="field-row">
 					<CustomFieldPicker
-						bind:field
+						bind:field={customFields[index]}
 						onFieldNameInput={(e) => onCustomFieldNameInput(index, e)}
 						onFieldFocus={() => handleCustomFieldFocus(index)}
 						onFieldBlur={() => (customFields[index].suggestions = [])}
@@ -849,28 +916,28 @@
 						}}
 						showDeleteButton={!field.fromTemplate}
 						onDelete={() => removeCustomField(index)}>
-						<svelte:fragment slot="suggestions">
+						{#snippet suggestions()}
 							{#each field.suggestions as suggestion (suggestion._id)}
 								<button
 									class="suggestion-item"
 									type="button"
-									on:mousedown={(e) => {
+									onmousedown={(e) => {
 										e.preventDefault();
 										selectCustomFieldSuggestion(index, suggestion);
 									}}>
 									{suggestion.fieldName} ({suggestion.dataType})
 								</button>
 							{/each}
-						</svelte:fragment>
+						{/snippet}
 					
-						<svelte:fragment slot="itemSuggestions">
+						{#snippet itemSuggestions()}
 							{#if field.dataType === 'item' && fieldItemSuggestions.length > 0}
 								<ul class="suggestions suggestion-box">
 									{#each fieldItemSuggestions as item (item._id)}
 										<button
 											class="suggestion-item"
 											type="button"
-											on:mousedown={(e) => {
+											onmousedown={(e) => {
 												e.preventDefault();
 												customFields[index].value = item._id; // Store ID
 												customFields[index].displayValue = item.name; // Display name
@@ -882,7 +949,7 @@
 									{/each}
 								</ul>
 							{/if}
-						</svelte:fragment>
+						{/snippet}
 					</CustomFieldPicker>
 				</div>
 			{/each}
@@ -891,7 +958,7 @@
 		<button
 			type="button"
 			class="border-button font-semibold shadow mt-2"
-			on:click={addCustomFieldLine}>
+			onclick={addCustomFieldLine}>
 			Add Custom Field
 		</button>
 		<!-- Submit -->
@@ -905,9 +972,9 @@
 
 {#if showEditTemplateDialog}
 	<Dialog
+		canOverflow={false}
 		bind:dialog={templateDialog}
 		isLarge={false}
-		create={() => {}}
 		close={() => {
 			showEditTemplateDialog = false;
 		}}>
@@ -915,5 +982,68 @@
 			on:close={() => {
 				showEditTemplateDialog = false;
 			}} />
+	</Dialog>
+{/if}
+
+{#if showTemplateSelectionDialog}
+	<Dialog
+		canOverflow={true}
+		bind:dialog={templateSelectionDialog}
+		isLarge={false}
+		create={() => {}}
+		close={() => {
+			showTemplateSelectionDialog = false;
+			templateSuggestions = [];
+		}}>
+		<div class="p-4">
+			<h2 class="font-bold text-lg mb-4">Add Template</h2>
+			<label class="flex-column flex-grow relative mb-4">
+				<div class="flex items-center gap-2 mb-2">
+					<span>Search Templates:</span>
+					
+				</div>
+				<input
+					type="text"
+					class="dark-textarea py-2 px-4 w-full"
+					bind:value={templateName}
+					placeholder="Search templates"
+					oninput={handleTemplateInput}
+					onfocus={handleTemplateFocus}
+					onblur={() => (templateSuggestions = [])} />
+				{#if templateSuggestions.length > 0}
+					<ul class="suggestions suggestion-box">
+						{#each templateSuggestions as t}
+							<button
+								class="suggestion-item"
+								type="button"
+								onmousedown={(e) => {
+									e.preventDefault();
+									selectTemplate(t);
+									showTemplateSelectionDialog = false;
+								}}>
+								{t.name}
+							</button>
+						{/each}
+					</ul>
+				{/if}
+			</label>
+			<div class="flex gap-2" style="padding-top:1em">
+				<button
+					type="button"
+					class="border-button font-semibold shadow flex-grow"
+					onclick={() => (showEditTemplateDialog = true)}>
+					Create New Template
+				</button>
+				<button
+					type="button"
+					class="border-button font-semibold shadow"
+					onclick={() => {
+						showTemplateSelectionDialog = false;
+						templateSuggestions = [];
+					}}>
+					Close
+				</button>
+			</div>
+		</div>
 	</Dialog>
 {/if}

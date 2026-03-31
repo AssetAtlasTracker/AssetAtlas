@@ -1,23 +1,27 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-
-	export let searchQuery: string = "";
-	export let onSearch: (query: string) => void;
-	export let results: { name: string }[] = [];
+	let {
+		searchQuery = $bindable(""),
+		onSearch,
+		results = $bindable<{ name: string }[]>([]),
+	} = $props<{
+		searchQuery?: string;
+		onSearch: (query: string) => void;
+		results?: { name: string }[];
+	}>();
 
 	let debounceTimeout: ReturnType<typeof setTimeout> | undefined;
-	let mounted = false;
-  
-	onMount(() => {
-		mounted = true;
+
+	$effect(() => {
+		if (searchQuery !== undefined) {
+			if (debounceTimeout) clearTimeout(debounceTimeout);
+			debounceTimeout = setTimeout(() => {
+				onSearch(searchQuery);
+			}, 300);
+		}
+		return () => {
+			if (debounceTimeout) clearTimeout(debounceTimeout);
+		};
 	});
-  
-	$: if (mounted && searchQuery !== undefined) {
-		if (debounceTimeout) clearTimeout(debounceTimeout);
-		debounceTimeout = setTimeout(() => {
-			onSearch(searchQuery);
-		}, 300);
-	}
 
 	function handleInput(event: Event) {
 		const target = event.target as HTMLInputElement;
@@ -40,7 +44,7 @@
 		type="text"
 		placeholder="Search items"
 		bind:value={searchQuery}
-		on:input={handleInput}
+		oninput={handleInput}
 	/>
 
 	<!-- Display live search suggestions -->
@@ -50,7 +54,7 @@
 				<button
 					class="suggestion-item"
 					type="button"
-					on:click={() => selectSuggestion(result)}
+					onclick={() => selectSuggestion(result)}
 				>
 					{result.name}
 				</button>

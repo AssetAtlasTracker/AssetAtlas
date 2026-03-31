@@ -1,6 +1,6 @@
 <script lang="ts">
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	export let items: string | any[] = [];
+	let { items = [] } = $props<{ items?: any[] }>();
 </script>
 
 {#if items.length > 0}

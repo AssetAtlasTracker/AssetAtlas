@@ -27,6 +27,14 @@ export const POST: RequestHandler = async ({ request }) => {
 			itemData.customFields = [];
 		}
 	}
+	if (typeof itemData.templates === 'string') {
+		try {
+			const parsedTemplates = JSON.parse(itemData.templates);
+			itemData.templates = Array.isArray(parsedTemplates) ? parsedTemplates : [];
+		} catch {
+			itemData.templates = [];
+		}
+	}
 
 	console.log('Creating item with data:', itemData);
 	const newItem = new BasicItem(itemData);
