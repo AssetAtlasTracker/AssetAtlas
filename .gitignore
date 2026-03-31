@@ -1,17 +1,41 @@
-#this can be changed a lot or deleted depending on what we want to do
-# Node.js
-node_modules/
-npm-debug.log
+# cspell:disable - Disable spellchecker in this file
+
+# Uploads folder used for image uploads while in dev mode
+/uploads
+
+# Env files contain private/secret local data. Still allow example env files.
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+
+# Secrets File
+/docker/secrets.env
 
 # Docker
 docker-compose.override.yml
 docker-compose.override.yaml
 docker-compose.override.yml.*
 
-# Environment variables
-*.env
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
 
-# OS specific filesgi
+# OS specific files
 .DS_Store
 Thumbs.db
 
@@ -24,12 +48,10 @@ yarn-error.log*
 
 # Coverage files
 coverage/
-*.lcov
 
 # Temporary files
 tmp/
 temp/
-
 
 ########################### Begin https://github.com/github/gitignore/blob/main/Node.gitignore ###########################
 
@@ -185,7 +207,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -335,7 +356,4 @@ cython_debug/
 
 ########################### End https://github.com/github/gitignore/blob/main/Python.gitignore ###########################
 
-
-
-
-## Anything below here should have been categorized and explained with a comment above
+## Anything below here should have been categorized and explained with a comment at the top of the file!

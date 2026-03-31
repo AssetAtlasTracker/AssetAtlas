@@ -1,25 +1,30 @@
+// https://cspell.org/configuration/
 {
-    // cspell configuration file
+    // Version of the setting file.  Always 0.2
     "version": "0.2",
+    // language - current active spelling language
     "language": "en",
-    "dictionaries": [
-        "typescript",
-        "node",
-        "softwareTerms",
-        "powershell",
-        "bash",
-        "npm"
-    ],
-    "ignorePaths": [
-        "node_modules/**"
-    ],
+    // words - list of words to be always considered correct
     "words": [
-        "Buildx",
-        "iputils",
-        "padx",
-        "pady"
+        "buildx",
+        "dbmdl",
+        "gridfs",
+        "oklch",
+        "pycache",
+        "pyenv",
+        "rollup",
+        "vite"
     ],
-    "ignoreWords": [
-        // Add words to ignore here
+    // flagWords - list of words to be always considered incorrect
+    // This is useful for offensive words and common spelling errors.
+    // cSpell:disable (we are defining the words we want considered incorrect here; without this line, this file itself will report spelling errors)
+    "flagWords": [
+        "hte",
+        "reccomend",
+        "outselves",
+        "favortied",
+        "destory",
+        "conveneint",
+        "Stuido"
     ]
 }

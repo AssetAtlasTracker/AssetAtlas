@@ -1,0 +1,96 @@
+<script lang="ts">
+	import { browser } from '$app/environment';
+	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
+	import {
+		changeItem as changeItemState,
+		createItemState,
+		loadAllTemplates,
+		selectTemplate,
+		setDuplicate
+	} from "$lib/stores/createItemStore.svelte";
+	import { createEventDispatcher, onMount } from "svelte";
+	import Device from 'svelte-device-info';
+
+	import "$lib/styles/main.css";
+	import CreateItemDesktop from "./CreateItemDesktop.svelte";
+	import CreateItemMobile from "./CreateItemMobile.svelte";
+
+	const dispatch = createEventDispatcher();
+
+	let {
+		creator = $bindable(),
+		dialog = $bindable(),
+		originalItem = null,
+		filteredTemplates = []
+	} = $props<{
+		creator?: CreateItemDesktop | CreateItemMobile;
+		dialog?: HTMLDialogElement;
+		originalItem?: IBasicItemPopulated;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		filteredTemplates?: any[]
+	}>();
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	let allTemplates: any[] = [];
+	
+	onMount(async () => {
+		const raw = await loadAllTemplates();
+		allTemplates = raw
+			.map((t) => ({ ...t, _id: t?._id ?? t?.id }))
+			.filter((t) => t?._id);
+		filteredTemplates = allTemplates.filter(
+			(t) => !createItemState.selectedTemplates.some((selected) => selected._id === String(t._id)),
+		);
+		setDuplicate(!!originalItem);
+	});
+
+	export function changeItem(newItem: IBasicItemPopulated){
+		changeItemState(newItem);
+	}
+
+	function onTemplateInputValueChange(details: { inputValue: string }) {
+		createItemState.templateName = details.inputValue;
+		const query = details.inputValue.trim().toLowerCase();
+		const availableTemplates = allTemplates.filter(
+			(t) => !createItemState.selectedTemplates.some((selected) => selected._id === String(t._id)),
+		);
+		filteredTemplates = query
+			? availableTemplates.filter((t) => t?.name?.toLowerCase().includes(query))
+			: availableTemplates;
+	}
+
+	function onTemplateSelect(details: { itemValue?: string }) {
+		if (!details.itemValue) return;
+		const selected = allTemplates.find(
+			(t) => String(t._id) === details.itemValue,
+		);
+		if (selected) {
+			selectTemplate(selected);
+			filteredTemplates = allTemplates.filter(
+				(t) => !createItemState.selectedTemplates.some((template) => template._id === String(t._id)),
+			);
+		}
+	}
+</script>
+
+{#if browser && Device.isMobile}
+	<CreateItemMobile
+		bind:dialog={dialog}
+		bind:this={creator}
+		originalItem={originalItem}
+		filteredTemplates={filteredTemplates}
+		onTemplateInputValueChange={onTemplateInputValueChange}
+		onTemplateSelect={onTemplateSelect}
+		on:itemCreated={() => dispatch("itemCreated")} 
+	/>
+{:else}
+	<CreateItemDesktop
+		bind:dialog={dialog}
+		bind:this={creator}
+		originalItem={originalItem}
+		filteredTemplates={filteredTemplates}
+		onTemplateInputValueChange={onTemplateInputValueChange}
+		onTemplateSelect={onTemplateSelect}
+		on:itemCreated={() => dispatch("itemCreated")} 
+	/>
+{/if}

@@ -1,0 +1,16 @@
+<script lang="ts">
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	let { items = [] } = $props<{ items?: any[] }>();
+</script>
+
+{#if items.length > 0}
+	<ul>
+		{#each items as item}
+			<li>
+				{item.name}: {item.description}
+			</li>
+		{/each}
+	</ul>
+{:else}
+	<p>No items found.</p>
+{/if}
