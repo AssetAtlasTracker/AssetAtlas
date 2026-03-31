@@ -372,7 +372,7 @@
 
 		<br />
 		<!-- Submit -->
-		<div id="submit-button-container" class="flex justify-end mt-4">
+		<div id="submit-button-container" class="flex justify-end mt-4 sticky bottom-0">
 			<button onclick={submitAndAddAnother}
 				class="border-button font-semibold shadow mt-4 mr-2 w-full block"
 				type="button">
