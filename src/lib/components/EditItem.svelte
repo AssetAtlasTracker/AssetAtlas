@@ -56,7 +56,7 @@
 
 	const templateFieldIds = getTemplateFieldIdsFromTemplates(item.templates ?? []);
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let homeItemSuggestions: any[] = [];
+	let homeItemSuggestions = $state<any[]>([]);
 	let templateName = "";
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let templateSuggestions = $state<any[]>([]);
