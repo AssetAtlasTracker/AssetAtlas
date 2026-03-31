@@ -136,6 +136,7 @@
 {#if items && items.length > 0}
 	{#if numSelected > 0}
 		<Dialog
+			canOverflow={false}
 			bind:dialog
 			isLarge={false}
 			close={handleClose}>
