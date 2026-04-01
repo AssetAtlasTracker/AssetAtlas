@@ -22,11 +22,12 @@ processes: List[subprocess.Popen[bytes]] = []
 
 def get_local_app_version() -> str:
     try:
-        return (
-            subprocess.check_output(["git", "describe", "--always", "--dirty"], cwd=SCRIPT_DIR)
-            .decode()
-            .strip()
-        )
+        sha = subprocess.check_output(["git", "describe", "--always", "--dirty"], cwd=SCRIPT_DIR).decode().strip()
+        branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=SCRIPT_DIR).decode().strip()
+        if branch == "HEAD":
+            return sha
+        else:
+            return f"{branch}-{sha}"
     except Exception:
         return "dev"
 
