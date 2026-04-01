@@ -1,6 +1,6 @@
 # AssetAtlas Container Registry Info
 
-This document contains information about running AssetAtlas from our container registry, which lets you run AssetAtlas from the command line and with a more minimal initial download. Application data is NOT shared between the ghcr version and GUI-launched version as of (3/27/2025).
+This document contains information about running AssetAtlas from our container registry, which lets you run AssetAtlas from the command line and with a more minimal initial download. Application data is NOT shared between the GHCR version and GUI-launched version as of (3/31/2026).
 
 ## Download Required Files
 
@@ -45,7 +45,7 @@ docker compose -f docker-compose-ghcr.yml up -d
 Enables using Tailscale to connect from other devices without additional network configuration.
 Replace `your-tailscale-auth-key` with your actual Tailscale auth key.
 
-TODO how to get a tailscale auth key?
+If you aren't familiar with how to get your tailscale auth key, an introduction can be found [here](https://tailscale.com/kb/1085/auth-keys).
 
 For Windows (PowerShell):
 
@@ -68,3 +68,7 @@ docker compose -f docker-compose-ghcr.yml down
 # Tailscale
 docker compose -f docker-compose-ghcr-tailscale.yml down
 ```
+
+## Also
+
+See [ConfiguringOauthProviders.md](./ConfiguringOauthProviders.md) for instructions on how to set up OAuth providers to allow users to log in and log out of their accounts

@@ -125,7 +125,7 @@
 	<div class="simple-flex">
 		<!-- Keep dropdown and value on same row-->
 		<!-- Data Type Section -->
-		<div class="custom-dropdown basis-30">
+		<div class="custom-dropdown flex-grow">
 			<select
 				disabled={field.fromTemplate || field.isExisting}
 				bind:value={field.dataType}
