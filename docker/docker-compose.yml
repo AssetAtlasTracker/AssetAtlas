@@ -13,8 +13,6 @@ services:
       args:
         APP_VERSION: ${APP_VERSION:-dev}
         BUILDKIT_INLINE_CACHE: "1"
-      cache_from:
-        - assetatlas:latest
     env_file: secrets.env
     environment:
       NODE_ENV: production
