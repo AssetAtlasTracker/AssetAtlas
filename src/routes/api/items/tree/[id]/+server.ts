@@ -10,6 +10,7 @@ interface TreeItem {
   description?: string;
   children: TreeItem[];
   hasChildren: boolean;
+	pinned: boolean;
 }
 
 const getItemChildren = async (
@@ -18,7 +19,7 @@ const getItemChildren = async (
 	exactSearch?: boolean
 ): Promise<TreeItem[]> => {
 	const query = parentId ? { parentItem: parentId } : { parentItem: null };
-	const items = await BasicItem.find(query).select('name description _id parentItem').lean();
+	const items = await BasicItem.find(query).select('name description _id parentItem pinned').lean();
 
 	let filteredItems = items;
 	if (searchName && searchName.trim() !== '') {
@@ -40,7 +41,8 @@ const getItemChildren = async (
 			name: item.name,
 			description: item.description,
 			children,
-			hasChildren: children.length > 0
+			hasChildren: children.length > 0,
+			pinned: item.pinned
 		};
 	}));
 };
@@ -60,8 +62,8 @@ export const GET: RequestHandler = async ({ params, url }) => {
 	}
 
 	const root = await BasicItem.findById(id)
-		.select('name description _id parentItem')
-		.lean() as { _id: mongoose.Types.ObjectId; name: string; description?: string; parentItem?: mongoose.Types.ObjectId } | null;
+		.select('name description _id parentItem pinned')
+		.lean() as { _id: mongoose.Types.ObjectId; name: string; description?: string; parentItem?: mongoose.Types.ObjectId; pinned: boolean } | null;
 
 	if (!root) {
 		throw error(404, 'Item not found');
@@ -74,6 +76,29 @@ export const GET: RequestHandler = async ({ params, url }) => {
 		name: root.name,
 		description: root.description,
 		children,
-		hasChildren: children.length > 0
+		hasChildren: children.length > 0,
+		pinned: root.pinned
 	});
 };
+
+export const PATCH: RequestHandler = async ({ params }) => {
+	const { id } = params;
+
+	if (!id || id.trim() === 'all' || !mongoose.Types.ObjectId.isValid(id)) {
+		throw error(400, 'Invalid item ID');
+	}
+
+	const item = await BasicItem.findById(id).exec();
+
+	if (!item) {
+		throw error(404, 'Item not found');
+	}
+
+	item.pinned = !item.pinned;
+	const savedItem = await item.save();
+
+	return json({
+		_id: savedItem._id,
+		pinned: savedItem.pinned
+	}, { status: 200 });
+}

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { dragDropMode } from "$lib/stores/dragDropStore.js";
-	import { GripVerticalIcon } from "@lucide/svelte";
+	import { GripVerticalIcon, PinIcon, PinOffIcon } from "@lucide/svelte";
 	import ItemLink from "./ItemLink.svelte";
 
 	type TreeItem = {
@@ -10,6 +10,7 @@
 		description?: string;
 		children: TreeItem[];
 		hasChildren: boolean;
+		pinned?: boolean;
 	};
 
 	interface VisibleNode {
@@ -45,6 +46,7 @@
 			description?: string;
 			children: unknown[];
 			hasChildren: boolean;
+			pinned?: boolean;
 		}> | null;
 		currentId?: string | null;
 	}>();
@@ -113,6 +115,7 @@
 		}
 		loading = false;
 		autoExpandTree(treeData);
+		expandPinnedItems(treeData);
 	}
 
 	function toggleExpand(id: string) {
@@ -127,6 +130,46 @@
 				expanded[item._id] = true;
 				autoExpandTree(item.children);
 			}
+		}
+	}
+
+	function expandPinnedItems(items: TreeItem[]) {
+		items.forEach((item) => {
+			if (item.pinned && item.hasChildren) {
+				expanded[item._id] = true;
+			}
+			if (item.children?.length) {
+				expandPinnedItems(item.children);
+			}
+		});
+	}
+
+	function setPinnedInTree(items: TreeItem[], itemId: string, pinned: boolean): TreeItem[] {
+		return items.map((item) => {
+			if (item._id === itemId) {
+				return { ...item, pinned };
+			}
+			if (item.children?.length) {
+				return { ...item, children: setPinnedInTree(item.children, itemId, pinned) };
+			}
+			return item;
+		});
+	}
+
+	async function togglePinned(itemId: string) {
+		try {
+			const res = await fetch(`/api/items/tree/${itemId}`, { method: "PATCH" });
+			if (!res.ok) {
+				throw new Error("Failed to toggle pin");
+			}
+			const data = (await res.json()) as { _id: string; pinned: boolean };
+			treeData = setPinnedInTree(treeData, data._id, data.pinned);
+			if (data.pinned) {
+				expanded[data._id] = true;
+				expanded = expanded;
+			}
+		} catch (err) {
+			console.error("Error toggling pin:", err);
 		}
 	}
 
@@ -243,9 +286,32 @@
 										<GripVerticalIcon class="icon-small" />
 									</div>
 									{node.item.name}
+									<span
+										class="pin-icon"
+										style="margin-left: auto;"
+										title={node.item.pinned ? "Unpin item" : "Pin item"}
+										role="button"
+										tabindex="0"
+										onclick={(e) => {
+											e.stopPropagation();
+											void togglePinned(node.item._id);
+										}}
+										onkeydown={(e) => {
+											if (e.key === 'Enter' || e.key === ' ') {
+												e.stopPropagation();
+												void togglePinned(node.item._id);
+											}
+										}}>
+										{#if node.item.pinned}
+											<PinIcon class="icon-small" />
+										{:else}
+											<PinOffIcon class="icon-small" />
+										{/if}
+									</span>
 								</div>
 							</button>
 						</ItemLink>
+
 					{/if}
 				</div>
 			</div>
