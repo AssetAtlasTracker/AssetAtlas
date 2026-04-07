@@ -246,6 +246,7 @@
 <Menu bind:menu />
 
 <div class="page-with-topbar">
+	<!-- TODO:remove after re-implementing import/export -->
 	<div
 		class="glass page-component util-component"
 		style="background:rgba(200, 60, 70, 0.4) !important; width:95%;">
@@ -254,6 +255,7 @@
 			functionality is currently disabled.
 		</p>
 	</div>
+	<!-- End TODO -->
 
 	<div class="util-flex">
 		<div class="glass page-component util-component">

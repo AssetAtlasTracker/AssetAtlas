@@ -87,7 +87,7 @@
 			</Switch> 
 			<div class="sort-flex"></div>
 
-			<div class="loginUser" style="font-size: larger; margin-left: auto; padding-right: 2rem;">
+			<div class="login-user">
 				{#if currentLogin?.isLoggedIn}
 					User: {currentLogin?.name}
 				{:else}

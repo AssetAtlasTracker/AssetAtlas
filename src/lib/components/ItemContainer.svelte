@@ -136,6 +136,7 @@
 {#if items && items.length > 0}
 	{#if numSelected > 0}
 		<Dialog
+			canOverflow={false}
 			bind:dialog
 			isLarge={false}
 			close={handleClose}>
@@ -176,7 +177,7 @@
 				data-item-name={i.name}>
 				<input
 					type="checkbox"
-					style="width: 20px; height: 20px; align-self: center; margin: auto 0;"
+					class="item-checkbox"
 					onclick={() => {
 						handleSelect(i);
 					}} />

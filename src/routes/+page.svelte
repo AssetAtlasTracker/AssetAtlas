@@ -408,6 +408,7 @@
 {/if}
 
 <Dialog
+	canOverflow={false}
 	bind:dialog={actionDeleteDialog}
 	isLarge={false}
 	create={() => {}}
@@ -421,6 +422,7 @@
 </Dialog>
 
 <Dialog
+	canOverflow={false}
 	bind:dialog={actionReturnDialog}
 	isLarge={false}
 	create={() => {}}
@@ -437,6 +439,7 @@
 </Dialog>
 
 <Dialog
+	canOverflow={false}
 	bind:dialog={actionEditDialog}
 	isLarge={false}
 	create={() => {}}
@@ -452,6 +455,7 @@
 </Dialog>
 
 <Dialog
+	canOverflow={false}
 	bind:dialog={actionMoveDialog}
 	isLarge={false}
 	create={() => {}}
