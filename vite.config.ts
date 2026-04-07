@@ -5,7 +5,13 @@ import { execSync } from 'node:child_process';
 
 const gitVer = (() => {
 	try {
-		return execSync('git describe --always --dirty', { encoding: 'utf8' }).trim();
+		const sha = execSync('git describe --always --dirty', { encoding: 'utf8' }).trim();
+		const branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim();
+		if (branch === 'HEAD'){
+			return sha;
+		} else {
+			return `${branch}-${sha}`;
+		}
 	} catch {
 		return 'dev';
 	}
