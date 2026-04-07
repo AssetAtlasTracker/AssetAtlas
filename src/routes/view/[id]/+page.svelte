@@ -36,6 +36,7 @@
 	let unique = $state({});
 	let showItemTree = $state(true);
 	let itemTree = $state<{ reload: () => Promise<void> } | null>(null);
+	let itemDetails = $state<{ loadParentChain: () => Promise<void> } | null>(null);
 	let draggingItem = $state<IBasicItemPopulated | null>(null);
 	let targetItemId = $state<string | undefined>(undefined);
 	let targetItemName = $state<string | undefined>(undefined);
@@ -67,9 +68,10 @@
 			const data: IBasicItemPopulated = await response.json();
 			item = data;
 			restart();
-			if (showItemTree && itemTree) {
-				await itemTree.reload();
+			if (showItemTree) {
+				await itemTree?.reload();
 			}
+			await itemDetails?.loadParentChain();
 		} catch (err) {
 			console.error(err);
 			item = null;
@@ -209,6 +211,7 @@
 			showCollapse={true}>
 			<ItemDetails
 				{item}
+				bind:this={itemDetails}
 				bind:showItemTree
 				onMove={showMoveDialog}
 				onReturn={showReturnDialog}

@@ -12,14 +12,6 @@
 	import EditItem from "./EditItem.svelte";
 	import ItemLink from "./ItemLink.svelte";
 
-	interface ItemUpdateEvent extends CustomEvent {
-		detail: {
-			imageChanged: boolean;
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			[key: string]: any;
-		};
-	}
-
 	interface ActionDetail {
 		item: IBasicItemPopulated | null;
 		itemId: string | null;
@@ -50,7 +42,6 @@
 	let loading = $state(false);
 	let lastItemId = $state<string | null>(null);
 	let fetchInFlight = false;
-	let listenerInitialized = $state(false);
 
 	let imageElement = $state<HTMLImageElement | undefined>(undefined);
 	let imageLoadError = $state(false);
@@ -72,7 +63,7 @@
 		}
 	}
 
-	async function loadParentChain() {
+	export async function loadParentChain() {
 		// Only proceed if we have an item
 		if (!item) return;
 
@@ -161,28 +152,6 @@
 			return false;
 		}
 	}
-
-	//Handle updates from EditItem
-	function handleItemUpdated(event: ItemUpdateEvent) {
-		if (event.detail.imageChanged) {
-			setTimeout(reloadImage, 500);
-		}
-	}
-
-	$effect(() => {
-		if (listenerInitialized) return;
-		listenerInitialized = true;
-		window.addEventListener(
-			"itemUpdated",
-			handleItemUpdated as EventListener,
-		);
-		return () => {
-			window.removeEventListener(
-				"itemUpdated",
-				handleItemUpdated as EventListener,
-			);
-		};
-	});
 
 	let showEditDialog = $state(false);
 
