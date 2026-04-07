@@ -27,6 +27,7 @@
 	} = $props();
 
 	let item = $derived(data.item);
+	let targetItem = $state<IBasicItemPopulated | null>(null);
 	let editDialog = $state<HTMLDialogElement | undefined>();
 	let deleteDialog = $state<HTMLDialogElement | undefined>();
 	let returnDialog = $state<HTMLDialogElement | undefined>();
@@ -134,19 +135,59 @@
 		}
 	}
 
-	const showMoveDialog = () => {
+	interface EditDetail {
+		item: IBasicItemPopulated | null;
+		itemId: string | null;
+	}
+
+	async function fetchItemForTarget(id: string): Promise<IBasicItemPopulated | null> {
+		try {
+			const response = await fetch(`/api/items/${id}`);
+			if (!response.ok) return null;
+			return (await response.json()) as IBasicItemPopulated;
+		} catch (err) {
+			console.error("Failed to fetch item for target:", err);
+			return null;
+		}
+	}
+
+	//want to refactor so target item is set for all these dialogs
+	const loadItem = async (detail: EditDetail): Promise<boolean> => {
+		if (detail.item) {
+			targetItem = detail.item;
+			return true;
+		}
+
+		if (!detail.itemId) return false;
+
+		const loadedItem = await fetchItemForTarget(detail.itemId);
+		if (!loadedItem) return false;
+
+		targetItem = loadedItem;
+		return true;
+	};
+
+	const showMoveDialog = async (detail: EditDetail) => {
+		const hasTarget = await loadItem(detail);
+		if (!hasTarget) return;
 		if (!moveDialog) return;
 		moveDialog.showModal();
 	};
-	const showReturnDialog = () => {
+	const showReturnDialog = async (detail: EditDetail) => {
+		const hasTarget = await loadItem(detail);
+		if (!hasTarget) return;
 		if (!returnDialog) return;
 		returnDialog.showModal();
 	};
-	const showEditDialog = () => {
+	const showEditDialog = async (detail: EditDetail) => {
+		const hasTarget = await loadItem(detail);
+		if (!hasTarget) return;
 		if (!editDialog) return;
-		editDialog.showModal();
+		editDialog?.showModal();
 	};
-	const showDeleteDialog = () => {
+	const showDeleteDialog = async (detail: EditDetail) => {
+		const hasTarget = await loadItem(detail);
+		if (!hasTarget) return;
 		if (!deleteDialog) return;
 		deleteDialog.showModal();
 	};
@@ -229,35 +270,39 @@
 {/if}
 
 <Dialog
+	canOverflow={false}
 	bind:dialog={deleteDialog}
 	isLarge={false}
 	create={() => {}}
 	close={() => {
 		deleteDialog?.close();
+		targetItem = null;
 	}}>
 	<div class="simple-dialog-spacing">
-		Are you sure you want to delete {item?.name}?
+		Are you sure you want to delete {targetItem?.name ?? item?.name}?
 	</div>
-	<DeleteItem itemId={data.item?._id} onDelete={handleDelete}
+	<DeleteItem itemId={targetItem?._id?.toString()} onDelete={handleDelete}
 	>Delete</DeleteItem>
 </Dialog>
 
 <Dialog
+	canOverflow={false}
 	bind:dialog={returnDialog}
 	isLarge={false}
 	create={() => {}}
 	close={() => {
 		returnDialog?.close();
+		targetItem = null;
 	}}>
 	<div class="simple-dialog-spacing">
-		Are you sure you want to return {item?.name} to its home location?
+		Are you sure you want to return {targetItem?.name ?? item?.name} to its home location?
 	</div>
-	<ReturnItem itemId={data.item?._id} parentId={item?.homeItem?._id}>
+	<ReturnItem itemId={targetItem?._id?.toString()} parentId={targetItem?.homeItem?._id?.toString()}>
 		Return to home
 	</ReturnItem>
 </Dialog>
 
-{#if item}
+{#if targetItem}
 	<Dialog
 		canOverflow={false}
 		bind:dialog={editDialog}
@@ -265,14 +310,16 @@
 		create={() => {}}
 		close={() => {
 			editDialog?.close();
+			targetItem = null;
 		}}>
 		<EditItem
-			{item}
+			item={targetItem}
 			on:close={() => {
 				editDialog?.close();
+				targetItem = null;
 			}}
 			on:itemUpdated={() => {
-				if (data.item?._id) {
+				if (data.item?._id && targetItem?._id && data.item._id.toString() === targetItem._id.toString()) {
 					fetchItem(data.item._id.toString());
 				}
 			}} />
@@ -280,20 +327,23 @@
 {/if}
 
 <Dialog
+	canOverflow={false}
 	bind:dialog={moveDialog}
 	isLarge={false}
 	create={() => {}}
 	close={() => {
 		moveDialog?.close();
+		targetItem = null;
 	}}>
 	<div class="important-text text-center">
-		Move "{item?.name}" to:
+		Move "{targetItem?.name ?? item?.name}" to:
 	</div>
 	<MoveItem
-		itemId={data.item?._id.toString()}
+		itemId={targetItem?._id?.toString()}
 		items={availableItems}
 		on:close={() => {
 			moveDialog?.close();
+			targetItem = null;
 			if (browser) {
 				location.reload();
 			}
