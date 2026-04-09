@@ -1,6 +1,6 @@
 # AssetAtlas
 
-AssetAtlas is a self hosted inventory and asset management app that helps you organize, track, and manage everything you own. AssetAtlas gives you a clear, centralized view so you always know what you have and where it is, great for keeping track of items around the house or managing tools in a maker space. If this appeals to you, you can download the project [here](https://github.com/AssetAtlasTracker/AssetAtlas/releases/tag/ghcr-files-latest) or get started with development [here]([https://github.com/AssetAtlasTracker/AssetAtlas/wiki](https://github.com/AssetAtlasTracker/AssetAtlas/wiki/Getting-Started)).  
+AssetAtlas is a self hosted inventory and asset management app that helps you organize, track, and manage everything you own. AssetAtlas gives you a clear, centralized view so you always know what you have and where it is, great for keeping track of items around the house or managing tools in a maker space. If this appeals to you, you can download the project [here](https://github.com/AssetAtlasTracker/AssetAtlas/releases/tag/ghcr-files-latest) or get started with development [here](https://github.com/AssetAtlasTracker/AssetAtlas/wiki/Getting-Started).  
 
 <p align="center">
   <img src="images/AssetAtlasOverview.png" alt="Overview Screen"/>
