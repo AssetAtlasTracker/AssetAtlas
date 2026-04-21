@@ -187,7 +187,7 @@ describe('Item API', () => {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (err: any) {
 			expect(err.status).toBe(404);
-			expect(err.body?.message).toBe('Cannot get: Item not found');
+			expect(err.body?.message).toBe('Get failed: could not find match for id: ' + nonExistentId.toString());
 		}
 	});
 
@@ -290,7 +290,7 @@ describe('Item API', () => {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (err: any) {
 			expect(err.status).toBe(404);
-			expect(err.body?.message).toBe('Cannot get: Item not found');
+			expect(err.body?.message).toBe('Get failed: could not find match for id: ' + nonExistentId.toString());
 		}
 	});
 
@@ -307,7 +307,7 @@ describe('Item API', () => {
 		const body = await response.json();
 
 		expect(response.status).toBe(200);
-		expect(body.message).toBe('Item deleted successfully');
+		expect(body.message).toBe('Delete successful');
 
 		const deletedItem = await BasicItem.findById(newItem._id).exec();
 		expect(deletedItem).toBeNull();
@@ -543,7 +543,7 @@ describe('Item API', () => {
 		const deleteBody = await deleteResponse.json();
 
 		expect(deleteResponse.status).toBe(200);
-		expect(deleteBody.message).toBe('Item deleted successfully');
+		expect(deleteBody.message).toBe('Delete successful');
 
 		const updatedNestedItem = await BasicItem.findById(nestedItem._id).exec();
 		expect(updatedNestedItem).not.toBeNull();
@@ -563,7 +563,7 @@ describe('Item API', () => {
 		const deleteTopBody = await deleteTopLevelResponse.json();
 
 		expect(deleteTopLevelResponse.status).toBe(200);
-		expect(deleteTopBody.message).toBe('Item deleted successfully');
+		expect(deleteTopBody.message).toBe('Delete successful');
 
 		const updatedNestedItemAfterTopLevelDelete = await BasicItem.findById(nestedItem._id).exec();
 		expect(updatedNestedItemAfterTopLevelDelete).not.toBeNull();
@@ -684,7 +684,7 @@ describe('Item API', () => {
 		const deleteBody = await deleteResponse.json();
 
 		expect(deleteResponse.status).toBe(200);
-		expect(deleteBody.message).toBe('Item deleted successfully');
+		expect(deleteBody.message).toBe('Delete successful');
 
 		const updatedItemWithHome = await BasicItem.findById(itemWithHome._id).exec();
 		expect(updatedItemWithHome).not.toBeNull();
@@ -890,7 +890,7 @@ describe('Item and Template API', () => {
 		const deleteBody = await deleteResponse.json();
 
 		expect(deleteResponse.status).toBe(200);
-		expect(deleteBody.message).toBe('Template deleted successfully');
+		expect(deleteBody.message).toBe('Delete successful');
 
 		const updatedItem = await BasicItem.findById(createdItem._id).exec();
 		expect(updatedItem).not.toBeNull();
@@ -906,7 +906,7 @@ describe('Item and Template API', () => {
 		const deleteBody2 = await deleteResponse2.json();
 
 		expect(deleteResponse2.status).toBe(200);
-		expect(deleteBody2.message).toBe('Template deleted successfully');
+		expect(deleteBody2.message).toBe('Delete successful');
 
 		const updatedItem2 = await BasicItem.findById(createdItem._id).exec();
 		expect(updatedItem2).not.toBeNull();
