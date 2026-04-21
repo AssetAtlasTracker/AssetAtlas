@@ -63,6 +63,16 @@
 		}
 	}
 
+	export async function reload() {
+		const idToLoad = itemId ?? item?._id?.toString() ?? null;
+		if (idToLoad) {
+			await loadItemById(idToLoad);
+		}
+		await loadParentChain();
+		await updateTitle();
+		await reloadImage();
+	}
+
 	export async function loadParentChain() {
 		// Only proceed if we have an item
 		if (!item) return;

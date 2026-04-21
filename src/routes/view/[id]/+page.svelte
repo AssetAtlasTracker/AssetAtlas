@@ -35,8 +35,7 @@
 	let unique = $state({});
 	let showItemTree = $state(true);
 	let itemTree = $state<{ reload: () => Promise<void> } | null>(null);
-	let itemDetails = $state<{ loadParentChain: () => Promise<void> } | null>(null);
-	let additionalItemRefreshToken = $state(0);
+	let mainItemDetails = $state<{ reload: () => Promise<void> } | null>(null);
 	let draggingItem = $state<IBasicItemPopulated | null>(null);
 	let targetItemId = $state<string | undefined>(undefined);
 	let targetItemName = $state<string | undefined>(undefined);
@@ -56,8 +55,12 @@
 		unique = {};
 	}
 
-	function refreshAdditionalItemWindows() {
-		additionalItemRefreshToken += 1;
+	async function refreshAdditionalItemWindows() {
+		await Promise.all(
+			additionalWindows.map(
+				(windowItem) => windowItem.detailsRef?.reload() ?? Promise.resolve(),
+			),
+		);
 	}
 
 	async function fetchItem(id: string) {
@@ -75,8 +78,8 @@
 			if (showItemTree) {
 				await itemTree?.reload();
 			}
-			await itemDetails?.loadParentChain();
-			refreshAdditionalItemWindows();
+			await mainItemDetails?.reload();
+			await refreshAdditionalItemWindows();
 		} catch (err) {
 			console.error(err);
 			item = null;
@@ -98,6 +101,7 @@
 		name: string;
 		x: number;
 		y: number;
+		detailsRef: { reload: () => Promise<void> } | null;
 	}
 
 	let additionalWindows = $state<ItemWindow[]>([]);
@@ -121,7 +125,7 @@
 
 		additionalWindows = [
 			...additionalWindows,
-			{ id, name: "Loading...", x: offsetX, y: offsetY },
+			{ id, name: "Loading...", x: offsetX, y: offsetY, detailsRef: null },
 		];
 	}
 
@@ -176,7 +180,7 @@
 			showCollapse={true}>
 			<ItemDetails
 				{item}
-				bind:this={itemDetails}
+				bind:this={mainItemDetails}
 				bind:showItemTree
 				onMove={showMoveDialog}
 				onReturn={showReturnDialog}
@@ -219,19 +223,18 @@
 				showCollapse={true}
 				on:close={() => handleCloseWindow(itemWindow.id)}
 				on:openNewTab={() => openInNewTab(itemWindow.id)}>
-				{#key `${itemWindow.id}-${additionalItemRefreshToken}`}
-					<ItemDetails
-						item={null}
-						itemId={itemWindow.id}
-						bind:showItemTree
-						onMove={showMoveDialog}
-						onReturn={showReturnDialog}
-						onEdit={showEditDialog}
-						onDelete={showDeleteDialog}
-						on:openItem={handleOpenItem}
-						on:updateTitle={(e) =>
-							handleUpdateTitle(itemWindow.id, e)} />
-				{/key}
+				<ItemDetails
+					item={null}
+					itemId={itemWindow.id}
+					bind:this={itemWindow.detailsRef}
+					bind:showItemTree
+					onMove={showMoveDialog}
+					onReturn={showReturnDialog}
+					onEdit={showEditDialog}
+					onDelete={showDeleteDialog}
+					on:openItem={handleOpenItem}
+					on:updateTitle={(e) =>
+						handleUpdateTitle(itemWindow.id, e)} />
 			</Window>
 		{/each}
 	</div>
