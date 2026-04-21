@@ -281,14 +281,14 @@
 								class="tree-item-card important-text
 									{node.item._id === currentId ? 'current' : ''}"
 								aria-current={node.item._id === currentId}>
-								<div class="flex">
+								<div class="flex full-width">
 									<div class="grip-vertical-icon">
 										<GripVerticalIcon class="icon-small" />
 									</div>
 									{node.item.name}
 									<span
 										class="pin-icon"
-										style="margin-left: auto;"
+										style="margin-left: auto; align-self: center;"
 										title={node.item.pinned ? "Unpin item" : "Pin item"}
 										role="button"
 										tabindex="0"
@@ -305,7 +305,7 @@
 										{#if node.item.pinned}
 											<PinIcon class="icon-small" />
 										{:else}
-											<PinOffIcon class="icon-small" />
+											<PinOffIcon class="icon-small grayed-out" />
 										{/if}
 									</span>
 								</div>
