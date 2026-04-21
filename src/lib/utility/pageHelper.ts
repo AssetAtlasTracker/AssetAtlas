@@ -3,6 +3,7 @@ export interface ItemWindow {
 	name: string;
 	x: number;
 	y: number;
+	detailsRef: { reload: () => Promise<void> } | null;
 }
 
 export function removeItemWindow(itemWindows: ItemWindow[], id: string) {
@@ -18,7 +19,7 @@ export function openItemHelper(itemWindows: ItemWindow[], id: string){
 	}
 
 	const offset = 30 * itemWindows.length + 50;
-	const newItemWindow = { id, name: "Loading...", x: offset, y: offset };
+	const newItemWindow = { id, name: "Loading...", x: offset, y: offset, detailsRef: null };
 	itemWindows.push(newItemWindow);
 	return itemWindows;
 }
