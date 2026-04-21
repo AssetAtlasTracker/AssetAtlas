@@ -28,8 +28,9 @@
 		create?.();
 	});
 
-	function handleClose() {
+	function handleClose(event: CustomEvent) {
 		if (requireCloseConfirmation) {
+			event.preventDefault();
 			closeConfirmationDialog?.showModal();
 		} else {
 			closeDialog();
@@ -44,6 +45,7 @@
 </script>
 
 <dialog
+	oncancel={handleClose}
 	class="glass dialog-component self-center {isLarge
 		? 'large-dialog-noscroll'
 		: ''}"
