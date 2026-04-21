@@ -95,6 +95,7 @@
 		if (success) {
 			imageSelector.resetImage();
 			partialResetFields();
+			dialog.scrollTo(0,0);
 		}
 	}
 
