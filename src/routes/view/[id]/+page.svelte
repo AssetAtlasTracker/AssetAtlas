@@ -36,6 +36,7 @@
 	let showItemTree = $state(true);
 	let itemTree = $state<{ reload: () => Promise<void> } | null>(null);
 	let itemDetails = $state<{ loadParentChain: () => Promise<void> } | null>(null);
+	let additionalItemRefreshToken = $state(0);
 	let draggingItem = $state<IBasicItemPopulated | null>(null);
 	let targetItemId = $state<string | undefined>(undefined);
 	let targetItemName = $state<string | undefined>(undefined);
@@ -55,6 +56,10 @@
 		unique = {};
 	}
 
+	function refreshAdditionalItemWindows() {
+		additionalItemRefreshToken += 1;
+	}
+
 	async function fetchItem(id: string) {
 		try {
 			const response = await fetch(`/api/items/${id}`);
@@ -71,6 +76,7 @@
 				await itemTree?.reload();
 			}
 			await itemDetails?.loadParentChain();
+			refreshAdditionalItemWindows();
 		} catch (err) {
 			console.error(err);
 			item = null;
@@ -213,17 +219,19 @@
 				showCollapse={true}
 				on:close={() => handleCloseWindow(itemWindow.id)}
 				on:openNewTab={() => openInNewTab(itemWindow.id)}>
-				<ItemDetails
-					item={null}
-					itemId={itemWindow.id}
-					bind:showItemTree
-					onMove={showMoveDialog}
-					onReturn={showReturnDialog}
-					onEdit={showEditDialog}
-					onDelete={showDeleteDialog}
-					on:openItem={handleOpenItem}
-					on:updateTitle={(e) =>
-						handleUpdateTitle(itemWindow.id, e)} />
+				{#key `${itemWindow.id}-${additionalItemRefreshToken}`}
+					<ItemDetails
+						item={null}
+						itemId={itemWindow.id}
+						bind:showItemTree
+						onMove={showMoveDialog}
+						onReturn={showReturnDialog}
+						onEdit={showEditDialog}
+						onDelete={showDeleteDialog}
+						on:openItem={handleOpenItem}
+						on:updateTitle={(e) =>
+							handleUpdateTitle(itemWindow.id, e)} />
+				{/key}
 			</Window>
 		{/each}
 	</div>
