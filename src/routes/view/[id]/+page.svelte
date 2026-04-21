@@ -36,6 +36,7 @@
 	let unique = $state({});
 	let showItemTree = $state(true);
 	let itemTree = $state<{ reload: () => Promise<void> } | null>(null);
+	let mainItemDetails = $state<{ reload: () => Promise<void> } | null>(null);
 	let draggingItem = $state<IBasicItemPopulated | null>(null);
 	let targetItemId = $state<string | undefined>(undefined);
 	let targetItemName = $state<string | undefined>(undefined);
@@ -55,6 +56,14 @@
 		unique = {};
 	}
 
+	async function refreshAdditionalItemWindows() {
+		await Promise.all(
+			additionalWindows.map(
+				(windowItem) => windowItem.detailsRef?.reload() ?? Promise.resolve(),
+			),
+		);
+	}
+
 	async function fetchItem(id: string) {
 		try {
 			const response = await fetch(`/api/items/${id}`);
@@ -67,9 +76,11 @@
 			const data: IBasicItemPopulated = await response.json();
 			item = data;
 			restart();
-			if (showItemTree && itemTree) {
-				await itemTree.reload();
+			if (showItemTree) {
+				await itemTree?.reload();
 			}
+			await mainItemDetails?.reload();
+			await refreshAdditionalItemWindows();
 		} catch (err) {
 			console.error(err);
 			item = null;
@@ -91,6 +102,7 @@
 		name: string;
 		x: number;
 		y: number;
+		detailsRef: { reload: () => Promise<void> } | null;
 	}
 
 	let additionalWindows = $state<ItemWindow[]>([]);
@@ -114,7 +126,7 @@
 
 		additionalWindows = [
 			...additionalWindows,
-			{ id, name: "Loading...", x: offsetX, y: offsetY },
+			{ id, name: "Loading...", x: offsetX, y: offsetY, detailsRef: null },
 		];
 	}
 
@@ -209,6 +221,7 @@
 			showCollapse={true}>
 			<ItemDetails
 				{item}
+				bind:this={mainItemDetails}
 				bind:showItemTree
 				onMove={showMoveDialog}
 				onReturn={showReturnDialog}
@@ -254,6 +267,7 @@
 				<ItemDetails
 					item={null}
 					itemId={itemWindow.id}
+					bind:this={itemWindow.detailsRef}
 					bind:showItemTree
 					onMove={showMoveDialog}
 					onReturn={showReturnDialog}
