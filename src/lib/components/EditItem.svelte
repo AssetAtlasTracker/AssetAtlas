@@ -33,6 +33,10 @@
 		_id: string;
 		name: string;
 	};
+	type ItemRef = {
+		_id: string;
+		name: string;
+	};
 
 	let selectedTemplates = $state<ISelectedTemplate[]>([]);
 
@@ -46,11 +50,9 @@
 		return fieldIds;
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let homeItemSuggestions = $state<any[]>([]);
+	let homeItemSuggestions = $state<ItemRef[]>([]);
 	let templateName = $state("");
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let templateSuggestions = $state<any[]>([]);
+	let templateSuggestions = $state<ISelectedTemplate[]>([]);
 	let selectedImage = $state<File | null>(null);
 	let debounceTimeout: NodeJS.Timeout | undefined;
 	let removeExistingImage = $state(false);
@@ -59,8 +61,7 @@
 	let fieldItemName = $state("");
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	let fieldItemId = $state<string | null>(null);
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let fieldItemSuggestions = $state<any[]>([]);
+	let fieldItemSuggestions = $state<ItemRef[]>([]);
 	let placeholder = $state("Search for item...");
 
 	let customFields = $state<ICustomFieldEntryInstance[]>([]);
@@ -186,7 +187,7 @@
 		}
 	}
 
-	function selectParentItem(item: { name: string; _id: string | null }) {
+	function selectParentItem(item: ItemRef) {
 		parentItemName = item.name;
 		parentItemId = item._id;
 		parentItemSuggestions = [];
@@ -220,7 +221,7 @@
 		}
 	}
 
-	function selectHomeItem(item: { name: string; _id: string | null }) {
+	function selectHomeItem(item: ItemRef) {
 		homeItemName = item.name;
 		homeItemId = item._id;
 		homeItemSuggestions = [];
@@ -255,7 +256,7 @@
 		}
 	}
 
-	function selectTemplate(item: { name: string; _id: string }) {
+	function selectTemplate(item: ISelectedTemplate) {
 		if (!selectedTemplates.some((template) => template._id === item._id)) {
 			selectedTemplates = [
 				...selectedTemplates,
