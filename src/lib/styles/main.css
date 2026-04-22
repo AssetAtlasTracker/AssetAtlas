@@ -224,6 +224,14 @@
   max-width: 24rem;
 }
 
+.full-width{
+  width: 100%;
+}
+
+.grayed-out{
+  opacity: 0.5;
+}
+
 .tree-item-button {
   background: transparent;
   border: none;
