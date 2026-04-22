@@ -34,6 +34,11 @@
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem";
+	
+	export type ItemRef = {
+		_id: string;
+		name: string;
+	};
 
 	let {
 		dialog = $bindable(),
@@ -44,8 +49,7 @@
 	} = $props<{
 		dialog: HTMLDialogElement;
 		originalItem: IBasicItemPopulated | null;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		filteredTemplates: any[];
+		filteredTemplates: unknown[];
 		onTemplateInputValueChange: (details: { inputValue: string }) => void;
 		onTemplateSelect: (details: { itemValue?: string }) => void
 	}>();
@@ -72,10 +76,8 @@
 
 	let templateCollection = $derived(collection({
 		items: filteredTemplates,
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		itemToString: (item: any) => item?.name ?? "",
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		itemToValue: (item: any) => String(item?._id ?? ""),
+		itemToString: (item: ItemRef) => item?.name ?? "",
+		itemToValue: (item: ItemRef) => String(item?._id ?? ""),
 	}));
 
 	setOnItemCreated(() => {
