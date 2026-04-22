@@ -59,6 +59,11 @@
 
 <dialog
 	oncancel={handleClose}
+	onkeydown={(event) => {
+		if (event.key === "Escape") {
+			handleClose(event);
+		}
+	}}
 	class="glass dialog-component self-center {isLarge
 		? 'large-dialog-noscroll'
 		: ''}"
