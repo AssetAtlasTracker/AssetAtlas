@@ -93,7 +93,7 @@
 	}
 </script>
 
-<Dialog canOverflow={false} isLarge={true} bind:dialog create={() => {}} close={resetAllFields}>
+<Dialog canOverflow={false} isLarge={true} bind:dialog create={() => {}} close={resetAllFields} requireCloseConfirmation={true}>
 	{#if originalItem}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
@@ -416,7 +416,8 @@
 		create={() => {}}
 		close={() => {
 			showTemplateSelectionDialog = false;
-		}}>
+		}}
+	>
 		<div class="p-4">
 			<h2 class="font-bold text-lg mb-4">Add Template</h2>
 			<div class="flex-column flex-grow relative mb-4">

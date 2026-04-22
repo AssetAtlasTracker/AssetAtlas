@@ -110,7 +110,9 @@
 	bind:dialog
 	create={() => {}}
 	isLarge={false}
-	close={resetAllFields}>
+	close={resetAllFields}
+	requireCloseConfirmation={true}
+>
 	{#if originalItem}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
