@@ -68,7 +68,6 @@
 		? 'large-dialog-noscroll'
 		: ''}"
 	style="overflow: {canOverflow ? 'visible' : 'auto'}"
-	oncancel={handleClose}
 	bind:this={dialog}>
 	<button class="x-button" onclick={handleClose}>X</button>
 	{@render children?.()}

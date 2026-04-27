@@ -103,8 +103,8 @@
 		formContainer?.scrollTo(0,0);
 		resetAllFields();
 	}}
-  requireCloseConfirmation={true}
-  >
+	requireCloseConfirmation={true}
+>
 	{#if originalItem}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
