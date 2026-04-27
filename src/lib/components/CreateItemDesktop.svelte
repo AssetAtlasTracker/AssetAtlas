@@ -54,6 +54,7 @@
 	let templateSelectionDialog: HTMLDialogElement | undefined = $state();
 	let showCreateTemplateDialog = $state(false);
 	let showTemplateSelectionDialog = $state(false);
+	let formContainer: HTMLElement | undefined = $state();
 	let imageSelector: ImageSelector;
 
 	const dispatch = createEventDispatcher();
@@ -93,7 +94,17 @@
 	}
 </script>
 
-<Dialog canOverflow={false} isLarge={true} bind:dialog create={() => {}} close={resetAllFields} requireCloseConfirmation={true}>
+<Dialog 
+	canOverflow={false} 
+	isLarge={true} 
+	bind:dialog 
+	create={() => {}} 
+	close={() => {
+		formContainer?.scrollTo(0,0);
+		resetAllFields();
+	}}
+  requireCloseConfirmation={true}
+  >
 	{#if originalItem}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
@@ -103,10 +114,11 @@
 			Create New Item
 		</h1>
 	{/if}
-	<div class="page-component large-dialog-internal">
+	<div bind:this={formContainer} class="page-component large-dialog-internal">
 		<form onsubmit={
 			(event) => {
 				event.preventDefault();
+				formContainer?.scrollTo(0,0);
 				submitAndCloseItem(dialog, imageSelector);
 			}
 		}>

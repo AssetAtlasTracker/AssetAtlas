@@ -4,7 +4,8 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"build": "vite build",
+		"sync": "svelte-kit sync",
+		"build": "npm run sync && vite build",
 		"start": "node build/index.js",
 		"dev": "npm run dev:services && npx vite dev",
 		"dev:services": "cd docker && docker-compose -f docker-compose.dev.yml up -d",

@@ -11,7 +11,6 @@
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
-	import type { ITemplate } from "$lib/server/db/models/template";
 
 	let { item } = $props<{
 		item: IBasicItemPopulated;
@@ -35,14 +34,7 @@
 		name: string;
 	};
 
-	let selectedTemplates = $state<ISelectedTemplate[]>(
-		(item.templates ?? [])
-			.map((template: ITemplate) => ({
-				_id: template._id.toString(),
-				name: template.name,
-			}))
-			.filter((template: ITemplate) => !!template._id && !!template.name) as ISelectedTemplate[]
-	);
+	let selectedTemplates = $state<ISelectedTemplate[]>([]);
 
 	function getTemplateFieldIdsFromTemplates(templates: Array<{ field: { fields?: unknown[] } }>) {
 		const fieldIds = new Set<string>();
@@ -54,10 +46,9 @@
 		return fieldIds;
 	}
 
-	const templateFieldIds = getTemplateFieldIdsFromTemplates(item.templates ?? []);
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let homeItemSuggestions: any[] = [];
-	let templateName = "";
+	let homeItemSuggestions = $state<any[]>([]);
+	let templateName = $state("");
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let templateSuggestions = $state<any[]>([]);
 	let selectedImage = $state<File | null>(null);
@@ -81,6 +72,7 @@
 	function buildCustomFields(
 		currentItem: IBasicItemPopulated,
 	): ICustomFieldEntryInstance[] {
+		const templateFieldIds = getTemplateFieldIdsFromTemplates(currentItem.templates ?? []);
 		let fields: ICustomFieldEntryInstance[] = [];
 		if (currentItem.customFields?.length) {
 			//First load non-template fields
