@@ -246,10 +246,10 @@
 						onchange={handleSortChange}>
 						<option value="alphabetical">A-Z</option>
 						<option value="reverseAlphabetical">Z-A</option>
-						<option value="lastAdded">Newest</option>
-						<option value="firstAdded">Oldest</option>
-						<option value="recentlyChanged">Recently Changed</option>
-						<option value="oldestChanged">Last Changed</option>
+						<option value="lastAdded">Newest Created</option>
+						<option value="firstAdded">Oldest Created</option>
+						<option value="recentlyChanged">Newest Updated</option>
+						<option value="oldestChanged">Oldest Updated</option>
 					</select>
 				</div>
 			{/if}
