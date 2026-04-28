@@ -34,6 +34,7 @@
 	}>();
 
 	let searchResults = $state<IBasicItemPopulated[]>([]);
+	let lastUpdatedItem = $state<IBasicItemPopulated | null>(null);
 	let sortOption = $state<string>("alphabetical");
 	let exactSearch = $state<boolean>(false);
 	let viewMode = $state<string>("list");
@@ -104,8 +105,34 @@
 			const data = await response.json();
 			searchResults = data as IBasicItemPopulated[];
 			itemCount = searchResults.length;
+			getLastUpdatedItem();
 			if (showItemTree && itemTreeRef) {
 				await itemTreeRef.reload();
+			}
+		} catch (err) {
+			console.error("Home: Error searching items:", err);
+		}
+	}
+
+	async function getLastUpdatedItem(){
+		try {
+			const response = await fetch(
+				`/api/items/search?` +
+					`name=${encodeURIComponent('')}&` +
+					`sort=${encodeURIComponent('recentlyChanged')}&` +
+					`exact=${'false'}`,
+				{
+					method: "GET",
+					headers: { "Content-Type": "application/json" },
+				},
+			);
+
+			if (!response.ok) throw new Error("Failed to fetch items");
+
+			const data = await response.json();
+			const fullSearchResults = data as IBasicItemPopulated[];
+			if(fullSearchResults.length > 0){
+				lastUpdatedItem = fullSearchResults[0];
 			}
 		} catch (err) {
 			console.error("Home: Error searching items:", err);
@@ -277,6 +304,20 @@
 				<Switch.HiddenInput />
 			</Switch>
 		</div>
+	</div>
+
+	<div>
+		<span> Last Edited Item: </span>
+		{#if itemCount > 0}
+			<ItemContainer
+				items={lastUpdatedItem ? [lastUpdatedItem] : []}
+				on:itemCreated={() => getLastUpdatedItem}
+				bind:showMoveDialog
+				bind:draggingItem
+				bind:targetItemId
+				bind:targetItemName />
+		{/if}
+		
 	</div>
 
 	{#if viewMode === "list"}
