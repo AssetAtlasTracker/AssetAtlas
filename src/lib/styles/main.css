@@ -46,6 +46,18 @@
   border-radius: 10px;
 }
 
+.last-edited-item-panel {
+  width: 50%;
+  max-width: 50%;
+}
+
+@media (max-width: 768px) {
+  .last-edited-item-panel {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
 /* For components inset within other components*/
 .internal-component {
   margin: 1rem 0;

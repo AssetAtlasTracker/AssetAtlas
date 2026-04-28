@@ -4,6 +4,7 @@
 	import Dialog from "$lib/components/Dialog.svelte";
 	import EditItem from "$lib/components/EditItem.svelte";
 	import ItemContainer from "$lib/components/ItemContainer.svelte";
+	import SingleItemCard from "$lib/components/SingleItemCard.svelte";
 	import ItemDetails from "$lib/components/ItemDetails.svelte";
 	import ItemTree from "$lib/components/ItemTree.svelte";
 	import Menu from "$lib/components/Menu.svelte";
@@ -131,11 +132,9 @@
 
 			const data = await response.json();
 			const fullSearchResults = data as IBasicItemPopulated[];
-			if(fullSearchResults.length > 0){
-				lastUpdatedItem = fullSearchResults[0];
-			}
+			lastUpdatedItem = fullSearchResults[0] ?? null;
 		} catch (err) {
-			console.error("Home: Error searching items:", err);
+			console.error("Home: Error loading last updated item:", err);
 		}
 	}
 
@@ -234,6 +233,7 @@
 	onMount(() => {
 		document.title = "Home - AssetAtlas";
 		restoreToggleStates();
+		void getLastUpdatedItem();
 		unsubscribe = topBarHeight.subscribe((value) => {
 			currentTopBarHeight = value;
 		});
@@ -305,20 +305,16 @@
 			</Switch>
 		</div>
 	</div>
-
-	<div>
-		<span> Last Edited Item: </span>
-		{#if itemCount > 0}
-			<ItemContainer
-				items={lastUpdatedItem ? [lastUpdatedItem] : []}
-				on:itemCreated={() => getLastUpdatedItem}
-				bind:showMoveDialog
-				bind:draggingItem
-				bind:targetItemId
-				bind:targetItemName />
-		{/if}
+	
+	{#if lastUpdatedItem}
+		<div class="page-component glass last-edited-item-panel">
+			<span class="important-text" style="margin-left:40px"> Last Edited Item: </span>
 		
-	</div>
+			<SingleItemCard item={lastUpdatedItem!} on:itemCreated={getLastUpdatedItem} />
+		
+		
+		</div>
+	{/if}
 
 	{#if viewMode === "list"}
 		{#if itemCount > 0}
