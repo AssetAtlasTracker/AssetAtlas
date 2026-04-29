@@ -12,14 +12,13 @@
 	import TopBar from "$lib/components/TopBar.svelte";
 	import Window from "$lib/components/Window.svelte";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import {
-		dragDropMode,
-		setDragDropMode,
-	} from "$lib/stores/dragDropStore.js";
+	import { dragDropMode, setDragDropMode } from "$lib/stores/dragDropStore.js";
 	import type { LoginState } from "$lib/stores/loginStore.js";
 	import { getEditOnLogin, login } from "$lib/stores/loginStore.js";
 	import { topBarHeight } from "$lib/stores/topBarStore.js";
 	import "$lib/styles/main.css";
+	import type { ItemWindow } from "$lib/utility/pageHelper.js";
+	import { openItemHelper, removeItemWindow, updateTitleHelper } from "$lib/utility/pageHelper.js";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
 	import { onDestroy, onMount } from "svelte";
 
@@ -134,43 +133,19 @@
 		}
 	}
 
-	interface ItemWindow {
-		id: string;
-		name: string;
-		x: number;
-		y: number;
-	}
-
 	let additionalItemWindows = $state<ItemWindow[]>([]);
 
 	function handleOpenItem(event: CustomEvent) {
 		const { id } = event.detail;
-
-		const existingWindow = additionalItemWindows.find((w) => w.id === id);
-		if (existingWindow) {
-			return;
-		}
-
-		const offsetX = 50 + additionalItemWindows.length * 30;
-		const offsetY = 50 + additionalItemWindows.length * 30;
-
-		additionalItemWindows = [
-			...additionalItemWindows,
-			{ id, name: "Loading...", x: offsetX, y: offsetY },
-		];
+		additionalItemWindows = openItemHelper(additionalItemWindows, id);
 	}
 
 	function handleUpdateTitle(windowId: string, event: CustomEvent) {
-		const { name } = event.detail;
-		additionalItemWindows = additionalItemWindows.map((w) =>
-			w.id === windowId ? { ...w, name } : w,
-		);
+		additionalItemWindows = updateTitleHelper(additionalItemWindows, windowId, event);
 	}
 
 	function handleCloseWindow(id: string) {
-		additionalItemWindows = additionalItemWindows.filter(
-			(w) => w.id !== id,
-		);
+		additionalItemWindows = removeItemWindow(additionalItemWindows, id);
 	}
 
 	async function handleItemUpdated() {

@@ -3,7 +3,7 @@
 	import type { ICustomFieldEntry } from '$lib/types/customField';
 	import type { Snippet } from "svelte";
 	import { onMount } from "svelte";
-	import { checkIfItemExistsById } from "../stores/createItemStore.svelte";
+	import { getItemNameGivenId } from "../stores/createItemStore.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
 	 
 	let {
@@ -60,7 +60,7 @@
 
 	onMount(async () => {
 		if (field.dataType === "item" && duplicate && !field.displayValue && field.value) {
-			const itemName = await checkIfItemExistsById(field.value);
+			const itemName = await getItemNameGivenId(field.value);
 			field.displayValue = itemName || '';
 		}
 	});
