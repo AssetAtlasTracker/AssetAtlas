@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import { getEditOnLogin, login } from "$lib/stores/loginStore.js";
+	import { currentPermissionLevelIsAtLeast, permissionsAllowEdit } from "$lib/stores/loginStore.js";
 	import {
 		FolderTreeIcon,
 		HouseIcon,
@@ -229,7 +229,7 @@
 	</h1>
 
 	<div class="button-row-flex">
-		{#if !getEditOnLogin() || ($login?.isLoggedIn && $login?.permissionLevel > 0)}
+		{#if permissionsAllowEdit(1)}
 			<button
 				title="Move"
 				class="border-button center-button-icons flex-grow font-semibold shadow"
@@ -244,7 +244,7 @@
 				<HouseIcon class="icon-small" />
 			</button>
 
-			{#if !getEditOnLogin() || ($login?.isLoggedIn && $login?.permissionLevel > 1)}
+			{#if permissionsAllowEdit(2)}
 				<button
 					title="Edit"
 					class="border-button center-button-icons flex-grow font-semibold shadow"
@@ -262,7 +262,7 @@
 				</button>
 			{/if}
 
-			{#if ($login?.permissionLevel ?? 1) > 2}
+			{#if currentPermissionLevelIsAtLeast(3)}
 				<button
 					title="Delete"
 					class="warn-button center-button-icons flex-grow font-semibold shadow"

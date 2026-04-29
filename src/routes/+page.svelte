@@ -16,8 +16,7 @@
 		dragDropMode,
 		setDragDropMode,
 	} from "$lib/stores/dragDropStore.js";
-	import type { LoginState } from "$lib/stores/loginStore.js";
-	import { getEditOnLogin, login } from "$lib/stores/loginStore.js";
+	import { permissionsAllowEdit } from "$lib/stores/loginStore.js";
 	import { topBarHeight } from "$lib/stores/topBarStore.js";
 	import "$lib/styles/main.css";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
@@ -59,11 +58,6 @@
 	let actionItemName = $state<string>("");
 
 	let itemTreeRef = $state<{ reload: () => Promise<void> } | null>(null);
-
-	let currentLogin = $state<LoginState | undefined>();
-	login.subscribe((value) => {
-		currentLogin = value;
-	});
 
 	$effect(() => {
 		if (showMoveDialog) {
@@ -368,7 +362,7 @@
 		{/each}
 	{/if}
 
-	{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
+	{#if permissionsAllowEdit(2)}
 		<button
 			class="add-button text-icon font-bold shadow"
 			onclick={() => {

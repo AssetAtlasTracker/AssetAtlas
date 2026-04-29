@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
+	import { permissionsAllowEdit } from "$lib/stores/loginStore.js";
 	import { CopyIcon, SquarePenIcon } from "@lucide/svelte";
 	import { createEventDispatcher } from "svelte";
-	import { getEditOnLogin, login } from "../stores/loginStore.js";
 	import CreateItem from "./CreateItem.svelte";
 	import Duplicate from "./Duplicate.svelte";
 
@@ -19,20 +19,14 @@
 	let unique = $state({});
 
 	function duplicateFunction(item: IBasicItemPopulated) {
-		if (
-			!getEditOnLogin() ||
-			($login?.isLoggedIn && $login?.permissionLevel > 1)
-		) {
+		if (permissionsAllowEdit(2)) {
 			duplicator?.changeItem(item);
 			duplicateDialog?.showModal();
 		}
 	}
 
 	function duplicateEditFunction(item: IBasicItemPopulated) {
-		if (
-			!getEditOnLogin() ||
-			($login?.isLoggedIn && $login?.permissionLevel > 1)
-		) {
+		if (permissionsAllowEdit(2)) {
 			creator?.changeItem(item);
 			createDialog?.showModal();
 		}
@@ -48,7 +42,7 @@
 </script>
 
 <div class="simple-flex">
-	{#if !getEditOnLogin() || ($login?.isLoggedIn && $login?.permissionLevel > 1)}
+	{#if permissionsAllowEdit(2)}
 		<!--Duplicate button-->
 		<button
 			class="border-button hoverable"

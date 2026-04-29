@@ -14,8 +14,7 @@
 	import TopBar from "$lib/components/TopBar.svelte";
 	import Window from "$lib/components/Window.svelte";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import type { LoginState } from "$lib/stores/loginStore.js";
-	import { getEditOnLogin } from "$lib/stores/loginStore.js";
+	import { permissionsAllowEdit } from "$lib/stores/loginStore.js";
 	import type { PageData } from "./$types";
 
 	let {
@@ -40,7 +39,6 @@
 	let draggingItem = $state<IBasicItemPopulated | null>(null);
 	let targetItemId = $state<string | undefined>(undefined);
 	let targetItemName = $state<string | undefined>(undefined);
-	let currentLogin = $state<LoginState | undefined>();
 
 	$effect(() => {
 		if (browser && item) {
@@ -364,9 +362,7 @@
 		}} />
 </Dialog>
 
-
-
-{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
+{#if permissionsAllowEdit(2)}
 	<button
 		class="add-button text-icon font-bold shadow"
 		onclick={() => createDialog?.showModal()}>

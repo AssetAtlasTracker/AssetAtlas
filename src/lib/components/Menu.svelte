@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { browser } from "$app/environment";
 	import OAuth from "$lib/components/OAuth.svelte";
-	import { login } from "$lib/stores/loginStore.js";
+	import { currentPermissionLevel } from "$lib/stores/loginStore.js";
 	import "$lib/styles/main.css";
 
 	let {
@@ -35,7 +35,7 @@
 		}
 	});
 
-	const permissionLevel = $derived($login?.permissionLevel ?? 0);
+	const permissionLevel = $derived(currentPermissionLevel());
 </script>
 
 {#if open}
