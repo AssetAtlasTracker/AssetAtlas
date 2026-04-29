@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
+	import { getItemNameGivenId } from "$lib/stores/createItemStore.svelte";
 	import { currentPermissionLevelIsAtLeast, permissionsAllowEdit } from "$lib/stores/loginStore.js";
 	import {
 		FolderTreeIcon,
@@ -142,24 +143,6 @@
 			} catch (error) {
 				console.error("Error reloading image:", error);
 			}
-		}
-	}
-
-	async function checkIfItemExistsById(itemId: string) {
-		if(itemId === "") return false;
-		try {
-			const response = await fetch(
-				`/api/customFields/checkItemId?itemID=${itemId}`,
-				{
-					method: "GET",
-					headers: { "Content-Type": "application/json" },
-				},
-			);
-			const data = await response.json();
-			return data.name;
-		} catch (err) {
-			console.error("Error checking item name:", err);
-			return false;
 		}
 	}
 
@@ -370,7 +353,7 @@
 					{#each item.customFields as customField}
 						<li>
 							{#if customField.field.dataType === "item"}
-								{#await checkIfItemExistsById(String(customField.value)) then itemName}
+								{#await getItemNameGivenId(String(customField.value)) then itemName}
 									{#if itemName}
 										{customField.field.fieldName}:
 										<span class="clickable-text">

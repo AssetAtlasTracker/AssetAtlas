@@ -1,17 +1,14 @@
 import BasicItem from '$lib/server/db/models/basicItem.js';
+import { deleteHelper, getHelper } from '$lib/utility/routesHelper';
 import type { RequestHandler } from '@sveltejs/kit';
 import { error, json } from '@sveltejs/kit';
-import mongoose from 'mongoose';
 
 export const GET: RequestHandler = async ({ params }) => {
-	const { id } = params;
-  
-	if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-		throw error(400, 'Not a valid MongoDB ID');
-	}
+	return await getHelper(params, getItem);
+};
 
-	console.log('Fetching item:', id);
-	const item = await BasicItem.findById(id)
+const getItem = async (id: string) => {
+	return await BasicItem.findById(id)
 		.populate('templates.field')
 		.populate('parentItem')
 		.populate('homeItem')
@@ -19,13 +16,7 @@ export const GET: RequestHandler = async ({ params }) => {
 		.populate('customFields.field')
 		.populate('itemHistory.location')
 		.exec();
-
-	if (!item) {
-		throw error(404, 'Cannot get: Item not found');
-	}
-
-	return json(item, { status: 200 });
-};
+}
 
 export const PATCH: RequestHandler = async ({ params, request }) => {
 	const { id } = params;
@@ -84,17 +75,9 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 };
 
 export const DELETE: RequestHandler = async ({ params }) => {
-	const { id } = params;
-  
-	if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-		throw error(400, 'Not a valid MongoDB ID');
-	}
-
-	const item = await BasicItem.findOneAndDelete({ _id: id });
-  
-	if (!item) {
-		throw error(404, 'Cannot delete: Item not found');
-	}
-
-	return json({ message: 'Item deleted successfully', item }, { status: 200 });
+	return await deleteHelper(params, deleteItem);
 };
+
+const deleteItem = async (id: string) => {
+	return await BasicItem.findOneAndDelete({ _id: id });
+}
