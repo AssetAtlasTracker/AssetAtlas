@@ -20,7 +20,7 @@
 .top-bar-wrapper {
   width: 100%;
   position: relative;
-  /*Top bar on top bruh. Don't generate more than 9998 windows */
+  /*Top bar on top. Don't generate more than 9998 windows */
   z-index: 9999;
 }
 
@@ -81,7 +81,7 @@
   position: fixed;
   /* On top of topbar (to avoid topbar dropshadow)*/
   z-index: 10000;
-  /* were using the CSS variable with a harcoded fallback for height*/
+  /* were using the CSS variable with a hardcoded fallback for height*/
   top: var(--top-bar-height, 64px);
   left: -100%;
   height: calc(100% - var(--top-bar-height, 64px));
@@ -341,7 +341,7 @@
   gap: 1rem;
   /* Remove the top padding since we're using page-with-topbar */
   padding: 0 3vw;
-  /* Keeps height consistant when swapping view styles*/
+  /* Keeps height consistent when swapping view styles*/
   height: 3rem;
 }
 
@@ -533,7 +533,7 @@
 
 /* 
 Small component styles 
-e.g. buttons, lists, textareas, etc.
+e.g. buttons, lists, text areas, etc.
 */
 
 #resize-none-textarea {
@@ -819,7 +819,7 @@ select option:hover {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  /* hope we dont make 10001 of something */
+  /* hope we don't make 10001 of something */
   z-index: 10000;
   width: auto;
   max-width: 400px;

@@ -110,7 +110,7 @@
 	function handleOpenItem(event: CustomEvent) {
 		const { id } = event.detail;
 
-		//Dont open a new window if the item is already the main item
+		//Don't open a new window if the item is already the main item
 		if (id === data.item?._id) {
 			return;
 		}

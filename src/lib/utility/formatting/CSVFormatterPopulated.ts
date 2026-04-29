@@ -34,22 +34,22 @@ export class CSVFormatterPopulated {
 	}
 
 	formatTemplate(template: ITemplatePopulated) {
-		let firstline = "";
-		let secondline = "";
-		firstline += template.name + ",";
-		secondline += ",";
+		let firstLine = "";
+		let secondLine = "";
+		firstLine += template.name + ",";
+		secondLine += ",";
 		for (let i = 0; i < template.fields.length; i++) {
 			const customField = template.fields[i];
-			firstline += customField.fieldName;
-			secondline += customField.dataType;
+			firstLine += customField.fieldName;
+			secondLine += customField.dataType;
 			if (i != template.fields.length - 1) {
-				firstline += ",";
-				secondline += ","
+				firstLine += ",";
+				secondLine += ","
 			}
 		}
-		firstline += "\n";
-		secondline += "\n";
-		return firstline + secondline;
+		firstLine += "\n";
+		secondLine += "\n";
+		return firstLine + secondLine;
 	}
     
 	formatItems(): string {

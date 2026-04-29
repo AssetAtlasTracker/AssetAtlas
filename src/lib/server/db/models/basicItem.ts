@@ -55,7 +55,7 @@ export interface IBasicItemPopulated {
 }
 
 const BasicItemSchema: Schema = new Schema({
-	//id: { type: Number, unique: true }, //we dont need this because mongodb default _id works
+	//id: { type: Number, unique: true }, //we don't need this because mongodb default _id works
 	name: { type: String, required: true },
 	description: { type: String, required: false },
 	// createdAt: { type: Date, required: true },
@@ -84,7 +84,7 @@ const BasicItemSchema: Schema = new Schema({
 	image: { type: String, required: false },
 }, 
 {   
-	timestamps: true, //this should mean we dont need to state createdAt and updatedAt feilds
+	timestamps: true, //this should mean we don't need to state createdAt and updatedAt fields
 	strict: false,
 }
 );

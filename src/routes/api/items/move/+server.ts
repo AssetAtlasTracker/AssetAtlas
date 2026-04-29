@@ -19,7 +19,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		const newParentItem = await BasicItem.findById(newParent).exec();
 
 		if (!newParentItem) {
-			throw error(404, 'New parent item dockernot found');
+			throw error(404, 'New parent item docker not found');
 		}
 	}
 

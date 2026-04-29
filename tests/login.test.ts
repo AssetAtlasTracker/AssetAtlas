@@ -351,7 +351,7 @@ describe('OAuth API', () => {
 			const mockUser = {
 				id: 123456789,
 				name: 'Test User',
-				login: 'testuser'
+				login: 'testUser'
 			};
 
 			mockValidateAuthorizationCode.mockResolvedValue({
@@ -404,7 +404,7 @@ describe('OAuth API', () => {
 			const mockUser = {
 				id: 987654321,
 				name: 'Existing User',
-				login: 'existinguser'
+				login: 'existingUser'
 			};
 
 			mockValidateAuthorizationCode.mockResolvedValue({
@@ -445,7 +445,7 @@ describe('OAuth API', () => {
 
 	describe('POST /api/authenticator/check', () => {
 		it('should create new authenticator account and return QR code', async () => {
-			const username = 'testuser';
+			const username = 'testUser';
 
 			const event = createMockEvent({
 				method: 'POST',
@@ -482,7 +482,7 @@ describe('OAuth API', () => {
 		});
 
 		it('should see existing authenticator account and only return otpCode', async () => {
-			const username = 'testuser_existing';
+			const username = 'testUser_existing';
 			const existingLogin = new Login({
 				login_id: 'mock-secret-exists',
 				name: username,
@@ -545,7 +545,7 @@ describe('OAuth API', () => {
 
 	describe('GET /api/authenticator/verify', () => {
 		it('should verify valid OTP code', async () => {
-			const username = 'testuser_existing';
+			const username = 'testUser_existing';
 			const code = '123456';
 			
 			const existingLogin = new Login({
@@ -617,7 +617,7 @@ describe('OAuth API', () => {
 		});
 
 		it('should return 404 error for non-existent account', async () => {
-			const username = 'nonexistentuser';
+			const username = 'nonExistentUser';
 			const code = '123';
 
 			const event = createMockEvent({
@@ -635,8 +635,8 @@ describe('OAuth API', () => {
 		});
 
 		it('should return error for invalid OTP code', async () => {
-			const username = 'testuser_existing';
-			const code = 'wrongcode';
+			const username = 'testUser_existing';
+			const code = 'wrongCode';
 			const existingLogin = new Login({
 				login_id: 'mock-secret-exists',
 				name: username,
