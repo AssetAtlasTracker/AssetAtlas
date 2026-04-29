@@ -16,6 +16,8 @@
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import type { LoginState } from "$lib/stores/loginStore.js";
 	import { getEditOnLogin } from "$lib/stores/loginStore.js";
+	import type { ItemWindow } from "$lib/utility/pageHelper.js";
+	import { openItemHelper, removeItemWindow, updateTitleHelper } from "$lib/utility/pageHelper.js";
 	import type { PageData } from "./$types";
 
 	let {
@@ -96,49 +98,24 @@
 
 	function onSearch(_query: string) {}
 
-	//Track additional item windows
-	interface ItemWindow {
-		id: string;
-		name: string;
-		x: number;
-		y: number;
-		detailsRef: { reload: () => Promise<void> } | null;
-	}
-
 	let additionalWindows = $state<ItemWindow[]>([]);
 
 	function handleOpenItem(event: CustomEvent) {
 		const { id } = event.detail;
-
-		//Dont open a new window if the item is already the main item
-		if (id === data.item?._id) {
+		const thisItemIsTheMainItem = id === data.item?._id;
+		if (thisItemIsTheMainItem) {
 			return;
 		}
 
-		//Check if the window for this item already exists
-		const existingWindow = additionalWindows.find((w) => w.id === id);
-		if (existingWindow) {
-			return;
-		}
-
-		const offsetX = 50 + additionalWindows.length * 30;
-		const offsetY = 50 + additionalWindows.length * 30;
-
-		additionalWindows = [
-			...additionalWindows,
-			{ id, name: "Loading...", x: offsetX, y: offsetY, detailsRef: null },
-		];
+		additionalWindows = openItemHelper(additionalWindows, id);
 	}
 
 	function handleUpdateTitle(windowId: string, event: CustomEvent) {
-		const { name } = event.detail;
-		additionalWindows = additionalWindows.map((w) =>
-			w.id === windowId ? { ...w, name } : w,
-		);
+		additionalWindows = updateTitleHelper(additionalWindows, windowId, event);
 	}
 
 	function handleCloseWindow(id: string) {
-		additionalWindows = additionalWindows.filter((w) => w.id !== id);
+		additionalWindows = removeItemWindow(additionalWindows, id);
 	}
 
 	function openInNewTab(itemId: string) {
@@ -179,29 +156,26 @@
 		return true;
 	};
 
-	const showMoveDialog = async (detail: EditDetail) => {
+	async function showDialog(detail: EditDetail, dialog: HTMLDialogElement | undefined) {
 		const hasTarget = await loadItem(detail);
-		if (!hasTarget) return;
-		if (!moveDialog) return;
-		moveDialog.showModal();
+		if (!hasTarget || !dialog){
+			return;
+		}
+
+		dialog.showModal();
+	}
+
+	const showMoveDialog = async (detail: EditDetail) => {
+		showDialog(detail, moveDialog);
 	};
 	const showReturnDialog = async (detail: EditDetail) => {
-		const hasTarget = await loadItem(detail);
-		if (!hasTarget) return;
-		if (!returnDialog) return;
-		returnDialog.showModal();
+		showDialog(detail, returnDialog);
 	};
 	const showEditDialog = async (detail: EditDetail) => {
-		const hasTarget = await loadItem(detail);
-		if (!hasTarget) return;
-		if (!editDialog) return;
-		editDialog?.showModal();
+		showDialog(detail, editDialog);
 	};
 	const showDeleteDialog = async (detail: EditDetail) => {
-		const hasTarget = await loadItem(detail);
-		if (!hasTarget) return;
-		if (!deleteDialog) return;
-		deleteDialog.showModal();
+		showDialog(detail, deleteDialog);
 	};
 </script>
 

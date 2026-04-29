@@ -312,7 +312,7 @@ describe('Template API', () => {
 		const response = await deleteTemplateHandler(deleteEvent);
 		expect(response.status).toBe(200);
 		const responseBody = await response.json();
-		expect(responseBody.message).toBe('Template deleted successfully');
+		expect(responseBody.message).toBe('Delete successful');
 
 		const deletedTemplate = await Template.findById(template._id).exec();
 		expect(deletedTemplate).toBeNull();
