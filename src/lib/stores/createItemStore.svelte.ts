@@ -687,11 +687,11 @@ async function loadRecentItems(type: string) {
 	}
 }
 
-export async function checkIfItemExists(itemName: string) {
+export async function getItemIdGivenName(itemName: string) {
 	if (itemName.trim() === "") return false;
 	try {
 		const response = await fetch(
-			`/api/customFields/checkItemName?itemName=${encodeURIComponent(itemName)}`,
+			`/api/customFields/getItemIdGivenName?itemName=${encodeURIComponent(itemName)}`,
 			{
 				method: "GET",
 				headers: { "Content-Type": "application/json" },
@@ -700,16 +700,16 @@ export async function checkIfItemExists(itemName: string) {
 		const data = await response.json();
 		return data.id;
 	} catch (err) {
-		console.error("Error checking item name:", err);
+		console.error("Failed to get item ID given name:", err);
 		return false;
 	}
 }
 
-export async function checkIfItemExistsById(itemId: string) {
+export async function getItemNameGivenId(itemId: string) {
 	if(itemId === "") return false;
 	try {
 		const response = await fetch(
-			`/api/customFields/checkItemId?itemID=${itemId}`,
+			`/api/customFields/getItemNameGivenId?itemId=${encodeURIComponent(itemId)}`,
 			{
 				method: "GET",
 				headers: { "Content-Type": "application/json" },
@@ -718,7 +718,7 @@ export async function checkIfItemExistsById(itemId: string) {
 		const data = await response.json();
 		return data.name;
 	} catch (err) {
-		console.error("Error checking item name:", err);
+		console.error("Failed to get item name given ID:", err);
 		return false;
 	}
 }

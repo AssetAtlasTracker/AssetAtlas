@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { browser } from "$app/environment";
+	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem";
 	import {
 		addCustomFieldLine,
-		checkIfItemExists,
 		createItemState,
+		getItemIdGivenName,
 		handleCustomFieldFocus,
 		handleFieldItemFocus,
 		handleFieldItemInput,
@@ -14,16 +15,15 @@
 		handleParentItemInput,
 		initializeItemEdit,
 		onCustomFieldNameInput,
-		removeSelectedTemplate,
 		removeCustomField,
+		removeSelectedTemplate,
 		resetAllFields,
-		selectTemplate,
 		selectCustomFieldSuggestion,
 		selectHomeItem,
 		selectParentItem,
+		selectTemplate,
 		setOnItemCreated,
 		submitAndCloseItem
-
 	} from "$lib/stores/createItemStore.svelte";
 	import { Combobox, Switch } from "@skeletonlabs/skeleton-svelte";
 	import { collection } from "@zag-js/combobox";
@@ -33,7 +33,6 @@
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
-	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem";
 
 	let {
 		dialog = $bindable(),
@@ -318,7 +317,7 @@
 						if (field.dataType === 'item') {
 							createItemState.fieldItemSuggestions = [];
 	
-							checkIfItemExists(field.displayValue || '').then((itemId) => {
+							getItemIdGivenName(field.displayValue || '').then((itemId) => {
 								if (itemId) {
 									createItemState.customFields[index].value = itemId;
 									return true;
