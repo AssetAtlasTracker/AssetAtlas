@@ -12,9 +12,7 @@
         "oklch",
         "pycache",
         "pyenv",
-        "Recents",
         "rollup",
-        "skeletonlabs",
         "vite"
     ],
     // flagWords - list of words to be always considered incorrect
