@@ -103,11 +103,9 @@
 	function handleOpenItem(event: CustomEvent) {
 		const { id } = event.detail;
 		const thisItemIsTheMainItem = id === data.item?._id;
-		if (thisItemIsTheMainItem) {
-			return;
+		if (!thisItemIsTheMainItem) {
+			additionalWindows = openItemHelper(additionalWindows, id);
 		}
-
-		additionalWindows = openItemHelper(additionalWindows, id);
 	}
 
 	function handleUpdateTitle(windowId: string, event: CustomEvent) {
