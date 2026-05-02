@@ -23,6 +23,7 @@
 	import "$lib/styles/main.css";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
 	import { onDestroy, onMount } from "svelte";
+	import SingleItemCardWindow from "$lib/components/SingleItemCardWindow.svelte";
 
 	let {
 		searchQuery = "",
@@ -306,18 +307,19 @@
 		</div>
 	</div>
 	
-	{#if lastUpdatedItem}
-		<div class="page-component glass last-edited-item-panel">
-			<span class="important-text" style="margin-left:40px"> Last Edited Item: </span>
-		
-			<SingleItemCard item={lastUpdatedItem!} on:itemCreated={getLastUpdatedItem} />
-		
-		
-		</div>
-	{/if}
+	
 
 	{#if viewMode === "list"}
 		{#if itemCount > 0}
+			{#if lastUpdatedItem}
+				<div class="page-component glass last-edited-item-panel">
+					<span class="important-text" style="margin-left:40px"> Last Edited Item: </span>
+				
+					<SingleItemCard item={lastUpdatedItem!} on:itemCreated={getLastUpdatedItem} />
+				
+				
+				</div>
+			{/if}
 			<ItemContainer
 				items={searchResults}
 				on:itemCreated={() => handleSearch(searchQuery)}
@@ -356,6 +358,16 @@
 			</div>
 		{/if}
 	{:else if showItemTree}
+		{#if lastUpdatedItem}
+			
+			<SingleItemCardWindow
+				item={lastUpdatedItem!}
+				initialX={520}
+				initialY={64}
+				on:itemCreated={getLastUpdatedItem} />
+				
+			
+		{/if}
 		<Window
 			initialX={32}
 			initialY={64}

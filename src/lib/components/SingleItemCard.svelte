@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { createEventDispatcher } from "svelte";
+	import ItemCardOptions from "./ItemCardOptions.svelte";
 
 	let { item = $bindable() } = $props<{
 		item: IBasicItemPopulated;
@@ -29,6 +30,7 @@
 			</div>
 		</div>
 	</a>
+	<ItemCardOptions item={item} on:itemCreated={onCreated} />
 </div>
 
 <style>
