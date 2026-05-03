@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { browser } from "$app/environment";
+	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem";
 	import type { ITemplate } from "$lib/server/db/models/template.js";
 	import {
 		addCustomFieldLine,
-		checkIfItemExists,
 		createItemState,
+		getItemIdGivenName,
 		handleCreateItem,
 		handleCustomFieldFocus,
 		handleFieldItemFocus,
@@ -17,13 +18,13 @@
 		initializeItemEdit,
 		onCustomFieldNameInput,
 		partialResetFields,
-		removeSelectedTemplate,
 		removeCustomField,
+		removeSelectedTemplate,
 		resetAllFields,
-		selectTemplate,
 		selectCustomFieldSuggestion,
 		selectHomeItem,
 		selectParentItem,
+		selectTemplate,
 		setOnItemCreated,
 		submitAndCloseItem,
 	} from "$lib/stores/createItemStore.svelte";
@@ -36,7 +37,6 @@
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
-	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem";
 
 	type TemplateLite = Pick<ITemplate, "_id" | "name">;
 
@@ -111,7 +111,9 @@
 	bind:dialog
 	create={() => {}}
 	isLarge={false}
-	close={resetAllFields}>
+	close={resetAllFields}
+	requireCloseConfirmation={true}
+>
 	{#if originalItem}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
@@ -317,7 +319,7 @@
 				onFieldValueBlur={() => {
 					if (field.dataType === 'item') {
 						createItemState.fieldItemSuggestions = [];
-						checkIfItemExists(field.displayValue || '').then((itemId) => {
+						getItemIdGivenName(field.displayValue || '').then((itemId) => {
 							if (itemId) {
 								createItemState.customFields[index].value = itemId;
 								return true;

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { actionStore } from "$lib/stores/actionStore.js";
+	import { getItemIdGivenName, getItemNameGivenId } from "$lib/stores/createItemStore.svelte";
 	import type { ICustomField, ICustomFieldEntryInstance } from "$lib/types/customField";
 	import { uploadImage } from '$lib/utility/imageUpload.js';
 	import { addToRecents } from "$lib/utility/recentItemHelper";
@@ -535,44 +536,6 @@
 		}
 	});
 
-	async function checkIfItemExists(itemName: string) {
-		if(itemName.trim() === "") return false;
-		try {
-			const response = await fetch(
-				`/api/customFields/checkItemName?itemName=${encodeURIComponent(itemName)}`,
-				{
-					method: "GET",
-					headers: { "Content-Type": "application/json" },
-				},
-			);
-			const data = await response.json();
-			return data.id;
-		} catch (err) {
-			console.error("Error checking item name:", err);
-			return false;
-		}
-			
-	}
-
-	async function checkIfItemExistsById(itemId: string) {
-		if(itemId === "") return false;
-		try {
-			const response = await fetch(
-				`/api/customFields/checkItemId?itemID=${itemId}`,
-				{
-					method: "GET",
-					headers: { "Content-Type": "application/json" },
-				},
-			);
-			const data = await response.json();
-			return data.name;
-		} catch (err) {
-			console.error("Error checking item name:", err);
-			return false;
-		}
-			
-	}
-
 	async function loadItemDisplayNames() {
 		for (let i = 0; i < customFields.length; i++) {
 			const field = customFields[i];
@@ -580,7 +543,7 @@
 
 				const itemId = String(field.value);
 			
-				const itemName = await checkIfItemExistsById(itemId);
+				const itemName = await getItemNameGivenId(itemId);
 				if (itemName) {
 					customFields[i].displayValue = itemName;
 				}
@@ -885,7 +848,7 @@
 								fieldItemSuggestions = [];
 								// Only validate if user actually typed something
 								if (customFields[index].displayValue && customFields[index].displayValue.trim() !== '') {
-									checkIfItemExists(customFields[index].displayValue || '').then((itemId) => {
+									getItemIdGivenName(customFields[index].displayValue || '').then((itemId) => {
 										if (itemId) {
 											customFields[index].value = itemId;
 											return true;
