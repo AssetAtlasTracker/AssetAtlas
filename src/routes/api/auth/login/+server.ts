@@ -1,9 +1,7 @@
-import { json, error } from '@sveltejs/kit';
-import type { RequestHandler } from '@sveltejs/kit';
-import jwt from 'jsonwebtoken';
 import User from '$lib/server/db/models/user.js';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
+import { loginCore } from '$lib/utility/loginHelper';
+import type { RequestHandler } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const { username, password } = await request.json();
@@ -20,20 +18,5 @@ export const POST: RequestHandler = async ({ request }) => {
 		throw error(401, 'Invalid credentials');
 	}
 
-	// Generate JWT token
-	const token = jwt.sign(
-		{ id: user._id, username: user.username, permissionLevel: user.permissionLevel },
-		JWT_SECRET,
-		{ expiresIn: '24h' }
-	);
-
-	return json({
-		message: 'Login successful',
-		token,
-		user: {
-			id: user._id,
-			username: user.username,
-			permissionLevel: user.permissionLevel
-		}
-	}, { status: 200 });
+	return loginCore(user, 'Login successful', 200);
 };

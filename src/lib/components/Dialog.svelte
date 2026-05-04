@@ -17,8 +17,8 @@
 		create?: any;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		children: any;
-		canOverflow: boolean;
-		requireCloseConfirmation: boolean;
+		canOverflow?: boolean;
+		requireCloseConfirmation?: boolean;
 	} = $props();
 
 	let isConfirmationOpen = $state(false);

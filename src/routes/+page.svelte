@@ -13,8 +13,7 @@
 	import Window from "$lib/components/Window.svelte";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { dragDropMode, setDragDropMode } from "$lib/stores/dragDropStore.js";
-	import type { LoginState } from "$lib/stores/loginStore.js";
-	import { getEditOnLogin, login } from "$lib/stores/loginStore.js";
+	import { permissionsAllowEdit } from "$lib/stores/loginStore.js";
 	import { topBarHeight } from "$lib/stores/topBarStore.js";
 	import "$lib/styles/main.css";
 	import type { ItemWindow } from "$lib/utility/pageHelper.js";
@@ -58,11 +57,6 @@
 	let actionItemName = $state<string>("");
 
 	let itemTreeRef = $state<{ reload: () => Promise<void> } | null>(null);
-
-	let currentLogin = $state<LoginState | undefined>();
-	login.subscribe((value) => {
-		currentLogin = value;
-	});
 
 	$effect(() => {
 		if (showMoveDialog) {
@@ -354,7 +348,7 @@
 		{/each}
 	{/if}
 
-	{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
+	{#if permissionsAllowEdit(2)}
 		<button
 			class="add-button text-icon font-bold shadow"
 			onclick={() => {

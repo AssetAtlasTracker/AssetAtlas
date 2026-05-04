@@ -1,4 +1,4 @@
-import { requirePermissionLevel } from '$lib/server/auth.js';
+import { isOAuthPayload, requirePermissionLevel } from '$lib/server/auth.js';
 import User from '$lib/server/db/models/user.js';
 import type { RequestHandler } from '@sveltejs/kit';
 import { error, json } from '@sveltejs/kit';
@@ -28,7 +28,8 @@ export const PUT: RequestHandler = async (event) => {
 	}
 
 	// Don't allow modifying own permissions
-	if (targetUser._id.toString() === currentUser.id) {
+	let currentUserId: string = isOAuthPayload(currentUser) ? currentUser.sub_id : currentUser.id;
+	if (targetUser._id.toString() === currentUserId) {
 		throw error(400, 'Cannot modify your own permission level');
 	}
 

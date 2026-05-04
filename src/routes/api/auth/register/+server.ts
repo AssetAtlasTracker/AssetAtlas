@@ -1,9 +1,7 @@
-import { json, error } from '@sveltejs/kit';
-import type { RequestHandler } from '@sveltejs/kit';
-import jwt from 'jsonwebtoken';
 import User from '$lib/server/db/models/user.js';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
+import { loginCore } from '$lib/utility/loginHelper';
+import type { RequestHandler } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const { username, password } = await request.json();
@@ -22,28 +20,14 @@ export const POST: RequestHandler = async ({ request }) => {
 	const user = new User({
 		username,
 		passwordHash: password,
-		// First user gets level 10, after default is 1
+		// First user gets level 10, afterwards default is 1
 		permissionLevel: isFirstUser ? 10 : 1
 	});
 
 	await user.save();
 
-	// Generate JWT token
-	const token = jwt.sign(
-		{ id: user._id, username: user.username, permissionLevel: user.permissionLevel },
-		JWT_SECRET,
-		{ expiresIn: '24h' }
-	);
+	const userIdentifier = isFirstUser ? 'Admin user' : 'User';
+	const successMessage = userIdentifier + " registered successfully";
 
-	return json({
-		message: isFirstUser ?
-			'Admin user registered successfully' :
-			'User registered successfully',
-		token,
-		user: {
-			id: user._id,
-			username: user.username,
-			permissionLevel: user.permissionLevel
-		}
-	}, { status: 201 });
+	return loginCore(user, successMessage, 201);
 };

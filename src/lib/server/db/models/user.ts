@@ -1,7 +1,7 @@
-import mongoose, { Types } from 'mongoose';
-import type { Document } from 'mongoose';
-const { Schema, model } = mongoose;
 import bcrypt from 'bcryptjs';
+import type { Document } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
+const { Schema, model } = mongoose;
 
 export interface IUser extends Document {
   _id: Types.ObjectId;

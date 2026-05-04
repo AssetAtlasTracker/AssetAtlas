@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getEditOnLogin, login, toggleEditOnLogin } from '$lib/stores/loginStore.js';
+	import { getCanOnlyEditWhenLoggedIn, login, setCanOnlyEditWhenLoggedIn } from '$lib/stores/loginStore.js';
 
 	interface User {
 		id: string;
@@ -125,8 +125,7 @@
 	}
 
 	function toggleUserEditOnLogin() {
-		const current = getEditOnLogin();
-		toggleEditOnLogin(!current);
+		setCanOnlyEditWhenLoggedIn(!getCanOnlyEditWhenLoggedIn());
 	}
 </script>
 
@@ -144,7 +143,7 @@
 				type="checkbox" 
 				id="toggle-slider" 
 				class="sr-only peer"
-				checked={getEditOnLogin()}
+				checked={getCanOnlyEditWhenLoggedIn()}
 				onchange={toggleUserEditOnLogin}
 			>
 			<div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-600 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>

@@ -14,8 +14,7 @@
 	import TopBar from "$lib/components/TopBar.svelte";
 	import Window from "$lib/components/Window.svelte";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import type { LoginState } from "$lib/stores/loginStore.js";
-	import { getEditOnLogin } from "$lib/stores/loginStore.js";
+	import { permissionsAllowEdit } from "$lib/stores/loginStore.js";
 	import type { ItemWindow } from "$lib/utility/pageHelper.js";
 	import { openItemHelper, removeItemWindow, updateTitleHelper } from "$lib/utility/pageHelper.js";
 	import type { PageData } from "./$types";
@@ -40,7 +39,6 @@
 	let itemTree = $state<{ reload: () => Promise<void> } | null>(null);
 	let mainItemDetails = $state<{ reload: () => Promise<void> } | null>(null);
 	let draggingItem = $state<IBasicItemPopulated | null>(null);
-	let currentLogin = $state<LoginState | undefined>();
 	let availableItems = $state<IBasicItemPopulated[]>([]);
 	let additionalWindows = $state<ItemWindow[]>([]);
 
@@ -331,9 +329,7 @@
 		}} />
 </Dialog>
 
-
-
-{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
+{#if permissionsAllowEdit(2)}
 	<button
 		class="add-button text-icon font-bold shadow"
 		onclick={() => createDialog?.showModal()}>
