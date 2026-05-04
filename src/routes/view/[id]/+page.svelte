@@ -40,9 +40,9 @@
 	let itemTree = $state<{ reload: () => Promise<void> } | null>(null);
 	let mainItemDetails = $state<{ reload: () => Promise<void> } | null>(null);
 	let draggingItem = $state<IBasicItemPopulated | null>(null);
-	let targetItemId = $state<string | undefined>(undefined);
-	let targetItemName = $state<string | undefined>(undefined);
 	let currentLogin = $state<LoginState | undefined>();
+	let availableItems = $state<IBasicItemPopulated[]>([]);
+	let additionalWindows = $state<ItemWindow[]>([]);
 
 	$effect(() => {
 		if (browser && item) {
@@ -56,6 +56,14 @@
 
 	function restart() {
 		unique = {};
+	}
+
+	async function refreshWindows() {
+		if (showItemTree) {
+			await itemTree?.reload();
+		}
+		await mainItemDetails?.reload();
+		await refreshAdditionalItemWindows();
 	}
 
 	async function refreshAdditionalItemWindows() {
@@ -78,18 +86,12 @@
 			const data: IBasicItemPopulated = await response.json();
 			item = data;
 			restart();
-			if (showItemTree) {
-				await itemTree?.reload();
-			}
-			await mainItemDetails?.reload();
-			await refreshAdditionalItemWindows();
+			await refreshWindows();
 		} catch (err) {
 			console.error(err);
 			item = null;
 		}
 	}
-
-	let availableItems = $state<IBasicItemPopulated[]>([]);
 
 	function handleDelete() {
 		deleteDialog?.close();
@@ -97,8 +99,6 @@
 	}
 
 	function onSearch(_query: string) {}
-
-	let additionalWindows = $state<ItemWindow[]>([]);
 
 	function handleOpenItem(event: CustomEvent) {
 		const { id } = event.detail;
@@ -219,8 +219,8 @@
 					parentId={item._id.toString()}
 					currentId={item._id.toString()}
 					{draggingItem}
-					{targetItemId}
-					{targetItemName}
+					targetItemId={targetItem?._id.toString()}
+					targetItemName={targetItem?.name}
 					showMoveDialog={false}
 					useWindowView={true}
 					on:openItem={handleOpenItem} />
@@ -298,18 +298,13 @@
 		create={() => {}}
 		close={() => {
 			editDialog?.close();
-			targetItem = null;
 		}}>
 		<EditItem
 			item={targetItem}
-			on:close={() => {
+			on:itemUpdated={() => {
+				refreshWindows();
 				editDialog?.close();
 				targetItem = null;
-			}}
-			on:itemUpdated={() => {
-				if (data.item?._id && targetItem?._id && data.item._id.toString() === targetItem._id.toString()) {
-					fetchItem(data.item._id.toString());
-				}
 			}} />
 	</Dialog>
 {/if}
