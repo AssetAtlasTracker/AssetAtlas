@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs';
 export interface IUser extends Document {
   _id: Types.ObjectId;
   username: string;
-  passwordHash: string; //we dont store actual password
+  passwordHash: string; //we don't store actual password
   permissionLevel: number;
   createdAt: Date;
   updatedAt: Date;
