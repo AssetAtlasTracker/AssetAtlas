@@ -35,10 +35,10 @@ export const POST: RequestHandler = async ({ request }) => {
 		const secret = account.login_id;
 
 		// Create OTP auth URL
-		const otpauth = authenticator.keyuri(username, 'AssetAtlas', secret);
+		const otpAuth = authenticator.keyuri(username, 'AssetAtlas', secret);
 
 		// Generate QR code
-		const qrCodeDataUrl = await qrcode.toDataURL(otpauth);
+		const qrCodeDataUrl = await qrcode.toDataURL(otpAuth);
 
 		if (accountExisted) {
 			return json({

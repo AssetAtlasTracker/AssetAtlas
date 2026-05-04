@@ -2,7 +2,7 @@ import { CSVItemParserPopulated } from "./parsing/CSVItemParserPopulated.js";
 import { CSVTemplateParser } from "./parsing/CSVTemplateParser.js";
 import { FileLoader } from "./file/FileLoader.js";
 import { ParserManager } from "./parsing/ParserManager.js";
-import { CSVFormatterPopulated } from "./formating/CSVFormatterPopulated.js";
+import { CSVFormatterPopulated } from "./formatting/CSVFormatterPopulated.js";
 import { FileExporter } from "./file/FileExporter.js";
 
 

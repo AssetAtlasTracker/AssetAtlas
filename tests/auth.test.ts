@@ -1,7 +1,7 @@
 import { requireAuth, requirePermissionLevel } from '$lib/server/auth.js';
 import User from '$lib/server/db/models/user.js';
 import { POST as loginHandler } from '$routes/api/auth/login/+server.js';
-import { PUT as permissionsHandler } from '$routes/api/auth/permisisons/+server.js';
+import { PUT as permissionsHandler } from '$routes/api/auth/permissions/+server.js';
 import { GET as profileHandler } from '$routes/api/auth/profile/+server.js';
 import { POST as registerHandler } from '$routes/api/auth/register/+server.js';
 import type { RequestEvent } from '@sveltejs/kit';
@@ -102,7 +102,7 @@ describe('Authentication API', () => {
 	it('should register users and assign appropriate permission levels', async () => {
 		// First user should get admin privileges (level 10)
 		const firstUserData = {
-			username: 'adminuser',
+			username: 'adminUser',
 			password: 'password123'
 		};
 
@@ -117,13 +117,13 @@ describe('Authentication API', () => {
 
 		expect(firstResponse.status).toBe(201);
 		expect(firstBody).toHaveProperty('token');
-		expect(firstBody.user).toHaveProperty('username', 'adminuser');
+		expect(firstBody.user).toHaveProperty('username', 'adminUser');
 		expect(firstBody.user).toHaveProperty('permissionLevel', 10);
 		expect(firstBody.message).toBe('Admin user registered successfully');
 
 		// Second user should get regular privileges (level 1)
 		const secondUserData = {
-			username: 'regularuser',
+			username: 'regularUser',
 			password: 'password123'
 		};
 
@@ -138,13 +138,13 @@ describe('Authentication API', () => {
 
 		expect(secondResponse.status).toBe(201);
 		expect(secondBody).toHaveProperty('token');
-		expect(secondBody.user).toHaveProperty('username', 'regularuser');
+		expect(secondBody.user).toHaveProperty('username', 'regularUser');
 		expect(secondBody.user).toHaveProperty('permissionLevel', 1);
 		expect(secondBody.message).toBe('User registered successfully');
 
 		// Verify users in database
-		const adminUser = await User.findOne({ username: 'adminuser' }).select('username permissionLevel');
-		const regularUser = await User.findOne({ username: 'regularuser' }).select('username permissionLevel');
+		const adminUser = await User.findOne({ username: 'adminUser' }).select('username permissionLevel');
+		const regularUser = await User.findOne({ username: 'regularUser' }).select('username permissionLevel');
 
 		expect(adminUser).not.toBeNull();
 		expect(adminUser?.permissionLevel).toBe(10);
@@ -156,7 +156,7 @@ describe('Authentication API', () => {
 	it('should not register a user with duplicate username', async () => {
 		// Register a user first
 		const userData = {
-			username: 'testuser',
+			username: 'testUser',
 			password: 'password123'
 		};
 
@@ -189,7 +189,7 @@ describe('Authentication API', () => {
 	it('should login a user with correct credentials', async () => {
 		// Register a user first
 		const userData = {
-			username: 'loginuser',
+			username: 'loginUser',
 			password: 'password123'
 		};
 
@@ -219,7 +219,7 @@ describe('Authentication API', () => {
 	it('should not login with incorrect credentials', async () => {
 		// Register user first
 		const userData = {
-			username: 'loginuser',
+			username: 'loginUser',
 			password: 'password123'
 		};
 
@@ -233,8 +233,8 @@ describe('Authentication API', () => {
 
 		// Try login with wrong password
 		const loginData = {
-			username: 'loginuser',
-			password: 'wrongpassword'
+			username: 'loginUser',
+			password: 'wrongPassword'
 		};
 
 		const loginEvent = createMockEvent({
@@ -256,7 +256,7 @@ describe('Authentication API', () => {
 	it('should access protected route with valid token from login', async () => {
 		// Register and login to get a token
 		const userData = {
-			username: 'protecteduser',
+			username: 'protectedUser',
 			password: 'password123'
 		};
 
@@ -308,7 +308,7 @@ describe('Authentication API', () => {
 	it('should deny access with invalid token', async () => {
 		const protectedEvent = createMockEvent({
 			method: 'GET',
-			headers: { 'Authorization': 'Bearer invalidtoken' },
+			headers: { 'Authorization': 'Bearer invalidToken' },
 			url: 'http://localhost:3000/api/mock/protected'
 		});
 
@@ -322,7 +322,7 @@ describe('Authentication API', () => {
 	it('should deny access to admin route with insufficient permissions', async () => {
 		// Register admin user (first user) and regular user (second user)
 		const adminUserData = {
-			username: 'adminuser',
+			username: 'adminUser',
 			password: 'password123'
 		};
 
@@ -335,7 +335,7 @@ describe('Authentication API', () => {
 		await registerHandler(adminRegisterEvent);
 
 		const regularUserData = {
-			username: 'regularuser',
+			username: 'regularUser',
 			password: 'password123'
 		};
 
@@ -375,7 +375,7 @@ describe('Authentication API', () => {
 	it('should allow access to admin route with sufficient permissions', async () => {
 		// Register first user (will automatically get admin level 10)
 		const adminUserData = {
-			username: 'adminuser',
+			username: 'adminUser',
 			password: 'password123'
 		};
 
@@ -406,7 +406,7 @@ describe('Authentication API', () => {
 	it('should retrieve user profile with valid token', async () => {
 		// Register a user and use the token for authentication
 		const userData = {
-			username: 'profileuser',
+			username: 'profileUser',
 			password: 'password123'
 		};
 
@@ -431,14 +431,14 @@ describe('Authentication API', () => {
 		const body = await response.json();
 
 		expect(response.status).toBe(200);
-		expect(body).toHaveProperty('username', 'profileuser');
+		expect(body).toHaveProperty('username', 'profileUser');
 		expect(body).not.toHaveProperty('passwordHash');
 	});
 
 	it('should allow admin users to update another user\'s permission level', async () => {
 		// Register admin user
 		const adminUserData = {
-			username: 'adminuser',
+			username: 'adminUser',
 			password: 'password123'
 		};
 
@@ -454,7 +454,7 @@ describe('Authentication API', () => {
 
 		// Register regular user
 		const regularUserData = {
-			username: 'regularuser',
+			username: 'regularUser',
 			password: 'password123'
 		};
 
@@ -502,7 +502,7 @@ describe('Authentication API', () => {
 	it('should not allow a user to modify their own permission level', async () => {
 		// Register admin user
 		const adminUserData = {
-			username: 'adminuser',
+			username: 'adminUser',
 			password: 'password123'
 		};
 

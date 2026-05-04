@@ -1,7 +1,7 @@
 #home-component {
-  width: 100vw;
+  width: 96vw;
   margin: 1rem 2vw;
-  padding: 2rem 2% 1rem 2vw;
+  padding: 2rem 2vw 1rem;
 }
 
 .top-bar {
@@ -20,7 +20,7 @@
 .top-bar-wrapper {
   width: 100%;
   position: relative;
-  /*Top bar on top bruh. Don't generate more than 9998 windows */
+  /*Top bar on top. Don't generate more than 9998 windows */
   z-index: 9999;
 }
 
@@ -81,7 +81,7 @@
   position: fixed;
   /* On top of topbar (to avoid topbar dropshadow)*/
   z-index: 10000;
-  /* were using the CSS variable with a harcoded fallback for height*/
+  /* were using the CSS variable with a hardcoded fallback for height*/
   top: var(--top-bar-height, 64px);
   left: -100%;
   height: calc(100% - var(--top-bar-height, 64px));
@@ -224,6 +224,14 @@
   max-width: 24rem;
 }
 
+.full-width{
+  width: 100%;
+}
+
+.grayed-out{
+  opacity: 0.5;
+}
+
 .tree-item-button {
   background: transparent;
   border: none;
@@ -341,7 +349,7 @@
   gap: 1rem;
   /* Remove the top padding since we're using page-with-topbar */
   padding: 0 3vw;
-  /* Keeps height consistant when swapping view styles*/
+  /* Keeps height consistent when swapping view styles*/
   height: 3rem;
 }
 
@@ -533,7 +541,7 @@
 
 /* 
 Small component styles 
-e.g. buttons, lists, textareas, etc.
+e.g. buttons, lists, text areas, etc.
 */
 
 #resize-none-textarea {
@@ -819,7 +827,7 @@ select option:hover {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  /* hope we dont make 10001 of something */
+  /* hope we don't make 10001 of something */
   z-index: 10000;
   width: auto;
   max-width: 400px;

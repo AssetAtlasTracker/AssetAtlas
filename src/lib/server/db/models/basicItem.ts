@@ -10,6 +10,7 @@ const { model, models } = mongoose;
 export interface IBasicItem extends Document { //we can add more stuff here
   _id: Types.ObjectId;//we need this underscore i think
   name: string;
+  pinned: boolean;
   description: string;
   tags: string[];
   containedItems?: Array<Types.ObjectId>;//for nested items
@@ -33,6 +34,7 @@ export interface IBasicItem extends Document { //we can add more stuff here
 export interface IBasicItemPopulated {
   _id: Types.ObjectId;
   name: string;
+  pinned: boolean;
   description?: string;
   tags: string[];
   containedItems?: Array<IBasicItem>;
@@ -55,8 +57,9 @@ export interface IBasicItemPopulated {
 }
 
 const BasicItemSchema: Schema = new Schema({
-	//id: { type: Number, unique: true }, //we dont need this because mongodb default _id works
+	//id: { type: Number, unique: true }, //we don't need this because mongodb default _id works
 	name: { type: String, required: true },
+	pinned: { type: Boolean, default: false },
 	description: { type: String, required: false },
 	// createdAt: { type: Date, required: true },
 	// updatedAt: { type: Date, required: true }, 
@@ -84,7 +87,7 @@ const BasicItemSchema: Schema = new Schema({
 	image: { type: String, required: false },
 }, 
 {   
-	timestamps: true, //this should mean we dont need to state createdAt and updatedAt feilds
+	timestamps: true, //this should mean we don't need to state createdAt and updatedAt fields
 	strict: false,
 }
 );

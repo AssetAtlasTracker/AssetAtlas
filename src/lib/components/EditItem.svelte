@@ -594,10 +594,6 @@
 				}),
 			);
 			formData.append("customFields", JSON.stringify(formattedFields));
-			//TODO Remove after testing
-			for (const [key, value] of formData.entries()) {
-				console.log(`${key}: ${value}`);
-			}
 
 			// Handle image
 			if (removeExistingImage) {
@@ -616,8 +612,6 @@
 			if (!response.ok)
 				throw new Error(data.message || "Failed to update item");
 
-			// Notify parent and close dialog
-			dispatch("close");
 			actionStore.addMessage("Item updated successfully");
 			dispatch("itemUpdated");
 		} catch (err) {

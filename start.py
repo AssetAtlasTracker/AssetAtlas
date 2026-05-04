@@ -10,8 +10,6 @@ import time
 from typing import List
 from env_writer import set_env_variable
 
-# cspell:ignore padx pady
-
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 IN_NEW_TAB = 2
 
@@ -163,7 +161,7 @@ def run_docker_compose(mode: str):
     try:
         url = ""
         base_compose_file = os.path.join(SCRIPT_DIR, "docker", "docker-compose.yml")
-        tailscalecompose__file = os.path.join(SCRIPT_DIR, "docker", "docker-compose-tailscale.yml")
+        tailscalecompose_file = os.path.join(SCRIPT_DIR, "docker", "docker-compose-tailscale.yml")
 
         if mode == "local":
             url = "http://localhost:3000"
@@ -177,7 +175,7 @@ def run_docker_compose(mode: str):
                 "-f",
                 base_compose_file,
                 "-f",
-                tailscalecompose__file,
+                tailscalecompose_file,
                 "up",
                 "-d",
             ] + (["--build"] if build_var.get() else [])
