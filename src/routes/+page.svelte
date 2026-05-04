@@ -148,8 +148,18 @@
 		additionalItemWindows = removeItemWindow(additionalItemWindows, id);
 	}
 
+	async function refreshAdditionalItemWindows() {
+		await Promise.all(
+			additionalItemWindows.map(
+				(windowItem) => windowItem.detailsRef?.reload() ?? Promise.resolve(),
+			),
+		);
+	}
+
 	async function handleItemUpdated() {
 		await handleSearch(searchQuery);
+		await refreshAdditionalItemWindows();
+		actionEditDialog?.close();
 	}
 
 	const handleShowActionDialog = (
@@ -327,6 +337,7 @@
 				on:close={() => handleCloseWindow(window.id)}
 				on:openNewTab={() => openInNewTab(window.id)}>
 				<ItemDetails
+					bind:this={window.detailsRef}
 					item={null}
 					itemId={window.id}
 					onMove={(detail) =>
