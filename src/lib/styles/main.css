@@ -46,6 +46,18 @@
   border-radius: 10px;
 }
 
+.last-edited-item-panel {
+  width: 50%;
+  max-width: 50%;
+}
+
+@media (max-width: 768px) {
+  .last-edited-item-panel {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
 /* For components inset within other components*/
 .internal-component {
   margin: 1rem 0;
@@ -1143,3 +1155,64 @@ input[type="file"][accept*="image"] {
   background: color-mix(in oklch, var(--color-surface-900) 70%, transparent);
   z-index: 9998;
 }
+
+
+/* for SingleItemCard */
+
+.single-item-card-flex {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.single-item-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		padding: 1rem;
+		border-radius: 0.5rem;
+		background: var(--glass-color, rgba(255, 255, 255, 0.1));
+		text-decoration: none;
+		color: inherit;
+		transition: background-color 0.2s ease;
+		flex: 1;
+	}
+
+	.single-item-card:hover {
+		background: var(--glass-hover-color, rgba(255, 255, 255, 0.15));
+	}
+
+	.single-item-card-subcard {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+	}
+
+	.single-item-card-main-row {
+		justify-content: space-between;
+		gap: 1.5rem;
+	}
+
+	.single-item-card-text-block {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		text-align: left;
+		min-width: 0;
+	}
+
+	.single-item-card-location {
+		margin-left: auto;
+		text-align: right;
+		white-space: nowrap;
+	}
+
+	.single-important-text {
+		font-weight: 600;
+		font-size: 1.1rem;
+	}
+
+	.single-sub-text {
+		font-size: 0.9rem;
+		opacity: 0.7;
+	}

@@ -4,6 +4,7 @@
 	import Dialog from "$lib/components/Dialog.svelte";
 	import EditItem from "$lib/components/EditItem.svelte";
 	import ItemContainer from "$lib/components/ItemContainer.svelte";
+	import SingleItemCard from "$lib/components/SingleItemCard.svelte";
 	import ItemDetails from "$lib/components/ItemDetails.svelte";
 	import ItemTree from "$lib/components/ItemTree.svelte";
 	import Menu from "$lib/components/Menu.svelte";
@@ -20,6 +21,7 @@
 	import { openItemHelper, removeItemWindow, updateTitleHelper } from "$lib/utility/pageHelper.js";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
 	import { onDestroy, onMount } from "svelte";
+	import SingleItemCardWindow from "$lib/components/SingleItemCardWindow.svelte";
 
 	let {
 		searchQuery = "",
@@ -32,6 +34,7 @@
 	}>();
 
 	let searchResults = $state<IBasicItemPopulated[]>([]);
+	let lastUpdatedItem = $state<IBasicItemPopulated | null>(null);
 	let sortOption = $state<string>("alphabetical");
 	let exactSearch = $state<boolean>(false);
 	let viewMode = $state<string>("list");
@@ -97,11 +100,35 @@
 			const data = await response.json();
 			searchResults = data as IBasicItemPopulated[];
 			itemCount = searchResults.length;
+			getLastUpdatedItem();
 			if (showItemTree && itemTreeRef) {
 				await itemTreeRef.reload();
 			}
 		} catch (err) {
 			console.error("Home: Error searching items:", err);
+		}
+	}
+
+	async function getLastUpdatedItem(){
+		try {
+			const response = await fetch(
+				`/api/items/search?` +
+					`name=${encodeURIComponent('')}&` +
+					`sort=${encodeURIComponent('recentlyChanged')}&` +
+					`exact=${'false'}`,
+				{
+					method: "GET",
+					headers: { "Content-Type": "application/json" },
+				},
+			);
+
+			if (!response.ok) throw new Error("Failed to fetch items");
+
+			const data = await response.json();
+			const fullSearchResults = data as IBasicItemPopulated[];
+			lastUpdatedItem = fullSearchResults[0] ?? null;
+		} catch (err) {
+			console.error("Home: Error loading last updated item:", err);
 		}
 	}
 
@@ -186,6 +213,7 @@
 	onMount(() => {
 		document.title = "Home - AssetAtlas";
 		restoreToggleStates();
+		void getLastUpdatedItem();
 		unsubscribe = topBarHeight.subscribe((value) => {
 			currentTopBarHeight = value;
 		});
@@ -259,9 +287,20 @@
 			</Switch>
 		</div>
 	</div>
+	
+	
 
 	{#if viewMode === "list"}
 		{#if itemCount > 0}
+			{#if lastUpdatedItem}
+				<div class="page-component glass last-edited-item-panel">
+					<span class="important-text" style="margin-left:40px"> Last Edited Item: </span>
+				
+					<SingleItemCard item={lastUpdatedItem!} on:itemCreated={getLastUpdatedItem} />
+				
+				
+				</div>
+			{/if}
 			<ItemContainer
 				items={searchResults}
 				on:itemCreated={() => handleSearch(searchQuery)}
@@ -300,6 +339,16 @@
 			</div>
 		{/if}
 	{:else if showItemTree}
+		{#if lastUpdatedItem}
+			
+			<SingleItemCardWindow
+				item={lastUpdatedItem!}
+				initialX={520}
+				initialY={64}
+				on:itemCreated={getLastUpdatedItem} />
+				
+			
+		{/if}
 		<Window
 			initialX={32}
 			initialY={64}
