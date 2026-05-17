@@ -1,0 +1,69 @@
+# AssetAtlas 2025-2026 Project Team Retrospective
+
+## Things that worked well
+
+When starting out, working full-stack and focusing on learning:
+
+- the project itself
+  - folder structure
+  - tests
+  - CI/CD workflows
+  - development process
+    - branches, PRs/reviews
+    - tasks board
+- tools/languages
+  - svelte
+  - typescript
+  - docker
+
+Keeping documentation updated
+
+- writing good documentation forces you to understand what you're writing about well enough to explain it concisely
+- documentation will have to be updated eventually, so you might as well do it when the code/design changes you made are still fresh in your mind
+
+Keeping the codebase clean
+
+- auto-formatting, linting, spellcheck
+- running tests
+- adding tests as features are developed
+- keeping old tests updated
+- refactoring to reduce duplication
+
+Keeping Rob in the loop
+
+- getting feedback during live demos of our progress
+- asking for clarification
+- having him open bug reports as he found problems
+
+## Things we could have done better
+
+Breaking tasks into smaller pieces
+
+- our svelte 4 -> svelte 5 upgrade took longer than it should have and was more painful because it was done as one huge task by one team member
+
+Making releases more frequently
+
+- we rarely pushed releases and as a result we didn't become familiar with the process or how the workflows worked, and we're ending the year with a release system that needs improvement
+
+Reviewing PRs sooner
+
+- so that they don't pile up
+- to avoid nasty merge conflicts caused by older code needing to be merged
+
+## Things we would have done if we had more time
+
+Better CI/CD workflows
+
+- figure out and improve release system
+- block PRs from being merged if the `test` workflow fails or if the PR has not yet been reviewed
+
+Features that we originally had planned at the beginning of the year (our priority shifted from new features to refining what we had)
+
+- QR codes
+- import/export
+
+Working with Rob to do more planning with the task board
+
+- breaking large tasks into sub-tasks
+- refining the 10+ drafts in the 'unrefined' category
+- getting more users and having them submit new bug reports and feature requests
