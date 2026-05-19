@@ -44,6 +44,12 @@ COPY --from=build /usr/src/app/docker/migrations ./migrations
 COPY docker/entrypoint-ghcr.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# Ensure node user can write to app directory
+RUN chown -R node:node /usr/src/app
+
+# Run as non-root user
+USER node
+
 EXPOSE 3000
 
 ENTRYPOINT ["/entrypoint.sh"]

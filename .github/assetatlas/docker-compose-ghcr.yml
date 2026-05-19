@@ -5,8 +5,7 @@ services:
     image: ${DOCKER_IMAGE:-ghcr.io/assetatlastracker/assetatlas:latest}
     pull_policy: always
     volumes:
-      - ./.env:/usr/src/app/docker/.env
-      - tsbuild-cache:/usr/src/app/.tsbuildcache
+      - assetatlas-tsbuild-cache:/usr/src/app/.tsbuildcache
       - assetatlas-image-uploads:/usr/src/app/uploads
     env_file: secrets.env
     environment:
@@ -65,4 +64,3 @@ volumes:
     name: assetatlas-config
   assetatlas-image-uploads:
     name: assetatlas-image-uploads
-
