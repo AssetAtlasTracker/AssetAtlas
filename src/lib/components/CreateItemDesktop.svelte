@@ -33,7 +33,6 @@
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
-	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem";
 	
 	export type ItemRef = {
 		_id: string;
