@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
 import type { Document } from 'mongoose';
+import mongoose from 'mongoose';
 const { Schema, model } = mongoose;
 
 export interface IAuthenticatorAccount extends Document {

@@ -5,8 +5,7 @@
 	import TemplateList from "$lib/components/TemplateList.svelte";
 	import TopBar from "$lib/components/TopBar.svelte";
 	import type { ITemplatePopulated } from "$lib/server/db/models/template.js";
-	import type { LoginState } from "$lib/stores/loginStore.js";
-	import { getEditOnLogin, login } from "$lib/stores/loginStore.js";
+	import { permissionsAllowEdit } from "$lib/stores/loginStore.js";
 	import { onMount } from "svelte";
 
 	import "$lib/styles/main.css";
@@ -14,11 +13,6 @@
 	let templates = $state<ITemplatePopulated[]>([]);
 	let menu = $state<HTMLDialogElement>();
 	let templateDialog = $state<HTMLDialogElement | undefined>();
-
-	let currentLogin = $state<LoginState | undefined>();
-	login.subscribe((value) => {
-		currentLogin = value;
-	});
 
 	async function fetchTemplates() {
 		try {
@@ -72,7 +66,7 @@
 	<Menu bind:menu />
 	<TemplateList {templates} />
 
-	{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
+	{#if permissionsAllowEdit(2)}
 		<button
 			class="add-button text-icon font-bold shadow"
 			onclick={() => {

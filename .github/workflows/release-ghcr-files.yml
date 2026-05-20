@@ -54,7 +54,7 @@ jobs:
 
             - README.md - Instructions for running the containers
             - ConfiguringOauthProviders.md - Guide for setting up OAuth providers
-            - docker-compose-ghcr.yml - For runing locally
+            - docker-compose-ghcr.yml - For running locally
             - docker-compose-ghcr-tailscale.yml - For running with Tailscale networking
 
             You can download either the individual files or the complete ZIP archive.

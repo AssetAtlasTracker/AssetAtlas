@@ -10,12 +10,16 @@ function sortItems(items: IBasicItemPopulated[], sortOption: string): IBasicItem
 		switch (sortOption) {
 			case 'alphabetical':
 				return a.name.localeCompare(b.name);
+			case 'reverseAlphabetical':
+				return b.name.localeCompare(a.name);
 			case 'firstAdded':
 				return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
 			case 'lastAdded':
 				return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
 			case 'recentlyChanged':
 				return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+			case 'oldestChanged':
+				return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
 			default:
 				return a.name.localeCompare(b.name);
 		}

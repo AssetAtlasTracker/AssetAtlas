@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import { getEditOnLogin, login } from "$lib/stores/loginStore.js";
+	import { getItemNameGivenId } from "$lib/stores/createItemStore.svelte";
+	import { currentPermissionLevelIsAtLeast, permissionsAllowEdit } from "$lib/stores/loginStore.js";
 	import {
 		FolderTreeIcon,
 		HouseIcon,
@@ -145,24 +146,6 @@
 		}
 	}
 
-	async function checkIfItemExistsById(itemId: string) {
-		if(itemId === "") return false;
-		try {
-			const response = await fetch(
-				`/api/customFields/checkItemId?itemID=${itemId}`,
-				{
-					method: "GET",
-					headers: { "Content-Type": "application/json" },
-				},
-			);
-			const data = await response.json();
-			return data.name;
-		} catch (err) {
-			console.error("Error checking item name:", err);
-			return false;
-		}
-	}
-
 	let showEditDialog = $state(false);
 
 	let isHistoryExpanded = $state(false);
@@ -229,7 +212,7 @@
 	</h1>
 
 	<div class="button-row-flex">
-		{#if !getEditOnLogin() || ($login?.isLoggedIn && $login?.permissionLevel > 0)}
+		{#if permissionsAllowEdit(1)}
 			<button
 				title="Move"
 				class="border-button center-button-icons flex-grow font-semibold shadow"
@@ -244,7 +227,7 @@
 				<HouseIcon class="icon-small" />
 			</button>
 
-			{#if !getEditOnLogin() || ($login?.isLoggedIn && $login?.permissionLevel > 1)}
+			{#if permissionsAllowEdit(2)}
 				<button
 					title="Edit"
 					class="border-button center-button-icons flex-grow font-semibold shadow"
@@ -262,7 +245,7 @@
 				</button>
 			{/if}
 
-			{#if ($login?.permissionLevel ?? 1) > 2}
+			{#if currentPermissionLevelIsAtLeast(3)}
 				<button
 					title="Delete"
 					class="warn-button center-button-icons flex-grow font-semibold shadow"
@@ -370,7 +353,7 @@
 					{#each item.customFields as customField}
 						<li>
 							{#if customField.field.dataType === "item"}
-								{#await checkIfItemExistsById(String(customField.value)) then itemName}
+								{#await getItemNameGivenId(String(customField.value)) then itemName}
 									{#if itemName}
 										{customField.field.fieldName}:
 										<span class="clickable-text">

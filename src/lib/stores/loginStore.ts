@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 
 export interface LoginState {
   isLoggedIn: boolean;
@@ -7,7 +7,6 @@ export interface LoginState {
   permissionLevel: number;
 }
 
-
 const initialState: LoginState = {
 	isLoggedIn: false,
 	name: '',
@@ -15,17 +14,34 @@ const initialState: LoginState = {
 	permissionLevel: 0,
 };
 
-export function toggleEditOnLogin(value?: boolean) {
-	if (value !== undefined && typeof window !== 'undefined') {
-		localStorage.setItem('editOnLogin', String(value));
-	}
-}
+export const login = writable<LoginState>(initialState);
 
-export function getEditOnLogin() {
+export function getCanOnlyEditWhenLoggedIn() {
 	if (typeof window === 'undefined') {
-		return false;
+		throw new Error('Could not get permission canOnlyEditWhenLoggedIn: window is undefined');
 	}
+
 	return localStorage.getItem('editOnLogin') === 'true';
 }
 
-export const login = writable<LoginState>(initialState);
+export function setCanOnlyEditWhenLoggedIn(value: boolean) {
+	if (typeof window === 'undefined') {
+		throw new Error('Could not set permission canOnlyEditWhenLoggedIn: window is undefined');
+	}
+
+	localStorage.setItem('editOnLogin', String(value));
+}
+
+export function permissionsAllowEdit(minimumPermissionLevel: number) {
+	return !getCanOnlyEditWhenLoggedIn() || currentPermissionLevelIsAtLeast(minimumPermissionLevel);
+}
+
+export function currentPermissionLevel() {
+	const currentLogin = get(login);
+	return currentLogin.permissionLevel ?? 0;
+}
+
+export function currentPermissionLevelIsAtLeast(level: number) {
+	const currentLogin = get(login);
+	return currentLogin?.isLoggedIn && currentLogin?.permissionLevel >= level;
+}

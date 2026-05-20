@@ -1,7 +1,7 @@
 import type { IBasicItemPopulated } from '$lib/server/db/models/basicItem.js';
 import { FileExporter } from '$lib/utility/file/FileExporter.js';
 import { FileLoader } from '$lib/utility/file/FileLoader.js';
-import { CSVFormatterPopulated } from '$lib/utility/formating/CSVFormatterPopulated.js';
+import { CSVFormatterPopulated } from '$lib/utility/formatting/CSVFormatterPopulated.js';
 import { CSVItemParserPopulated } from '$lib/utility/parsing/CSVItemParserPopulated.js';
 import { POST as createItemHandler } from '$routes/api/items/+server.js';
 import { GET as searchItemsHandler } from '$routes/api/items/search/+server.js';

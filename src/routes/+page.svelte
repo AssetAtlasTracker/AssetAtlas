@@ -4,6 +4,7 @@
 	import Dialog from "$lib/components/Dialog.svelte";
 	import EditItem from "$lib/components/EditItem.svelte";
 	import ItemContainer from "$lib/components/ItemContainer.svelte";
+	import SingleItemCard from "$lib/components/SingleItemCard.svelte";
 	import ItemDetails from "$lib/components/ItemDetails.svelte";
 	import ItemTree from "$lib/components/ItemTree.svelte";
 	import Menu from "$lib/components/Menu.svelte";
@@ -12,16 +13,15 @@
 	import TopBar from "$lib/components/TopBar.svelte";
 	import Window from "$lib/components/Window.svelte";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import {
-		dragDropMode,
-		setDragDropMode,
-	} from "$lib/stores/dragDropStore.js";
-	import type { LoginState } from "$lib/stores/loginStore.js";
-	import { getEditOnLogin, login } from "$lib/stores/loginStore.js";
+	import { dragDropMode, setDragDropMode } from "$lib/stores/dragDropStore.js";
+	import { permissionsAllowEdit } from "$lib/stores/loginStore.js";
 	import { topBarHeight } from "$lib/stores/topBarStore.js";
 	import "$lib/styles/main.css";
+	import type { ItemWindow } from "$lib/utility/pageHelper.js";
+	import { openItemHelper, removeItemWindow, updateTitleHelper } from "$lib/utility/pageHelper.js";
 	import { Switch } from "@skeletonlabs/skeleton-svelte";
 	import { onDestroy, onMount } from "svelte";
+	import SingleItemCardWindow from "$lib/components/SingleItemCardWindow.svelte";
 
 	let {
 		searchQuery = "",
@@ -34,6 +34,7 @@
 	}>();
 
 	let searchResults = $state<IBasicItemPopulated[]>([]);
+	let lastUpdatedItem = $state<IBasicItemPopulated | null>(null);
 	let sortOption = $state<string>("alphabetical");
 	let exactSearch = $state<boolean>(false);
 	let viewMode = $state<string>("list");
@@ -59,11 +60,6 @@
 	let actionItemName = $state<string>("");
 
 	let itemTreeRef = $state<{ reload: () => Promise<void> } | null>(null);
-
-	let currentLogin = $state<LoginState | undefined>();
-	login.subscribe((value) => {
-		currentLogin = value;
-	});
 
 	$effect(() => {
 		if (showMoveDialog) {
@@ -104,11 +100,35 @@
 			const data = await response.json();
 			searchResults = data as IBasicItemPopulated[];
 			itemCount = searchResults.length;
+			getLastUpdatedItem();
 			if (showItemTree && itemTreeRef) {
 				await itemTreeRef.reload();
 			}
 		} catch (err) {
 			console.error("Home: Error searching items:", err);
+		}
+	}
+
+	async function getLastUpdatedItem(){
+		try {
+			const response = await fetch(
+				`/api/items/search?` +
+					`name=${encodeURIComponent('')}&` +
+					`sort=${encodeURIComponent('recentlyChanged')}&` +
+					`exact=${'false'}`,
+				{
+					method: "GET",
+					headers: { "Content-Type": "application/json" },
+				},
+			);
+
+			if (!response.ok) throw new Error("Failed to fetch items");
+
+			const data = await response.json();
+			const fullSearchResults = data as IBasicItemPopulated[];
+			lastUpdatedItem = fullSearchResults[0] ?? null;
+		} catch (err) {
+			console.error("Home: Error loading last updated item:", err);
 		}
 	}
 
@@ -134,47 +154,33 @@
 		}
 	}
 
-	interface ItemWindow {
-		id: string;
-		name: string;
-		x: number;
-		y: number;
-	}
-
 	let additionalItemWindows = $state<ItemWindow[]>([]);
 
 	function handleOpenItem(event: CustomEvent) {
 		const { id } = event.detail;
-
-		const existingWindow = additionalItemWindows.find((w) => w.id === id);
-		if (existingWindow) {
-			return;
-		}
-
-		const offsetX = 50 + additionalItemWindows.length * 30;
-		const offsetY = 50 + additionalItemWindows.length * 30;
-
-		additionalItemWindows = [
-			...additionalItemWindows,
-			{ id, name: "Loading...", x: offsetX, y: offsetY },
-		];
+		additionalItemWindows = openItemHelper(additionalItemWindows, id);
 	}
 
 	function handleUpdateTitle(windowId: string, event: CustomEvent) {
-		const { name } = event.detail;
-		additionalItemWindows = additionalItemWindows.map((w) =>
-			w.id === windowId ? { ...w, name } : w,
-		);
+		additionalItemWindows = updateTitleHelper(additionalItemWindows, windowId, event);
 	}
 
 	function handleCloseWindow(id: string) {
-		additionalItemWindows = additionalItemWindows.filter(
-			(w) => w.id !== id,
+		additionalItemWindows = removeItemWindow(additionalItemWindows, id);
+	}
+
+	async function refreshAdditionalItemWindows() {
+		await Promise.all(
+			additionalItemWindows.map(
+				(windowItem) => windowItem.detailsRef?.reload() ?? Promise.resolve(),
+			),
 		);
 	}
 
 	async function handleItemUpdated() {
 		await handleSearch(searchQuery);
+		await refreshAdditionalItemWindows();
+		actionEditDialog?.close();
 	}
 
 	const handleShowActionDialog = (
@@ -207,6 +213,7 @@
 	onMount(() => {
 		document.title = "Home - AssetAtlas";
 		restoreToggleStates();
+		void getLastUpdatedItem();
 		unsubscribe = topBarHeight.subscribe((value) => {
 			currentTopBarHeight = value;
 		});
@@ -245,9 +252,11 @@
 						bind:value={sortOption}
 						onchange={handleSortChange}>
 						<option value="alphabetical">A-Z</option>
-						<option value="lastAdded">Newest</option>
-						<option value="firstAdded">Oldest</option>
-						<option value="recentlyChanged">Recently Changed</option>
+						<option value="reverseAlphabetical">Z-A</option>
+						<option value="lastAdded">Newest Created</option>
+						<option value="firstAdded">Oldest Created</option>
+						<option value="recentlyChanged">Newest Updated</option>
+						<option value="oldestChanged">Oldest Updated</option>
 					</select>
 				</div>
 			{/if}
@@ -278,9 +287,20 @@
 			</Switch>
 		</div>
 	</div>
+	
+	
 
 	{#if viewMode === "list"}
 		{#if itemCount > 0}
+			{#if lastUpdatedItem}
+				<div class="page-component glass last-edited-item-panel">
+					<span class="important-text" style="margin-left:40px"> Last Edited Item: </span>
+				
+					<SingleItemCard item={lastUpdatedItem!} on:itemCreated={getLastUpdatedItem} />
+				
+				
+				</div>
+			{/if}
 			<ItemContainer
 				items={searchResults}
 				on:itemCreated={() => handleSearch(searchQuery)}
@@ -319,6 +339,16 @@
 			</div>
 		{/if}
 	{:else if showItemTree}
+		{#if lastUpdatedItem}
+			
+			<SingleItemCardWindow
+				item={lastUpdatedItem!}
+				initialX={520}
+				initialY={64}
+				on:itemCreated={getLastUpdatedItem} />
+				
+			
+		{/if}
 		<Window
 			initialX={32}
 			initialY={64}
@@ -352,6 +382,7 @@
 				on:close={() => handleCloseWindow(window.id)}
 				on:openNewTab={() => openInNewTab(window.id)}>
 				<ItemDetails
+					bind:this={window.detailsRef}
 					item={null}
 					itemId={window.id}
 					onMove={(detail) =>
@@ -368,7 +399,7 @@
 		{/each}
 	{/if}
 
-	{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
+	{#if permissionsAllowEdit(2)}
 		<button
 			class="add-button text-icon font-bold shadow"
 			onclick={() => {

@@ -10,7 +10,7 @@
 		downloadDataFile,
 		downloadFile,
 	} from "$lib/utility/file/FileDownloader.js";
-	import { CSVFormatterPopulated } from "$lib/utility/formating/CSVFormatterPopulated.js";
+	import { CSVFormatterPopulated } from "$lib/utility/formatting/CSVFormatterPopulated.js";
 	import JSZip from "jszip";
 	import { onMount } from "svelte";
 

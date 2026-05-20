@@ -12,6 +12,13 @@ Object.defineProperty(HTMLElement.prototype, 'animate', {
 	}; },
 });
 
+Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
+	value: function () { return { 
+		finished: Promise.resolve(),
+		cancel: function() {}
+	}; },
+});
+
 if (typeof HTMLDialogElement !== 'undefined') {
 	if (!HTMLDialogElement.prototype.close) {
 		HTMLDialogElement.prototype.close = vi.fn();
@@ -26,6 +33,7 @@ if (typeof HTMLDialogElement !== 'undefined') {
 		showModal = vi.fn();
 	};
 }
+
 
 
 function renderComponent(props = {}) {

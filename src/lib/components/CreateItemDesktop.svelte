@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { browser } from "$app/environment";
+	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem";
 	import {
 		addCustomFieldLine,
-		checkIfItemExists,
 		createItemState,
+		getItemIdGivenName,
 		handleCustomFieldFocus,
 		handleFieldItemFocus,
 		handleFieldItemInput,
@@ -14,16 +15,15 @@
 		handleParentItemInput,
 		initializeItemEdit,
 		onCustomFieldNameInput,
-		removeSelectedTemplate,
 		removeCustomField,
+		removeSelectedTemplate,
 		resetAllFields,
-		selectTemplate,
 		selectCustomFieldSuggestion,
 		selectHomeItem,
 		selectParentItem,
+		selectTemplate,
 		setOnItemCreated,
 		submitAndCloseItem
-
 	} from "$lib/stores/createItemStore.svelte";
 	import { Combobox, Switch } from "@skeletonlabs/skeleton-svelte";
 	import { collection } from "@zag-js/combobox";
@@ -58,6 +58,7 @@
 	let templateSelectionDialog: HTMLDialogElement | undefined = $state();
 	let showCreateTemplateDialog = $state(false);
 	let showTemplateSelectionDialog = $state(false);
+	let formContainer: HTMLElement | undefined = $state();
 	let imageSelector: ImageSelector;
 
 	const dispatch = createEventDispatcher();
@@ -95,7 +96,17 @@
 	}
 </script>
 
-<Dialog canOverflow={false} isLarge={true} bind:dialog create={() => {}} close={resetAllFields}>
+<Dialog 
+	canOverflow={false} 
+	isLarge={true} 
+	bind:dialog 
+	create={() => {}} 
+	close={() => {
+		formContainer?.scrollTo(0,0);
+		resetAllFields();
+	}}
+	requireCloseConfirmation={true}
+>
 	{#if originalItem}
 		<h1 id="underline-header" class="font-bold text-center">
 			Duplicate & Edit Item
@@ -105,10 +116,11 @@
 			Create New Item
 		</h1>
 	{/if}
-	<div class="page-component large-dialog-internal">
+	<div bind:this={formContainer} class="page-component large-dialog-internal">
 		<form onsubmit={
 			(event) => {
 				event.preventDefault();
+				formContainer?.scrollTo(0,0);
 				submitAndCloseItem(dialog, imageSelector);
 			}
 		}>
@@ -320,7 +332,7 @@
 						if (field.dataType === 'item') {
 							createItemState.fieldItemSuggestions = [];
 	
-							checkIfItemExists(field.displayValue || '').then((itemId) => {
+							getItemIdGivenName(field.displayValue || '').then((itemId) => {
 								if (itemId) {
 									createItemState.customFields[index].value = itemId;
 									return true;
@@ -418,7 +430,8 @@
 		create={() => {}}
 		close={() => {
 			showTemplateSelectionDialog = false;
-		}}>
+		}}
+	>
 		<div class="p-4">
 			<h2 class="font-bold text-lg mb-4">Add Template</h2>
 			<div class="flex-column flex-grow relative mb-4">

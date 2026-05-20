@@ -14,8 +14,9 @@
 	import TopBar from "$lib/components/TopBar.svelte";
 	import Window from "$lib/components/Window.svelte";
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import type { LoginState } from "$lib/stores/loginStore.js";
-	import { getEditOnLogin } from "$lib/stores/loginStore.js";
+	import { permissionsAllowEdit } from "$lib/stores/loginStore.js";
+	import type { ItemWindow } from "$lib/utility/pageHelper.js";
+	import { openItemHelper, removeItemWindow, updateTitleHelper } from "$lib/utility/pageHelper.js";
 	import type { PageData } from "./$types";
 
 	let {
@@ -38,9 +39,8 @@
 	let itemTree = $state<{ reload: () => Promise<void> } | null>(null);
 	let mainItemDetails = $state<{ reload: () => Promise<void> } | null>(null);
 	let draggingItem = $state<IBasicItemPopulated | null>(null);
-	let targetItemId = $state<string | undefined>(undefined);
-	let targetItemName = $state<string | undefined>(undefined);
-	let currentLogin = $state<LoginState | undefined>();
+	let availableItems = $state<IBasicItemPopulated[]>([]);
+	let additionalWindows = $state<ItemWindow[]>([]);
 
 	$effect(() => {
 		if (browser && item) {
@@ -54,6 +54,14 @@
 
 	function restart() {
 		unique = {};
+	}
+
+	async function refreshWindows() {
+		if (showItemTree) {
+			await itemTree?.reload();
+		}
+		await mainItemDetails?.reload();
+		await refreshAdditionalItemWindows();
 	}
 
 	async function refreshAdditionalItemWindows() {
@@ -76,18 +84,12 @@
 			const data: IBasicItemPopulated = await response.json();
 			item = data;
 			restart();
-			if (showItemTree) {
-				await itemTree?.reload();
-			}
-			await mainItemDetails?.reload();
-			await refreshAdditionalItemWindows();
+			await refreshWindows();
 		} catch (err) {
 			console.error(err);
 			item = null;
 		}
 	}
-
-	let availableItems = $state<IBasicItemPopulated[]>([]);
 
 	function handleDelete() {
 		deleteDialog?.close();
@@ -96,49 +98,20 @@
 
 	function onSearch(_query: string) {}
 
-	//Track additional item windows
-	interface ItemWindow {
-		id: string;
-		name: string;
-		x: number;
-		y: number;
-		detailsRef: { reload: () => Promise<void> } | null;
-	}
-
-	let additionalWindows = $state<ItemWindow[]>([]);
-
 	function handleOpenItem(event: CustomEvent) {
 		const { id } = event.detail;
-
-		//Dont open a new window if the item is already the main item
-		if (id === data.item?._id) {
-			return;
+		const thisItemIsTheMainItem = id === data.item?._id;
+		if (!thisItemIsTheMainItem) {
+			additionalWindows = openItemHelper(additionalWindows, id);
 		}
-
-		//Check if the window for this item already exists
-		const existingWindow = additionalWindows.find((w) => w.id === id);
-		if (existingWindow) {
-			return;
-		}
-
-		const offsetX = 50 + additionalWindows.length * 30;
-		const offsetY = 50 + additionalWindows.length * 30;
-
-		additionalWindows = [
-			...additionalWindows,
-			{ id, name: "Loading...", x: offsetX, y: offsetY, detailsRef: null },
-		];
 	}
 
 	function handleUpdateTitle(windowId: string, event: CustomEvent) {
-		const { name } = event.detail;
-		additionalWindows = additionalWindows.map((w) =>
-			w.id === windowId ? { ...w, name } : w,
-		);
+		additionalWindows = updateTitleHelper(additionalWindows, windowId, event);
 	}
 
 	function handleCloseWindow(id: string) {
-		additionalWindows = additionalWindows.filter((w) => w.id !== id);
+		additionalWindows = removeItemWindow(additionalWindows, id);
 	}
 
 	function openInNewTab(itemId: string) {
@@ -179,29 +152,26 @@
 		return true;
 	};
 
-	const showMoveDialog = async (detail: EditDetail) => {
+	async function showDialog(detail: EditDetail, dialog: HTMLDialogElement | undefined) {
 		const hasTarget = await loadItem(detail);
-		if (!hasTarget) return;
-		if (!moveDialog) return;
-		moveDialog.showModal();
+		if (!hasTarget || !dialog){
+			return;
+		}
+
+		dialog.showModal();
+	}
+
+	const showMoveDialog = async (detail: EditDetail) => {
+		showDialog(detail, moveDialog);
 	};
 	const showReturnDialog = async (detail: EditDetail) => {
-		const hasTarget = await loadItem(detail);
-		if (!hasTarget) return;
-		if (!returnDialog) return;
-		returnDialog.showModal();
+		showDialog(detail, returnDialog);
 	};
 	const showEditDialog = async (detail: EditDetail) => {
-		const hasTarget = await loadItem(detail);
-		if (!hasTarget) return;
-		if (!editDialog) return;
-		editDialog?.showModal();
+		showDialog(detail, editDialog);
 	};
 	const showDeleteDialog = async (detail: EditDetail) => {
-		const hasTarget = await loadItem(detail);
-		if (!hasTarget) return;
-		if (!deleteDialog) return;
-		deleteDialog.showModal();
+		showDialog(detail, deleteDialog);
 	};
 </script>
 
@@ -245,8 +215,8 @@
 					parentId={item._id.toString()}
 					currentId={item._id.toString()}
 					{draggingItem}
-					{targetItemId}
-					{targetItemName}
+					targetItemId={targetItem?._id.toString()}
+					targetItemName={targetItem?.name}
 					showMoveDialog={false}
 					useWindowView={true}
 					on:openItem={handleOpenItem} />
@@ -324,18 +294,13 @@
 		create={() => {}}
 		close={() => {
 			editDialog?.close();
-			targetItem = null;
 		}}>
 		<EditItem
 			item={targetItem}
-			on:close={() => {
+			on:itemUpdated={() => {
+				refreshWindows();
 				editDialog?.close();
 				targetItem = null;
-			}}
-			on:itemUpdated={() => {
-				if (data.item?._id && targetItem?._id && data.item._id.toString() === targetItem._id.toString()) {
-					fetchItem(data.item._id.toString());
-				}
 			}} />
 	</Dialog>
 {/if}
@@ -364,9 +329,7 @@
 		}} />
 </Dialog>
 
-
-
-{#if !getEditOnLogin() || (currentLogin?.isLoggedIn && currentLogin?.permissionLevel > 1)}
+{#if permissionsAllowEdit(2)}
 	<button
 		class="add-button text-icon font-bold shadow"
 		onclick={() => createDialog?.showModal()}>

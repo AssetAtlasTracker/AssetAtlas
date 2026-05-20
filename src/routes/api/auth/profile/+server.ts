@@ -1,4 +1,4 @@
-import { requireAuth } from '$lib/server/auth.js';
+import { isOAuthPayload, requireAuth } from '$lib/server/auth.js';
 import { Login } from '$lib/server/db/models/login.js';
 import User from '$lib/server/db/models/user.js';
 import type { RequestHandler } from '@sveltejs/kit';
@@ -9,7 +9,7 @@ export const GET: RequestHandler = async (event) => {
 	const authUser = requireAuth(event);
 
 	// Check if OAuth (Login model)
-	if ('sub_id' in authUser) {
+	if (isOAuthPayload(authUser)) {
 		const login = await Login.findOne({ login_id: authUser.sub_id });
 		if (!login) {
 			throw error(404, 'User not found');
