@@ -243,7 +243,6 @@
 			? "window-title-" + windowTitle.replace(/\s+/g, "-").toLowerCase()
 			: undefined}
 		onmousedown={() => bringWindowToFront()}>
-		<!-- TODO: Get rid of style= -->
 		<div
 			bind:this={windowBar}
 			class="window-bar"
@@ -256,8 +255,7 @@
 					)}
 			role="button"
 			tabindex="0"
-			aria-label="Drag to move window"
-			style="touch-action: none;">
+			aria-label="Drag to move window">
 			{#if windowTitle}
 				<span
 					class="window-title"

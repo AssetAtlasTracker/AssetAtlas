@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
 	import { actionStore } from "$lib/stores/actionStore.js";
+	import { getItemIdGivenName, getItemNameGivenId } from "$lib/stores/createItemStore.svelte";
 	import type { ICustomField, ICustomFieldEntryInstance } from "$lib/types/customField";
 	import { uploadImage } from '$lib/utility/imageUpload.js';
 	import { addToRecents } from "$lib/utility/recentItemHelper";
@@ -11,7 +12,6 @@
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
-	import type { ITemplate } from "$lib/server/db/models/template";
 
 	let { item } = $props<{
 		item: IBasicItemPopulated;
@@ -35,14 +35,7 @@
 		name: string;
 	};
 
-	let selectedTemplates = $state<ISelectedTemplate[]>(
-		(item.templates ?? [])
-			.map((template: ITemplate) => ({
-				_id: template._id.toString(),
-				name: template.name,
-			}))
-			.filter((template: ITemplate) => !!template._id && !!template.name) as ISelectedTemplate[]
-	);
+	let selectedTemplates = $state<ISelectedTemplate[]>([]);
 
 	function getTemplateFieldIdsFromTemplates(templates: Array<{ field: { fields?: unknown[] } }>) {
 		const fieldIds = new Set<string>();
@@ -54,10 +47,9 @@
 		return fieldIds;
 	}
 
-	const templateFieldIds = getTemplateFieldIdsFromTemplates(item.templates ?? []);
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let homeItemSuggestions: any[] = [];
-	let templateName = "";
+	let homeItemSuggestions = $state<any[]>([]);
+	let templateName = $state("");
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let templateSuggestions = $state<any[]>([]);
 	let selectedImage = $state<File | null>(null);
@@ -81,6 +73,7 @@
 	function buildCustomFields(
 		currentItem: IBasicItemPopulated,
 	): ICustomFieldEntryInstance[] {
+		const templateFieldIds = getTemplateFieldIdsFromTemplates(currentItem.templates ?? []);
 		let fields: ICustomFieldEntryInstance[] = [];
 		if (currentItem.customFields?.length) {
 			//First load non-template fields
@@ -543,44 +536,6 @@
 		}
 	});
 
-	async function checkIfItemExists(itemName: string) {
-		if(itemName.trim() === "") return false;
-		try {
-			const response = await fetch(
-				`/api/customFields/checkItemName?itemName=${encodeURIComponent(itemName)}`,
-				{
-					method: "GET",
-					headers: { "Content-Type": "application/json" },
-				},
-			);
-			const data = await response.json();
-			return data.id;
-		} catch (err) {
-			console.error("Error checking item name:", err);
-			return false;
-		}
-			
-	}
-
-	async function checkIfItemExistsById(itemId: string) {
-		if(itemId === "") return false;
-		try {
-			const response = await fetch(
-				`/api/customFields/checkItemId?itemID=${itemId}`,
-				{
-					method: "GET",
-					headers: { "Content-Type": "application/json" },
-				},
-			);
-			const data = await response.json();
-			return data.name;
-		} catch (err) {
-			console.error("Error checking item name:", err);
-			return false;
-		}
-			
-	}
-
 	async function loadItemDisplayNames() {
 		for (let i = 0; i < customFields.length; i++) {
 			const field = customFields[i];
@@ -588,7 +543,7 @@
 
 				const itemId = String(field.value);
 			
-				const itemName = await checkIfItemExistsById(itemId);
+				const itemName = await getItemNameGivenId(itemId);
 				if (itemName) {
 					customFields[i].displayValue = itemName;
 				}
@@ -639,10 +594,6 @@
 				}),
 			);
 			formData.append("customFields", JSON.stringify(formattedFields));
-			//TODO Remove after testing
-			for (const [key, value] of formData.entries()) {
-				console.log(`${key}: ${value}`);
-			}
 
 			// Handle image
 			if (removeExistingImage) {
@@ -661,8 +612,6 @@
 			if (!response.ok)
 				throw new Error(data.message || "Failed to update item");
 
-			// Notify parent and close dialog
-			dispatch("close");
 			actionStore.addMessage("Item updated successfully");
 			dispatch("itemUpdated");
 		} catch (err) {
@@ -899,7 +848,7 @@
 								fieldItemSuggestions = [];
 								// Only validate if user actually typed something
 								if (customFields[index].displayValue && customFields[index].displayValue.trim() !== '') {
-									checkIfItemExists(customFields[index].displayValue || '').then((itemId) => {
+									getItemIdGivenName(customFields[index].displayValue || '').then((itemId) => {
 										if (itemId) {
 											customFields[index].value = itemId;
 											return true;

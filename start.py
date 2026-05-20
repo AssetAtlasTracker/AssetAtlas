@@ -10,8 +10,6 @@ import time
 from typing import List
 from env_writer import set_env_variable
 
-# cspell:ignore padx pady
-
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 IN_NEW_TAB = 2
 
@@ -22,11 +20,12 @@ processes: List[subprocess.Popen[bytes]] = []
 
 def get_local_app_version() -> str:
     try:
-        return (
-            subprocess.check_output(["git", "describe", "--always", "--dirty"], cwd=SCRIPT_DIR)
-            .decode()
-            .strip()
-        )
+        sha = subprocess.check_output(["git", "describe", "--always", "--dirty"], cwd=SCRIPT_DIR).decode().strip()
+        branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=SCRIPT_DIR).decode().strip()
+        if branch == "HEAD":
+            return sha
+        else:
+            return f"{branch}-{sha}"
     except Exception:
         return "dev"
 
@@ -162,7 +161,7 @@ def run_docker_compose(mode: str):
     try:
         url = ""
         base_compose_file = os.path.join(SCRIPT_DIR, "docker", "docker-compose.yml")
-        tailscalecompose__file = os.path.join(SCRIPT_DIR, "docker", "docker-compose-tailscale.yml")
+        tailscalecompose_file = os.path.join(SCRIPT_DIR, "docker", "docker-compose-tailscale.yml")
 
         if mode == "local":
             url = "http://localhost:3000"
@@ -176,7 +175,7 @@ def run_docker_compose(mode: str):
                 "-f",
                 base_compose_file,
                 "-f",
-                tailscalecompose__file,
+                tailscalecompose_file,
                 "up",
                 "-d",
             ] + (["--build"] if build_var.get() else [])

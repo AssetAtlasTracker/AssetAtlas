@@ -1,8 +1,8 @@
-import { json } from '@sveltejs/kit';
-import type { RequestHandler } from '@sveltejs/kit';
 import { requirePermissionLevel } from '$lib/server/auth.js';
-import User from '$lib/server/db/models/user.js';
 import { Login } from '$lib/server/db/models/login.js';
+import User from '$lib/server/db/models/user.js';
+import type { RequestHandler } from '@sveltejs/kit';
+import { json } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async (event) => {
 	try {

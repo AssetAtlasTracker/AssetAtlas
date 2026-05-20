@@ -4,7 +4,7 @@ import { RecentItems } from '$lib/server/db/models/recentItems.js';
 import Template, { type ITemplatePopulated } from '$lib/server/db/models/template.js';
 import { FileExporter } from "$lib/utility/file/FileExporter.js";
 import { FileLoader } from "$lib/utility/file/FileLoader.js";
-import { CSVFormatterPopulated } from "$lib/utility/formating/CSVFormatterPopulated.js";
+import { CSVFormatterPopulated } from "$lib/utility/formatting/CSVFormatterPopulated.js";
 import { ParserManager } from "$lib/utility/parsing/ParserManager.js";
 import { GET as searchItemsHandler } from '$routes/api/items/search/+server.js';
 import { GET as getTemplatesHandler } from '$routes/api/templates/+server.js';

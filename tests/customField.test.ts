@@ -2,8 +2,8 @@ import type { ICustomField } from '$lib/server/db/models/customField.js';
 import { RecentItems } from '$lib/server/db/models/recentItems.js';
 import { POST as createCustomFieldHandler } from '$routes/api/customFields/+server.js';
 import { GET as getCustomFieldByIdHandler } from '$routes/api/customFields/[id]/+server.js';
-import { GET as checkItemIdHandler } from '$routes/api/customFields/checkItemId/+server.js';
-import { GET as checkItemNameHandler } from '$routes/api/customFields/checkItemName/+server.js';
+import { GET as getItemIdGivenNameHandler } from '$routes/api/customFields/getItemIdGivenName/+server.js';
+import { GET as getItemNameGivenIdHandler } from '$routes/api/customFields/getItemNameGivenId/+server.js';
 import { GET as searchCustomFieldsHandler } from '$routes/api/customFields/search/+server.js';
 import { POST as createItemHandler } from '$routes/api/items/+server.js';
 import type { RequestEvent } from '@sveltejs/kit';
@@ -127,8 +127,6 @@ function createMockItemEvent(options: {
 		isRemoteRequest: false
 	} as RequestEvent;
 }
-
-
 
 beforeAll(async () => {
 	mongoServer = await MongoMemoryServer.create();
@@ -292,7 +290,6 @@ describe('CustomField API', () => {
 	});
 
 	it('should find an item based on name and return its ID', async () => {
-		
 		const itemData = {
 			name: 'Test Item',
 			description: 'A sample item for testing',
@@ -311,13 +308,12 @@ describe('CustomField API', () => {
 		expect(creationResponse.status).toBe(201);
 		const itemId = createdBody._id;
 
-
 		const checkNameEvent = createMockEvent({
 			method: 'GET',
-			url: `http://localhost:3000/api/customFields/checkItemName?itemName=${encodeURIComponent(itemData.name)}`
+			url: `http://localhost:3000/api/customFields/getItemIdGivenName?itemName=${encodeURIComponent(itemData.name)}`
 		});
 
-		const checkNameResponse = await checkItemNameHandler(checkNameEvent);
+		const checkNameResponse = await getItemIdGivenNameHandler(checkNameEvent);
 		const checkNameBody = await checkNameResponse.json();
 		expect(checkNameResponse.status).toBe(200);
 		expect(checkNameBody.id).toBe(itemId);
@@ -344,17 +340,15 @@ describe('CustomField API', () => {
 		expect(creationResponse.status).toBe(201);
 		const itemId = createdBody._id;
 
-
 		const checkNameEvent = createMockEvent({
 			method: 'GET',
-			url: `http://localhost:3000/api/customFields/checkItemId?itemID=${encodeURIComponent(itemId)}`
+			url: `http://localhost:3000/api/customFields/getItemNameGivenId?itemID=${encodeURIComponent(itemId)}`
 		});
 
-		const checkNameResponse = await checkItemIdHandler(checkNameEvent);
+		const checkNameResponse = await getItemNameGivenIdHandler(checkNameEvent);
 		const checkNameBody = await checkNameResponse.json();
 		expect(checkNameResponse.status).toBe(200);
 		expect(checkNameBody.name).toBe(itemData.name);
 
 	});
-
 });

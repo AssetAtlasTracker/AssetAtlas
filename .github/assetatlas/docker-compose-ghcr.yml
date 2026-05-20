@@ -5,8 +5,8 @@ services:
     image: ${DOCKER_IMAGE:-ghcr.io/assetatlastracker/assetatlas:latest}
     pull_policy: always
     volumes:
-      - assetatlas-config:/usr/src/app/config
       - assetatlas-tsbuild-cache:/usr/src/app/.tsbuildcache
+      - assetatlas-image-uploads:/usr/src/app/uploads
     env_file: secrets.env
     environment:
       NODE_ENV: production
@@ -37,6 +37,18 @@ services:
     environment:
       MONGO_URI: mongodb://mongo:27017/assetatlas_db
 
+  tusd:
+    image: tusproject/tusd:latest
+    command:
+      - "-upload-dir=/data"
+      - "-port=1080"
+      - "-verbose"
+    ports:
+      - "1080:1080"
+    volumes:
+      - assetatlas-image-uploads:/data
+    networks:
+      - default
 
 networks:
   assetatlas-network:
@@ -50,3 +62,5 @@ volumes:
     name: assetatlas-tsbuild-cache
   assetatlas-config:
     name: assetatlas-config
+  assetatlas-image-uploads:
+    name: assetatlas-image-uploads

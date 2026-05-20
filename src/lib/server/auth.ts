@@ -1,6 +1,6 @@
-import jwt from 'jsonwebtoken';
 import type { RequestEvent } from '@sveltejs/kit';
 import { error } from '@sveltejs/kit';
+import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 
@@ -19,10 +19,9 @@ interface OAuthJWTPayload {
 
 type JWTPayload = UserJWTPayload | OAuthJWTPayload;
 
-function isOAuthPayload(payload: JWTPayload): payload is OAuthJWTPayload {
+export function isOAuthPayload(payload: JWTPayload): payload is OAuthJWTPayload {
 	return 'sub_id' in payload;
 }
-
 
 export function verifyToken(token: string | undefined): JWTPayload | null {
 	if (!token || token === '') return null;

@@ -29,7 +29,7 @@
 			if (response.ok) {
 				onDelete(itemId);
 				actionStore.addMessage('Item deleted successfully!');
-				//Use the same navigation pattern that ItemContainer uses (IF WE DONT DO THIS THEN POPUP DISAPPEARS)
+				//Use the same navigation pattern that ItemContainer uses (IF WE DON'T DO THIS THEN POPUP DISAPPEARS)
 				window.history.pushState({}, '', '/');
 				window.dispatchEvent(new PopStateEvent('popstate'));
 			} else {

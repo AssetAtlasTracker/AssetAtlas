@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { ITemplatePopulated } from "$lib/server/db/models/template.js";
-	import { getEditOnLogin, login } from "../stores/loginStore.js";
+	import { permissionsAllowEdit } from "$lib/stores/loginStore.js";
 	import DeleteTemplate from "./DeleteTemplate.svelte";
 	import Dialog from "./Dialog.svelte";
 	import EditTemplate from "./EditTemplate.svelte";
@@ -50,7 +50,7 @@
 				</ul>
 			</div>
 
-			{#if !getEditOnLogin() || ($login?.isLoggedIn && $login?.permissionLevel > 2)}
+			{#if permissionsAllowEdit(3)}
 				<DeleteTemplate
 					templateId={template._id.toString()}
 					onDelete={handleDelete}>

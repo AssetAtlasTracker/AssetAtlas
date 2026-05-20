@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { IBasicItemPopulated } from "$lib/server/db/models/basicItem.js";
-	import { getEditOnLogin, login } from "$lib/stores/loginStore.js";
+	import { getItemNameGivenId } from "$lib/stores/createItemStore.svelte";
+	import { currentPermissionLevelIsAtLeast, permissionsAllowEdit } from "$lib/stores/loginStore.js";
 	import {
 		FolderTreeIcon,
 		HouseIcon,
@@ -11,14 +12,6 @@
 	import { createEventDispatcher } from "svelte";
 	import EditItem from "./EditItem.svelte";
 	import ItemLink from "./ItemLink.svelte";
-
-	interface ItemUpdateEvent extends CustomEvent {
-		detail: {
-			imageChanged: boolean;
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			[key: string]: any;
-		};
-	}
 
 	interface ActionDetail {
 		item: IBasicItemPopulated | null;
@@ -50,7 +43,6 @@
 	let loading = $state(false);
 	let lastItemId = $state<string | null>(null);
 	let fetchInFlight = false;
-	let listenerInitialized = $state(false);
 
 	let imageElement = $state<HTMLImageElement | undefined>(undefined);
 	let imageLoadError = $state(false);
@@ -72,7 +64,17 @@
 		}
 	}
 
-	async function loadParentChain() {
+	export async function reload() {
+		const idToLoad = itemId ?? item?._id?.toString() ?? null;
+		if (idToLoad) {
+			await loadItemById(idToLoad);
+		}
+		await loadParentChain();
+		await updateTitle();
+		await reloadImage();
+	}
+
+	export async function loadParentChain() {
 		// Only proceed if we have an item
 		if (!item) return;
 
@@ -144,46 +146,6 @@
 		}
 	}
 
-	async function checkIfItemExistsById(itemId: string) {
-		if(itemId === "") return false;
-		try {
-			const response = await fetch(
-				`/api/customFields/checkItemId?itemID=${itemId}`,
-				{
-					method: "GET",
-					headers: { "Content-Type": "application/json" },
-				},
-			);
-			const data = await response.json();
-			return data.name;
-		} catch (err) {
-			console.error("Error checking item name:", err);
-			return false;
-		}
-	}
-
-	//Handle updates from EditItem
-	function handleItemUpdated(event: ItemUpdateEvent) {
-		if (event.detail.imageChanged) {
-			setTimeout(reloadImage, 500);
-		}
-	}
-
-	$effect(() => {
-		if (listenerInitialized) return;
-		listenerInitialized = true;
-		window.addEventListener(
-			"itemUpdated",
-			handleItemUpdated as EventListener,
-		);
-		return () => {
-			window.removeEventListener(
-				"itemUpdated",
-				handleItemUpdated as EventListener,
-			);
-		};
-	});
-
 	let showEditDialog = $state(false);
 
 	let isHistoryExpanded = $state(false);
@@ -250,7 +212,7 @@
 	</h1>
 
 	<div class="button-row-flex">
-		{#if !getEditOnLogin() || ($login?.isLoggedIn && $login?.permissionLevel > 0)}
+		{#if permissionsAllowEdit(1)}
 			<button
 				title="Move"
 				class="border-button center-button-icons flex-grow font-semibold shadow"
@@ -265,7 +227,7 @@
 				<HouseIcon class="icon-small" />
 			</button>
 
-			{#if !getEditOnLogin() || ($login?.isLoggedIn && $login?.permissionLevel > 1)}
+			{#if permissionsAllowEdit(2)}
 				<button
 					title="Edit"
 					class="border-button center-button-icons flex-grow font-semibold shadow"
@@ -283,7 +245,7 @@
 				</button>
 			{/if}
 
-			{#if ($login?.permissionLevel ?? 1) > 2}
+			{#if currentPermissionLevelIsAtLeast(3)}
 				<button
 					title="Delete"
 					class="warn-button center-button-icons flex-grow font-semibold shadow"
@@ -391,7 +353,7 @@
 					{#each item.customFields as customField}
 						<li>
 							{#if customField.field.dataType === "item"}
-								{#await checkIfItemExistsById(String(customField.value)) then itemName}
+								{#await getItemNameGivenId(String(customField.value)) then itemName}
 									{#if itemName}
 										{customField.field.fieldName}:
 										<span class="clickable-text">
@@ -414,10 +376,7 @@
 
 		{#if item.itemHistory && item.itemHistory.length > 0}
 			<li>
-				<!-- TODO: Get rid of style= -->
-				<div
-					class="tree-container"
-					style="display: flex; align-items: center; gap: 4px;">
+				<div class="tree-container item-details-tree">
 					<strong>History Entries:</strong>
 					<button class="expand-button" onclick={toggleHistory}>
 						{isHistoryExpanded ? "▼" : "▶"}
