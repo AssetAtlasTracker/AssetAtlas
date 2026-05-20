@@ -9,42 +9,47 @@ RUN apk add --no-cache python3 make g++ iputils
 # Set working directory
 WORKDIR /usr/src/app
 
-# Copy package files
-COPY package.json package-lock.json* pnpm-lock.yaml* ./
+# Copy lockfiles first for better cache utilization
+COPY package*.json ./
 
-# Install dependencies
+# Install all dependencies (dev+prod) for build
 RUN npm ci --silent || npm install --silent
 
-# Copy source files
+# Copy source and build
 COPY . .
-
-# Build the app
 RUN npm run build
 
 FROM node:22-alpine AS production
 
-# Install OS dependencies for Alpine
+# Install runtime OS dependencies
 RUN apk add --no-cache python3 make g++ iputils
 
 WORKDIR /usr/src/app
 ENV NODE_ENV=production
 
-# Copy package files
+# Install only production deps
 COPY package.json package-lock.json* pnpm-lock.yaml* ./
 RUN npm ci --omit=dev --silent || npm install --omit=dev --silent
+RUN npm install migrate-mongo --no-audit --no-fund --silent || true
 
-# Copy built output from builder stage (SvelteKit outputs to 'build' not 'dist')
+# Copy built artifacts from build stage
 COPY --from=build /usr/src/app/build ./build
 COPY --from=build /usr/src/app/static ./static
 COPY --from=build /usr/src/app/package.json ./package.json
 COPY --from=build /usr/src/app/docker/migrate-mongo-docker-config.cjs ./
 COPY --from=build /usr/src/app/docker/migrations ./migrations
 
-# Create uploads directory with proper permissions
-RUN mkdir -p /usr/src/app/uploads && chown -R node:node /usr/src/app/uploads
+# Copy entrypoint (keeps existing script name)
+COPY docker/entrypoint-ghcr.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
+# Ensure node user has ownership of the app directory and uploads
+RUN mkdir -p /usr/src/app/uploads && chown -R node:node /usr/src/app
+
+# Run as non-root
 USER node
 
 EXPOSE 3000
 
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["node", "build/index.js"]
