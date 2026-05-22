@@ -2,6 +2,7 @@ FROM node:22-alpine AS build
 
 ARG APP_VERSION=dev
 ENV APP_VERSION=$APP_VERSION
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
 # Install OS dependencies
 RUN apk add --no-cache python3 make g++ iputils
