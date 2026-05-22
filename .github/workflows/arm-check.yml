@@ -5,7 +5,7 @@ on:
 
 jobs:
   check:
-    runs-on: [ubuntu-22.04, arm64]
+    runs-on: ubuntu-22.04-arm64
     steps:
       - name: Print runner and tool info
         run: |
