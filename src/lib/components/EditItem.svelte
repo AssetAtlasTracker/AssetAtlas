@@ -12,6 +12,7 @@
 	import Dialog from "./Dialog.svelte";
 	import ImageSelector from "./ImageSelector.svelte";
 	import InfoToolTip from "./InfoToolTip.svelte";
+	import type { ItemRef } from "./CreateItemDesktop.svelte";
 
 	let { item } = $props<{
 		item: IBasicItemPopulated;
@@ -26,14 +27,14 @@
 	let tags = $state("");
 	let parentItemName = $state("");
 	let parentItemId = $state<string | null>(null);
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let parentItemSuggestions = $state<any[]>([]);
+	let parentItemSuggestions = $state<ItemRef[]>([]);
 	let homeItemName = $state("");
 	let homeItemId = $state<string | null>(null);
 	type ISelectedTemplate = {
 		_id: string;
 		name: string;
 	};
+
 
 	let selectedTemplates = $state<ISelectedTemplate[]>([]);
 
@@ -47,11 +48,9 @@
 		return fieldIds;
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let homeItemSuggestions = $state<any[]>([]);
+	let homeItemSuggestions = $state<ItemRef[]>([]);
 	let templateName = $state("");
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let templateSuggestions = $state<any[]>([]);
+	let templateSuggestions = $state<ISelectedTemplate[]>([]);
 	let selectedImage = $state<File | null>(null);
 	let debounceTimeout: NodeJS.Timeout | undefined;
 	let removeExistingImage = $state(false);
@@ -60,8 +59,7 @@
 	let fieldItemName = $state("");
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	let fieldItemId = $state<string | null>(null);
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let fieldItemSuggestions = $state<any[]>([]);
+	let fieldItemSuggestions = $state<ItemRef[]>([]);
 	let placeholder = $state("Search for item...");
 
 	let customFields = $state<ICustomFieldEntryInstance[]>([]);
@@ -187,7 +185,7 @@
 		}
 	}
 
-	function selectParentItem(item: { name: string; _id: string | null }) {
+	function selectParentItem(item: ItemRef) {
 		parentItemName = item.name;
 		parentItemId = item._id;
 		parentItemSuggestions = [];
@@ -221,7 +219,7 @@
 		}
 	}
 
-	function selectHomeItem(item: { name: string; _id: string | null }) {
+	function selectHomeItem(item: ItemRef) {
 		homeItemName = item.name;
 		homeItemId = item._id;
 		homeItemSuggestions = [];
@@ -256,7 +254,7 @@
 		}
 	}
 
-	function selectTemplate(item: { name: string; _id: string }) {
+	function selectTemplate(item: ISelectedTemplate) {
 		if (!selectedTemplates.some((template) => template._id === item._id)) {
 			selectedTemplates = [
 				...selectedTemplates,
